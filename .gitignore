@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Flask
+instance/
+.webassets-cache
+
+# Data files (keep structure, ignore content)
+data/incoming/*
+data/processed/*
+data/errors/*
+!data/incoming/.gitkeep
+!data/processed/.gitkeep
+!data/errors/.gitkeep
+data/queue.json
+data/processing_progress.json
+
+# Logs
+*.log
+logs/
+data/logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+.vercel
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Service files (Windows)
+*.pid
+
+# Sensitive data
+*.key
+*.pem
+*.cert
+secrets/
+

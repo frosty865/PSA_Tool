@@ -1,0 +1,42 @@
+"""
+PSA Tool - Main Flask Application
+Entry point for the PSA Processing Server
+"""
+
+from flask import Flask
+try:
+    from flask_cors import CORS
+except ImportError:
+    # If flask-cors not installed, create a dummy CORS function
+    def CORS(app):
+        pass
+
+from routes.system import system_bp
+from routes.files import files_bp
+from routes.process import process_bp
+from routes.library import library_bp
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS for Next.js frontend
+
+# Register all blueprints
+app.register_blueprint(system_bp)
+app.register_blueprint(files_bp)
+app.register_blueprint(process_bp)
+app.register_blueprint(library_bp)
+
+if __name__ == "__main__":
+    import os
+    port = int(os.getenv('FLASK_PORT', '8080'))
+    debug = os.getenv('FLASK_ENV', 'production') != 'production'
+    
+    print("=" * 50)
+    print("Starting PSA Tool Flask Server")
+    print("=" * 50)
+    print(f"Port: {port}")
+    print(f"Debug mode: {debug}")
+    print("Note: Ollama and Tunnel are managed by NSSM services")
+    print("=" * 50)
+    
+    app.run(host="0.0.0.0", port=port, debug=debug, threaded=True)
+

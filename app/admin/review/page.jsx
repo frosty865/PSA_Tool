@@ -435,7 +435,7 @@ export default function AdminReviewPage() {
                         fontSize: 'var(--font-size-lg)'
                       }}
                     >
-                      {val as number}
+                      {val}
                     </div>
                   </div>
                 ))}

@@ -258,7 +258,7 @@ export default function ProcessingMonitorPage() {
                         color: 'white'
                       }}
                     >
-                      {val as number}
+                      {val}
                     </div>
                   </div>
                 ))}

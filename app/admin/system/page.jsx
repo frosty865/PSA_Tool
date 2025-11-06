@@ -43,9 +43,9 @@ function SystemStatusPage() {
   }
 
   // Live health check using Next.js API proxy (same as admin dashboard)
-  // Uses debouncing to prevent flickering - requires 2 consecutive failures before marking offline
+  // Since tunnel is constant, never mark offline after initial success - just keep last known good state
   useEffect(() => {
-    let failureCount = 0
+    let hasEverSucceeded = false
     let lastKnownGood = { flask: 'unknown', ollama: 'unknown', supabase: 'unknown' }
     
     async function fetchSystemHealth() {
@@ -59,33 +59,34 @@ function SystemStatusPage() {
             supabase: data.components?.supabase || 'unknown'
           }
           
-          // Reset failure count on success
-          failureCount = 0
+          hasEverSucceeded = true
           lastKnownGood = newHealth
           setSimpleHealth(newHealth)
         } else {
-          throw new Error(`Health check failed: ${res.status}`)
+          // 502/503 are temporary tunnel issues, not actual offline status
+          // Keep last known good state if we've ever succeeded
+          if (hasEverSucceeded) {
+            console.warn(`Health check returned ${res.status}, keeping last known state`)
+            setSimpleHealth(lastKnownGood)
+          } else {
+            // Only mark offline if we've never had a successful check
+            setSimpleHealth({ flask: 'offline', ollama: 'offline', supabase: 'offline' })
+          }
         }
       } catch (err) {
-        failureCount++
-        console.error(`System health check failed (${failureCount} consecutive failures):`, err)
-        
-        // Only mark as offline after 2 consecutive failures to prevent flickering
-        if (failureCount >= 2) {
-          setSimpleHealth({
-            flask: 'offline',
-            ollama: 'offline',
-            supabase: 'offline'
-          })
-        } else {
-          // Keep last known good state on first failure
+        // Network errors are temporary - keep last known good state if we've ever succeeded
+        console.warn('Health check error (temporary), keeping last known state:', err.message)
+        if (hasEverSucceeded) {
           setSimpleHealth(lastKnownGood)
+        } else {
+          // Only mark offline if we've never had a successful check
+          setSimpleHealth({ flask: 'offline', ollama: 'offline', supabase: 'offline' })
         }
       }
     }
 
     fetchSystemHealth()
-    const interval = setInterval(fetchSystemHealth, 15000) // refresh every 15s (reduced frequency)
+    const interval = setInterval(fetchSystemHealth, 20000) // refresh every 20s
     return () => clearInterval(interval)
   }, [])
 

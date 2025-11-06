@@ -46,7 +46,7 @@ export default function AdminOverviewPage() {
 
   useEffect(() => {
     let isMounted = true
-    let failureCount = 0
+    let hasEverSucceeded = false
     let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking' }
     
     const healthCheckWithDebounce = async () => {
@@ -59,34 +59,43 @@ export default function AdminOverviewPage() {
         })
         
         if (!res.ok) {
-          throw new Error(`Health check API returned ${res.status}`)
+          // 502/503 are temporary tunnel issues, not actual offline status
+          if (hasEverSucceeded) {
+            console.warn(`[System Health] Temporary error ${res.status}, keeping last known state`)
+            setSystem(lastKnownGood)
+          } else {
+            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
+          }
+          return
         }
         
         const json = await res.json()
         
         if (json.components) {
-          failureCount = 0
+          hasEverSucceeded = true
           lastKnownGood = json.components
           setSystem(json.components)
         } else {
-          throw new Error('Invalid response format')
+          // Invalid format but keep last known state if we've succeeded before
+          if (hasEverSucceeded) {
+            setSystem(lastKnownGood)
+          } else {
+            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown' })
+          }
         }
       } catch (err) {
-        failureCount++
-        console.error(`[System Health] Fetch failed (${failureCount} consecutive):`, err)
-        
-        // Only mark as offline after 2 consecutive failures
-        if (failureCount >= 2) {
-          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
-        } else {
-          // Keep last known good state
+        // Network errors are temporary - keep last known good state if we've ever succeeded
+        console.warn('[System Health] Temporary network error, keeping last known state:', err.message)
+        if (hasEverSucceeded) {
           setSystem(lastKnownGood)
+        } else {
+          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
         }
       }
     }
     
     healthCheckWithDebounce()
-    const interval = setInterval(healthCheckWithDebounce, 20000) // 20s interval to reduce load
+    const interval = setInterval(healthCheckWithDebounce, 20000) // 20s interval
     return () => { isMounted = false; clearInterval(interval) }
   }, [])
 

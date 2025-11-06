@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { AuthService } from '../../../lib/auth-server';
+import { AuthService } from '@/app/lib/auth-server.js';
 
 export async function GET(request) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = AuthService.getTokenFromRequest(request);
 
     if (!token) {
       return NextResponse.json(

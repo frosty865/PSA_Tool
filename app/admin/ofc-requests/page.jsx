@@ -1,6 +1,6 @@
 'use client'
 
-import OFCRequestsReview from '../../components/OFCRequestsReview';
+import OFCRequestsReview from '@/app/components/components/OFCRequestsReview';
 
 export default function OFCRequestsPage() {
   return <OFCRequestsReview />;

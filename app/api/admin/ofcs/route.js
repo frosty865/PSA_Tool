@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
-import { AuthService } from '../../../lib/auth-server';
+import { AuthService } from '@/app/lib/auth-server.js';
 
 // Get all OFCs (admin only)
 export async function GET(request) {
   try {
     // Verify authentication
-    const token = request.cookies.get('auth-token')?.value;
+    const token = AuthService.getTokenFromRequest(request);
     if (!token) {
       return NextResponse.json(
         { success: false, error: 'Authentication required' },

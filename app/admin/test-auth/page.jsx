@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabaseClient'
-import { fetchWithAuth } from '../../lib/fetchWithAuth'
+import { supabase } from '@/app/lib/supabase-client.js'
+import { fetchWithAuth } from '@/app/lib/fetchWithAuth.js'
 
 export default function TestAuthPage() {
   const [sessionData, setSessionData] = useState(null)

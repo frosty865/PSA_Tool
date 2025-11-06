@@ -31,11 +31,11 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
           if (sessionError) {
             console.error('[RoleGate] Session error:', sessionError.message)
           } else {
-            console.warn('[RoleGate] No session → redirecting to /login')
+            console.warn('[RoleGate] No session → redirecting to /splash')
           }
           if (isMounted) {
             setLoading(false)
-            router.replace('/login')
+            router.replace('/splash')
           }
           return
         }
@@ -74,7 +74,7 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
           console.error('[RoleGate] Profile lookup failed:', profileError?.message || 'Profile not found')
           if (isMounted) {
             setLoading(false)
-            router.replace('/login')
+            router.replace('/splash')
           }
           return
         }
@@ -116,7 +116,7 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
         console.error('[RoleGate] Error:', err)
         if (isMounted) {
           setLoading(false)
-          router.replace('/login')
+          router.replace('/splash')
         }
       }
     }

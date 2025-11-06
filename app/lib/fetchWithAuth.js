@@ -54,7 +54,7 @@ export async function fetchWithAuth(path, options = {}) {
     if (res.status === 401 || res.status === 403) {
       console.warn(`[fetchWithAuth] ${res.status} for ${url}`)
       if (typeof window !== 'undefined') {
-        window.location.href = '/login'
+        window.location.href = '/splash'
       }
     }
 

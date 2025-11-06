@@ -1,6 +1,6 @@
 /**
- * Next.js API proxy route for Flask analytics summary
- * Proxies to Flask backend at /api/analytics/summary
+ * Next.js API proxy route for Flask system dashboard
+ * Proxies to Flask backend at /api/system/health
  */
 
 import { NextResponse } from 'next/server';
@@ -16,7 +16,7 @@ export async function GET(request) {
     
     let response;
     try {
-      response = await fetch(`${FLASK_URL}/api/analytics/summary`, {
+      response = await fetch(`${FLASK_URL}/api/system/health`, {
         cache: 'no-store',
         signal: controller.signal,
         headers: {
@@ -58,12 +58,6 @@ export async function GET(request) {
     const status = response.status;
     
     if (!response.ok) {
-      // If Flask returns 202 (pending), forward it
-      if (status === 202) {
-        const data = await response.json().catch(() => ({ status: 'pending', message: 'Analytics not ready' }));
-        return NextResponse.json(data, { status: 202 });
-      }
-      
       // Try to get error details from Flask
       let errorData = { error: 'Flask server returned an error', status: status };
       try {
@@ -85,11 +79,11 @@ export async function GET(request) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[Analytics Proxy] Error:', error);
-    console.error('[Analytics Proxy] Flask URL:', FLASK_URL);
+    console.error('[System Dashboard Proxy] Error:', error);
+    console.error('[System Dashboard Proxy] Flask URL:', FLASK_URL);
     return NextResponse.json(
       { 
-        error: 'Unable to fetch analytics',
+        error: 'Unable to fetch system status',
         message: error.message,
         flaskUrl: FLASK_URL,
         type: error.name || 'UnknownError'

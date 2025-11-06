@@ -38,7 +38,7 @@ export function getFlaskUrl() {
   // Use tunnel URL in production, localhost in development
   const defaultUrl = isProduction 
     ? 'https://flask.frostech.site' 
-    : 'http://localhost:5000';
+    : 'http://localhost:8080';
   
   // Log for debugging (only in server-side)
   if (typeof console !== 'undefined') {

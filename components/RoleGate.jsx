@@ -22,16 +22,59 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
 
     async function checkRole() {
       try {
-        const {
-          data: { session },
-          error: sessionError
-        } = await supabase.auth.getSession()
+        // First, try to get session from Supabase client (localStorage)
+        let session = null
+        let sessionError = null
+        
+        try {
+          const sessionResult = await supabase.auth.getSession()
+          session = sessionResult.data?.session
+          sessionError = sessionResult.error
+        } catch (err) {
+          sessionError = err
+        }
+
+        // If no session from Supabase client, try to verify via API (cookies are httpOnly)
+        if (!session && typeof window !== 'undefined') {
+          try {
+            console.log('[RoleGate] No session in localStorage, checking via API...')
+            // Try to verify session via API endpoint (which can read httpOnly cookies)
+            const verifyRes = await fetch('/api/auth/verify', {
+              method: 'GET',
+              credentials: 'include',
+              headers: {
+                'Accept': 'application/json'
+              }
+            })
+            
+            if (verifyRes.ok) {
+              const verifyData = await verifyRes.json()
+              if (verifyData.success && verifyData.session?.access_token) {
+                console.log('[RoleGate] Found session via API, setting in client...')
+                // Set the session in Supabase client using the token from API
+                const { data: { session: apiSession }, error: setError } = await supabase.auth.setSession({
+                  access_token: verifyData.session.access_token,
+                  refresh_token: verifyData.session.refresh_token || ''
+                })
+                
+                if (!setError && apiSession) {
+                  session = apiSession
+                  console.log('[RoleGate] Session restored from API')
+                } else if (setError) {
+                  console.warn('[RoleGate] Error setting session from API:', setError.message)
+                }
+              }
+            }
+          } catch (apiError) {
+            console.warn('[RoleGate] Error checking session via API:', apiError)
+          }
+        }
 
         if (sessionError || !session) {
           if (sessionError) {
             console.error('[RoleGate] Session error:', sessionError.message)
           } else {
-            console.warn('[RoleGate] No session → redirecting to /splash')
+            console.warn('[RoleGate] No session found (checked localStorage and cookies) → redirecting to /splash')
           }
           if (isMounted) {
             setLoading(false)

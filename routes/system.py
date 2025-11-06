@@ -153,10 +153,196 @@ def version():
 def progress():
     """Get progress from Ollama automation progress.json file"""
     try:
-        with open(r"C:\Tools\Ollama\automation\progress.json", "r") as f:
+        import os
+        from pathlib import Path
+        
+        # Use same path as auto-processor
+        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        progress_file = base_dir / "automation" / "progress.json"
+        
+        with open(progress_file, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
     except FileNotFoundError:
-        return jsonify({"status": "unknown", "message": "progress.json not found"}), 404
+        return jsonify({
+            "status": "unknown", 
+            "message": "progress.json not found",
+            "timestamp": datetime.now().isoformat(),
+            "incoming": 0,
+            "processed": 0,
+            "library": 0,
+            "errors": 0,
+            "review": 0
+        }), 200  # Return 200 with default values instead of 404
+    except Exception as e:
+        import logging
+        logging.error(f"Error reading progress.json: {e}")
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat(),
+            "incoming": 0,
+            "processed": 0,
+            "library": 0,
+            "errors": 0,
+            "review": 0
+        }), 200
+
+@system_bp.route('/api/system/logstream')
+def log_stream():
+    """Server-Sent Events streaming of live processor log."""
+    from flask import Response
+    import time
+    
+    def stream():
+        import os
+        from pathlib import Path
+        
+        # Use same path as auto-processor
+        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        log_file = base_dir / "automation" / "vofc_auto_processor.log"
+        
+        try:
+            # First, send last 50 lines for context
+            if log_file.exists():
+                with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+                    lines = f.readlines()
+                    # Send last 50 lines
+                    for line in lines[-50:]:
+                        cleaned = line.strip()
+                        if cleaned:
+                            yield f"data: {cleaned}\n\n"
+            
+            # Then stream new lines
+            with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+                # Start at end of file for new lines only
+                f.seek(0, 2)
+                
+                while True:
+                    line = f.readline()
+                    if line:
+                        # Clean and send line
+                        cleaned = line.strip()
+                        if cleaned:
+                            yield f"data: {cleaned}\n\n"
+                    else:
+                        # No new line, wait a bit
+                        time.sleep(1)
+        except FileNotFoundError:
+            yield f"data: [ERROR] Log file not found: {log_file}\n\n"
+            time.sleep(5)
+        except Exception as e:
+            yield f"data: [ERROR] {str(e)}\n\n"
+            time.sleep(5)
+    
+    response = Response(stream(), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["Connection"] = "keep-alive"
+    response.headers["X-Accel-Buffering"] = "no"  # Disable nginx buffering
+    response.headers["Access-Control-Allow-Origin"] = "*"  # Allow CORS for SSE
+    response.headers["Access-Control-Allow-Headers"] = "Cache-Control"
+    return response
+
+@system_bp.route('/api/system/logs')
+def get_logs():
+    """Get recent log lines (for polling fallback)."""
+    try:
+        import os
+        from pathlib import Path
+        
+        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        log_file = base_dir / "automation" / "vofc_auto_processor.log"
+        
+        tail = request.args.get('tail', 50, type=int)
+        
+        if not log_file.exists():
+            return jsonify({"lines": [], "error": "Log file not found"}), 200
+        
+        with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+            lines = f.readlines()
+            recent_lines = [line.strip() for line in lines[-tail:] if line.strip()]
+        
+        return jsonify({"lines": recent_lines}), 200
+    except Exception as e:
+        import logging
+        logging.error(f"Error reading logs: {e}")
+        return jsonify({"lines": [], "error": str(e)}), 200
+
+@system_bp.route("/api/system/control", methods=["POST", "OPTIONS"])
+def system_control():
+    """Control endpoint for auto-processor actions"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    
+    try:
+        data = request.get_json() or {}
+        action = data.get("action", "")
+        msg = "no_action"
+        
+        import os
+        from pathlib import Path
+        import threading
+        import logging
+        
+        BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        ERROR_DIR = BASE_DIR / "errors"
+        AUTOMATION_DIR = BASE_DIR / "automation"
+        
+        if action == "sync_review":
+            try:
+                from ollama_auto_processor import sync_review_to_supabase
+                sync_review_to_supabase()
+                msg = "Review sync triggered"
+            except Exception as e:
+                logging.error(f"Error in sync_review: {e}")
+                msg = f"Sync error: {str(e)}"
+        
+        elif action == "start_watcher":
+            try:
+                from ollama_auto_processor import start_folder_watcher
+                # Start watcher in background thread
+                watcher_thread = threading.Thread(target=start_folder_watcher, daemon=True)
+                watcher_thread.start()
+                msg = "Watcher started"
+            except Exception as e:
+                logging.error(f"Error starting watcher: {e}")
+                msg = f"Start watcher error: {str(e)}"
+        
+        elif action == "stop_watcher":
+            try:
+                # Flag file to halt watcher loop gracefully
+                stop_file = AUTOMATION_DIR / "watcher.stop"
+                stop_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(stop_file, "w") as f:
+                    f.write("1")
+                msg = "Watcher stop signal written"
+            except Exception as e:
+                logging.error(f"Error stopping watcher: {e}")
+                msg = f"Stop watcher error: {str(e)}"
+        
+        elif action == "clear_errors":
+            try:
+                cleared = 0
+                for f in ERROR_DIR.glob("*.*"):
+                    try:
+                        f.unlink(missing_ok=True)
+                        cleared += 1
+                    except Exception:
+                        pass
+                msg = f"Error folder cleared ({cleared} files removed)"
+            except Exception as e:
+                logging.error(f"Error clearing errors: {e}")
+                msg = f"Clear errors error: {str(e)}"
+        
+        else:
+            msg = f"Unknown action: {action}"
+        
+        logging.info(f"[Admin Control] {msg}")
+        return jsonify({"status": "ok", "message": msg}), 200
+        
+    except Exception as e:
+        import logging
+        logging.error(f"Error in system_control: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @system_bp.route("/api/disciplines", methods=["GET", "OPTIONS"])
 def get_disciplines():

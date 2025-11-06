@@ -23,20 +23,35 @@ export async function GET(request) {
     }
 
     // Fallback to cookies only if header not provided (for compatibility)
+    let refreshToken = null;
     if (!accessToken) {
       try {
         const cookieStore = cookies();
-        const allCookies = cookieStore.getAll();
-        for (const cookie of allCookies) {
-          // Check for Supabase auth cookies
-          if (cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token')) {
-            try {
-              const tokenData = JSON.parse(cookie.value);
-              accessToken = tokenData?.access_token || tokenData;
-              break;
-            } catch {
-              accessToken = cookie.value;
-              break;
+        // Check for sb-access-token and sb-refresh-token cookies (set by login route)
+        const accessTokenCookie = cookieStore.get('sb-access-token');
+        const refreshTokenCookie = cookieStore.get('sb-refresh-token');
+        
+        if (accessTokenCookie) {
+          accessToken = accessTokenCookie.value;
+        }
+        if (refreshTokenCookie) {
+          refreshToken = refreshTokenCookie.value;
+        }
+        
+        // Also check for Supabase's default cookie format (fallback)
+        if (!accessToken) {
+          const allCookies = cookieStore.getAll();
+          for (const cookie of allCookies) {
+            // Check for Supabase auth cookies
+            if (cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token')) {
+              try {
+                const tokenData = JSON.parse(cookie.value);
+                accessToken = tokenData?.access_token || tokenData;
+                break;
+              } catch {
+                accessToken = cookie.value;
+                break;
+              }
             }
           }
         }
@@ -128,7 +143,14 @@ export async function GET(request) {
         role: derivedRole,
         name: (profile?.first_name || '') + (profile?.last_name ? ' ' + profile?.last_name : '') || user.user_metadata?.name || user.email,
         is_admin: isUserAdmin
-      }
+      },
+      // Include session tokens so client can hydrate localStorage
+      session: accessToken ? {
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+        expires_at: null, // Could extract from JWT if needed
+        token_type: 'bearer'
+      } : null
     };
     
     console.log('[Auth Verify] Success:', { 
@@ -137,7 +159,8 @@ export async function GET(request) {
       is_admin: isUserAdmin,
       profileRole: profile?.role,
       userMetadataRole: user.user_metadata?.role,
-      userMetadataIsAdmin: user.user_metadata?.is_admin
+      userMetadataIsAdmin: user.user_metadata?.is_admin,
+      hasSession: !!accessToken
     });
     return NextResponse.json(userResponse);
 

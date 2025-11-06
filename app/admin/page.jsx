@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
 import '@/styles/cisa.css'
 import Link from 'next/link'
 
 export default function AdminOverviewPage() {
+  const router = useRouter()
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
   const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking' })
@@ -742,8 +744,7 @@ export default function AdminOverviewPage() {
           gap: 'var(--spacing-md)'
         }}>
           {/* Submission Review - Core Workflow */}
-          <Link 
-            href="/admin/review" 
+          <div
             className="card" 
             style={{ 
               textDecoration: 'none', 
@@ -753,7 +754,8 @@ export default function AdminOverviewPage() {
               position: 'relative',
               overflow: 'hidden',
               display: 'block',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              zIndex: 1
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)'
@@ -765,9 +767,8 @@ export default function AdminOverviewPage() {
               e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
               e.currentTarget.style.borderColor = 'var(--cisa-blue)'
             }}
-            onClick={(e) => {
-              // Ensure navigation happens
-              console.log('[Admin] Navigating to /admin/review')
+            onClick={() => {
+              router.push('/admin/review')
             }}
           >
             <div style={{ 
@@ -779,7 +780,9 @@ export default function AdminOverviewPage() {
               borderRadius: 'var(--border-radius)',
               backgroundColor: 'var(--cisa-blue)',
               color: 'white',
-              fontWeight: 600
+              fontWeight: 600,
+              pointerEvents: 'none',
+              zIndex: 2
             }}>CORE</div>
             <div style={{ 
               fontSize: 'var(--font-size-xxl)', 
@@ -798,7 +801,7 @@ export default function AdminOverviewPage() {
             }}>
               Review user-submitted and document-parsed entries. Approve to move to production tables and feed learning system.
             </div>
-          </Link>
+          </div>
 
           {/* Audit Trail */}
           <Link href="/admin/audit" className="card" style={{ 
@@ -836,6 +839,53 @@ export default function AdminOverviewPage() {
               Track all review actions: approvals, rejections, and edits with full audit history
             </div>
           </Link>
+
+          {/* Processing Monitor */}
+          <div
+            className="card"
+            style={{
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              border: '1px solid var(--cisa-gray-light)',
+              background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.02) 100%)',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'block',
+              cursor: 'pointer',
+              zIndex: 1
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.borderColor = 'var(--cisa-success)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
+            }}
+            onClick={() => {
+              router.push('/admin/processing')
+            }}
+          >
+            <div style={{
+              fontSize: 'var(--font-size-xxl)',
+              marginBottom: 'var(--spacing-sm)'
+            }}>⚙️</div>
+            <div style={{
+              fontWeight: 700,
+              color: 'var(--cisa-success)',
+              marginBottom: 'var(--spacing-xs)',
+              fontSize: 'var(--font-size-lg)'
+            }}>Processing Monitor</div>
+            <div style={{
+              fontSize: 'var(--font-size-sm)',
+              color: 'var(--cisa-gray)',
+              lineHeight: 1.5
+            }}>
+              Real-time monitoring of document processing pipeline, folder watcher, and live logs
+            </div>
+          </div>
 
           {/* Learning Metrics Dashboard */}
           <Link href="/dashboard/learning" className="card" style={{ 

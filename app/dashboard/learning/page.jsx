@@ -10,7 +10,7 @@ export default function LearningDashboard() {
   const [heuristics, setHeuristics] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [lastRefresh, setLastRefresh] = useState(null)
 
   const fetchLearningStats = async () => {
     try {
@@ -52,6 +52,10 @@ export default function LearningDashboard() {
   }
 
   useEffect(() => {
+    // Initialize lastRefresh on client side only
+    if (!lastRefresh) {
+      setLastRefresh(new Date())
+    }
     fetchLearningStats()
     // Auto-refresh every 60 seconds
     const interval = setInterval(fetchLearningStats, 60000)

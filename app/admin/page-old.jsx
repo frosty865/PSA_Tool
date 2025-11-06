@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchVulnerabilities, fetchVOFC } from '../lib/fetchVOFC';
 import { getCurrentUser, getUserProfile, canAccessAdmin } from '../lib/auth';
-import { supabase } from '../lib/supabaseClient';
-import StructuredSubmissionView from '../components/StructuredSubmissionView';
+import { supabase } from '../lib/supabase-client';
+import StructuredSubmissionView from '../components/components/StructuredSubmissionView';
 // import SessionTimeoutWarning from '../../components/SessionTimeoutWarning';
 
 export default function AdminPage() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchWithAuth } from '../lib/fetchWithAuth';
+import { fetchWithAuth } from '../../lib/fetchWithAuth';
 
 export default function LearningMonitor() {
   const [learningStatus, setLearningStatus] = useState(null);

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, canSubmitVOFC } from '../lib/auth';
-import { fetchWithAuth } from '../lib/fetchWithAuth';
+import { getCurrentUser, canSubmitVOFC } from '../../lib/auth';
+import { fetchWithAuth } from '../../lib/fetchWithAuth';
 
 export default function PSASubmission() {
   const [currentUser, setCurrentUser] = useState(null);

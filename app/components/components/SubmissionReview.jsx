@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import SafeHTML from './SafeHTML';
-import { fetchWithAuth } from '../lib/fetchWithAuth';
+import { fetchWithAuth } from '../../lib/fetchWithAuth';
 
 export default function SubmissionReview() {
   const [submissions, setSubmissions] = useState([]);

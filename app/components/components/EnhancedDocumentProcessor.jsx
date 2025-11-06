@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import '@/styles/cisa.css';
-import { getOllamaUrl } from '../lib/ollama-client';
+import { getOllamaUrl } from '../../lib/server-utils';
 
 export default function EnhancedDocumentProcessor() {
   const [documents, setDocuments] = useState([]);

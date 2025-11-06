@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchVulnerabilities, fetchVOFC } from '../lib/fetchVOFC';
 import { getCurrentUser, getUserProfile, canAccessAdmin } from '../lib/auth';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase-client';
 
 export default function AdminPage() {
   const [stats, setStats] = useState({

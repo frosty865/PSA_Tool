@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getOllamaUrl } from '../lib/ollama-client';
+import { getOllamaUrl } from '../../lib/server-utils';
 
 export default function DocumentProcessor() {
   const [documents, setDocuments] = useState([]);

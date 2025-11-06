@@ -12,6 +12,7 @@ from services.processor import process_file, process_document, INCOMING_DIR
 from services.queue_manager import add_job, load_queue
 from services.preprocess import preprocess_document
 from services.ollama_client import run_model_on_chunks
+from services.postprocess import postprocess_results
 from services.supabase_client import save_results
 
 # Setup logging
@@ -210,8 +211,8 @@ def process_upload():
         # Step 4: Run model inference on chunks
         try:
             logger.info(f"Running model inference on {len(chunks)} chunks")
-            results = run_model_on_chunks(chunks)
-            logger.info(f"Model inference complete: {len(results)} results")
+            model_results = run_model_on_chunks(chunks)
+            logger.info(f"Model inference complete: {len(model_results)} results")
         except Exception as e:
             logger.error(f"Model inference failed: {str(e)}")
             return jsonify({
@@ -222,10 +223,33 @@ def process_upload():
                 "service": "PSA Processing Server"
             }), 500
         
-        # Step 5: Save results to Supabase
+        # Step 5: Post-process results (clean, deduplicate, resolve taxonomy)
         try:
-            logger.info(f"Saving {len(results)} results to Supabase")
-            save_stats = save_results(results, source_file=safe_filename)
+            logger.info(f"Post-processing {len(model_results)} model results")
+            final_results = postprocess_results(model_results)
+            logger.info(f"Post-processing complete: {len(final_results)} unique records")
+        except Exception as e:
+            logger.error(f"Post-processing failed: {str(e)}")
+            return jsonify({
+                "success": False,
+                "error": f"Post-processing failed: {str(e)}",
+                "step": "postprocessing",
+                "model_results": len(model_results),
+                "service": "PSA Processing Server"
+            }), 500
+        
+        if not final_results:
+            return jsonify({
+                "success": False,
+                "error": "No valid records after post-processing. Check model output format.",
+                "model_results": len(model_results),
+                "service": "PSA Processing Server"
+            }), 400
+        
+        # Step 6: Save results to Supabase
+        try:
+            logger.info(f"Saving {len(final_results)} post-processed results to Supabase")
+            save_stats = save_results(final_results, source_file=safe_filename)
             logger.info(f"Supabase save complete: {save_stats}")
         except Exception as e:
             logger.error(f"Supabase save failed: {str(e)}")
@@ -233,17 +257,18 @@ def process_upload():
             # Return results anyway but note the error
             save_stats = {
                 "saved": 0,
-                "errors": len(results),
+                "errors": len(final_results),
                 "error": str(e)
             }
         
-        # Step 6: Return success response
+        # Step 7: Return success response
         return jsonify({
             "success": True,
             "message": "File processed successfully",
             "file": safe_filename,
             "chunks": len(chunks),
-            "results": len(results),
+            "model_results": len(model_results),
+            "postprocessed": len(final_results),
             "supabase": save_stats,
             "status": "ok",
             "service": "PSA Processing Server"

@@ -84,12 +84,105 @@ def query_supabase(table, filters=None, limit=None):
     except Exception as e:
         raise Exception(f"Supabase query failed: {str(e)}")
 
-def save_results(results, source_file=None):
+def get_discipline_record(name=None, all=False):
     """
-    Save processing results to Supabase.
+    Get discipline record(s) from Supabase.
     
     Args:
-        results: List of result dictionaries from model processing
+        name: Discipline name to search for (case-insensitive)
+        all: If True, return all active disciplines
+    
+    Returns:
+        Single discipline record dict, list of records, or None
+    """
+    try:
+        client = get_supabase_client()
+        
+        if all:
+            # Get all active disciplines
+            result = client.table("disciplines").select("id, name, category, is_active").eq("is_active", True).execute()
+            return result.data if result.data else []
+        
+        if not name:
+            return None
+        
+        # Search for discipline by name (case-insensitive)
+        result = client.table("disciplines").select("id, name, category, is_active").ilike("name", name).eq("is_active", True).maybe_single().execute()
+        return result.data if result.data else None
+        
+    except Exception as e:
+        logging.error(f"Failed to get discipline record: {str(e)}")
+        return None if not all else []
+
+
+def get_sector_id(name):
+    """
+    Get sector ID by name from Supabase.
+    
+    Args:
+        name: Sector name to search for (case-insensitive)
+    
+    Returns:
+        Sector ID (UUID) or None if not found
+    """
+    if not name:
+        return None
+    
+    try:
+        client = get_supabase_client()
+        
+        # Try sector_name first, then name field
+        result = client.table("sectors").select("id").ilike("sector_name", name).maybe_single().execute()
+        if result.data:
+            return result.data.get('id')
+        
+        # Fallback to name field
+        result = client.table("sectors").select("id").ilike("name", name).maybe_single().execute()
+        if result.data:
+            return result.data.get('id')
+        
+        logging.warning(f"Sector not found: {name}")
+        return None
+        
+    except Exception as e:
+        logging.error(f"Failed to get sector ID: {str(e)}")
+        return None
+
+
+def get_subsector_id(name):
+    """
+    Get subsector ID by name from Supabase.
+    
+    Args:
+        name: Subsector name to search for (case-insensitive)
+    
+    Returns:
+        Subsector ID (UUID) or None if not found
+    """
+    if not name:
+        return None
+    
+    try:
+        client = get_supabase_client()
+        result = client.table("subsectors").select("id").ilike("name", name).maybe_single().execute()
+        
+        if result.data:
+            return result.data.get('id')
+        
+        logging.warning(f"Subsector not found: {name}")
+        return None
+        
+    except Exception as e:
+        logging.error(f"Failed to get subsector ID: {str(e)}")
+        return None
+
+
+def save_results(results, source_file=None):
+    """
+    Save post-processed results to Supabase submissions table.
+    
+    Args:
+        results: List of post-processed result dictionaries with taxonomy IDs
         source_file: Original source filename (optional)
     
     Returns:
@@ -115,32 +208,40 @@ def save_results(results, source_file=None):
                 error_count += 1
                 continue
             
-            # Extract vulnerabilities and OFCs from result
-            vulnerabilities = result.get('vulnerabilities', [])
-            ofcs = result.get('ofcs', [])
+            # Post-processed results have structured format
+            vulnerability = result.get('vulnerability', '')
+            ofcs = result.get('options_for_consideration', [])
             
-            # Create submission record if we have data
-            if vulnerabilities or ofcs:
-                record = {
-                    'data': {
-                        'vulnerabilities': vulnerabilities,
-                        'ofcs': ofcs,
-                        'chunk_id': result.get('chunk_id'),
-                        'source_file': result.get('source_file', source_file),
-                        'page_range': result.get('page_range'),
-                        'processed_at': datetime.now().isoformat(),
-                        'model_response': result
-                    },
-                    'status': 'pending',  # Will be reviewed by admin
-                    'created_at': datetime.now().isoformat()
-                }
-                
-                # Add submitter_email if available from environment
-                submitter_email = os.getenv('SUBMITTER_EMAIL')
-                if submitter_email:
-                    record['submitter_email'] = submitter_email
-                
-                records.append(record)
+            if not vulnerability or not ofcs:
+                error_count += 1
+                continue
+            
+            # Create submission record
+            record = {
+                'data': {
+                    'vulnerability': vulnerability,
+                    'options_for_consideration': ofcs,
+                    'discipline_id': result.get('discipline_id'),
+                    'category': result.get('category'),
+                    'sector_id': result.get('sector_id'),
+                    'subsector_id': result.get('subsector_id'),
+                    'source': result.get('source'),
+                    'page_ref': result.get('page_ref'),
+                    'chunk_id': result.get('chunk_id'),
+                    'source_file': result.get('source_file', source_file),
+                    'processed_at': datetime.now().isoformat(),
+                    'recommendations': result.get('recommendations')
+                },
+                'status': 'pending',  # Will be reviewed by admin
+                'created_at': datetime.now().isoformat()
+            }
+            
+            # Add submitter_email if available from environment
+            submitter_email = os.getenv('SUBMITTER_EMAIL')
+            if submitter_email:
+                record['submitter_email'] = submitter_email
+            
+            records.append(record)
         
         # Batch insert records
         if records:
@@ -148,7 +249,7 @@ def save_results(results, source_file=None):
                 # Insert into submissions table
                 response = client.table('submissions').insert(records).execute()
                 saved_count = len(response.data) if response.data else len(records)
-                logging.info(f"Saved {saved_count} records to Supabase submissions table")
+                logging.info(f"Saved {saved_count} post-processed records to Supabase submissions table")
             except Exception as e:
                 logging.error(f"Failed to insert records to Supabase: {str(e)}")
                 error_count += len(records)

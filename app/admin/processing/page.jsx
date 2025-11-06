@@ -90,8 +90,14 @@ export default function ProcessingMonitorPage() {
         
         const streamUrl = `${flaskUrl}/api/system/logstream`
         
+        console.log('[SSE] Attempting to connect to:', streamUrl)
+        
         evtSource = new EventSource(streamUrl)
         eventSourceRef.current = evtSource
+
+        evtSource.onopen = () => {
+          console.log('[SSE] Connection opened successfully')
+        }
 
         evtSource.onmessage = (e) => {
           if (e.data) {
@@ -104,7 +110,11 @@ export default function ProcessingMonitorPage() {
         }
 
         evtSource.onerror = (err) => {
-          console.warn('SSE connection error, falling back to polling:', err)
+          console.warn('[SSE] Connection error, falling back to polling:', {
+            readyState: evtSource?.readyState,
+            url: streamUrl,
+            error: err
+          })
           // Close SSE and fall back to polling
           if (evtSource) {
             evtSource.close()
@@ -112,7 +122,7 @@ export default function ProcessingMonitorPage() {
           setupPolling()
         }
       } catch (error) {
-        console.warn('SSE not available, using polling:', error)
+        console.warn('[SSE] Setup failed, using polling:', error)
         setupPolling()
       }
     }

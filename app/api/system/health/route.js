@@ -107,6 +107,27 @@ export async function GET(request) {
     }
 
     if (!response.ok) {
+      // 502 Bad Gateway from tunnel is temporary - return 200 with error status instead of 503
+      // This prevents frontend from thinking the service is permanently down
+      if (response.status === 502) {
+        console.warn('[Health Proxy] Tunnel returned 502 - likely temporary tunnel issue');
+        return NextResponse.json(
+          { 
+            status: 'error',
+            components: {
+              flask: 'unknown', // Don't mark as offline for 502
+              ollama: 'unknown',
+              supabase: 'unknown'
+            },
+            error: 'Tunnel temporarily unavailable (502)',
+            statusCode: response.status,
+            flaskUrl: FLASK_URL,
+            hint: 'This is usually a temporary tunnel connectivity issue. The service may still be running.'
+          },
+          { status: 200 } // Return 200 so frontend doesn't treat as permanent failure
+        );
+      }
+      
       return NextResponse.json(
         { 
           status: 'error',

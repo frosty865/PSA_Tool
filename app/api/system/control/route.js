@@ -50,22 +50,59 @@ export async function POST(request) {
         );
       }
 
+      // Handle non-OK responses
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
-          message: `Control action failed with status ${response.status}` 
-        }));
+        let errorMessage = `Control action failed (HTTP ${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          // If JSON parsing fails, try text
+          try {
+            const errorText = await response.text();
+            if (errorText) errorMessage = errorText;
+          } catch {
+            // Use default message
+          }
+        }
+        
+        console.error(`[Control Proxy] Flask returned ${response.status}: ${errorMessage}`);
         return NextResponse.json(
-          { 
-            status: 'error', 
-            message: errorData.message || `Control action failed (HTTP ${response.status})`,
-            action,
-            flaskUrl: FLASK_URL
+          {
+            status: 'error',
+            message: errorMessage,
+            flaskUrl: FLASK_URL,
+            action
           },
           { status: 200 } // Return 200 so frontend can handle gracefully
         );
       }
 
-      const data = await response.json();
+      // Parse successful response
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('[Control Proxy] Failed to parse Flask response:', parseError);
+        return NextResponse.json(
+          {
+            status: 'error',
+            message: 'Invalid response format from Flask server',
+            flaskUrl: FLASK_URL,
+            action
+          },
+          { status: 200 }
+        );
+      }
+
+      // Ensure response has expected format
+      if (!data.status) {
+        data.status = 'ok';
+      }
+      if (!data.message && data.status === 'ok') {
+        data.message = 'Action completed successfully';
+      }
+
       return NextResponse.json(data);
     } catch (fetchError) {
       clearTimeout(timeoutId);

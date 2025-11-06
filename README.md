@@ -125,7 +125,7 @@ The system assumes the following NSSM services are running:
 - [Deployment Guide](docs/DEPLOYMENT-FINAL.md)
 - [Route Reference](docs/ROUTE-REFERENCE.md)
 - [Migration Guide](docs/MIGRATION-SUMMARY.md)
-- [Next Steps](docs/NEXT-STEPS.md)
+- [Quick Start](docs/QUICK-START.md)
 
 ## 🧪 Testing
 

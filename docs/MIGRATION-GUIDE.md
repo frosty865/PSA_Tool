@@ -23,7 +23,6 @@
 - ✅ `requirements.txt` - Python dependencies
 - ✅ `env.example` - Environment variable template
 - ✅ `start.ps1` - PowerShell startup script
-- ✅ `README-STRUCTURE.md` - Structure documentation
 
 ### Next.js API Proxy Routes
 - ✅ `app/api/system/health/route.js` - Proxy to Flask health endpoint

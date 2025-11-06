@@ -62,9 +62,7 @@ All routes return JSON with `"service": "PSA Processing Server"` metadata:
 - No hardcoded service launches
 
 ### 5. Documentation ✅
-- `docs/MIGRATION-COMPLETE.md` - Migration status
 - `docs/QUICK-START.md` - Quick start guide
-- `docs/README-STRUCTURE.md` - Structure documentation
 - `docs/MIGRATION-GUIDE.md` - Migration guide
 - `docs/ROUTE-REFERENCE.md` - Complete route reference
 

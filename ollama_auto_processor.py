@@ -646,6 +646,11 @@ def main():
         # Ensure directories exist
         ensure_dirs()
         
+        # Initialize progress.json if it doesn't exist
+        if not PROGRESS_FILE.exists():
+            logging.info("Initializing progress.json...")
+            update_progress()
+        
         logging.info("=" * 60)
         logging.info("Starting VOFC Auto-Processor with folder watcher...")
         logging.info("=" * 60)

@@ -202,28 +202,37 @@ export default function ProcessingMonitorPage() {
   async function controlAction(action) {
     try {
       setControlLoading(true)
+      console.log(`[Control Action] Sending action: ${action}`)
+      
       const res = await fetch('/api/system/control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action })
       })
       
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ message: 'Control action failed' }))
-        throw new Error(errorData.message || `HTTP ${res.status}`)
+      // Always try to parse JSON, even if status is not OK
+      // The proxy returns 200 with error status in body for graceful handling
+      let data
+      try {
+        data = await res.json()
+      } catch (parseError) {
+        console.error('[Control Action] Failed to parse response:', parseError)
+        throw new Error(`Failed to parse server response: ${parseError.message}`)
       }
       
-      const data = await res.json()
+      console.log('[Control Action] Response:', data)
       
       // Check if response indicates an error
-      if (data.status === 'error') {
-        throw new Error(data.message || 'Control action failed')
+      if (data.status === 'error' || !data.status || (res.status !== 200 && res.status !== 201)) {
+        const errorMsg = data.message || data.error || `Control action failed (HTTP ${res.status})`
+        throw new Error(errorMsg)
       }
       
+      // Success
       const message = data.message || data.status || 'Action completed'
       alert(`✅ ${message}`)
       
-      // Refresh progress after action
+      // Refresh progress after action (with delay to allow processing)
       setTimeout(async () => {
         try {
           const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
@@ -234,9 +243,9 @@ export default function ProcessingMonitorPage() {
         } catch (err) {
           console.error('Error refreshing progress:', err)
         }
-      }, 1000)
+      }, 2000) // Increased delay for actions that may take time
     } catch (err) {
-      console.error('Error in control action:', err)
+      console.error('[Control Action] Error:', err)
       alert(`❌ Error: ${err.message}`)
     } finally {
       setControlLoading(false)

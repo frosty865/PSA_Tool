@@ -10,7 +10,7 @@ ingress:
   - hostname: ollama.frostech.site
     service: http://localhost:11434
   - hostname: backend.frostech.site
-    service: http://localhost:8080     # use Flask until backend is active
+    service: http://10.0.0.213:8080     # use Flask until backend is active
   - hostname: flask.frostech.site
-    service: http://localhost:8080
+    service: http://10.0.0.213:8080
   - service: http_status:404

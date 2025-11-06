@@ -85,11 +85,11 @@ export async function POST(request) {
     const newUser = created?.user;
     if (!newUser) throw new Error('Auth user creation failed');
 
-    // 2) Upsert profile - include all required fields
+    // 2) Upsert profile - simple, just role, no complex groups
     const profileData = {
       user_id: newUser.id,
       username: email.split('@')[0], // Use email prefix as username
-      role: role,
+      role: role, // 'admin', 'spsa', or 'psa' - that's it!
       first_name: first_name || null,
       last_name: last_name || null,
       organization: body.agency || 'CISA',
@@ -169,13 +169,13 @@ export async function PUT(request) {
       }
     }
     
-    // 3) Update profile
+    // 3) Update profile - simple, just update role directly
     const profUpdate = {
       updated_at: new Date().toISOString()
     };
     
     if (typeof is_active !== 'undefined') profUpdate.is_active = is_active;
-    if (role) profUpdate.role = role;
+    if (role) profUpdate.role = role; // Just update role, no groups needed
     if (first_name !== undefined) profUpdate.first_name = first_name || null;
     if (last_name !== undefined) profUpdate.last_name = last_name || null;
     if (organization) profUpdate.organization = organization;

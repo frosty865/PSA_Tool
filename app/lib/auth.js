@@ -38,7 +38,8 @@ export const canAccessAdmin = async () => {
     const user = await getCurrentUser();
     if (!user) return false;
     
-    return ['admin', 'spsa', 'analyst', 'psa'].includes(user.role);
+    // Only admin and SPSA have full admin access
+    return ['admin', 'spsa'].includes(user.role);
   } catch (error) {
     console.error('Error checking admin access:', error);
     return false;

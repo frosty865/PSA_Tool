@@ -446,18 +446,50 @@ export default function UserManagement() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Role *</label>
+                <label className="form-label">Role (User Group) *</label>
                 <select
                   required
                   value={formData.role}
                   onChange={(e) => setFormData({...formData, role: e.target.value})}
                   className="form-select w-full"
                 >
-                  <option value="psa">PSA (Protective Security Advisor)</option>
-                  <option value="analyst">Analyst</option>
-                  <option value="spsa">SPSA (Supervisory Protective Security Advisor)</option>
-                  <option value="admin">Administrator</option>
+                  <optgroup label="Administrative Roles (Full Access)">
+                    <option value="admin">Administrator - Full system access</option>
+                    <option value="spsa">SPSA (Supervisory PSA) - Full system access</option>
+                  </optgroup>
+                  <optgroup label="Standard User Role">
+                    <option value="psa">PSA (Protective Security Advisor) - Standard user</option>
+                  </optgroup>
                 </select>
+                <div className="mt-2 p-3 rounded-md" style={{
+                  backgroundColor: (formData.role === 'admin' || formData.role === 'spsa') ? '#e6f6ea' : '#e3f2fd',
+                  border: `2px solid ${(formData.role === 'admin' || formData.role === 'spsa') ? '#00a651' : '#2196f3'}`
+                }}>
+                  {formData.role === 'admin' || formData.role === 'spsa' ? (
+                    <div>
+                      <div className="text-sm font-semibold text-green-800 mb-1">✓ Full Admin Access</div>
+                      <ul className="text-xs text-green-700 space-y-1 list-disc list-inside">
+                        <li>User management (create, edit, delete users)</li>
+                        <li>Submission review and approval</li>
+                        <li>Admin panel access</li>
+                        <li>Audit trail access</li>
+                        <li>System monitoring and controls</li>
+                        <li>Learning metrics dashboard</li>
+                      </ul>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-sm font-semibold text-blue-800 mb-1">Standard User Access</div>
+                      <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                        <li>Submit documents and vulnerabilities</li>
+                        <li>View approved production data</li>
+                        <li>View own submissions</li>
+                        <li>No admin panel access</li>
+                        <li>No user management</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
@@ -552,19 +584,51 @@ export default function UserManagement() {
                   <h4 className="text-lg font-semibold text-gray-800 mb-4">Role & Permissions</h4>
                   <div className="space-y-4">
                     <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Role (User Group)</label>
                       <select
                         value={editFormData.role}
                         onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       >
-                        <option value="admin">Administrator</option>
-                        <option value="spsa">SPSA (Supervisory Protective Security Advisor)</option>
-                        <option value="psa">PSA (Protective Security Advisor)</option>
-                        <option value="analyst">Analyst</option>
-                        <option value="validator">Validator</option>
+                        <optgroup label="Administrative Roles (Full Access)">
+                          <option value="admin">Administrator - Full system access</option>
+                          <option value="spsa">SPSA (Supervisory PSA) - Full system access</option>
+                        </optgroup>
+                        <optgroup label="Standard User Role">
+                          <option value="psa">PSA (Protective Security Advisor) - Standard user</option>
+                        </optgroup>
                       </select>
+                      <div className="mt-2 p-3 rounded-md" style={{
+                        backgroundColor: (['admin', 'spsa'].includes(editFormData.role)) ? '#e6f6ea' : '#e3f2fd',
+                        border: `2px solid ${(['admin', 'spsa'].includes(editFormData.role)) ? '#00a651' : '#2196f3'}`
+                      }}>
+                        <div className="text-sm font-semibold mb-2" style={{
+                          color: (['admin', 'spsa'].includes(editFormData.role)) ? '#007a3d' : '#1565c0'
+                        }}>
+                          Permissions for this role:
+                        </div>
+                        {['admin', 'spsa'].includes(editFormData.role) ? (
+                          <ul className="text-sm text-green-700 space-y-1 list-disc list-inside">
+                            <li>Full admin panel access</li>
+                            <li>User management (create, edit, delete users)</li>
+                            <li>Submission review and approval</li>
+                            <li>Audit trail access</li>
+                            <li>System monitoring and controls</li>
+                            <li>Learning metrics dashboard</li>
+                            <li>All administrative functions</li>
+                          </ul>
+                        ) : (
+                          <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                            <li>Submit documents and vulnerabilities</li>
+                            <li>View approved production data</li>
+                            <li>View own submissions</li>
+                            <li>No admin panel access</li>
+                            <li>No user management</li>
+                            <li>No system controls</li>
+                          </ul>
+                        )}
+                      </div>
                     </div>
 
                     <div className="form-group">
@@ -637,6 +701,65 @@ export default function UserManagement() {
         </div>
       )}
 
+      {/* Role Groups Summary */}
+      <div className="card mb-6">
+        <div className="card-header">
+          <h2 className="card-title">Role Groups & Permissions</h2>
+        </div>
+        <div className="card-body">
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Admin Group */}
+            <div className="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+              <h3 className="text-lg font-bold text-green-800 mb-3">Administrative Roles (Full Access)</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="font-semibold text-green-900">Administrator</div>
+                  <div className="text-sm text-green-700">Full system access, all administrative permissions</div>
+                </div>
+                <div>
+                  <div className="font-semibold text-green-900">SPSA (Supervisory PSA)</div>
+                  <div className="text-sm text-green-700">Full system access, all administrative permissions</div>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-green-300">
+                <div className="text-xs font-semibold text-green-800 mb-1">Full Admin Permissions:</div>
+                <ul className="text-xs text-green-700 space-y-1 list-disc list-inside">
+                  <li>Admin panel access</li>
+                  <li>User management (create, edit, delete)</li>
+                  <li>Submission review and approval</li>
+                  <li>Audit trail access</li>
+                  <li>System monitoring and controls</li>
+                  <li>Learning metrics dashboard</li>
+                  <li>All administrative functions</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* User Group */}
+            <div className="border-2 border-blue-500 rounded-lg p-4 bg-blue-50">
+              <h3 className="text-lg font-bold text-blue-800 mb-3">Standard User Role</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="font-semibold text-blue-900">PSA (Protective Security Advisor)</div>
+                  <div className="text-sm text-blue-700">Standard user, can submit documents and view data</div>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-blue-300">
+                <div className="text-xs font-semibold text-blue-800 mb-1">Standard User Permissions:</div>
+                <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                  <li>Submit documents and vulnerabilities</li>
+                  <li>View approved production data</li>
+                  <li>View own submissions</li>
+                  <li>No admin panel access</li>
+                  <li>No user management</li>
+                  <li>No system controls</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">All Users ({users.length})</h2>
@@ -671,6 +794,9 @@ export default function UserManagement() {
                       <span className={`badge ${getRoleBadgeColor(user.role)} text-white`}>
                         {getRoleDisplayName(user.role)}
                       </span>
+                      {['admin', 'spsa'].includes(user.role) && (
+                        <span className="ml-2 text-xs text-green-600 font-semibold">(Admin)</span>
+                      )}
                     </td>
                     <td>{user.agency}</td>
                     <td>
@@ -741,9 +867,14 @@ export default function UserManagement() {
                     <h3 className="font-semibold text-lg">{user.full_name}</h3>
                     <p className="text-gray-600">@{user.username}</p>
                   </div>
-                  <span className={`badge ${getRoleBadgeColor(user.role)} text-white`}>
-                    {getRoleDisplayName(user.role)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`badge ${getRoleBadgeColor(user.role)} text-white`}>
+                      {getRoleDisplayName(user.role)}
+                    </span>
+                    {['admin', 'spsa'].includes(user.role) && (
+                      <span className="text-xs text-green-600 font-semibold">(Admin)</span>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">

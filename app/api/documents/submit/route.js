@@ -94,8 +94,10 @@ export async function POST(request) {
       // Ignore - submitter_email is optional
     }
 
+    // Note: submissions.type check constraint only allows 'vulnerability' or 'ofc'
+    // Document uploads will be processed to extract vulnerabilities, so use 'vulnerability'
     const submissionData = {
-      type: 'document',
+      type: 'vulnerability', // Must be 'vulnerability' or 'ofc' per check constraint
       data: {
         source_title,
         source_type,
@@ -106,6 +108,7 @@ export async function POST(request) {
         filename: savedFilename,
         file_size: file.size,
         file_type: file.type || file.name.split('.').pop(),
+        document_upload: true, // Flag to indicate this came from document upload
       },
       status: 'pending_review',
       source: 'document_upload',

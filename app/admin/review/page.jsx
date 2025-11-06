@@ -187,8 +187,8 @@ export default function ReviewSubmissionsPage() {
     <RoleGate>
       <div className="space-y-4">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Review Submissions</h1>
-          <p className="text-gray-600 mt-2">Review vulnerabilities and their associated OFCs. Approve to feed learning algorithm and move to production.</p>
+          <h1 className="text-3xl font-bold text-gray-900">Vulnerability Review</h1>
+          <p className="text-gray-600 mt-2">Review and approve vulnerabilities with their associated Options for Consideration (OFCs). Approved items are moved to production and feed the learning algorithm.</p>
         </div>
 
         {error && (

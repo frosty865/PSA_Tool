@@ -758,11 +758,11 @@ export default function AdminOverviewPage() {
               color: 'var(--cisa-blue)', 
               marginBottom: 'var(--spacing-xs)',
               fontSize: 'var(--font-size-lg)'
-            }}>Review Submissions</div>
+            }}>Vulnerability Review</div>
             <div style={{ 
               fontSize: 'var(--font-size-sm)', 
               color: 'var(--cisa-gray)'
-            }}>Moderate new content</div>
+            }}>Review and approve vulnerabilities</div>
           </Link>
 
           <Link href="/admin/models" className="card" style={{ 

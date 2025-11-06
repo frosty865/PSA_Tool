@@ -9,6 +9,7 @@ from services.supabase_client import test_supabase, get_supabase_client
 import os
 import json
 from datetime import datetime
+from pathlib import Path
 
 system_bp = Blueprint('system', __name__)
 
@@ -385,4 +386,57 @@ def get_subsectors():
         print(f"[Subsectors] Error: {str(e)}")
         # Return empty array on error to prevent viewer crashes
         return jsonify([]), 200
+
+def get_tunnel_log_path():
+    """Locate the most recent active tunnel log file."""
+    possible_paths = [
+        Path(r"C:\Tools\nssm\logs\vofc_tunnel.log"),
+        Path(r"C:\Users\frost\OneDrive\Desktop\Projects\VOFC Engine\logs\tunnel_out.log"),
+        Path(r"C:\Users\frost\VOFC_Logs\tunnel_2025-11-03_09-45-08.log")
+    ]
+    
+    for path in possible_paths:
+        if path.exists():
+            return path
+    
+    # fallback: newest file in VOFC_Logs directory
+    vofc_dir = Path(r"C:\Users\frost\VOFC_Logs")
+    if vofc_dir.exists():
+        log_files = sorted(
+            vofc_dir.glob("tunnel_*.log"), 
+            key=lambda f: f.stat().st_mtime, 
+            reverse=True
+        )
+        if log_files:
+            return log_files[0]
+    
+    return None
+
+@system_bp.route("/api/system/tunnel/logs", methods=["GET", "OPTIONS"])
+def get_tunnel_logs():
+    """Return the last 100 lines of the tunnel log."""
+    if request.method == 'OPTIONS':
+        return '', 200
+    
+    try:
+        path = get_tunnel_log_path()
+        if not path:
+            return jsonify({"error": "No tunnel log found", "lines": []}), 200  # Return 200 with empty lines
+        
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            lines = [line.rstrip('\n\r') for line in f.readlines()[-100:]]
+        
+        return jsonify({
+            "file": str(path),
+            "lines": lines,
+            "count": len(lines)
+        }), 200
+    except Exception as e:
+        import logging
+        logging.error(f"Error reading tunnel logs: {e}")
+        return jsonify({
+            "error": str(e),
+            "lines": [],
+            "file": None
+        }), 200  # Return 200 to prevent frontend errors
 

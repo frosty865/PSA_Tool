@@ -73,6 +73,26 @@ export async function GET(request) {
         // Ignore parsing errors
       }
       
+      // 502 Bad Gateway from tunnel is temporary - return 200 with error status instead of 502
+      // This prevents frontend from thinking the service is permanently down
+      if (status === 502) {
+        console.warn('[System Dashboard Proxy] Tunnel returned 502 - likely temporary tunnel issue');
+        return NextResponse.json(
+          {
+            ...errorData,
+            status: 'error',
+            components: {
+              flask: 'unknown', // Don't mark as offline for 502
+              ollama: 'unknown',
+              supabase: 'unknown',
+              tunnel: 'unknown'
+            },
+            hint: 'This is usually a temporary tunnel connectivity issue. The service may still be running.'
+          },
+          { status: 200 } // Return 200 so frontend doesn't treat as permanent failure
+        );
+      }
+      
       return NextResponse.json(errorData, { status: status });
     }
 

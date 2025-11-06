@@ -57,7 +57,8 @@ export async function GET(request) {
             components: {
               flask: 'offline',
               ollama: 'unknown',
-              supabase: 'unknown'
+              supabase: 'unknown',
+              tunnel: 'unknown'
             },
             error: 'Flask server did not respond within 10 seconds',
             flaskUrl: FLASK_URL,
@@ -74,7 +75,8 @@ export async function GET(request) {
             components: {
               flask: 'offline',
               ollama: 'unknown',
-              supabase: 'unknown'
+              supabase: 'unknown',
+              tunnel: 'unknown'
             },
             error: 'Connection refused - Flask service may not be accessible at this URL',
             flaskUrl: FLASK_URL,
@@ -92,7 +94,8 @@ export async function GET(request) {
             components: {
               flask: 'offline',
               ollama: 'unknown',
-              supabase: 'unknown'
+              supabase: 'unknown',
+              tunnel: 'unknown'
             },
             error: 'Network error connecting to Flask service',
             flaskUrl: FLASK_URL,
@@ -117,7 +120,8 @@ export async function GET(request) {
             components: {
               flask: 'unknown', // Don't mark as offline for 502
               ollama: 'unknown',
-              supabase: 'unknown'
+              supabase: 'unknown',
+              tunnel: 'unknown'
             },
             error: 'Tunnel temporarily unavailable (502)',
             statusCode: response.status,

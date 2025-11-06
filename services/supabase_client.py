@@ -361,3 +361,89 @@ def insert_learning_stats(stats):
         logging.warning(f"Could not insert learning stats (table may not exist): {str(e)}")
         return None
 
+
+def get_recent_learning_stats(limit=5):
+    """
+    Get recent learning statistics from Supabase.
+    
+    Args:
+        limit: Number of recent stats to retrieve (default: 5)
+    
+    Returns:
+        List of learning stats dictionaries, ordered by timestamp (most recent first)
+    """
+    try:
+        client = get_supabase_client()
+        
+        # Query learning_stats table, ordered by timestamp descending
+        result = client.table("learning_stats").select("timestamp, accept_rate, total_events, accepted, rejected, edited").order("timestamp", desc=True).limit(limit).execute()
+        
+        return result.data if result.data else []
+        
+    except Exception as e:
+        logging.warning(f"Could not get recent learning stats (table may not exist): {str(e)}")
+        return []
+
+
+def record_retrain_event(avg_accept_rate, stats_window_size):
+    """
+    Record a model retraining event in Supabase.
+    
+    Tries to insert into system_events table if it exists.
+    Falls back to logging if table doesn't exist.
+    
+    Args:
+        avg_accept_rate: Average accept rate that triggered retraining
+        stats_window_size: Number of stats cycles used in evaluation
+    
+    Returns:
+        Inserted event data or None on error
+    """
+    try:
+        client = get_supabase_client()
+        
+        payload = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "event_type": "model_retrain",
+            "notes": f"Triggered automatic retrain. Avg accept rate: {avg_accept_rate:.3f} (threshold: 0.6). Stats window: {stats_window_size} cycles",
+            "metadata": {
+                "avg_accept_rate": avg_accept_rate,
+                "threshold": 0.6,
+                "stats_window_size": stats_window_size,
+                "triggered_at": datetime.utcnow().isoformat()
+            }
+        }
+        
+        # Try to insert into system_events table
+        # If table doesn't exist, this will fail gracefully
+        try:
+            result = client.table("system_events").insert(payload).execute()
+            if result.data:
+                logging.info(f"Retrain event recorded in system_events: {payload.get('notes')}")
+                return result.data[0]
+        except Exception as table_error:
+            # Table may not exist - log to learning_events as fallback
+            logging.warning(f"system_events table not available, logging to learning_events: {table_error}")
+            try:
+                # Fallback: log as a learning event
+                fallback_payload = {
+                    "event_type": "model_retrain",
+                    "approved": False,  # Retraining is not an approval
+                    "model_version": "psa-engine:latest",
+                    "metadata": payload.get("metadata", {}),
+                    "created_at": payload["timestamp"]
+                }
+                result = client.table("learning_events").insert(fallback_payload).execute()
+                if result.data:
+                    logging.info(f"Retrain event recorded in learning_events (fallback)")
+                    return result.data[0]
+            except Exception as fallback_error:
+                logging.error(f"Failed to record retrain event in fallback table: {fallback_error}")
+        
+        return None
+        
+    except Exception as e:
+        logging.error(f"Failed to record retrain event: {str(e)}")
+        # Don't raise - retraining should continue even if logging fails
+        return None
+

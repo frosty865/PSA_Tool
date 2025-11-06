@@ -68,7 +68,21 @@ def health():
     
     # Get tunnel URL (managed by NSSM service - Cloudflare tunnel)
     tunnel_url = os.getenv('TUNNEL_URL', 'https://flask.frostech.site')
-    tunnel_status = "managed"  # Tunnel is managed by NSSM, Flask doesn't control it
+    
+    # Check tunnel connectivity by attempting to reach the health endpoint through the tunnel
+    tunnel_status = "unknown"
+    try:
+        import requests
+        # Try to reach Flask through the tunnel (quick check with short timeout)
+        tunnel_health_url = f"{tunnel_url}/api/health"
+        tunnel_response = requests.get(tunnel_health_url, timeout=3)
+        if tunnel_response.status_code == 200:
+            tunnel_status = "ok"
+        else:
+            tunnel_status = "error"
+    except Exception as e:
+        # Tunnel check failed - could be tunnel down or network issue
+        tunnel_status = "error"
     
     # Return lightweight response with service metadata
     return jsonify({

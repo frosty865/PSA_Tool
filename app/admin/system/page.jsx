@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { fetchWithAuth } from '../../lib/fetchWithAuth'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import '@/styles/cisa.css'
 
 function SystemStatusPage() {
@@ -15,6 +16,10 @@ function SystemStatusPage() {
     ollama: 'unknown',
     supabase: 'unknown'
   })
+  const [learningStats, setLearningStats] = useState([])
+  const [retrainEvents, setRetrainEvents] = useState([])
+  const [heuristics, setHeuristics] = useState(null)
+  const [loadingLearning, setLoadingLearning] = useState(true)
 
   const loadStatus = async (showRefreshing = false) => {
     if (showRefreshing) setRefreshing(true)
@@ -46,7 +51,7 @@ function SystemStatusPage() {
   // Since tunnel is constant, never mark offline after initial success - just keep last known good state
   useEffect(() => {
     let hasEverSucceeded = false
-    let lastKnownGood = { flask: 'unknown', ollama: 'unknown', supabase: 'unknown' }
+    let lastKnownGood = { flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' }
     
     async function fetchSystemHealth() {
       try {
@@ -54,9 +59,10 @@ function SystemStatusPage() {
         if (res.ok) {
           const data = await res.json()
           const newHealth = {
-            flask: data.components?.flask || 'unknown',
-            ollama: data.components?.ollama || 'unknown',
-            supabase: data.components?.supabase || 'unknown'
+            flask: data.components?.flask || data.flask || 'unknown',
+            ollama: data.components?.ollama || data.ollama || 'unknown',
+            supabase: data.components?.supabase || data.supabase || 'unknown',
+            tunnel: data.components?.tunnel || data.tunnel || 'unknown'
           }
           
           hasEverSucceeded = true
@@ -70,7 +76,7 @@ function SystemStatusPage() {
             setSimpleHealth(lastKnownGood)
           } else {
             // Only mark offline if we've never had a successful check
-            setSimpleHealth({ flask: 'offline', ollama: 'offline', supabase: 'offline' })
+            setSimpleHealth({ flask: 'offline', ollama: 'offline', supabase: 'offline', tunnel: 'offline' })
           }
         }
       } catch (err) {
@@ -80,7 +86,7 @@ function SystemStatusPage() {
           setSimpleHealth(lastKnownGood)
         } else {
           // Only mark offline if we've never had a successful check
-          setSimpleHealth({ flask: 'offline', ollama: 'offline', supabase: 'offline' })
+          setSimpleHealth({ flask: 'offline', ollama: 'offline', supabase: 'offline', tunnel: 'offline' })
         }
       }
     }
@@ -99,6 +105,44 @@ function SystemStatusPage() {
     return () => {
       clearInterval(id)
     }
+  }, [])
+
+  // Load learning metrics and retraining events
+  useEffect(() => {
+    async function loadLearningData() {
+      setLoadingLearning(true)
+      try {
+        const [statsRes, eventsRes, heuristicsRes] = await Promise.all([
+          fetch('/api/learning/stats?limit=50', { cache: 'no-store' }).catch(() => ({ ok: false })),
+          fetch('/api/learning/retrain-events?limit=10', { cache: 'no-store' }).catch(() => ({ ok: false })),
+          fetch('/api/learning/heuristics', { cache: 'no-store' }).catch(() => ({ ok: false }))
+        ])
+
+        if (statsRes.ok) {
+          const statsData = await statsRes.json()
+          setLearningStats(Array.isArray(statsData) ? statsData : [])
+        }
+
+        if (eventsRes.ok) {
+          const eventsData = await eventsRes.json()
+          setRetrainEvents(Array.isArray(eventsData) ? eventsData : [])
+        }
+
+        if (heuristicsRes.ok) {
+          const heuristicsData = await heuristicsRes.json()
+          setHeuristics(heuristicsData.heuristics || null)
+        }
+      } catch (err) {
+        console.error('Error loading learning data:', err)
+      } finally {
+        setLoadingLearning(false)
+      }
+    }
+
+    loadLearningData()
+    // Refresh learning data every 60 seconds
+    const interval = setInterval(loadLearningData, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   const getStatusColor = (serviceStatus) => {
@@ -214,7 +258,7 @@ function SystemStatusPage() {
           System Health Status
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--spacing-md)' }}>
-          {['flask', 'ollama', 'supabase'].map(key => (
+          {['flask', 'ollama', 'supabase', 'tunnel'].map(key => (
             <div 
               key={key} 
               style={{
@@ -419,6 +463,153 @@ function SystemStatusPage() {
           </div>
         </div>
       )}
+
+      {/* Model Analytics & Learning Metrics */}
+      <div className="card">
+        <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 600, color: 'var(--cisa-blue)', marginBottom: 'var(--spacing-lg)' }}>
+          Model Analytics & Learning Performance
+        </h3>
+        
+        {/* Heuristics Summary */}
+        {heuristics && (
+          <div style={{ marginBottom: 'var(--spacing-lg)', padding: 'var(--spacing-md)', backgroundColor: 'var(--cisa-gray-lighter)', borderRadius: 'var(--border-radius-lg)' }}>
+            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-sm)' }}>Current Heuristic Thresholds</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--spacing-md)' }}>
+              <div>
+                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)' }}>Confidence Threshold:</span>
+                <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, marginLeft: 'var(--spacing-xs)' }}>
+                  {((heuristics.confidence_threshold || 0.65) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)' }}>High Confidence:</span>
+                <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, marginLeft: 'var(--spacing-xs)' }}>
+                  {((heuristics.high_confidence_threshold || 0.85) * 100).toFixed(1)}%
+                </span>
+              </div>
+              {heuristics.last_updated && (
+                <div>
+                  <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)' }}>Last Updated:</span>
+                  <span style={{ fontSize: 'var(--font-size-xs)', marginLeft: 'var(--spacing-xs)' }}>
+                    {new Date(heuristics.last_updated).toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Learning Metrics Chart */}
+        {learningStats.length > 0 && (
+          <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-md)' }}>
+              Learning & Retrain Trends
+            </h4>
+            <div style={{ height: '300px', width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={learningStats.slice().reverse().map(s => ({
+                  ...s,
+                  timestamp: new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  accept_rate_percent: (s.accept_rate || 0) * 100,
+                  accepted: s.accepted || 0,
+                  rejected: s.rejected || 0,
+                  edited: s.edited || 0
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="timestamp" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="accept_rate_percent" stroke="#4CAF50" name="Accept Rate %" />
+                  <Line type="monotone" dataKey="accepted" stroke="#2196F3" name="Accepted" />
+                  <Line type="monotone" dataKey="rejected" stroke="#E53935" name="Rejected" />
+                  <Line type="monotone" dataKey="edited" stroke="#FFC107" name="Edited" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Retraining Events */}
+        {retrainEvents.length > 0 && (
+          <div>
+            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-md)' }}>
+              Recent Retraining Events
+            </h4>
+            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {retrainEvents.map((event, i) => {
+                  const timestamp = event.timestamp || event.created_at
+                  const metadata = typeof event.metadata === 'string' ? JSON.parse(event.metadata) : (event.metadata || {})
+                  const avgAcceptRate = metadata.avg_accept_rate || event.avg_accept_rate
+                  
+                  return (
+                    <li key={i} style={{
+                      padding: 'var(--spacing-sm)',
+                      marginBottom: 'var(--spacing-xs)',
+                      backgroundColor: 'var(--cisa-gray-lighter)',
+                      borderRadius: 'var(--border-radius)',
+                      fontSize: 'var(--font-size-sm)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <span style={{ fontWeight: 600, color: 'var(--cisa-blue)' }}>
+                            {timestamp ? new Date(timestamp).toLocaleString() : 'Unknown time'}
+                          </span>
+                          {avgAcceptRate !== undefined && (
+                            <span style={{ marginLeft: 'var(--spacing-sm)', color: 'var(--cisa-gray)' }}>
+                              — Accept Rate: {(avgAcceptRate * 100).toFixed(1)}%
+                            </span>
+                          )}
+                        </div>
+                        <span style={{
+                          padding: 'var(--spacing-xs) var(--spacing-sm)',
+                          borderRadius: 'var(--border-radius)',
+                          fontSize: 'var(--font-size-xs)',
+                          backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                          color: '#856404',
+                          fontWeight: 600
+                        }}>
+                          Model Retrain
+                        </span>
+                      </div>
+                      {event.notes && (
+                        <div style={{ marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)', opacity: 0.8 }}>
+                          {event.notes}
+                        </div>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {learningStats.length === 0 && retrainEvents.length === 0 && !loadingLearning && (
+          <div style={{ padding: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--cisa-gray)' }}>
+            <p style={{ margin: 0 }}>No learning metrics or retraining events available yet.</p>
+            <p style={{ margin: 'var(--spacing-xs) 0 0 0', fontSize: 'var(--font-size-xs)', opacity: 0.7 }}>
+              Learning data will appear here as the system processes submissions and adjusts heuristics.
+            </p>
+          </div>
+        )}
+
+        {loadingLearning && (
+          <div style={{ padding: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--cisa-gray)' }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              border: '3px solid var(--cisa-gray-light)',
+              borderTopColor: 'var(--cisa-blue)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto var(--spacing-sm)'
+            }}></div>
+            <p style={{ margin: 0, fontSize: 'var(--font-size-sm)' }}>Loading learning metrics...</p>
+          </div>
+        )}
+      </div>
 
       {/* Python & Flask Service Information */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-lg)' }}>

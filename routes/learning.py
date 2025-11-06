@@ -205,3 +205,53 @@ def get_heuristics():
             "error": str(e)
         }), 500
 
+
+@learning_bp.route("/api/learning/retrain-events", methods=["GET"])
+def get_retrain_events():
+    """
+    Get recent model retraining events from Supabase.
+    
+    Query Parameters:
+    - limit: Number of events to return (default: 10)
+    
+    Returns:
+        JSON response with retraining events
+    """
+    try:
+        from services.supabase_client import get_supabase_client
+        
+        client = get_supabase_client()
+        limit = int(request.args.get("limit", 10))
+        
+        events = []
+        
+        # Try system_events table first
+        try:
+            result = client.table("system_events").select("*").eq("event_type", "model_retrain").order("timestamp", desc=True).limit(limit).execute()
+            if result.data:
+                events = result.data
+        except Exception as e:
+            logger.warning(f"system_events table not available, trying learning_events: {e}")
+            # Fallback to learning_events
+            try:
+                result = client.table("learning_events").select("*").eq("event_type", "model_retrain").order("created_at", desc=True).limit(limit).execute()
+                if result.data:
+                    events = result.data
+            except Exception as fallback_error:
+                logger.warning(f"learning_events fallback also failed: {fallback_error}")
+        
+        return jsonify({
+            "status": "ok",
+            "events": events,
+            "count": len(events)
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error fetching retrain events: {e}", exc_info=True)
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "events": [],
+            "count": 0
+        }), 500
+

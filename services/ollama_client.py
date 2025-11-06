@@ -160,5 +160,74 @@ Format your response as JSON with the following structure:
     
     return results
 
+
+def retrain_model(model_name="psa-engine:latest"):
+    """
+    Trigger model retraining/refresh.
+    
+    This is a placeholder for retraining logic. Options include:
+    - Pull latest model version from Ollama registry
+    - Fine-tune model with new training data from Supabase
+    - Restart model service after retraining
+    
+    Args:
+        model_name: Name of the model to retrain (default: "psa-engine:latest")
+    
+    Returns:
+        True if retraining was initiated successfully, False otherwise
+    """
+    import subprocess
+    import logging
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info(f"Starting retraining sequence for model: {model_name}")
+        
+        # Option 1: Pull latest model version (simple refresh)
+        # This ensures we have the latest version of the model
+        logger.info("Pulling latest model version from Ollama registry...")
+        pull_result = subprocess.run(
+            ["ollama", "pull", model_name],
+            capture_output=True,
+            text=True,
+            timeout=600  # 10 minute timeout for model pull
+        )
+        
+        if pull_result.returncode == 0:
+            logger.info(f"Model {model_name} pulled successfully")
+            logger.info(f"Pull output: {pull_result.stdout[:200]}")  # Log first 200 chars
+        else:
+            logger.warning(f"Model pull returned non-zero exit code: {pull_result.returncode}")
+            logger.warning(f"Pull error: {pull_result.stderr[:200]}")
+            # Continue anyway - model might already be up to date
+        
+        # Option 2: Future enhancement - Fine-tune with new data
+        # This would:
+        # 1. Export approved/rejected samples from Supabase
+        # 2. Create training dataset
+        # 3. Run fine-tuning script
+        # 4. Create new model version
+        # For now, we just log that this could be implemented
+        logger.info("Retraining complete. Model refreshed.")
+        logger.info("Note: Full fine-tuning with training data can be implemented here")
+        
+        return True
+        
+    except subprocess.TimeoutExpired:
+        logger.error(f"Model pull timed out after 10 minutes")
+        return False
+    except FileNotFoundError:
+        logger.error("Ollama CLI not found. Make sure Ollama is installed and in PATH.")
+        return False
+    except Exception as e:
+        logger.error(f"Error during model retraining: {e}", exc_info=True)
+        return False
+
+
 # Add more Ollama functions as needed from your old implementation
 

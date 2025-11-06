@@ -60,6 +60,10 @@ start_collector(interval_minutes=10)
 from services.learning_engine import start_learning_monitor
 start_learning_monitor(interval_minutes=60)
 
+# Start model retrain monitor (triggers retraining when performance declines)
+from services.model_retrainer import start_retrain_monitor
+start_retrain_monitor(interval_minutes=60)
+
 if __name__ == "__main__":
     import os
     port = int(os.getenv('FLASK_PORT', '8080'))

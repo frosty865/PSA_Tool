@@ -77,7 +77,21 @@ export async function GET(request) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    
+    // Transform Flask response to match frontend expectations
+    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", ... }
+    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "..." }, ... }
+    const transformedData = {
+      ...data,
+      components: {
+        flask: data.flask || data.components?.flask || 'unknown',
+        ollama: data.ollama || data.components?.ollama || 'unknown',
+        supabase: data.supabase || data.components?.supabase || 'unknown',
+        tunnel: data.tunnel || data.components?.tunnel || 'unknown'
+      }
+    };
+    
+    return NextResponse.json(transformedData);
   } catch (error) {
     console.error('[System Dashboard Proxy] Error:', error);
     console.error('[System Dashboard Proxy] Flask URL:', FLASK_URL);

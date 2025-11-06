@@ -54,5 +54,33 @@ def chat(messages, model="llama2", **kwargs):
     except Exception as e:
         raise Exception(f"Ollama chat failed: {str(e)}")
 
+def run_model(model="psa-engine:latest", prompt="", **kwargs):
+    """Run Ollama model with a prompt (uses generate API)"""
+    try:
+        response = requests.post(
+            f"{OLLAMA_HOST}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "stream": False,  # Get complete response
+                **kwargs
+            },
+            timeout=300  # Longer timeout for analysis
+        )
+        response.raise_for_status()
+        result = response.json()
+        
+        # Extract the generated text from the response
+        if isinstance(result, dict):
+            if 'response' in result:
+                return result['response']
+            elif 'text' in result:
+                return result['text']
+            else:
+                return result
+        return result
+    except Exception as e:
+        raise Exception(f"Ollama model execution failed: {str(e)}")
+
 # Add more Ollama functions as needed from your old implementation
 

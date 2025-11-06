@@ -15,6 +15,7 @@ from routes.system import system_bp
 from routes.files import files_bp
 from routes.process import process_bp
 from routes.library import library_bp
+from routes.analytics import bp as analytics_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Next.js frontend
@@ -24,6 +25,23 @@ app.register_blueprint(system_bp)
 app.register_blueprint(files_bp)
 app.register_blueprint(process_bp)
 app.register_blueprint(library_bp)
+app.register_blueprint(analytics_bp)
+
+# Start background queue worker
+from services.queue_manager import start_worker
+start_worker()
+
+# Start approval monitor (syncs approved submissions with learning_events)
+from services.approval_sync import start_approval_monitor
+start_approval_monitor(interval_minutes=5)
+
+# Start realtime approval listener (instant updates via Supabase Realtime)
+from services.approval_realtime import start_realtime_approval_listener
+start_realtime_approval_listener()
+
+# Start analytics collector (aggregates metrics for dashboard)
+from services.analytics_collector import start_collector
+start_collector(interval_minutes=10)
 
 if __name__ == "__main__":
     import os

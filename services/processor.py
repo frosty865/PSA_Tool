@@ -7,6 +7,21 @@ import os
 import pandas as pd
 from pathlib import Path
 
+# Import parser modules
+from services.pdf_parser import extract_text as pdf_extract
+from services.docx_parser import extract_text as docx_extract
+from services.xlsx_parser import extract_text as xlsx_extract
+from services.text_parser import extract_text as txt_extract
+from services.ollama_client import run_model
+
+# File extension handlers
+EXT_HANDLERS = {
+    ".pdf": pdf_extract,
+    ".docx": docx_extract,
+    ".xlsx": xlsx_extract,
+    ".txt": txt_extract,
+}
+
 # Data directories
 DATA_DIR = Path(__file__).parent.parent / 'data'
 INCOMING_DIR = DATA_DIR / 'incoming'
@@ -70,38 +85,67 @@ def move_file(filename, destination='processed'):
     except Exception as e:
         raise Exception(f"Failed to move file: {str(e)}")
 
-def process_file(filename):
-    """Process a file (extract text, analyze, etc.)"""
+def process_file(file_path):
+    """
+    Process a file by extracting text and analyzing with Ollama model.
+    
+    Args:
+        file_path: Path to file (can be string or Path object)
+    
+    Returns:
+        Analysis result from Ollama model
+    """
     try:
-        file_path = INCOMING_DIR / filename
+        # Convert to Path object if string
+        if isinstance(file_path, str):
+            # If it's just a filename, assume it's in incoming directory
+            if not os.path.isabs(file_path) and not os.path.dirname(file_path):
+                file_path = INCOMING_DIR / file_path
+            else:
+                file_path = Path(file_path)
+        else:
+            file_path = Path(file_path)
+        
         if not file_path.exists():
-            raise FileNotFoundError(f"File {filename} not found")
+            raise FileNotFoundError(f"File not found: {file_path}")
         
-        # Add your file processing logic here
-        # This is a placeholder - implement based on your old server.py
+        # Get file extension
+        ext = file_path.suffix.lower()
         
-        return {
-            "success": True,
-            "filename": filename,
-            "processed": True
-        }
+        # Check if extension is supported
+        if ext not in EXT_HANDLERS:
+            raise ValueError(f"Unsupported file type: {ext}")
+        
+        # Extract text using appropriate parser
+        text = EXT_HANDLERS[ext](str(file_path))
+        
+        # Limit text length for prompt (first 4000 characters)
+        text_sample = text[:4000] if len(text) > 4000 else text
+        
+        # Run Ollama model analysis
+        result = run_model(
+            model="psa-engine:latest",
+            prompt=f"Analyze this document for vulnerabilities and options for consideration:\n\n{text_sample}"
+        )
+        
+        return result
+        
     except Exception as e:
         raise Exception(f"Failed to process file: {str(e)}")
 
 def process_document(file_path, document_type='pdf'):
-    """Process a document (PDF, DOCX, etc.)"""
-    try:
-        # Add your document processing logic here
-        # This is a placeholder - implement based on your old server.py
-        
-        return {
-            "success": True,
-            "file_path": file_path,
-            "type": document_type,
-            "processed": True
-        }
-    except Exception as e:
-        raise Exception(f"Failed to process document: {str(e)}")
+    """
+    Process a document (PDF, DOCX, etc.) - wrapper for process_file
+    
+    Args:
+        file_path: Path to document file
+        document_type: Type hint (not used, determined from extension)
+    
+    Returns:
+        Analysis result from Ollama model
+    """
+    # Use process_file which handles all document types
+    return process_file(file_path)
 
 def search_library(query):
     """Search the VOFC library"""

@@ -5,6 +5,7 @@ Routes: /api/process/*
 
 from flask import Blueprint, jsonify, request
 from services.processor import process_file, process_document
+from services.queue_manager import add_job, load_queue
 
 process_bp = Blueprint('process', __name__)
 
@@ -83,6 +84,47 @@ def process_specific_file(filename):
         return jsonify({
             "success": False,
             "error": str(e),
+            "service": "PSA Processing Server"
+        }), 500
+
+@process_bp.route('/api/process/submit', methods=['POST'])
+def submit_job():
+    """Submit a file for processing (adds to queue)"""
+    try:
+        data = request.get_json()
+        filename = data.get("filename")
+        
+        if not filename:
+            return jsonify({
+                "error": "filename required",
+                "service": "PSA Processing Server"
+            }), 400
+        
+        add_job(filename)
+        return jsonify({
+            "status": "queued",
+            "filename": filename,
+            "service": "PSA Processing Server"
+        })
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "service": "PSA Processing Server"
+        }), 500
+
+@process_bp.route('/api/process/queue', methods=['GET'])
+def get_queue():
+    """Get current processing queue status"""
+    try:
+        queue = load_queue()
+        return jsonify({
+            "queue": queue,
+            "service": "PSA Processing Server"
+        })
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "queue": [],
             "service": "PSA Processing Server"
         }), 500
 

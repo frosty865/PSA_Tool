@@ -407,7 +407,7 @@ export default function LearningDashboard() {
 
         {/* Footer Info */}
         <div className="mt-6 text-sm text-gray-500 text-center">
-          <p>Last refreshed: {lastRefresh.toLocaleString()}</p>
+          <p>Last refreshed: {lastRefresh ? lastRefresh.toLocaleString() : 'Never'}</p>
           <p className="mt-1">Auto-refreshes every 60 seconds</p>
         </div>
       </div>

@@ -96,21 +96,26 @@ export async function POST(request) {
 
     // Note: submissions.type check constraint only allows 'vulnerability' or 'ofc'
     // Document uploads will be processed to extract vulnerabilities, so use 'vulnerability'
+    // PHASE 1: Create submission with status='pending' (awaiting extraction per spec)
+    const publicationDate = publication_year ? `${publication_year}-01-01` : null;
     const submissionData = {
       type: 'vulnerability', // Must be 'vulnerability' or 'ofc' per check constraint
       data: {
+        document_upload: true,
+        filename: savedFilename,
+        source_type: source_type || 'unknown',
+        publication_date: publicationDate,
+        agency: author_org || null,
+        url: source_url || null,
+        // Keep additional metadata for compatibility
         source_title,
-        source_type,
-        source_url,
         author_org,
         publication_year: parseInt(publication_year) || new Date().getFullYear(),
         content_restriction,
-        filename: savedFilename,
         file_size: file.size,
         file_type: file.type || file.name.split('.').pop(),
-        document_upload: true, // Flag to indicate this came from document upload
       },
-      status: 'pending_review',
+      status: 'pending', // PHASE 1: 'pending' = awaiting extraction (per spec)
       source: 'document_upload',
       ...(submitterEmail && { submitter_email: submitterEmail }),
       // Let database handle timestamps with defaults, but include them explicitly to be safe
@@ -150,13 +155,30 @@ export async function POST(request) {
 
     console.log('[documents/submit] Submission created:', submission.id);
 
+    // PHASE 2-5: Trigger extraction pipeline (async, don't wait)
+    if (fileSaved && submission.id) {
+      try {
+        // Trigger extraction in background
+        fetch(`${flaskUrl}/api/documents/extract/${submission.id}`, {
+          method: 'POST',
+        }).catch(err => {
+          console.warn('[documents/submit] Extraction trigger failed (will be processed later):', err);
+        });
+        console.log('[documents/submit] Extraction pipeline triggered for submission:', submission.id);
+      } catch (error) {
+        console.warn('[documents/submit] Could not trigger extraction:', error);
+        // Don't fail - extraction can be triggered manually later
+      }
+    }
+
     return NextResponse.json({
       success: true,
       submission_id: submission.id,
-      message: 'Document submitted successfully',
+      message: 'Document submitted successfully. Extraction pipeline has been triggered.',
       filename: savedFilename,
       file_saved: fileSaved,
       processing_started: processingStarted,
+      extraction_triggered: fileSaved && !!submission.id,
     });
   } catch (error) {
     console.error('[documents/submit] Error:', error);

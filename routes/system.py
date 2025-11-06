@@ -334,6 +334,23 @@ def system_control():
                 logging.error(f"Error clearing errors: {e}")
                 msg = f"Clear errors error: {str(e)}"
         
+        elif action == "process_existing":
+            try:
+                from ollama_auto_processor import get_incoming_files, process_file
+                INCOMING_DIR = BASE_DIR / "incoming"
+                existing_files = get_incoming_files()
+                processed = 0
+                for filepath in existing_files:
+                    try:
+                        process_file(filepath)
+                        processed += 1
+                    except Exception as e:
+                        logging.error(f"Error processing {filepath.name}: {e}")
+                msg = f"Processed {processed} existing file(s) from incoming/"
+            except Exception as e:
+                logging.error(f"Error processing existing files: {e}")
+                msg = f"Process existing error: {str(e)}"
+        
         else:
             msg = f"Unknown action: {action}"
         

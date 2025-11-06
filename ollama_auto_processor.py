@@ -286,13 +286,8 @@ class IncomingWatcher(FileSystemEventHandler):
         super().__init__()
         self.processing_files = set()  # Track files being processed to avoid duplicates
     
-    def on_created(self, event):
-        """Handle new file creation events"""
-        if event.is_directory:
-            return
-        
-        path = Path(event.src_path)
-        
+    def _process_file_if_supported(self, path: Path):
+        """Helper method to process a file if it's supported"""
         # Check if file is supported
         supported_extensions = {'.pdf', '.docx', '.txt', '.xlsx'}
         if path.suffix.lower() not in supported_extensions:
@@ -300,6 +295,7 @@ class IncomingWatcher(FileSystemEventHandler):
         
         # Avoid processing the same file multiple times
         if path.name in self.processing_files:
+            logging.debug(f"Skipping {path.name} - already processing")
             return
         
         # Wait a moment for file to be fully written
@@ -307,6 +303,7 @@ class IncomingWatcher(FileSystemEventHandler):
         
         # Check if file still exists and is readable
         if not path.exists():
+            logging.warning(f"File {path.name} no longer exists after wait")
             return
         
         logging.info(f"📂 New file detected: {path.name}")
@@ -320,6 +317,23 @@ class IncomingWatcher(FileSystemEventHandler):
         finally:
             # Remove from processing set after a delay
             threading.Timer(60.0, lambda: self.processing_files.discard(path.name)).start()
+    
+    def on_created(self, event):
+        """Handle new file creation events"""
+        if event.is_directory:
+            return
+        
+        path = Path(event.src_path)
+        self._process_file_if_supported(path)
+    
+    def on_moved(self, event):
+        """Handle file move/copy events (some file operations trigger moved instead of created)"""
+        if event.is_directory:
+            return
+        
+        # When a file is moved/copied, event.dest_path contains the new location
+        path = Path(event.dest_path) if hasattr(event, 'dest_path') and event.dest_path else Path(event.src_path)
+        self._process_file_if_supported(path)
 
 def start_folder_watcher():
     """Start the folder watcher to monitor incoming directory"""

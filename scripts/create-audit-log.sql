@@ -42,16 +42,36 @@ COMMENT ON COLUMN audit_log.timestamp IS 'Timestamp when the action was performe
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Admins can view all audit logs
-CREATE POLICY "Admins can view all audit logs"
-  ON audit_log
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM users_profiles
-      WHERE users_profiles.user_id = auth.uid()
-      AND users_profiles.role IN ('admin', 'spsa')
-    )
-  );
+-- This policy checks if users_profiles exists, otherwise allows authenticated users
+DO $$
+BEGIN
+  -- Check if users_profiles table exists
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables 
+    WHERE table_schema = 'public' AND table_name = 'users_profiles'
+  ) THEN
+    -- Create policy that checks users_profiles role
+    EXECUTE '
+    CREATE POLICY "Admins can view all audit logs"
+      ON audit_log
+      FOR SELECT
+      USING (
+        EXISTS (
+          SELECT 1 FROM users_profiles
+          WHERE users_profiles.user_id = auth.uid()
+          AND users_profiles.role IN (''admin'', ''spsa'')
+        )
+      )';
+  ELSE
+    -- If users_profiles doesn't exist, allow all authenticated users to view
+    -- (You can restrict this later once users_profiles is set up)
+    EXECUTE '
+    CREATE POLICY "Authenticated users can view audit logs"
+      ON audit_log
+      FOR SELECT
+      USING (auth.role() = ''authenticated'')';
+  END IF;
+END $$;
 
 -- RLS Policy: Service role can insert audit logs (for API routes)
 CREATE POLICY "Service role can insert audit logs"

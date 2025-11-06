@@ -122,10 +122,29 @@ The system assumes the following NSSM services are running:
 
 ## 📚 Documentation
 
-- [Deployment Guide](docs/DEPLOYMENT-FINAL.md)
-- [Route Reference](docs/ROUTE-REFERENCE.md)
-- [Migration Guide](docs/MIGRATION-SUMMARY.md)
+### Getting Started
 - [Quick Start](docs/QUICK-START.md)
+- [Migration Guide](docs/MIGRATION-SUMMARY.md)
+
+### API & Routes
+- [Route Reference](docs/ROUTE-REFERENCE.md)
+- [Page Map](docs/PAGE-MAP.md)
+
+### Database
+- [Database Schema](docs/DATABASE-SCHEMA.md) - Quick reference
+- [Supabase Schema](docs/SUPABASE-SCHEMA.md) - Complete schema details
+
+### Processing Pipeline
+- [Preprocessing Module](docs/PREPROCESS-MODULE.md)
+- [Preprocessing Integration](docs/PREPROCESS-INTEGRATION.md)
+- [Post-Processing Module](docs/POSTPROCESS-MODULE.md)
+- [Evaluation Harness](docs/EVALUATION-HARNESS.md)
+
+### System & Deployment
+- [Deployment Guide](docs/DEPLOYMENT-FINAL.md)
+- [Queue System](docs/QUEUE-SYSTEM.md)
+- [Learning Logger](docs/LEARNING-LOGGER.md)
+- [Approval Sync](docs/APPROVAL-SYNC.md)
 
 ## 🧪 Testing
 

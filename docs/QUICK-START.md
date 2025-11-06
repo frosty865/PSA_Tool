@@ -126,5 +126,5 @@ Invoke-WebRequest -Uri "http://localhost:11434/api/tags"
 3. **Test Endpoints**: Verify all routes work correctly
 4. **Deploy**: Configure for production deployment
 
-For detailed migration instructions, see `MIGRATION-GUIDE.md`
+For detailed migration instructions, see `docs/MIGRATION-GUIDE.md`
 

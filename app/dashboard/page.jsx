@@ -1,4 +1,4 @@
-import VOFCProcessingDashboard from "../components/VOFCProcessingDashboard";
+import VOFCProcessingDashboard from "@/app/components/components/VOFCProcessingDashboard";
 
 export default function DashboardPage() {
   return (

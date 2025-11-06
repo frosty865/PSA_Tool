@@ -18,6 +18,7 @@ from routes.library import library_bp
 from routes.analytics import bp as analytics_bp
 from routes.disciplines import bp as disciplines_bp
 from routes.learning import learning_bp
+from routes.models import models_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Next.js frontend
@@ -39,6 +40,7 @@ app.register_blueprint(library_bp)
 app.register_blueprint(analytics_bp)
 app.register_blueprint(disciplines_bp)
 app.register_blueprint(learning_bp)
+app.register_blueprint(models_bp)
 
 # Start background queue worker
 from services.queue_manager import start_worker

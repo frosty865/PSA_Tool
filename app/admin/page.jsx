@@ -887,8 +887,45 @@ export default function AdminOverviewPage() {
             </div>
           </div>
 
+          {/* Analytics Dashboard */}
+          <Link href="/admin/analytics" className="card" style={{ 
+            textDecoration: 'none', 
+            transition: 'all 0.3s ease',
+            border: '1px solid var(--cisa-gray-light)',
+            background: 'linear-gradient(135deg, rgba(0, 113, 188, 0.05) 0%, rgba(0, 113, 188, 0.02) 100%)'
+          }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.borderColor = 'var(--cisa-blue)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
+            }}
+          >
+            <div style={{ 
+              fontSize: 'var(--font-size-xxl)', 
+              marginBottom: 'var(--spacing-sm)'
+            }}>📈</div>
+            <div style={{ 
+              fontWeight: 700, 
+              color: 'var(--cisa-blue)', 
+              marginBottom: 'var(--spacing-xs)',
+              fontSize: 'var(--font-size-lg)'
+            }}>Analytics Dashboard</div>
+            <div style={{ 
+              fontSize: 'var(--font-size-sm)', 
+              color: 'var(--cisa-gray)',
+              lineHeight: 1.5
+            }}>
+              View learning events metrics, model performance statistics, and approval rates
+            </div>
+          </Link>
+
           {/* Learning Metrics Dashboard */}
-          <Link href="/dashboard/learning" className="card" style={{ 
+          <Link href="/admin/learning" className="card" style={{
             textDecoration: 'none', 
             transition: 'all 0.3s ease',
             border: '1px solid var(--cisa-gray-light)',

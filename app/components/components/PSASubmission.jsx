@@ -191,18 +191,37 @@ export default function PSASubmission() {
         body: formDataToSend
       });
       
-      if (!response.ok) {
+      // Read response once - check if it's JSON or text
+      const contentType = response.headers.get('content-type');
+      let result;
+      
+      if (contentType && contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
         const errorText = await response.text();
-        let errorData;
         try {
-          errorData = JSON.parse(errorText);
+          result = JSON.parse(errorText);
         } catch {
-          errorData = { error: errorText || `HTTP ${response.status}` };
+          result = { error: errorText || `HTTP ${response.status}` };
         }
-        throw new Error(errorData.error || errorData.details || `Failed to submit: ${response.status}`);
       }
       
-      const result = await response.json();
+      if (!response.ok) {
+        // Build detailed error message
+        let errorMsg = result.error || `Failed to submit: ${response.status}`;
+        if (result.details) {
+          errorMsg += ` - ${result.details}`;
+        }
+        if (result.hint) {
+          errorMsg += ` (${result.hint})`;
+        }
+        if (result.code) {
+          errorMsg += ` [${result.code}]`;
+        }
+        
+        console.error('[PSASubmission] Submit error:', result);
+        throw new Error(errorMsg);
+      }
       
       if (result.success) {
         const submissionId = result.submission_id;
@@ -220,7 +239,18 @@ export default function PSASubmission() {
         const fileInput = document.getElementById('file');
         if (fileInput) fileInput.value = '';
       } else {
-        setMessage(`❌ Error: ${result.error || result.details || 'Unknown error'}`);
+        // Build detailed error message from result
+        let errorMsg = result.error || 'Unknown error';
+        if (result.details) {
+          errorMsg += ` - ${result.details}`;
+        }
+        if (result.hint) {
+          errorMsg += ` (${result.hint})`;
+        }
+        if (result.code) {
+          errorMsg += ` [${result.code}]`;
+        }
+        setMessage(`❌ Error: ${errorMsg}`);
       }
     } catch (error) {
       console.error('Submission error:', error);

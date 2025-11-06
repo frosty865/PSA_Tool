@@ -43,32 +43,49 @@ function SystemStatusPage() {
   }
 
   // Live health check using Next.js API proxy (same as admin dashboard)
+  // Uses debouncing to prevent flickering - requires 2 consecutive failures before marking offline
   useEffect(() => {
+    let failureCount = 0
+    let lastKnownGood = { flask: 'unknown', ollama: 'unknown', supabase: 'unknown' }
+    
     async function fetchSystemHealth() {
       try {
         const res = await fetch('/api/system/health', { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
-          setSimpleHealth({
+          const newHealth = {
             flask: data.components?.flask || 'unknown',
             ollama: data.components?.ollama || 'unknown',
             supabase: data.components?.supabase || 'unknown'
-          })
+          }
+          
+          // Reset failure count on success
+          failureCount = 0
+          lastKnownGood = newHealth
+          setSimpleHealth(newHealth)
         } else {
           throw new Error(`Health check failed: ${res.status}`)
         }
       } catch (err) {
-        console.error('System health check failed:', err)
-        setSimpleHealth({
-          flask: 'offline',
-          ollama: 'offline',
-          supabase: 'offline'
-        })
+        failureCount++
+        console.error(`System health check failed (${failureCount} consecutive failures):`, err)
+        
+        // Only mark as offline after 2 consecutive failures to prevent flickering
+        if (failureCount >= 2) {
+          setSimpleHealth({
+            flask: 'offline',
+            ollama: 'offline',
+            supabase: 'offline'
+          })
+        } else {
+          // Keep last known good state on first failure
+          setSimpleHealth(lastKnownGood)
+        }
       }
     }
 
     fetchSystemHealth()
-    const interval = setInterval(fetchSystemHealth, 10000) // refresh every 10s
+    const interval = setInterval(fetchSystemHealth, 15000) // refresh every 15s (reduced frequency)
     return () => clearInterval(interval)
   }, [])
 

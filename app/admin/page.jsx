@@ -15,15 +15,12 @@ export default function AdminOverviewPage() {
   const [progress, setProgress] = useState(null)
 
   // System health checker - uses Next.js API route proxy to avoid CORS issues
+  // Manual refresh function (for button clicks)
   const fetchSystemHealth = useCallback(async () => {
     try {
-      // Use Next.js API route proxy instead of calling Flask directly
-      // This avoids CORS issues and provides better error handling
       const res = await fetch('/api/system/health', { 
         cache: 'no-store',
-        headers: {
-          'Accept': 'application/json'
-        }
+        headers: { 'Accept': 'application/json' }
       })
       
       if (!res.ok) {
@@ -32,34 +29,66 @@ export default function AdminOverviewPage() {
       
       const json = await res.json()
       
-      // Handle the response data structure
       if (json.components) {
         setSystem(json.components)
-      } else if (json.status === 'error' || json.status === 'timeout') {
-        // API route returned an error state
-        setSystem({
-          flask: json.components?.flask || 'offline',
-          ollama: json.components?.ollama || 'unknown',
-          supabase: json.components?.supabase || 'unknown'
-        })
       } else {
-        // Fallback if structure is unexpected
         setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown' })
       }
     } catch (err) {
-      console.error('[System Health] Fetch failed:', err)
-      setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
+      console.error('[System Health] Manual refresh failed:', err)
+      // On manual refresh, show error but don't change state if we have a previous good state
+      setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
+        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown' }
+        : prev
+      )
     }
   }, [])
 
   useEffect(() => {
     let isMounted = true
-    fetchSystemHealth()
-    const interval = setInterval(() => {
-      if (isMounted) fetchSystemHealth()
-    }, 15000)
+    let failureCount = 0
+    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking' }
+    
+    const healthCheckWithDebounce = async () => {
+      if (!isMounted) return
+      
+      try {
+        const res = await fetch('/api/system/health', { 
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        })
+        
+        if (!res.ok) {
+          throw new Error(`Health check API returned ${res.status}`)
+        }
+        
+        const json = await res.json()
+        
+        if (json.components) {
+          failureCount = 0
+          lastKnownGood = json.components
+          setSystem(json.components)
+        } else {
+          throw new Error('Invalid response format')
+        }
+      } catch (err) {
+        failureCount++
+        console.error(`[System Health] Fetch failed (${failureCount} consecutive):`, err)
+        
+        // Only mark as offline after 2 consecutive failures
+        if (failureCount >= 2) {
+          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
+        } else {
+          // Keep last known good state
+          setSystem(lastKnownGood)
+        }
+      }
+    }
+    
+    healthCheckWithDebounce()
+    const interval = setInterval(healthCheckWithDebounce, 20000) // 20s interval to reduce load
     return () => { isMounted = false; clearInterval(interval) }
-  }, [fetchSystemHealth])
+  }, [])
 
   // Admin overview data fetcher
   const loadDashboardData = useCallback(async () => {

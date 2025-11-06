@@ -84,46 +84,95 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
         }
 
         const userId = session.user.id
+        console.log('[RoleGate] User ID:', userId)
 
-        // Try users_profiles table first (your schema), fallback to profiles
+        // Try to get user info from verify endpoint first (more reliable)
+        let userRole = null
         let profile = null
-        let profileError = null
+        
+        try {
+          const verifyRes = await fetch('/api/auth/verify', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          })
+          
+          if (verifyRes.ok) {
+            const verifyData = await verifyRes.json()
+            if (verifyData.success && verifyData.user) {
+              userRole = String(verifyData.user.role || 'user').toLowerCase()
+              console.log('[RoleGate] Got role from verify endpoint:', userRole)
+            }
+          }
+        } catch (verifyErr) {
+          console.warn('[RoleGate] Verify endpoint failed, falling back to direct lookup:', verifyErr)
+        }
 
-        // Try users_profiles first
-        const { data: userProfile, error: userProfileError } = await supabase
-          .from('users_profiles')
-          .select('role')
-          .eq('user_id', userId)
-          .maybeSingle()
+        // Fallback: Try users_profiles table directly if verify endpoint didn't work
+        if (!userRole) {
+          let profileError = null
 
-        if (!userProfileError && userProfile) {
-          profile = userProfile
-        } else {
-          // Fallback to profiles table
-          const { data: profilesData, error: profilesError } = await supabase
-            .from('profiles')
+          // Try users_profiles first (by user_id)
+          const { data: userProfile, error: userProfileError } = await supabase
+            .from('users_profiles')
             .select('role')
-            .eq('id', userId)
+            .eq('user_id', userId)
             .maybeSingle()
 
-          if (!profilesError && profilesData) {
-            profile = profilesData
+          if (!userProfileError && userProfile) {
+            profile = userProfile
+            userRole = String(userProfile.role || 'user').toLowerCase()
+            console.log('[RoleGate] Got role from users_profiles (user_id):', userRole)
           } else {
-            profileError = profilesError || userProfileError
+            // Try users_profiles by id
+            const { data: userProfileById, error: userProfileByIdError } = await supabase
+              .from('users_profiles')
+              .select('role')
+              .eq('id', userId)
+              .maybeSingle()
+
+            if (!userProfileByIdError && userProfileById) {
+              profile = userProfileById
+              userRole = String(userProfileById.role || 'user').toLowerCase()
+              console.log('[RoleGate] Got role from users_profiles (id):', userRole)
+            } else {
+              // Fallback to profiles table
+              const { data: profilesData, error: profilesError } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', userId)
+                .maybeSingle()
+
+              if (!profilesError && profilesData) {
+                profile = profilesData
+                userRole = String(profilesData.role || 'user').toLowerCase()
+                console.log('[RoleGate] Got role from profiles:', userRole)
+              } else {
+                profileError = profilesError || userProfileByIdError || userProfileError
+                console.error('[RoleGate] All profile lookups failed:', {
+                  userProfileError: userProfileError?.message,
+                  userProfileByIdError: userProfileByIdError?.message,
+                  profilesError: profilesError?.message
+                })
+              }
+            }
+          }
+
+          if (!userRole) {
+            console.error('[RoleGate] Could not determine user role')
+            if (isMounted) {
+              setLoading(false)
+              router.replace('/splash')
+            }
+            return
           }
         }
 
-        if (profileError || !profile) {
-          console.error('[RoleGate] Profile lookup failed:', profileError?.message || 'Profile not found')
-          if (isMounted) {
-            setLoading(false)
-            router.replace('/splash')
-          }
-          return
-        }
-
-        const userRole = String(profile?.role || 'user').toLowerCase()
         const normalizedRequiredRole = String(requiredRole).toLowerCase()
+        console.log('[RoleGate] Role check:', { userRole, requiredRole: normalizedRequiredRole })
 
         // Support multiple role checks: admin/spsa for admin access, or exact match
         if (normalizedRequiredRole === 'admin') {

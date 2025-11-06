@@ -72,21 +72,16 @@ export default function AuditLogPage() {
     }
   }
 
-  if (loading && logs.length === 0) {
-    return (
-      <RoleGate requiredRole="admin">
+  return (
+    <RoleGate requiredRole="admin">
+      {loading && logs.length === 0 ? (
         <div className="flex justify-center items-center h-full min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading audit log...</p>
           </div>
         </div>
-      </RoleGate>
-    )
-  }
-
-  return (
-    <RoleGate requiredRole="admin">
+      ) : (
       <div className="p-6 space-y-4" style={{ minHeight: '100vh' }}>
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Review Audit Trail</h1>
@@ -245,6 +240,7 @@ export default function AuditLogPage() {
           </div>
         )}
       </div>
+      )}
     </RoleGate>
   )
 }

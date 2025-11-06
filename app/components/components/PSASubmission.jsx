@@ -120,6 +120,17 @@ export default function PSASubmission() {
         body: formData
       });
       
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText || `HTTP ${response.status}` };
+        }
+        throw new Error(errorData.error || `Failed to parse metadata: ${response.status}`);
+      }
+      
       const result = await response.json();
       
       if (result.success && result.parsedData) {
@@ -180,6 +191,17 @@ export default function PSASubmission() {
         body: formDataToSend
       });
       
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText || `HTTP ${response.status}` };
+        }
+        throw new Error(errorData.error || errorData.details || `Failed to submit: ${response.status}`);
+      }
+      
       const result = await response.json();
       
       if (result.success) {
@@ -198,11 +220,11 @@ export default function PSASubmission() {
         const fileInput = document.getElementById('file');
         if (fileInput) fileInput.value = '';
       } else {
-        setMessage(`❌ Error: ${result.error}`);
+        setMessage(`❌ Error: ${result.error || result.details || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Submission error:', error);
-      setMessage("❌ Error submitting document. Please try again.");
+      setMessage(`❌ Submission failed: ${error.message || error.toString()}`);
     } finally {
       setSubmitting(false);
     }

@@ -45,17 +45,13 @@ export async function POST(request) {
     const flaskUrl = getFlaskUrl();
 
     // Step 1: Save file to Flask incoming directory and process it
-    // Read file as array buffer and create new FormData
+    // In Node.js, we need to use the file directly or convert to Blob
     const fileArrayBuffer = await file.arrayBuffer();
-    const fileBuffer = Buffer.from(fileArrayBuffer);
     
-    // Use form-data compatible approach
-    // Create a new FormData with the file buffer
+    // Create FormData for Flask - use Blob which works in Node.js
     const flaskFormData = new FormData();
-    
-    // Create a File-like object for FormData
-    const fileForFormData = new File([fileBuffer], file.name, { type: file.type || 'application/octet-stream' });
-    flaskFormData.append('file', fileForFormData);
+    const fileBlob = new Blob([fileArrayBuffer], { type: file.type || 'application/octet-stream' });
+    flaskFormData.append('file', fileBlob, file.name);
 
     let fileSaved = false;
     let savedFilename = file.name;
@@ -152,8 +148,14 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('[documents/submit] Error:', error);
+    console.error('[documents/submit] Error stack:', error.stack);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to submit document' },
+      { 
+        success: false, 
+        error: error.message || 'Failed to submit document',
+        errorType: error.constructor.name,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      },
       { status: 500 }
     );
   }

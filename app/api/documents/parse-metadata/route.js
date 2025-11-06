@@ -32,8 +32,13 @@ export async function POST(request) {
     return await extractBasicMetadata(file);
   } catch (error) {
     console.error('[parse-metadata] Error:', error);
+    console.error('[parse-metadata] Error stack:', error.stack);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to parse metadata' },
+      { 
+        success: false, 
+        error: error.message || 'Failed to parse metadata',
+        errorType: error.constructor.name,
+      },
       { status: 500 }
     );
   }

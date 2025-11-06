@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchWithAuth } from '../../../lib/fetchWithAuth';
+import { fetchWithAuth } from '../../lib/fetchWithAuth';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, canAccessAdmin } from '../../../lib/auth';
+import { getCurrentUser, canAccessAdmin } from '../../lib/auth';
 import '@/styles/cisa.css';
 
 export default function ModelAnalyticsPage() {

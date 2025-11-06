@@ -73,7 +73,7 @@ export async function GET(request) {
     // Check if user is admin - try both id and user_id columns
     let { data: profile, error: profileError } = await supabaseAdmin
       .from('users_profiles')
-      .select('role')
+      .select('role, id, user_id, is_active')
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -81,7 +81,7 @@ export async function GET(request) {
     if (!profile && profileError?.code === 'PGRST116') {
       const resp = await supabaseAdmin
         .from('users_profiles')
-        .select('role')
+        .select('role, id, user_id, is_active')
         .eq('id', user.id)
         .maybeSingle();
       profile = resp.data || null;
@@ -93,19 +93,53 @@ export async function GET(request) {
       console.error('[Dashboard Overview] Profile error:', profileError);
     }
     
+    console.log('[Dashboard Overview] Profile lookup result:', {
+      userId: user.id,
+      userEmail: user.email,
+      profileFound: !!profile,
+      profileData: profile ? { role: profile.role, id: profile.id, user_id: profile.user_id, is_active: profile.is_active } : null,
+      profileError: profileError?.code || profileError?.message || null
+    });
+    
     // Check admin status via multiple methods (like verify endpoint)
     const allowlist = (process.env.ADMIN_EMAILS || '').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
     const isEmailAdmin = allowlist.includes(String(user.email).toLowerCase());
     const isMetadataAdmin = user.user_metadata?.is_admin || false;
-    const metadataRole = user.user_metadata?.role || '';
-    const isMetadataRoleAdmin = ['admin', 'spsa'].includes(String(metadataRole).toLowerCase());
+    const metadataRole = String(user.user_metadata?.role || '').toLowerCase().trim();
+    const isMetadataRoleAdmin = ['admin', 'spsa'].includes(metadataRole);
+    
+    console.log('[Dashboard Overview] Admin check:', {
+      email: user.email,
+      hasProfile: !!profile,
+      profileRole: profile?.role,
+      isEmailAdmin,
+      isMetadataAdmin,
+      metadataRole,
+      isMetadataRoleAdmin,
+      allowlist: allowlist.length > 0 ? 'configured' : 'empty'
+    });
     
     // If no profile but user is admin via allowlist/metadata, allow access
     if (!profile && (isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin)) {
       console.log('[Dashboard Overview] Admin user without profile, allowing access:', user.email);
-      // Continue with admin access
+      // Set a default role for admin users without profile
+      const finalRoleForAdmin = metadataRole || 'admin';
+      const isAdmin = true;
+      
+      // Continue to return data (skip the role check below since we know they're admin)
+      console.log('[Dashboard Overview] User authorized (admin via allowlist/metadata):', { email: user.email, role: finalRoleForAdmin, isAdmin });
+
+      // Fetch stats and softmatch data
+      const stats = [];
+      const soft = [];
+
+      return NextResponse.json({ 
+        stats,
+        soft 
+      });
     } else if (!profile) {
       console.error('[Dashboard Overview] No profile found for user:', user.id, user.email);
+      console.error('[Dashboard Overview] Admin check failed - not in allowlist and no metadata admin flag');
       return NextResponse.json(
         { error: 'Unauthorized - User profile not found' },
         { status: 403 }

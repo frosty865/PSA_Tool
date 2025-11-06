@@ -346,10 +346,12 @@ def create_vulnerability_ofc_links(
             for vuln in section_vulns[section_num]:
                 for ofc in section_ofcs[section_num]:
                     links.append({
-                        'vulnerability_id': vuln.get('id'),  # Will be set after DB insert
-                        'ofc_id': ofc.get('id'),  # Will be set after DB insert
-                        'link_type': 'direct' if section_num == vuln.get('enhanced_extraction', {}).get('section') else 'inferred',
-                        'confidence_score': 0.9 if section_num == vuln.get('enhanced_extraction', {}).get('section') else 0.7
+                        'vulnerability_section': section_num,  # Store section for matching
+                        'ofc_section': section_num,
+                        'vulnerability_text': vuln.get('vulnerability', '')[:100],  # For matching
+                        'ofc_text': ofc.get('option_text', '')[:100],  # For matching
+                        'link_type': 'direct',  # Same section = direct link
+                        'confidence_score': 0.9
                     })
     
     logger.info(f"Created {len(links)} vulnerability-OFC links")

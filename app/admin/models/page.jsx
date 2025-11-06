@@ -13,7 +13,7 @@ export default function ModelAnalytics() {
   const [modelInfo, setModelInfo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [lastRefresh, setLastRefresh] = useState(null)
 
   const fetchData = async () => {
     try {
@@ -71,6 +71,10 @@ export default function ModelAnalytics() {
   }
 
   useEffect(() => {
+    // Initialize lastRefresh on client side only
+    if (!lastRefresh) {
+      setLastRefresh(new Date())
+    }
     fetchData()
     // Auto-refresh every 60 seconds
     const interval = setInterval(fetchData, 60000)
@@ -304,7 +308,7 @@ export default function ModelAnalytics() {
 
               {/* Footer Info */}
               <div className="text-sm text-gray-500 text-center">
-                <p>Last refreshed: {lastRefresh.toLocaleString()}</p>
+                <p>Last refreshed: {lastRefresh ? lastRefresh.toLocaleString() : 'Never'}</p>
                 <p className="mt-1">Auto-refreshes every 60 seconds</p>
               </div>
             </div>

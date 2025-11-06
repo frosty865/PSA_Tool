@@ -11,8 +11,8 @@ export default function ProcessingMonitorPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [watcherStatus, setWatcherStatus] = useState('unknown') // 'unknown' | 'running' | 'stopped'
-  const logEndRef = useRef<HTMLDivElement>(null)
-  const eventSourceRef = useRef<EventSource | null>(null)
+  const logEndRef = useRef(null)
+  const eventSourceRef = useRef(null)
 
   // Poll progress.json every 10 seconds
   useEffect(() => {
@@ -316,18 +316,17 @@ export default function ProcessingMonitorPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ color: 'var(--cisa-blue)' }}>
             Quick Actions
           </h2>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <button
-              onClick={() => {
-                if (progress) {
-                  const fetchProgress = async () => {
-                    const res = await fetch('/api/system/progress', { cache: 'no-store' })
-                    if (res.ok) {
-                      const data = await res.json()
-                      setProgress(data)
-                    }
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/system/progress', { cache: 'no-store' })
+                  if (res.ok) {
+                    const data = await res.json()
+                    setProgress(data)
                   }
-                  fetchProgress()
+                } catch (err) {
+                  console.error('Error refreshing:', err)
                 }
               }}
               className="btn btn-primary"
@@ -339,6 +338,34 @@ export default function ProcessingMonitorPage() {
               className="btn btn-secondary"
             >
               🗑️ Clear Logs
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/system/control', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'process_existing' })
+                  })
+                  const data = await res.json()
+                  alert(data.message || 'Processing triggered')
+                  // Refresh progress after a moment
+                  setTimeout(async () => {
+                    const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
+                    if (progressRes.ok) {
+                      const progressData = await progressRes.json()
+                      setProgress(progressData)
+                    }
+                  }, 2000)
+                } catch (err) {
+                  console.error('Error processing existing files:', err)
+                  alert('Failed to process existing files: ' + err.message)
+                }
+              }}
+              className="btn btn-primary"
+              style={{ backgroundColor: 'var(--cisa-success)' }}
+            >
+              ⚡ Process Existing Files
             </button>
           </div>
         </div>

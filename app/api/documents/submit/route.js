@@ -95,8 +95,9 @@ export async function POST(request) {
     }
 
     // Note: submissions.type check constraint only allows 'vulnerability' or 'ofc'
+    // Note: submissions.status check constraint only allows 'pending_review', 'approved', 'rejected'
     // Document uploads will be processed to extract vulnerabilities, so use 'vulnerability'
-    // PHASE 1: Create submission with status='pending' (awaiting extraction per spec)
+    // PHASE 1: Create submission with status='pending_review' (awaiting extraction, then review)
     const publicationDate = publication_year ? `${publication_year}-01-01` : null;
     const submissionData = {
       type: 'vulnerability', // Must be 'vulnerability' or 'ofc' per check constraint
@@ -115,7 +116,7 @@ export async function POST(request) {
         file_size: file.size,
         file_type: file.type || file.name.split('.').pop(),
       },
-      status: 'pending', // PHASE 1: 'pending' = awaiting extraction (per spec)
+      status: 'pending_review', // Must be 'pending_review', 'approved', or 'rejected' per check constraint
       source: 'document_upload',
       ...(submitterEmail && { submitter_email: submitterEmail }),
       // Let database handle timestamps with defaults, but include them explicitly to be safe

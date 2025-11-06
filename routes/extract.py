@@ -40,11 +40,12 @@ def extract_submission(submission_id):
         
         submission = submission_result.data
         
-        # Check if submission is in pending status
-        if submission.get('status') != 'pending':
+        # Check if submission is in pending_review status (extraction can run on pending_review)
+        # After extraction, it will remain pending_review for manual review
+        if submission.get('status') not in ['pending_review']:
             return jsonify({
                 "success": False,
-                "error": f"Submission {submission_id} is not in 'pending' status (current: {submission.get('status')})",
+                "error": f"Submission {submission_id} is not in 'pending_review' status (current: {submission.get('status')}). Extraction only runs on pending_review submissions.",
                 "service": "PSA Processing Server"
             }), 400
         
@@ -140,10 +141,10 @@ def extract_all_pending():
     try:
         client = get_supabase_client()
         
-        # Find all pending document submissions
+        # Find all pending_review document submissions
         # Note: We need to filter by data->>'document_upload' = 'true'
         # This requires a more complex query
-        result = client.table('submissions').select('*').eq('status', 'pending').execute()
+        result = client.table('submissions').select('*').eq('status', 'pending_review').execute()
         
         pending_submissions = []
         for sub in result.data or []:

@@ -225,7 +225,7 @@ SELECT promote_submission_to_library(submission_id uuid);
 ```
 PDF Upload
    ↓
-[PHASE 1] Submissions Table Entry (status='pending')
+[PHASE 1] Submissions Table Entry (status='pending_review')
    ↓
 [PHASE 2] Parser → Extract Text, Sections, Rules
    ↓

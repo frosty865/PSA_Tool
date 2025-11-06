@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/app/lib/supabase-admin.js'
-import { applyCacheHeaders, CacheStrategies } from '@/app/api/middleware/cache.js'
+import { applyCacheHeaders, CacheStrategies } from '../middleware/cache.js'
 
 // Sectors rarely change - cache for 1 hour with ISR
 export const revalidate = 3600 // 1 hour
@@ -8,8 +8,9 @@ export const revalidate = 3600 // 1 hour
 export async function GET(request) {
   try {
     if (!supabaseAdmin) {
+      console.error('[API /api/sectors] supabaseAdmin is null - check environment variables')
       return NextResponse.json(
-        { error: 'Server configuration error: Supabase admin client not available' },
+        { error: 'Server configuration error: Supabase admin client not available', sectors: [] },
         { status: 500 }
       )
     }
@@ -21,10 +22,11 @@ export async function GET(request) {
       .order('id')
 
     if (error) {
-      console.error('[API /api/sectors] Error:', error)
+      console.error('[API /api/sectors] Supabase error:', error)
+      // Return empty array instead of 500 to prevent page crashes
       return NextResponse.json(
         { error: error.message, sectors: [] },
-        { status: 500 }
+        { status: 200 }
       )
     }
 
@@ -41,9 +43,10 @@ export async function GET(request) {
     return applyCacheHeaders(response, CacheStrategies.LONG)
   } catch (err) {
     console.error('[API /api/sectors] Exception:', err)
+    // Return empty array instead of 500 to prevent page crashes
     return NextResponse.json(
       { error: err.message, sectors: [] },
-      { status: 500 }
+      { status: 200 }
     )
   }
 }

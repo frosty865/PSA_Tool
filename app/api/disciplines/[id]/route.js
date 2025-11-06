@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabaseClient';
+import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
 
 // Get a specific discipline
 export async function GET(request, { params }) {
   try {
     const { id } = params;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('disciplines')
       .select('*')
       .eq('id', id)
@@ -43,7 +43,7 @@ export async function PUT(request, { params }) {
       );
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('disciplines')
       .update({
         name,

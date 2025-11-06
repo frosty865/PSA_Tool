@@ -15,8 +15,23 @@ export default function Navigation({ simple = false }) {
 
   const loadUser = useCallback(async () => {
     try {
+      // Check if supabase is available (might be null during SSR)
+      if (!supabase || !supabase.auth) {
+        setCurrentUser(null);
+        setLoading(false);
+        return;
+      }
+      
       // Include Supabase access token so /api/auth/verify can validate
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.warn('[Navigation] Session error:', sessionError);
+        setCurrentUser(null);
+        setLoading(false);
+        return;
+      }
+      
       const token = session?.access_token;
       
       if (!token) {
@@ -30,40 +45,65 @@ export default function Navigation({ simple = false }) {
         method: 'GET',
         credentials: 'include',
         headers: { Authorization: `Bearer ${token}` }
+      }).catch((fetchError) => {
+        console.error('[Navigation] Fetch error:', fetchError);
+        return null;
       });
       
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.user) {
-          const rawRole = result.user.role || result.user.group || 'user';
-          const normalizedRole = String(rawRole).toLowerCase();
-          const userObj = { 
-            ...result.user, 
-            role: normalizedRole,
-            is_admin: result.user.is_admin || normalizedRole === 'admin' || normalizedRole === 'spsa'
-          };
-          setCurrentUser(userObj);
-          setLoading(false);
-          return;
-        } else {
-          console.error('[Navigation] Invalid API response:', result);
-          setCurrentUser(null);
-          setLoading(false);
-          return;
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('[Navigation] API verify failed:', response.status, errorData);
+      if (!response) {
         setCurrentUser(null);
         setLoading(false);
         return;
       }
       
-      // No fallback - API must work correctly
+      if (response.ok) {
+        try {
+          const result = await response.json();
+          if (result.success && result.user) {
+            const rawRole = result.user.role || result.user.group || 'user';
+            const normalizedRole = String(rawRole).toLowerCase();
+            const userObj = { 
+              ...result.user, 
+              role: normalizedRole,
+              is_admin: result.user.is_admin || normalizedRole === 'admin' || normalizedRole === 'spsa'
+            };
+            console.log('[Navigation] User loaded:', {
+              email: userObj.email,
+              role: userObj.role,
+              is_admin: userObj.is_admin,
+              rawRole,
+              normalizedRole
+            });
+            setCurrentUser(userObj);
+            setLoading(false);
+            return;
+          } else {
+            // Invalid response but not an error - just no user
+            setCurrentUser(null);
+            setLoading(false);
+            return;
+          }
+        } catch (jsonError) {
+          console.error('[Navigation] JSON parse error:', jsonError);
+          setCurrentUser(null);
+          setLoading(false);
+          return;
+        }
+      } else {
+        // API returned error status - gracefully handle
+        try {
+          const errorData = await response.json();
+          console.warn('[Navigation] API verify failed:', response.status, errorData);
+        } catch (jsonError) {
+          console.warn('[Navigation] API verify failed with status:', response.status);
+        }
+        setCurrentUser(null);
+        setLoading(false);
+        return;
+      }
     } catch (error) {
-      console.error('Error loading user:', error);
+      console.error('[Navigation] Error loading user:', error);
       setCurrentUser(null);
-    } finally {
       setLoading(false);
     }
   }, []);
@@ -72,6 +112,20 @@ export default function Navigation({ simple = false }) {
     // Always load user - we need to check auth even on simple pages to show admin menu
     loadUser();
   }, [loadUser]);
+
+  // Debug: Log currentUser changes
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Navigation] currentUser state changed:', {
+        currentUser: currentUser ? {
+          email: currentUser.email,
+          role: currentUser.role,
+          is_admin: currentUser.is_admin
+        } : null,
+        loading
+      });
+    }
+  }, [currentUser, loading]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -89,13 +143,17 @@ export default function Navigation({ simple = false }) {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      if (supabase && supabase.auth) {
+        await supabase.auth.signOut();
+      }
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       setCurrentUser(null);
-      window.location.replace('/splash');
+      if (typeof window !== 'undefined') {
+        window.location.replace('/splash');
+      }
     }
   };
 
@@ -385,7 +443,21 @@ export default function Navigation({ simple = false }) {
           >
             📊 Generate Assessment
           </Link>
-          {!loading && currentUser && (['admin', 'spsa'].includes(String(currentUser.role || '').toLowerCase()) || currentUser.is_admin === true) && (
+          {/* Admin Panel Link - only visible to admins and spsa */}
+          {(() => {
+            const isAdmin = !loading && currentUser && (
+              ['admin', 'spsa'].includes(String(currentUser.role || '').toLowerCase()) || 
+              currentUser.is_admin === true
+            );
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[Navigation] Admin button check:', {
+                loading,
+                currentUser: currentUser ? { role: currentUser.role, is_admin: currentUser.is_admin } : null,
+                isAdmin
+              });
+            }
+            return isAdmin;
+          })() && (
             <>
               <Link
                 href="/admin"

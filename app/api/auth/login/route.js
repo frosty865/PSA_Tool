@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-client.js';
+import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
 
 export async function POST(request) {
   try {
@@ -33,9 +33,16 @@ export async function POST(request) {
     });
 
     if (error) {
-      console.error('Supabase auth error:', error);
+      console.error('[Login] Supabase auth error:', error);
+      console.error('[Login] Error details:', {
+        message: error.message,
+        status: error.status,
+        name: error.name
+      });
+      // Return more specific error message
+      const errorMessage = error.message || 'Invalid credentials';
       return NextResponse.json(
-        { success: false, error: 'Invalid credentials' },
+        { success: false, error: errorMessage },
         { status: 401 }
       );
     }
@@ -47,75 +54,127 @@ export async function POST(request) {
       );
     }
 
-    // Get user profile from user_profiles table using the same service role client
+    // Get user profile from users_profiles table using the same service role client
     let profile = null;
     let profileError = null;
+    
+    // Check if user is admin via email allowlist (before profile lookup)
+    const allowlist = (process.env.ADMIN_EMAILS || '').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
+    const isEmailAdmin = allowlist.includes(String(data.user.email).toLowerCase());
+    const isMetadataAdmin = data.user.user_metadata?.is_admin || false;
+    const metadataRole = data.user.user_metadata?.role || '';
+    const isMetadataRoleAdmin = ['admin', 'spsa'].includes(String(metadataRole).toLowerCase());
+    
     // Try by canonical id first
     {
       const res = await serviceSupabase
-        .from('user_profiles')
+        .from('users_profiles')
         .select('role, first_name, last_name, organization, is_active, username')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle();
       profile = res.data;
       profileError = res.error;
     }
     // Fallback: some databases may still use user_id column
-    if ((!profile || profileError) && profileError?.code === 'PGRST116') {
+    if (!profile && profileError?.code === 'PGRST116') {
       const resFallback = await serviceSupabase
-        .from('user_profiles')
+        .from('users_profiles')
         .select('role, first_name, last_name, organization, is_active, username')
         .eq('user_id', data.user.id)
-        .single();
+        .maybeSingle();
       profile = resFallback.data;
       profileError = resFallback.error;
+    }
+    
+    // Log profile lookup for debugging
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.warn('[Login] Profile lookup error (non-critical):', profileError);
+    }
+    
+    // If profile not found but user is admin, create a temporary profile object
+    if (!profile && (isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin)) {
+      console.log('[Login] Admin user without profile, creating temporary profile:', data.user.email);
+      profile = {
+        role: metadataRole || 'admin',
+        first_name: data.user.user_metadata?.first_name || '',
+        last_name: data.user.user_metadata?.last_name || '',
+        organization: data.user.user_metadata?.organization || null,
+        is_active: true,
+        username: data.user.user_metadata?.username || data.user.email
+      };
     }
 
     // Auto-create minimal active profile on first login if missing
     if (!profile) {
+      console.log('[Login] No profile found, attempting to create one');
       const firstName = data.user.user_metadata?.first_name || '';
       const lastName = data.user.user_metadata?.last_name || '';
+      // Check if user has admin role in metadata
+      const userRole = data.user.user_metadata?.role || 'user';
+      const isAdminMetadata = data.user.user_metadata?.is_admin || false;
+      const finalRole = (isAdminMetadata || userRole === 'admin' || userRole === 'spsa') ? userRole : 'user';
+      
       const newProfile = {
         id: data.user.id,
-        role: data.user.user_metadata?.role || 'user',
+        user_id: data.user.id, // Also set user_id for compatibility
+        role: finalRole,
         first_name: firstName,
         last_name: lastName,
         organization: data.user.user_metadata?.organization || null,
         is_active: true,
         username: data.user.user_metadata?.username || data.user.email
       };
+      console.log('[Login] Creating profile:', { email: data.user.email, role: finalRole });
       const { data: inserted, error: insertError } = await serviceSupabase
-        .from('user_profiles')
+        .from('users_profiles')
         .upsert(newProfile, { onConflict: 'id' })
         .select('role, first_name, last_name, organization, is_active, username')
         .single();
       if (insertError) {
-        console.error('Profile create error:', insertError);
+        console.error('[Login] Profile create error:', insertError);
+        // Don't fail login if profile creation fails - allow login to proceed
+        // but log the error
+        console.warn('[Login] Profile creation failed, but allowing login to proceed');
+      } else {
+        profile = inserted;
+      }
+    }
+
+    // Check if account is inactive - but allow admins to override
+    if (profile && profile.is_active === false) {
+      // Re-check admin status (already computed above)
+      const roleIsAdmin = profile.role && ['admin', 'spsa'].includes(String(profile.role).toLowerCase());
+      
+      if (!isEmailAdmin && !isMetadataAdmin && !isMetadataRoleAdmin && !roleIsAdmin) {
+        console.warn('[Login] Account inactive for non-admin user:', data.user.email);
         return NextResponse.json(
-          { success: false, error: 'User profile not found' },
+          { success: false, error: 'Account is inactive. Please contact an administrator.' },
           { status: 401 }
         );
+      } else {
+        console.log('[Login] Account inactive but user is admin, allowing login:', data.user.email);
+        // Force is_active to true for admin accounts
+        profile.is_active = true;
       }
-      profile = inserted;
     }
 
-    if (!profile.is_active) {
-      return NextResponse.json(
-        { success: false, error: 'Account is inactive' },
-        { status: 401 }
-      );
+    // Determine final role and admin status
+    let finalRole = profile?.role || metadataRole || 'user';
+    if (isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin) {
+      finalRole = metadataRole || 'admin';
     }
-
+    
     // Set the Supabase session cookies
     const response = NextResponse.json({
       success: true,
       user: {
         id: data.user.id,
         email: data.user.email,
-        role: profile.role,
-        name: `${profile.first_name} ${profile.last_name}`,
-        organization: profile.organization,
-        username: profile.username
+        role: finalRole,
+        name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || data.user.email : data.user.user_metadata?.name || data.user.email,
+        organization: profile?.organization || data.user.user_metadata?.organization || null,
+        username: profile?.username || data.user.user_metadata?.username || data.user.email,
+        is_admin: isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin || ['admin', 'spsa'].includes(String(finalRole).toLowerCase())
       },
       session: {
         access_token: data.session?.access_token || null,

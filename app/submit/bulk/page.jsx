@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase-client.js';
 import { getCurrentUser, getUserProfile, canSubmitVOFC } from '../../lib/auth';
 import { fetchSectors, fetchSubsectorsBySector } from '../../lib/fetchVOFC';
-import SessionTimeoutWarning from '../../../components/SessionTimeoutWarning';
+import SessionTimeoutWarning from '@/components/SessionTimeoutWarning';
 
 export default function BulkSubmission() {
   const [currentUser, setCurrentUser] = useState(null);

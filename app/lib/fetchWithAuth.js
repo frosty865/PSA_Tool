@@ -9,11 +9,12 @@ import { supabase } from './supabase-client.js'
  */
 export async function fetchWithAuth(path, options = {}) {
   // Ensure absolute URL for local dev and production
+  // In development, always use current origin (localhost:3000)
+  // In production, use NEXT_PUBLIC_SITE_URL if set, otherwise current origin
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
     (typeof window !== 'undefined'
       ? window.location.origin
-      : 'http://localhost:3000')
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')
 
   const url = path.startsWith('http')
     ? path

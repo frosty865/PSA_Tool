@@ -37,7 +37,7 @@ export default function LoginForm() {
       if (data?.user) {
         // Get user profile to check role
         const { data: profile } = await supabase
-          .from('user_profiles')
+          .from('users_profiles')
           .select('*')
           .eq('id', data.user.id)
           .single();

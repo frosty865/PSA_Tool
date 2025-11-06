@@ -5,11 +5,15 @@ Routes: /, /api/system/health, /api/version, /api/progress
 
 from flask import Blueprint, jsonify, request
 from services.ollama_client import test_ollama
-from services.supabase_client import test_supabase
+from services.supabase_client import test_supabase, get_supabase_client
 import os
+import json
 from datetime import datetime
 
 system_bp = Blueprint('system', __name__)
+
+# Get Supabase client for lightweight routes
+supabase = get_supabase_client()
 
 @system_bp.route('/')
 def index():
@@ -130,4 +134,55 @@ def version():
         "version": "1.0.0",
         "service": "PSA Processing Server"
     })
+
+@system_bp.route('/api/system/progress')
+def progress():
+    """Get progress from Ollama automation progress.json file"""
+    try:
+        with open(r"C:\Tools\Ollama\automation\progress.json", "r") as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({"status": "unknown", "message": "progress.json not found"}), 404
+
+@system_bp.route("/api/disciplines", methods=["GET", "OPTIONS"])
+def get_disciplines():
+    """Return all active security disciplines."""
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        res = supabase.table("disciplines").select("id, name, category").eq("is_active", True).execute()
+        # Return as array directly (not wrapped) for compatibility with viewer
+        return jsonify(res.data if res.data else []), 200
+    except Exception as e:
+        print(f"[Disciplines] Error: {str(e)}")
+        # Return empty array on error to prevent viewer crashes
+        return jsonify([]), 200
+
+@system_bp.route("/api/sectors", methods=["GET", "OPTIONS"])
+def get_sectors():
+    """Return all active sectors."""
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        res = supabase.table("sectors").select("id, sector_name").eq("is_active", True).execute()
+        # Return as array directly (not wrapped) for compatibility with viewer
+        return jsonify(res.data if res.data else []), 200
+    except Exception as e:
+        print(f"[Sectors] Error: {str(e)}")
+        # Return empty array on error to prevent viewer crashes
+        return jsonify([]), 200
+
+@system_bp.route("/api/subsectors", methods=["GET", "OPTIONS"])
+def get_subsectors():
+    """Return all active subsectors."""
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        res = supabase.table("subsectors").select("id, subsector_name").eq("is_active", True).execute()
+        # Return as array directly (not wrapped) for compatibility with viewer
+        return jsonify(res.data if res.data else []), 200
+    except Exception as e:
+        print(f"[Subsectors] Error: {str(e)}")
+        # Return empty array on error to prevent viewer crashes
+        return jsonify([]), 200
 

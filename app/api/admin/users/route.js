@@ -28,7 +28,7 @@ export async function GET(request) {
     let profiles = [];
     if (ids.length > 0) {
       const { data: profData, error: profErr } = await supabaseAdmin
-        .from('user_profiles')
+        .from('users_profiles')
         .select('user_id, first_name, last_name, role, is_active')
         .in('user_id', ids);
       if (profErr) throw profErr;
@@ -99,7 +99,7 @@ export async function POST(request) {
     };
     
     const { error: profErr } = await supabaseAdmin
-      .from('user_profiles')
+      .from('users_profiles')
       .upsert(profileData, { onConflict: 'user_id' });
     
     if (profErr) {
@@ -184,7 +184,7 @@ export async function PUT(request) {
 
     if (Object.keys(profUpdate).length > 1) { // More than just updated_at
       const { error: profErr } = await supabaseAdmin
-        .from('user_profiles')
+        .from('users_profiles')
         .update(profUpdate)
         .eq('user_id', user_id);
       if (profErr) {
@@ -217,7 +217,7 @@ export async function DELETE(request) {
       );
     }
     // Delete profile (non-fatal)
-    await supabaseAdmin.from('user_profiles').delete().eq('user_id', user_id);
+    await supabaseAdmin.from('users_profiles').delete().eq('user_id', user_id);
     // Delete auth user
     const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(user_id);
     if (delErr) throw delErr;

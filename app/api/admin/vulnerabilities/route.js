@@ -1,34 +1,65 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '../../../lib/auth-middleware';
-import { getServerClient } from '../../../lib/supabase-manager';
+import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
+import { cookies } from 'next/headers';
 
 // Admin vulnerabilities management with multi-agency RLS
 export async function GET(request) {
-  const { user, error } = await requireAdmin(request);
-  if (error) {
-    const msg = String(error || 'Unauthorized');
-    const status = msg.includes('Authentication') ? 401 : 403;
-    return NextResponse.json({ success: false, error: msg }, { status });
-  }
-  
   try {
-    const supabaseServer = getServerClient();
-    if (!supabaseServer) {
-      return NextResponse.json(
-        { success: false, error: 'Database connection failed' },
-        { status: 500 }
-      );
+    // Auth check
+    const cookieStore = cookies();
+    
+    // First try: sb-access-token (set by login route)
+    let accessToken = null;
+    const sbAccessToken = cookieStore.get('sb-access-token');
+    if (sbAccessToken) {
+      accessToken = sbAccessToken.value;
+    }
+    
+    // Fallback: try other common cookie names
+    if (!accessToken) {
+      const allCookies = cookieStore.getAll();
+      for (const cookie of allCookies) {
+        if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
+          try {
+            const tokenData = JSON.parse(cookie.value);
+            accessToken = tokenData.access_token || tokenData;
+            break;
+          } catch {
+            accessToken = cookie.value;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!accessToken || !supabaseAdmin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
+    if (userError || !user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabaseAdmin
+      .from('users_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
 
     // Get current admin's agency for RLS filtering
-    const { data: adminAgency } = await supabaseServer
+    const { data: adminAgency } = await supabaseAdmin
       .from('user_agency_relationships')
       .select('agency_id, role_id')
       .eq('user_id', user.id)
       .single();
 
     // Get vulnerabilities with their relationships
-    const { data: vulnerabilities, error: vulnerabilitiesError } = await supabaseServer
+    const { data: vulnerabilities, error: vulnerabilitiesError } = await supabaseAdmin
       .from('vulnerabilities')
       .select(`
         id,
@@ -78,14 +109,52 @@ export async function GET(request) {
 
 // Create new vulnerability
 export async function POST(request) {
-  const { user, error } = await requireAdmin(request);
-  if (error) {
-    const msg = String(error || 'Unauthorized');
-    const status = msg.includes('Authentication') ? 401 : 403;
-    return NextResponse.json({ success: false, error: msg }, { status });
-  }
-  
   try {
+    // Auth check (same as GET)
+    const cookieStore = cookies();
+    
+    // First try: sb-access-token (set by login route)
+    let accessToken = null;
+    const sbAccessToken = cookieStore.get('sb-access-token');
+    if (sbAccessToken) {
+      accessToken = sbAccessToken.value;
+    }
+    
+    // Fallback: try other common cookie names
+    if (!accessToken) {
+      const allCookies = cookieStore.getAll();
+      for (const cookie of allCookies) {
+        if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
+          try {
+            const tokenData = JSON.parse(cookie.value);
+            accessToken = tokenData.access_token || tokenData;
+            break;
+          } catch {
+            accessToken = cookie.value;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!accessToken || !supabaseAdmin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
+    if (userError || !user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabaseAdmin
+      .from('users_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
     const { vulnerability_name, description, discipline, sector_id, subsector_id } = await request.json();
     
     if (!vulnerability_name || !description || !discipline) {
@@ -95,23 +164,17 @@ export async function POST(request) {
       );
     }
 
-    const supabaseServer = getServerClient();
-    if (!supabaseServer) {
-      return NextResponse.json(
-        { success: false, error: 'Database connection failed' },
-        { status: 500 }
-      );
-    }
+    // Use supabaseAdmin (already imported)
 
     // Get current admin's agency for audit trail
-    const { data: adminAgency } = await supabaseServer
+    const { data: adminAgency } = await supabaseAdmin
       .from('user_agency_relationships')
       .select('agency_id, role_id')
       .eq('user_id', user.id)
       .single();
 
     // Create vulnerability
-    const { data: vulnerability, error: vulnerabilityError } = await supabaseServer
+    const { data: vulnerability, error: vulnerabilityError } = await supabaseAdmin
       .from('vulnerabilities')
       .insert({
         vulnerability_name,
@@ -128,7 +191,7 @@ export async function POST(request) {
     if (vulnerabilityError) throw vulnerabilityError;
 
     // Log security audit trail
-    await supabaseServer
+    await supabaseAdmin
       .from('security_audit_trail')
       .insert({
         user_id: user.id,
@@ -162,14 +225,52 @@ export async function POST(request) {
 
 // Update vulnerability
 export async function PUT(request) {
-  const { user, error } = await requireAdmin(request);
-  if (error) {
-    const msg = String(error || 'Unauthorized');
-    const status = msg.includes('Authentication') ? 401 : 403;
-    return NextResponse.json({ success: false, error: msg }, { status });
-  }
-  
   try {
+    // Auth check (same as GET)
+    const cookieStore = cookies();
+    
+    // First try: sb-access-token (set by login route)
+    let accessToken = null;
+    const sbAccessToken = cookieStore.get('sb-access-token');
+    if (sbAccessToken) {
+      accessToken = sbAccessToken.value;
+    }
+    
+    // Fallback: try other common cookie names
+    if (!accessToken) {
+      const allCookies = cookieStore.getAll();
+      for (const cookie of allCookies) {
+        if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
+          try {
+            const tokenData = JSON.parse(cookie.value);
+            accessToken = tokenData.access_token || tokenData;
+            break;
+          } catch {
+            accessToken = cookie.value;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!accessToken || !supabaseAdmin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
+    if (userError || !user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabaseAdmin
+      .from('users_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
     const { id, vulnerability_name, description, discipline, sector_id, subsector_id } = await request.json();
     
     if (!id) {
@@ -179,23 +280,17 @@ export async function PUT(request) {
       );
     }
 
-    const supabaseServer = getServerClient();
-    if (!supabaseServer) {
-      return NextResponse.json(
-        { success: false, error: 'Database connection failed' },
-        { status: 500 }
-      );
-    }
+    // Use supabaseAdmin (already imported)
 
     // Get current admin's agency for audit trail
-    const { data: adminAgency } = await supabaseServer
+    const { data: adminAgency } = await supabaseAdmin
       .from('user_agency_relationships')
       .select('agency_id, role_id')
       .eq('user_id', user.id)
       .single();
 
     // Update vulnerability
-    const { data: vulnerability, error: vulnerabilityError } = await supabaseServer
+    const { data: vulnerability, error: vulnerabilityError } = await supabaseAdmin
       .from('vulnerabilities')
       .update({
         vulnerability_name,
@@ -212,7 +307,7 @@ export async function PUT(request) {
     if (vulnerabilityError) throw vulnerabilityError;
 
     // Log security audit trail
-    await supabaseServer
+    await supabaseAdmin
       .from('security_audit_trail')
       .insert({
         user_id: user.id,
@@ -244,14 +339,52 @@ export async function PUT(request) {
 
 // Delete vulnerability
 export async function DELETE(request) {
-  const { user, error } = await requireAdmin(request);
-  if (error) {
-    const msg = String(error || 'Unauthorized');
-    const status = msg.includes('Authentication') ? 401 : 403;
-    return NextResponse.json({ success: false, error: msg }, { status });
-  }
-  
   try {
+    // Auth check (same as GET)
+    const cookieStore = cookies();
+    
+    // First try: sb-access-token (set by login route)
+    let accessToken = null;
+    const sbAccessToken = cookieStore.get('sb-access-token');
+    if (sbAccessToken) {
+      accessToken = sbAccessToken.value;
+    }
+    
+    // Fallback: try other common cookie names
+    if (!accessToken) {
+      const allCookies = cookieStore.getAll();
+      for (const cookie of allCookies) {
+        if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
+          try {
+            const tokenData = JSON.parse(cookie.value);
+            accessToken = tokenData.access_token || tokenData;
+            break;
+          } catch {
+            accessToken = cookie.value;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!accessToken || !supabaseAdmin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
+    if (userError || !user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabaseAdmin
+      .from('users_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     
@@ -262,23 +395,17 @@ export async function DELETE(request) {
       );
     }
 
-    const supabaseServer = getServerClient();
-    if (!supabaseServer) {
-      return NextResponse.json(
-        { success: false, error: 'Database connection failed' },
-        { status: 500 }
-      );
-    }
+    // Use supabaseAdmin (already imported)
 
     // Get current admin's agency for audit trail
-    const { data: adminAgency } = await supabaseServer
+    const { data: adminAgency } = await supabaseAdmin
       .from('user_agency_relationships')
       .select('agency_id, role_id')
       .eq('user_id', user.id)
       .single();
 
     // Delete vulnerability (this will cascade to related records)
-    const { error: vulnerabilityError } = await supabaseServer
+    const { error: vulnerabilityError } = await supabaseAdmin
       .from('vulnerabilities')
       .delete()
       .eq('id', id);
@@ -286,7 +413,7 @@ export async function DELETE(request) {
     if (vulnerabilityError) throw vulnerabilityError;
 
     // Log security audit trail
-    await supabaseServer
+    await supabaseAdmin
       .from('security_audit_trail')
       .insert({
         user_id: user.id,

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-client.js';
+import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
 import { spawn } from 'child_process';
 import path from 'path';
 

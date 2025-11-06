@@ -7,10 +7,13 @@ export default function AdvancedReturnToTop() {
 
   // Show button when page is scrolled down and track scroll progress
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     const toggleVisibility = () => {
-      const scrollTop = window.pageYOffset;
+      const scrollTop = window.pageYOffset || window.scrollY || 0;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = (scrollTop / docHeight) * 100;
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
       
       setScrollProgress(scrollPercent);
       

@@ -140,7 +140,7 @@ export default function AdminPage() {
 
       // Test database connection with a simple query
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from('users_profiles')
         .select('count')
         .limit(1);
 

@@ -1,4 +1,8 @@
-// Admin stats API - uses service role key to bypass RLS
+/**
+ * Admin Dashboard Overview API
+ * Returns statistics and softmatch data for the admin dashboard
+ */
+
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
@@ -23,12 +27,10 @@ export async function GET(request) {
       for (const cookie of allCookies) {
         if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
           try {
-            // Supabase stores tokens in JSON format in cookies
             const tokenData = JSON.parse(cookie.value);
             accessToken = tokenData.access_token || tokenData;
             break;
           } catch {
-            // If not JSON, use directly
             accessToken = cookie.value;
             break;
           }
@@ -44,7 +46,14 @@ export async function GET(request) {
       );
     }
 
-    // Verify token and get user using admin client
+    // Verify token and get user
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
     const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
     
     if (userError || !user) {
@@ -54,54 +63,58 @@ export async function GET(request) {
       );
     }
 
-    // Check if user is admin by fetching their profile using admin client
+    // Check if user is admin
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('users_profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    if (profileError || !profile || !['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
+    // Enhanced error logging for debugging
+    if (profileError) {
+      console.error('[Dashboard Overview] Profile error:', profileError);
+    }
+    
+    if (!profile) {
+      console.error('[Dashboard Overview] No profile found for user:', user.id);
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: 'Unauthorized - User profile not found' },
+        { status: 403 }
+      );
+    }
+    
+    console.log('[Dashboard Overview] User role:', profile.role);
+    
+    if (!['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
+      console.error('[Dashboard Overview] Insufficient role. User role:', profile.role, 'Required: admin, spsa, psa, or analyst');
+      return NextResponse.json(
+        { error: 'Unauthorized - Admin access required', userRole: profile.role },
         { status: 403 }
       );
     }
 
-    // Fetch stats using admin client (bypasses RLS)
-    const [vulnerabilitiesResult, ofcsResult, usersResult] = await Promise.all([
-      supabaseAdmin
-        .from('vulnerabilities')
-        .select('*', { count: 'exact', head: true })
-        .catch(err => ({ data: null, error: err, count: 0 })),
-      supabaseAdmin
-        .from('options_for_consideration')
-        .select('*', { count: 'exact', head: true })
-        .catch(err => ({ data: null, error: err, count: 0 })),
-      supabaseAdmin
-        .from('users_profiles')
-        .select('*', { count: 'exact' })
-        .catch(err => ({ data: [], error: err, count: 0 }))
-    ]);
+    // Fetch stats and softmatch data
+    // For now, return empty arrays to prevent errors
+    // This can be enhanced later with actual data from learning_events or processing runs
+    const stats = [];
+    const soft = [];
 
-    const stats = {
-      vulnerabilities: vulnerabilitiesResult.count || 0,
-      ofcs: ofcsResult.count || 0,
-      users: usersResult.count || usersResult.data?.length || 0,
-      pendingVulnerabilities: 0,
-      pendingOFCs: 0,
-      errors: {
-        vulnerabilities: vulnerabilitiesResult.error?.message,
-        ofcs: ofcsResult.error?.message,
-        users: usersResult.error?.message
-      }
-    };
+    // TODO: Populate stats from learning_events or processing runs
+    // TODO: Populate soft from softmatch data
 
-    return NextResponse.json({ success: true, stats });
+    return NextResponse.json({ 
+      stats,
+      soft 
+    });
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
+    console.error('Error fetching dashboard overview:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { 
+        error: 'Internal server error', 
+        details: error.message,
+        stats: [],
+        soft: []
+      },
       { status: 500 }
     );
   }

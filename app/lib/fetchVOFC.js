@@ -285,8 +285,11 @@ export async function fetchVulnerabilities() {
 
     if (ofcSourceError) {
       console.error('❌ Error fetching OFC-Source links:', ofcSourceError);
-      return vulnerabilities || [];
+      console.warn('⚠️  Continuing without OFC sources due to error');
+      // Don't return early - continue with empty ofcSources
     }
+
+    console.log(`[fetchVulnerabilities] Found ${ofcSources?.length || 0} OFC-Source links`);
 
     // Get all sources
     const { data: sources, error: sourceError } = await supabase
@@ -295,8 +298,11 @@ export async function fetchVulnerabilities() {
 
     if (sourceError) {
       console.error('❌ Error fetching sources:', sourceError);
-      return vulnerabilities || [];
+      console.warn('⚠️  Continuing without sources due to error');
+      // Don't return early - continue with empty sources array
     }
+
+    console.log(`[fetchVulnerabilities] Found ${sources?.length || 0} sources`);
 
 
     // Build the complete data structure
@@ -307,10 +313,34 @@ export async function fetchVulnerabilities() {
         const ofc = ofcs.find(o => o.id === link.ofc_id);
         if (!ofc) return null;
         
-        const ofcSourceLinks = ofcSources.filter(os => os.ofc_id === ofc.id);
-        const ofcSourcesData = ofcSourceLinks.map(sourceLink => 
-          sources.find(s => s.id === sourceLink.source_id)
+        const ofcSourceLinks = (ofcSources || []).filter(os => os.ofc_id === ofc.id);
+        let ofcSourcesData = ofcSourceLinks.map(sourceLink => 
+          (sources || []).find(s => s.id === sourceLink.source_id)
         ).filter(Boolean);
+        
+        // Fallback: If no sources linked via junction table, check if OFC has source info directly
+        // Some OFCs might have source info stored in their own fields (from submission data)
+        if (ofcSourcesData.length === 0 && (ofc.source || ofc.source_title || ofc.source_url)) {
+          // Create a source object from OFC's own source fields
+          ofcSourcesData = [{
+            id: null, // No source ID since it's not in sources table
+            source_title: ofc.source_title || ofc.source || 'Source',
+            source_url: ofc.source_url || null,
+            citation: ofc.source || null,
+            author_org: null,
+            publication_year: null
+          }];
+          console.log(`[fetchVulnerabilities] OFC ${ofc.id} using direct source fields (no junction table link)`);
+        }
+        
+        // Debug logging
+        if (ofcSourceLinks.length > 0) {
+          console.log(`[fetchVulnerabilities] OFC ${ofc.id} has ${ofcSourceLinks.length} source links, found ${ofcSourcesData.length} sources`);
+        } else if (ofcSourcesData.length > 0) {
+          console.log(`[fetchVulnerabilities] OFC ${ofc.id} using direct source fields`);
+        } else {
+          console.log(`[fetchVulnerabilities] OFC ${ofc.id} has no source links and no direct source fields`);
+        }
         
         return {
           ...ofc,
@@ -335,8 +365,8 @@ export async function fetchVulnerabilities() {
 // Get OFCs for a specific vulnerability
 export async function getOFCsForVulnerability(vulnerabilityId) {
   try {
-    // First, let's see what the vulnerability_ofc_links table structure looks like
-    const { data: linkData, error: linkError } = await supabase
+    // Get vulnerability-OFC links
+    const { data: links, error: linkError } = await supabase
       .from('vulnerability_ofc_links')
       .select('*')
       .eq('vulnerability_id', vulnerabilityId);
@@ -346,27 +376,75 @@ export async function getOFCsForVulnerability(vulnerabilityId) {
       return [];
     }
 
-    // Now let's try to get the actual OFC data by joining with options_for_consideration
-    const { data: ofcData, error: ofcError } = await supabase
-      .from('vulnerability_ofc_links')
-      .select(`
-        ofc_id,
-        options_for_consideration (
-          id,
-          option_text,
-          discipline,
-          sources
-        )
-      `)
-      .eq('vulnerability_id', vulnerabilityId);
+    if (!links || links.length === 0) {
+      return [];
+    }
+
+    // Get all OFCs linked to this vulnerability
+    const ofcIds = links.map(link => link.ofc_id);
+    const { data: ofcs, error: ofcError } = await supabase
+      .from('options_for_consideration')
+      .select('*')
+      .in('id', ofcIds);
 
     if (ofcError) {
       console.error('Error fetching OFC details:', ofcError);
-      // Return just the link data if the join fails
-      return linkData || [];
+      return [];
     }
 
-    return ofcData || [];
+    // Get all OFC-Source links for these OFCs
+    const { data: ofcSources, error: ofcSourceError } = await supabase
+      .from('ofc_sources')
+      .select('*')
+      .in('ofc_id', ofcIds);
+
+    if (ofcSourceError) {
+      console.warn('Error fetching OFC-Source links:', ofcSourceError);
+      // Continue without sources if this fails
+    }
+
+    // Get all sources linked to these OFCs
+    let sources = [];
+    if (ofcSources && ofcSources.length > 0) {
+      const sourceIds = ofcSources.map(os => os.source_id);
+      const { data: sourcesData, error: sourceError } = await supabase
+        .from('sources')
+        .select('*')
+        .in('id', sourceIds);
+
+      if (sourceError) {
+        console.warn('Error fetching sources:', sourceError);
+      } else {
+        sources = sourcesData || [];
+      }
+    }
+
+    // Build OFCs with their sources attached
+    const ofcsWithSources = ofcs.map(ofc => {
+        const ofcSourceLinks = (ofcSources || []).filter(os => os.ofc_id === ofc.id);
+        let ofcSourcesData = ofcSourceLinks.map(sourceLink => 
+          sources.find(s => s.id === sourceLink.source_id)
+        ).filter(Boolean);
+
+        // Fallback: If no sources linked via junction table, check if OFC has source info directly
+        if (ofcSourcesData.length === 0 && (ofc.source || ofc.source_title || ofc.source_url)) {
+          ofcSourcesData = [{
+            id: null,
+            source_title: ofc.source_title || ofc.source || 'Source',
+            source_url: ofc.source_url || null,
+            citation: ofc.source || null,
+            author_org: null,
+            publication_year: null
+          }];
+        }
+
+        return {
+          ...ofc,
+          sources: ofcSourcesData
+        };
+    });
+
+    return ofcsWithSources;
   } catch (error) {
     console.error('Error in getOFCsForVulnerability:', error);
     return [];

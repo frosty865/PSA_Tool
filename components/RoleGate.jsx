@@ -42,13 +42,13 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
 
         const userId = session.user.id
 
-        // Try user_profiles table first (your schema), fallback to profiles
+        // Try users_profiles table first (your schema), fallback to profiles
         let profile = null
         let profileError = null
 
-        // Try user_profiles first
+        // Try users_profiles first
         const { data: userProfile, error: userProfileError } = await supabase
-          .from('user_profiles')
+          .from('users_profiles')
           .select('role')
           .eq('user_id', userId)
           .maybeSingle()

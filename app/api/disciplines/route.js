@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '../../lib/supabaseClient';
-import { applyCacheHeaders, CacheStrategies } from '@/app/api/middleware/cache.js';
+import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
+import { applyCacheHeaders, CacheStrategies } from '../middleware/cache.js';
 
 // Disciplines rarely change - cache for 1 hour with ISR
 export const revalidate = 3600; // 1 hour
@@ -12,7 +12,7 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const active = searchParams.get('active');
 
-    let query = supabase
+    let query = supabaseAdmin
       .from('disciplines')
       .select('*')
       .order('category, name');
@@ -61,7 +61,7 @@ export async function POST(request) {
       );
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('disciplines')
       .insert({
         name,

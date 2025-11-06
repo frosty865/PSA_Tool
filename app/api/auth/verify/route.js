@@ -5,6 +5,15 @@ import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
 
 export async function GET(request) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      console.error('[Auth Verify] supabaseAdmin is null - check environment variables');
+      return NextResponse.json(
+        { success: false, error: 'Server configuration error: Supabase admin client not available' },
+        { status: 500 }
+      );
+    }
+
     // Get token from Authorization header (required - Navigation sends this)
     let accessToken = null;
     const authHeader = request.headers.get('authorization');
@@ -15,25 +24,30 @@ export async function GET(request) {
 
     // Fallback to cookies only if header not provided (for compatibility)
     if (!accessToken) {
-      const cookieStore = cookies();
-      const allCookies = cookieStore.getAll();
-      for (const cookie of allCookies) {
-        // Check for Supabase auth cookies
-        if (cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token')) {
-          try {
-            const tokenData = JSON.parse(cookie.value);
-            accessToken = tokenData?.access_token || tokenData;
-            break;
-          } catch {
-            accessToken = cookie.value;
-            break;
+      try {
+        const cookieStore = cookies();
+        const allCookies = cookieStore.getAll();
+        for (const cookie of allCookies) {
+          // Check for Supabase auth cookies
+          if (cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token')) {
+            try {
+              const tokenData = JSON.parse(cookie.value);
+              accessToken = tokenData?.access_token || tokenData;
+              break;
+            } catch {
+              accessToken = cookie.value;
+              break;
+            }
           }
         }
+      } catch (cookieError) {
+        // Cookies might not be available in some contexts
+        console.warn('[Auth Verify] Could not access cookies:', cookieError);
       }
     }
 
     if (!accessToken) {
-      console.error('[Auth Verify] No access token found in header or cookies');
+      // No token - return unauthenticated (not an error)
       return NextResponse.json(
         { success: false, error: 'No authentication token provided' },
         { status: 401 }
@@ -63,13 +77,13 @@ export async function GET(request) {
     // Get user profile (role only - is_admin column doesn't exist in your schema)
     // Prefer join by user_id (your schema) and fall back to id
     let { data: profile } = await supabaseAdmin
-      .from('user_profiles')
+      .from('users_profiles')
       .select('role, first_name, last_name, organization, user_id')
       .eq('user_id', user.id)
       .maybeSingle();
     if (!profile) {
       const resp = await supabaseAdmin
-        .from('user_profiles')
+        .from('users_profiles')
         .select('role, first_name, last_name, organization, user_id')
         .eq('id', user.id)
         .maybeSingle();

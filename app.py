@@ -3,7 +3,7 @@ PSA Tool - Main Flask Application
 Entry point for the PSA Processing Server
 """
 
-from flask import Flask
+from flask import Flask, send_from_directory
 try:
     from flask_cors import CORS
 except ImportError:
@@ -16,9 +16,19 @@ from routes.files import files_bp
 from routes.process import process_bp
 from routes.library import library_bp
 from routes.analytics import bp as analytics_bp
+from routes.disciplines import bp as disciplines_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Next.js frontend
+
+# Serve VOFC Viewer HTML file
+@app.route('/viewer')
+@app.route('/viewer/')
+def viewer_index():
+    """Serve the VOFC Library Viewer"""
+    import os
+    viewer_path = r'C:\Tools\Ollama\viewer'
+    return send_from_directory(viewer_path, 'index.html')
 
 # Register all blueprints
 app.register_blueprint(system_bp)
@@ -26,6 +36,7 @@ app.register_blueprint(files_bp)
 app.register_blueprint(process_bp)
 app.register_blueprint(library_bp)
 app.register_blueprint(analytics_bp)
+app.register_blueprint(disciplines_bp)
 
 # Start background queue worker
 from services.queue_manager import start_worker

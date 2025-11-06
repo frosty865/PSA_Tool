@@ -161,17 +161,24 @@ export default function VOFCViewer() {
   }, [selectedSector, sectors, loadSubsectors]);
 
   useEffect(() => {
-    setMounted(true);
-    checkAuth();
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      setMounted(true);
+      checkAuth();
+    }
   }, [checkAuth]);
 
   // Load sectors immediately on mount - they should be accessible automatically
   useEffect(() => {
-    loadSectors();
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      loadSectors();
+    }
   }, [loadSectors]);
 
   useEffect(() => {
-    if (authenticated) {
+    // Only run on client side
+    if (typeof window !== 'undefined' && authenticated) {
       loadData();
       // Also ensure sectors are loaded when authenticated (in case initial load failed)
       loadSectors();
@@ -581,6 +588,11 @@ function VulnerabilityCard({ vulnerability, currentUser }) {
 
 // OFC Card Component
 function OFCCard({ ofc }) {
+  // Debug logging
+  if (ofc.sources) {
+    console.log(`[OFCCard] OFC ${ofc.id} sources:`, ofc.sources);
+  }
+  
   return (
     <div className="card">
       <div>
@@ -599,21 +611,37 @@ function OFCCard({ ofc }) {
         </p>
 
         {/* Sources */}
-        {ofc.sources && ofc.sources.length > 0 && (
+        {ofc.sources && Array.isArray(ofc.sources) && ofc.sources.length > 0 && (
           <div className="mt-4">
             <h6 className="font-semibold mb-2">Sources:</h6>
             {ofc.sources.map((source, index) => (
               <div key={index} className="card p-3 mb-2">
-                <p className="text-sm text-secondary" style={{
-                  wordWrap: 'break-word',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  hyphens: 'auto',
-                  maxWidth: '100%',
-                  overflow: 'hidden'
-                }}>
-                  {source.source_text}
-                </p>
+                {source.source_title && (
+                  <p className="font-semibold text-sm mb-1">{source.source_title}</p>
+                )}
+                {source.citation && (
+                  <p className="text-sm text-secondary mb-1" style={{
+                    wordWrap: 'break-word',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    hyphens: 'auto',
+                    maxWidth: '100%',
+                    overflow: 'hidden'
+                  }}>
+                    {source.citation}
+                  </p>
+                )}
+                {source.source_url && (
+                  <a href={source.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+                    {source.source_url}
+                  </a>
+                )}
+                {source.author_org && (
+                  <p className="text-xs text-gray-500 mt-1">Author: {source.author_org}</p>
+                )}
+                {source.publication_year && (
+                  <p className="text-xs text-gray-500">Year: {source.publication_year}</p>
+                )}
               </div>
             ))}
           </div>

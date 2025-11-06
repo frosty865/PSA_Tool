@@ -27,7 +27,7 @@ export async function POST(request, { params }) {
     
     // Check admin role
     const { data: profile } = await supabaseAdmin
-      .from('user_profiles')
+      .from('users_profiles')
       .select('role')
       .eq('user_id', user.id)
       .maybeSingle();

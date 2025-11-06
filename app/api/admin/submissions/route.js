@@ -40,7 +40,7 @@ export async function GET(request) {
     
     // Check user role
     const { data: profile } = await supabaseAdmin
-      .from('user_profiles')
+      .from('users_profiles')
       .select('role')
       .eq('user_id', user.id)
       .maybeSingle()

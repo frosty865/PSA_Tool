@@ -1,9 +1,8 @@
 // Monitoring service for system health checks
 import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
+import { getOllamaUrl } from './server-utils';
 
-const OLLAMA_BASE_URL = process.env.OLLAMA_HOST || 
-                        process.env.OLLAMA_URL || 
-                        'http://127.0.0.1:11434';
+const OLLAMA_BASE_URL = getOllamaUrl();
 
 export const monitoring = {
   /**

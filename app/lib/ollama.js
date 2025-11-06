@@ -1,10 +1,9 @@
 // Ollama client for Next.js API routes
 // This is a server-side utility for interacting with Ollama
 
-const OLLAMA_BASE_URL = process.env.OLLAMA_HOST || 
-                        process.env.OLLAMA_URL || 
-                        process.env.OLLAMA_API_BASE_URL || 
-                        'http://127.0.0.1:11434';
+import { getOllamaUrl } from './server-utils';
+
+const OLLAMA_BASE_URL = getOllamaUrl();
 
 /**
  * Chat with Ollama and get JSON response

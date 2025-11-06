@@ -385,6 +385,125 @@ def get_recent_learning_stats(limit=5):
         return []
 
 
+def insert_library_record(data):
+    """
+    Insert processed results into Supabase production tables (vulnerabilities and OFCs).
+    
+    This function is used to sync approved review files to production tables.
+    
+    Args:
+        data: Dictionary with 'vulnerabilities' and 'options_for_consideration' arrays
+        
+    Returns:
+        Dictionary with counts of inserted records
+    """
+    try:
+        client = get_supabase_client()
+        
+        vulnerabilities = data.get('vulnerabilities', [])
+        ofcs = data.get('options_for_consideration', [])
+        
+        inserted_vulns = []
+        inserted_ofcs = []
+        
+        # Insert vulnerabilities
+        if vulnerabilities:
+            vuln_records = []
+            for v in vulnerabilities:
+                if not v.get('vulnerability') and not v.get('vulnerability_name'):
+                    continue
+                
+                vuln_record = {
+                    'vulnerability_name': v.get('vulnerability') or v.get('vulnerability_name', ''),
+                    'description': v.get('description', ''),
+                    'discipline': v.get('discipline') or None,
+                    'sector_id': v.get('sector_id'),
+                    'subsector_id': v.get('subsector_id'),
+                    'source': data.get('source_file', 'unknown'),
+                    'page_ref': v.get('page_ref', 'N/A')
+                }
+                vuln_records.append(vuln_record)
+            
+            if vuln_records:
+                result = client.table('vulnerabilities').insert(vuln_records).execute()
+                inserted_vulns = result.data if result.data else []
+                logger.info(f"Inserted {len(inserted_vulns)} vulnerabilities into production table")
+        
+        # Insert OFCs
+        if ofcs:
+            ofc_records = []
+            for o in ofcs:
+                if not o.get('option_text'):
+                    continue
+                
+                ofc_record = {
+                    'option_text': o.get('option_text', ''),
+                    'discipline': o.get('discipline') or None,
+                    'sector_id': o.get('sector_id'),
+                    'subsector_id': o.get('subsector_id')
+                }
+                ofc_records.append(ofc_record)
+            
+            if ofc_records:
+                result = client.table('options_for_consideration').insert(ofc_records).execute()
+                inserted_ofcs = result.data if result.data else []
+                logger.info(f"Inserted {len(inserted_ofcs)} OFCs into production table")
+        
+        return {
+            'vulnerabilities_inserted': len(inserted_vulns),
+            'ofcs_inserted': len(inserted_ofcs),
+            'success': len(inserted_vulns) > 0 or len(inserted_ofcs) > 0
+        }
+        
+    except Exception as e:
+        logger.error(f"Error inserting library record: {str(e)}")
+        raise Exception(f"Failed to insert library record: {str(e)}")
+
+
+def check_review_approval(filename):
+    """
+    Check if a review file has been approved in Supabase.
+    
+    Checks the submissions table for records matching the filename
+    that have status 'approved'.
+    
+    Args:
+        filename: Name of the review file (without extension, may include _vofc suffix)
+        
+    Returns:
+        True if approved, False otherwise
+    """
+    try:
+        client = get_supabase_client()
+        
+        # Clean filename for matching (remove _vofc suffix if present)
+        clean_filename = filename.replace('_vofc', '')
+        
+        # Check submissions table for approved status
+        # Match by source_file or document_name containing the filename
+        result = client.table('submissions').select('id, status, source_file, document_name').or_(
+            f'source_file.ilike.%{clean_filename}%,document_name.ilike.%{clean_filename}%'
+        ).order('created_at', desc=True).limit(1).execute()
+        
+        if result.data and len(result.data) > 0:
+            submission = result.data[0]
+            status = submission.get('status', '').lower()
+            is_approved = status == 'approved'
+            
+            if is_approved:
+                logger.info(f"Review file {filename} is approved (submission ID: {submission.get('id')})")
+            
+            return is_approved
+        
+        # No matching submission found
+        logger.debug(f"No submission found for review file: {filename}")
+        return False
+        
+    except Exception as e:
+        logger.warning(f"Error checking review approval for {filename}: {str(e)}")
+        return False
+
+
 def record_retrain_event(avg_accept_rate, stats_window_size):
     """
     Record a model retraining event in Supabase.

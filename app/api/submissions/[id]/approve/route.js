@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { logAuditEvent, getReviewerId } from '@/app/lib/audit-logger.js';
 
 // Use service role for API routes to bypass RLS
 const supabase = createClient(
@@ -18,14 +19,7 @@ export async function POST(request, { params }) {
     // Get user from auth token if available
     let reviewerId = reviewedBy;
     try {
-      const authHeader = request.headers.get('authorization');
-      if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
-        const accessToken = authHeader.slice(7).trim();
-        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
-        if (!userError && user) {
-          reviewerId = user.id;
-        }
-      }
+      reviewerId = await getReviewerId(request) || reviewedBy || null;
     } catch (authError) {
       console.warn('Could not get reviewer from token:', authError);
     }
@@ -201,7 +195,9 @@ export async function POST(request, { params }) {
           }
         };
 
-        const productionVulns = [];
+        // Track production IDs for audit logging
+        const productionVulnIds = [];
+        const productionOfcIds = [];
         const vulnOfcMapping = new Map(); // Maps vulnerability keys to production vulnerability IDs
         
         if (parsed.vulnerabilities && parsed.vulnerabilities.length > 0) {
@@ -248,18 +244,20 @@ export async function POST(request, { params }) {
               continue;
             }
             
-            productionVulns.push(insertedVuln);
+            // Track vulnerability ID for audit logging
+            if (insertedVuln?.id) {
+              productionVulnIds.push(insertedVuln.id);
+            }
             
             // Map vulnerability key to production ID for linking OFCs later
             const vulnKey = v.id || v.title || v.vulnerability || vulnStatement;
             vulnOfcMapping.set(vulnKey, insertedVuln.id);
           }
           
-          console.log(`✅ Inserted ${productionVulns.length} vulnerabilities into production table`);
+          console.log(`✅ Inserted ${productionVulnIds.length} vulnerabilities into production table`);
         }
 
         // --- Move to Production Tables: Options for Consideration ---
-        const productionOfcs = [];
         const ofcVulnLinks = []; // Store OFC-to-vulnerability links to create after insertion
         
         if (parsed.ofcs && parsed.ofcs.length > 0) {
@@ -290,24 +288,29 @@ export async function POST(request, { params }) {
               continue;
             }
             
+            // Track OFC ID for audit logging
+            if (insertedOfc?.id) {
+              productionOfcIds.push(insertedOfc.id);
+            }
+            
             // Store OFC and track which vulnerability it's linked to
             const ofcKey = o.id || o.title || o.option || ofcText;
             const linkedVulnKey = o.linked_vulnerability || o.vulnerability_id || o.vuln_id;
             
-            productionOfcs.push({
+            ofcVulnLinks.push({
               ofc_id: insertedOfc.id,
               ofc_key: ofcKey,
               linked_vuln_key: linkedVulnKey
             });
           }
           
-          console.log(`✅ Inserted ${productionOfcs.length} OFCs into production table`);
+          console.log(`✅ Inserted ${productionOfcIds.length} OFCs into production table`);
           
           // --- Create vulnerability-OFC links ---
-          if (productionOfcs.length > 0 && vulnOfcMapping.size > 0) {
+          if (ofcVulnLinks.length > 0 && vulnOfcMapping.size > 0) {
             const linkPromises = [];
             
-            for (const prodOfc of productionOfcs) {
+            for (const prodOfc of ofcVulnLinks) {
               if (!prodOfc.linked_vuln_key) continue;
               
               // Find the production vulnerability ID for this OFC's linked vulnerability
@@ -358,6 +361,22 @@ export async function POST(request, { params }) {
 
         console.log(`✅ Submission ${submissionId} promoted successfully.`);
 
+        // --- Log Audit Event ---
+        // Log audit event with collected vulnerability and OFC IDs (non-blocking)
+        try {
+          await logAuditEvent(
+            submissionId,
+            reviewerId,
+            'approved',
+            productionVulnIds,
+            productionOfcIds,
+            comments || null
+          );
+        } catch (auditError) {
+          console.warn('⚠️ Error logging audit event (non-fatal):', auditError);
+          // Continue - approval is more important than audit logging
+        }
+
         // --- Feed Learning Algorithm ---
         // Create learning events for approved submission
         // This feeds the learning algorithm with positive examples
@@ -407,6 +426,20 @@ export async function POST(request, { params }) {
       // On REJECT, optionally create negative learning events
       console.log(`🗑️ Submission ${submissionId} rejected. Not feeding learning algorithm.`);
       // Rejected submissions don't feed the learning algorithm - they're considered invalid
+      
+      // --- Log Audit Event for Rejection ---
+      try {
+        await logAuditEvent(
+          submissionId,
+          reviewerId,
+          'rejected',
+          [],
+          [],
+          comments || null
+        );
+      } catch (auditError) {
+        console.warn('⚠️ Error logging audit event (non-fatal):', auditError);
+      }
     }
 
     // -----------------------------------------------------------------

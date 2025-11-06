@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getProcessedByValue } from '@/app/utils/get-user-id.js';
+import { logAuditEvent, getReviewerId } from '@/app/lib/audit-logger.js';
 
 // Use service role for API submissions to bypass RLS
 const supabase = createClient(
@@ -78,6 +79,29 @@ export async function POST(request, { params }) {
         { error: 'Failed to reject submission', details: updateError.message },
         { status: 500 }
       );
+    }
+
+    // --- Log Audit Event ---
+    // Get reviewer ID from auth token
+    let reviewerId = null;
+    try {
+      reviewerId = await getReviewerId(request) || validProcessedBy || null;
+    } catch (authError) {
+      console.warn('Could not get reviewer from token:', authError);
+    }
+
+    // Log audit event (non-blocking - don't fail rejection if audit logging fails)
+    try {
+      await logAuditEvent(
+        id,
+        reviewerId,
+        'rejected',
+        [],
+        [],
+        comments || null
+      );
+    } catch (auditError) {
+      console.warn('⚠️ Error logging audit event (non-fatal):', auditError);
     }
 
     return NextResponse.json({

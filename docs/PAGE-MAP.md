@@ -247,26 +247,6 @@ Complete reference of all pages, routes, and available functions in the PSA Tool
 
 ---
 
-### `/admin/system` - System Status
-**File:** `app/admin/system/page.jsx`  
-**Access:** Admin users only
-
-**Functions:**
-- Detailed system health monitoring
-- Service status (Flask, Ollama, Supabase, Tunnel)
-- System metrics
-- Service URLs
-- Health check history
-
-**Features:**
-- Real-time health monitoring (20s interval)
-- Service status indicators
-- Detailed error information
-- System configuration display
-- Manual refresh
-
----
-
 ### `/admin/models` - Model Analytics
 **File:** `app/admin/models/page.jsx`  
 **Access:** Admin users only
@@ -475,7 +455,6 @@ Complete reference of all pages, routes, and available functions in the PSA Tool
 - `/admin` - Admin overview
 - `/admin/review` - Review submissions
 - `/admin/users` - User management
-- `/admin/system` - System status
 - `/admin/models` - Model analytics
 - `/admin/ofc-requests` - OFC requests
 - `/admin/ofcs` - OFCs management

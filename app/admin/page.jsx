@@ -8,7 +8,7 @@ import Link from 'next/link'
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
-  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking' })
+  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking' })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastRefresh, setLastRefresh] = useState(null)
@@ -32,13 +32,13 @@ export default function AdminOverviewPage() {
       if (json.components) {
         setSystem(json.components)
       } else {
-        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown' })
+        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' })
       }
     } catch (err) {
       console.error('[System Health] Manual refresh failed:', err)
       // On manual refresh, show error but don't change state if we have a previous good state
       setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
-        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown' }
+        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' }
         : prev
       )
     }
@@ -47,7 +47,7 @@ export default function AdminOverviewPage() {
   useEffect(() => {
     let isMounted = true
     let hasEverSucceeded = false
-    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking' }
+    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking' }
     
     const healthCheckWithDebounce = async () => {
       if (!isMounted) return
@@ -64,7 +64,7 @@ export default function AdminOverviewPage() {
             console.warn(`[System Health] Temporary error ${res.status}, keeping last known state`)
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
+            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' })
           }
           return
         }
@@ -80,7 +80,7 @@ export default function AdminOverviewPage() {
           if (hasEverSucceeded) {
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown' })
+            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' })
           }
         }
       } catch (err) {
@@ -162,9 +162,53 @@ export default function AdminOverviewPage() {
 
   const getSystemStatusColor = (status) => {
     switch (status) {
-      case 'online': return { bg: '#e6f6ea', border: '#00a651', text: '#007a3d' }
-      case 'offline': return { bg: '#fdecea', border: '#c00', text: '#a00' }
-      default: return { bg: '#f5f5f5', border: '#ccc', text: '#666' }
+      case 'ok':
+      case 'online':
+      case 'active':
+      case 'running':
+        return { bg: '#e6f6ea', border: '#00a651', text: '#007a3d' }
+      case 'offline':
+      case 'error':
+        return { bg: '#fdecea', border: '#c00', text: '#a00' }
+      case 'checking':
+      case 'unknown':
+        return { bg: '#fff9e6', border: '#ffc107', text: '#856404' }
+      default:
+        return { bg: '#f5f5f5', border: '#ccc', text: '#666' }
+    }
+  }
+  
+  const getSystemStatusLabel = (status) => {
+    switch (status) {
+      case 'ok':
+      case 'online':
+      case 'active':
+      case 'running':
+        return 'Online'
+      case 'offline':
+      case 'error':
+        return 'Offline'
+      case 'checking':
+        return 'Checking...'
+      case 'unknown':
+        return 'Unknown'
+      default:
+        return status
+    }
+  }
+  
+  const getSystemIcon = (key) => {
+    switch (key) {
+      case 'flask':
+        return '🔧'
+      case 'ollama':
+        return '🤖'
+      case 'supabase':
+        return '🗄️'
+      case 'tunnel':
+        return '🌐'
+      default:
+        return '⚙️'
     }
   }
 
@@ -332,39 +376,27 @@ export default function AdminOverviewPage() {
 
       {/* System Health Summary */}
       <section style={{ marginBottom: 'var(--spacing-xl)' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
+        <h2 style={{ 
+          fontSize: 'var(--font-size-xl)', 
+          fontWeight: 600, 
+          color: 'var(--cisa-blue)', 
+          margin: 0,
           marginBottom: 'var(--spacing-md)'
         }}>
-          <h2 style={{ 
-            fontSize: 'var(--font-size-xl)', 
-            fontWeight: 600, 
-            color: 'var(--cisa-blue)', 
-            margin: 0
-          }}>
-            System Health
-          </h2>
-          <Link 
-            href="/admin/system" 
-            style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              color: 'var(--cisa-blue)',
-              textDecoration: 'none'
-            }}
-          >
-            View Details →
-          </Link>
-        </div>
+          System Health
+        </h2>
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
           gap: 'var(--spacing-lg)'
         }}>
-          {['flask', 'ollama', 'supabase'].map(key => {
+          {['flask', 'ollama', 'supabase', 'tunnel'].map(key => {
             const status = system[key] || 'checking'
             const colors = getSystemStatusColor(status)
+            const statusLabel = getSystemStatusLabel(status)
+            const icon = getSystemIcon(key)
+            const displayName = key === 'tunnel' ? 'Cloudflare Tunnel' : `${key.charAt(0).toUpperCase() + key.slice(1)} Server`
+            
             return (
               <div 
                 key={key} 
@@ -374,7 +406,8 @@ export default function AdminOverviewPage() {
                   border: `2px solid ${colors.border}`,
                   transition: 'all 0.3s ease',
                   position: 'relative',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  padding: 'var(--spacing-md)'
                 }}
               >
                 <div style={{ 
@@ -391,27 +424,36 @@ export default function AdminOverviewPage() {
                   gap: 'var(--spacing-sm)',
                   marginBottom: 'var(--spacing-sm)'
                 }}>
-                  <div style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    backgroundColor: colors.border,
-                    boxShadow: `0 0 8px ${colors.border}`
-                  }}></div>
+                  <span style={{ fontSize: 'var(--font-size-xl)' }}>{icon}</span>
                   <div style={{ 
                     fontWeight: 700, 
                     color: colors.text,
                     fontSize: 'var(--font-size-lg)'
                   }}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)} Server
+                    {displayName}
                   </div>
                 </div>
                 <div style={{ 
-                  fontSize: 'var(--font-size-sm)', 
-                  color: '#444',
-                  fontWeight: 500
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-xs)',
+                  marginTop: 'var(--spacing-xs)'
                 }}>
-                  Status: <strong style={{ color: colors.text }}>{status}</strong>
+                  <div style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    backgroundColor: colors.border,
+                    boxShadow: `0 0 6px ${colors.border}`,
+                    flexShrink: 0
+                  }}></div>
+                  <div style={{ 
+                    fontSize: 'var(--font-size-sm)', 
+                    color: colors.text,
+                    fontWeight: 600
+                  }}>
+                    {statusLabel}
+                  </div>
                 </div>
               </div>
             )
@@ -700,14 +742,19 @@ export default function AdminOverviewPage() {
           gap: 'var(--spacing-md)'
         }}>
           {/* Submission Review - Core Workflow */}
-          <Link href="/admin/review" className="card" style={{ 
-            textDecoration: 'none', 
-            transition: 'all 0.3s ease',
-            border: '2px solid var(--cisa-blue)',
-            background: 'linear-gradient(135deg, rgba(0, 113, 188, 0.05) 0%, rgba(0, 113, 188, 0.02) 100%)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
+          <Link 
+            href="/admin/review" 
+            className="card" 
+            style={{ 
+              textDecoration: 'none', 
+              transition: 'all 0.3s ease',
+              border: '2px solid var(--cisa-blue)',
+              background: 'linear-gradient(135deg, rgba(0, 113, 188, 0.05) 0%, rgba(0, 113, 188, 0.02) 100%)',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'block',
+              cursor: 'pointer'
+            }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)'
               e.currentTarget.style.boxShadow = 'var(--shadow-md)'
@@ -717,6 +764,10 @@ export default function AdminOverviewPage() {
               e.currentTarget.style.transform = 'translateY(0)'
               e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
               e.currentTarget.style.borderColor = 'var(--cisa-blue)'
+            }}
+            onClick={(e) => {
+              // Ensure navigation happens
+              console.log('[Admin] Navigating to /admin/review')
             }}
           >
             <div style={{ 
@@ -746,6 +797,43 @@ export default function AdminOverviewPage() {
               lineHeight: 1.5
             }}>
               Review user-submitted and document-parsed entries. Approve to move to production tables and feed learning system.
+            </div>
+          </Link>
+
+          {/* Audit Trail */}
+          <Link href="/admin/audit" className="card" style={{ 
+            textDecoration: 'none', 
+            transition: 'all 0.3s ease',
+            border: '1px solid var(--cisa-gray-light)',
+            background: 'linear-gradient(135deg, rgba(108, 117, 125, 0.05) 0%, rgba(108, 117, 125, 0.02) 100%)'
+          }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.borderColor = '#6c757d'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
+            }}
+          >
+            <div style={{ 
+              fontSize: 'var(--font-size-xxl)', 
+              marginBottom: 'var(--spacing-sm)'
+            }}>📋</div>
+            <div style={{ 
+              fontWeight: 700, 
+              color: '#6c757d', 
+              marginBottom: 'var(--spacing-xs)',
+              fontSize: 'var(--font-size-lg)'
+            }}>Audit Trail</div>
+            <div style={{ 
+              fontSize: 'var(--font-size-sm)', 
+              color: 'var(--cisa-gray)',
+              lineHeight: 1.5
+            }}>
+              Track all review actions: approvals, rejections, and edits with full audit history
             </div>
           </Link>
 
@@ -887,38 +975,6 @@ export default function AdminOverviewPage() {
             }}>Review and manage near-duplicate detections</div>
           </Link>
 
-          {/* System Health */}
-          <Link href="/admin/system" className="card" style={{ 
-            textDecoration: 'none', 
-            transition: 'all 0.3s ease',
-            border: '1px solid var(--cisa-gray-light)'
-          }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
-              e.currentTarget.style.borderColor = 'var(--cisa-blue)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
-              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
-            }}
-          >
-            <div style={{ 
-              fontSize: 'var(--font-size-xxl)', 
-              marginBottom: 'var(--spacing-sm)'
-            }}>⚙️</div>
-            <div style={{ 
-              fontWeight: 700, 
-              color: 'var(--cisa-blue)', 
-              marginBottom: 'var(--spacing-xs)',
-              fontSize: 'var(--font-size-lg)'
-            }}>System Health</div>
-            <div style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              color: 'var(--cisa-gray)'
-            }}>Monitor Flask, Ollama, and Supabase status</div>
-          </Link>
         </div>
       </section>
 

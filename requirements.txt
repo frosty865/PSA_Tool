@@ -15,6 +15,7 @@ PyPDF2==3.0.1  # Alternative PDF parser
 pdfplumber==0.10.3  # Another PDF parser option
 PyMuPDF==1.23.8  # fitz - Best PDF parser for page tracking
 nltk==3.8.1  # Natural language processing for sentence-aware chunking
+watchdog==3.0.0  # File system monitoring for folder watcher
 
 # HTTP Requests
 requests==2.31.0

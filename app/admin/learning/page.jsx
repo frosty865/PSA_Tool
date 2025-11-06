@@ -11,7 +11,7 @@ export default function LearningDashboard() {
   const [heuristics, setHeuristics] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [lastRefresh, setLastRefresh] = useState(null)
 
   const fetchLearningStats = async () => {
     try {
@@ -53,6 +53,10 @@ export default function LearningDashboard() {
   }
 
   useEffect(() => {
+    // Initialize lastRefresh on client side only
+    if (!lastRefresh) {
+      setLastRefresh(new Date())
+    }
     fetchLearningStats()
     // Auto-refresh every 60 seconds
     const interval = setInterval(fetchLearningStats, 60000)
@@ -399,7 +403,7 @@ export default function LearningDashboard() {
 
               {/* Footer Info */}
               <div className="mt-6 text-sm text-gray-500 text-center">
-                <p>Last refreshed: {lastRefresh.toLocaleString()}</p>
+                <p>Last refreshed: {lastRefresh ? lastRefresh.toLocaleString() : 'Never'}</p>
                 <p className="mt-1">Auto-refreshes every 60 seconds</p>
               </div>
             </>

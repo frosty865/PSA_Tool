@@ -141,6 +141,8 @@ def get_learning_stats():
         
         # Try to get learning stats (table may not exist)
         try:
+            # Order by timestamp descending (most recent first)
+            # Note: Supabase Python client uses desc parameter
             result = client.table("learning_stats").select("*").order("timestamp", desc=True).limit(limit).execute()
             
             if result.data:

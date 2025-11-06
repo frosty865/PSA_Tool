@@ -696,9 +696,97 @@ export default function AdminOverviewPage() {
         </h2>
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
           gap: 'var(--spacing-md)'
         }}>
+          {/* Submission Review - Core Workflow */}
+          <Link href="/admin/review" className="card" style={{ 
+            textDecoration: 'none', 
+            transition: 'all 0.3s ease',
+            border: '2px solid var(--cisa-blue)',
+            background: 'linear-gradient(135deg, rgba(0, 113, 188, 0.05) 0%, rgba(0, 113, 188, 0.02) 100%)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.borderColor = 'var(--cisa-blue)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+              e.currentTarget.style.borderColor = 'var(--cisa-blue)'
+            }}
+          >
+            <div style={{ 
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              fontSize: 'var(--font-size-xs)',
+              padding: '2px 8px',
+              borderRadius: 'var(--border-radius)',
+              backgroundColor: 'var(--cisa-blue)',
+              color: 'white',
+              fontWeight: 600
+            }}>CORE</div>
+            <div style={{ 
+              fontSize: 'var(--font-size-xxl)', 
+              marginBottom: 'var(--spacing-sm)'
+            }}>📋</div>
+            <div style={{ 
+              fontWeight: 700, 
+              color: 'var(--cisa-blue)', 
+              marginBottom: 'var(--spacing-xs)',
+              fontSize: 'var(--font-size-lg)'
+            }}>Submission Review</div>
+            <div style={{ 
+              fontSize: 'var(--font-size-sm)', 
+              color: 'var(--cisa-gray)',
+              lineHeight: 1.5
+            }}>
+              Review user-submitted and document-parsed entries. Approve to move to production tables and feed learning system.
+            </div>
+          </Link>
+
+          {/* Learning Metrics Dashboard */}
+          <Link href="/dashboard/learning" className="card" style={{ 
+            textDecoration: 'none', 
+            transition: 'all 0.3s ease',
+            border: '1px solid var(--cisa-gray-light)',
+            background: 'linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(138, 43, 226, 0.02) 100%)'
+          }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.borderColor = '#8a2be2'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
+            }}
+          >
+            <div style={{ 
+              fontSize: 'var(--font-size-xxl)', 
+              marginBottom: 'var(--spacing-sm)'
+            }}>🧠</div>
+            <div style={{ 
+              fontWeight: 700, 
+              color: '#8a2be2', 
+              marginBottom: 'var(--spacing-xs)',
+              fontSize: 'var(--font-size-lg)'
+            }}>Learning Metrics</div>
+            <div style={{ 
+              fontSize: 'var(--font-size-sm)', 
+              color: 'var(--cisa-gray)',
+              lineHeight: 1.5
+            }}>
+              Real-time insights: accept/reject rates, confidence thresholds, and learning trends
+            </div>
+          </Link>
+
+          {/* User Management */}
           <Link href="/admin/users" className="card" style={{ 
             textDecoration: 'none', 
             transition: 'all 0.3s ease',
@@ -730,41 +818,10 @@ export default function AdminOverviewPage() {
             <div style={{ 
               fontSize: 'var(--font-size-sm)', 
               color: 'var(--cisa-gray)'
-            }}>Add, activate, and manage users</div>
+            }}>Add, activate, and manage user accounts and roles</div>
           </Link>
 
-          <Link href="/admin/review" className="card" style={{ 
-            textDecoration: 'none', 
-            transition: 'all 0.3s ease',
-            border: '1px solid var(--cisa-gray-light)'
-          }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
-              e.currentTarget.style.borderColor = 'var(--cisa-blue)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
-              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
-            }}
-          >
-            <div style={{ 
-              fontSize: 'var(--font-size-xxl)', 
-              marginBottom: 'var(--spacing-sm)'
-            }}>📋</div>
-            <div style={{ 
-              fontWeight: 700, 
-              color: 'var(--cisa-blue)', 
-              marginBottom: 'var(--spacing-xs)',
-              fontSize: 'var(--font-size-lg)'
-            }}>Vulnerability Review</div>
-            <div style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              color: 'var(--cisa-gray)'
-            }}>Review and approve vulnerabilities</div>
-          </Link>
-
+          {/* Model Analytics */}
           <Link href="/admin/models" className="card" style={{ 
             textDecoration: 'none', 
             transition: 'all 0.3s ease',
@@ -794,9 +851,10 @@ export default function AdminOverviewPage() {
             <div style={{ 
               fontSize: 'var(--font-size-sm)', 
               color: 'var(--cisa-gray)'
-            }}>Accept rate, edits, softmatch ratio</div>
+            }}>Accept rate, edits, softmatch ratio by model version</div>
           </Link>
 
+          {/* Soft Match Audit */}
           <Link href="/admin/softmatches" className="card" style={{ 
             textDecoration: 'none', 
             transition: 'all 0.3s ease',
@@ -826,9 +884,10 @@ export default function AdminOverviewPage() {
             <div style={{ 
               fontSize: 'var(--font-size-sm)', 
               color: 'var(--cisa-gray)'
-            }}>Near-duplicate detections</div>
+            }}>Review and manage near-duplicate detections</div>
           </Link>
 
+          {/* System Health */}
           <Link href="/admin/system" className="card" style={{ 
             textDecoration: 'none', 
             transition: 'all 0.3s ease',
@@ -858,39 +917,7 @@ export default function AdminOverviewPage() {
             <div style={{ 
               fontSize: 'var(--font-size-sm)', 
               color: 'var(--cisa-gray)'
-            }}>Backend and Ollama status</div>
-          </Link>
-
-          <Link href="/learning" className="card" style={{ 
-            textDecoration: 'none', 
-            transition: 'all 0.3s ease',
-            border: '1px solid var(--cisa-gray-light)'
-          }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
-              e.currentTarget.style.borderColor = 'var(--cisa-blue)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
-              e.currentTarget.style.borderColor = 'var(--cisa-gray-light)'
-            }}
-          >
-            <div style={{ 
-              fontSize: 'var(--font-size-xxl)', 
-              marginBottom: 'var(--spacing-sm)'
-            }}>🧠</div>
-            <div style={{ 
-              fontWeight: 700, 
-              color: 'var(--cisa-blue)', 
-              marginBottom: 'var(--spacing-xs)',
-              fontSize: 'var(--font-size-lg)'
-            }}>Learning Monitor</div>
-            <div style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              color: 'var(--cisa-gray)'
-            }}>Continuous learning overview</div>
+            }}>Monitor Flask, Ollama, and Supabase status</div>
           </Link>
         </div>
       </section>

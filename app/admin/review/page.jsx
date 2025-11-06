@@ -99,6 +99,8 @@ export default function ReviewSubmissionsPage() {
   const loadSubmissions = async () => {
     try {
       setError(null)
+      // Load all pending submissions (both user-submitted and document-parsed)
+      // This includes submissions with status 'pending' or 'pending_review'
       const res = await fetchWithAuth('/api/admin/submissions?status=pending_review', {
         cache: 'no-store'
       })
@@ -187,8 +189,12 @@ export default function ReviewSubmissionsPage() {
     <RoleGate>
       <div className="space-y-4">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Vulnerability Review</h1>
-          <p className="text-gray-600 mt-2">Review and approve vulnerabilities with their associated Options for Consideration (OFCs). Approved items are moved to production and feed the learning algorithm.</p>
+          <h1 className="text-3xl font-bold text-gray-900">Submission Review</h1>
+          <p className="text-gray-600 mt-2">
+            Review and approve/reject user-submitted entries and document-parsed entries. 
+            Approved submissions are moved from submission tables to production tables (vulnerabilities, options_for_consideration) 
+            and automatically feed the learning system to improve extraction accuracy.
+          </p>
         </div>
 
         {error && (

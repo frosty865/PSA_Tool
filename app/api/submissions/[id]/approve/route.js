@@ -171,14 +171,46 @@ export async function POST(request, { params }) {
           ? JSON.parse(submissionData.data)
           : submissionData.data;
 
-        // --- Vulnerabilities ---
+        // --- Move to Production Tables: Vulnerabilities ---
+        // Helper functions to resolve sector/subsector IDs
+        const resolveSectorId = async (sectorName) => {
+          if (!sectorName) return null;
+          try {
+            const { data } = await supabase
+              .from('sectors')
+              .select('id')
+              .ilike('name', sectorName)
+              .maybeSingle();
+            return data?.id || null;
+          } catch {
+            return null;
+          }
+        };
+        
+        const resolveSubsectorId = async (subsectorName) => {
+          if (!subsectorName) return null;
+          try {
+            const { data } = await supabase
+              .from('subsectors')
+              .select('id')
+              .ilike('name', subsectorName)
+              .maybeSingle();
+            return data?.id || null;
+          } catch {
+            return null;
+          }
+        };
+
+        const productionVulns = [];
+        const vulnOfcMapping = new Map(); // Maps vulnerability keys to production vulnerability IDs
+        
         if (parsed.vulnerabilities && parsed.vulnerabilities.length > 0) {
-          const vulnPayload = parsed.vulnerabilities.map(v => {
-            // Build description from structured fields if available
-            // Use vulnerability or title (NOT vulnerability_text which doesn't exist in schema)
+          // Process each vulnerability and move to production
+          for (const v of parsed.vulnerabilities) {
             const vulnStatement = v.vulnerability || v.title || '';
+            if (!vulnStatement) continue;
             
-            // Build full description text
+            // Build description from structured fields
             let vulnerabilityText = '';
             if (v.question || v.what || v.so_what || vulnStatement) {
               const parts = [];
@@ -191,75 +223,117 @@ export async function POST(request, { params }) {
               vulnerabilityText = v.description || '';
             }
             
-            // Schema has 'vulnerability' (NOT NULL), 'title', and 'description'
-            return {
-              submission_id: submissionId,
-              vulnerability: vulnStatement, // Required NOT NULL column
-              title: vulnStatement, // Also set title for consistency
+            // Resolve taxonomy IDs
+            const sectorId = v.sector_id || await resolveSectorId(v.sector);
+            const subsectorId = v.subsector_id || await resolveSubsectorId(v.subsector);
+            
+            // Insert into production vulnerabilities table
+            const productionVuln = {
+              vulnerability_name: vulnStatement,
               description: vulnerabilityText,
-              category: v.category || null,
-              severity: v.severity || null
+              discipline: v.discipline || null,
+              sector_id: sectorId,
+              subsector_id: subsectorId
             };
-          });
-
-          // Insert vulnerabilities with basic fields first
-          const { data: insertedVulns, error: vulnErr } = await supabase
-            .from('submission_vulnerabilities')
-            .insert(vulnPayload)
-            .select('id');
-          
-          // If insert succeeded and we have structured fields, try to update them
-          if (insertedVulns && !vulnErr && insertedVulns.length > 0) {
-            // Update with structured fields for each vulnerability
-            for (let i = 0; i < insertedVulns.length && i < parsed.vulnerabilities.length; i++) {
-              const v = parsed.vulnerabilities[i]
-              const insertedId = insertedVulns[i].id
-              
-              const updatePayload = {}
-              if (v.question) updatePayload.question = v.question
-              if (v.what) updatePayload.what = v.what
-              if (v.so_what) updatePayload.so_what = v.so_what
-              if (v.sector) updatePayload.sector = v.sector
-              if (v.subsector) updatePayload.subsector = v.subsector
-              if (v.discipline) updatePayload.discipline = v.discipline
-              
-              if (Object.keys(updatePayload).length > 0) {
-                // Try to update (will fail silently if columns don't exist)
-                await supabase
-                  .from('submission_vulnerabilities')
-                  .update(updatePayload)
-                  .eq('id', insertedId)
-                  .then(({ error }) => {
-                    if (error && error.code !== 'PGRST116') {
-                      console.warn('Could not update structured fields (columns may not exist):', error.message)
-                    }
-                  })
-              }
+            
+            const { data: insertedVuln, error: vulnErr } = await supabase
+              .from('vulnerabilities')
+              .insert(productionVuln)
+              .select('id')
+              .single();
+            
+            if (vulnErr) {
+              console.error('Error inserting production vulnerability:', vulnErr);
+              // Continue with other vulnerabilities even if one fails
+              continue;
             }
+            
+            productionVulns.push(insertedVuln);
+            
+            // Map vulnerability key to production ID for linking OFCs later
+            const vulnKey = v.id || v.title || v.vulnerability || vulnStatement;
+            vulnOfcMapping.set(vulnKey, insertedVuln.id);
           }
           
-          if (vulnErr) {
-            console.error('Error inserting vulnerabilities:', vulnErr);
-            throw vulnErr;
-          }
+          console.log(`✅ Inserted ${productionVulns.length} vulnerabilities into production table`);
         }
 
-        // --- OFCs ---
+        // --- Move to Production Tables: Options for Consideration ---
+        const productionOfcs = [];
+        const ofcVulnLinks = []; // Store OFC-to-vulnerability links to create after insertion
+        
         if (parsed.ofcs && parsed.ofcs.length > 0) {
-          const ofcPayload = parsed.ofcs.map(o => ({
-            submission_id: submissionId,
-            title: o.title,
-            description: o.description,
-            linked_vulnerability: o.linked_vulnerability || null
-          }));
-
-          const { error: ofcErr } = await supabase
-            .from('submission_options_for_consideration')
-            .insert(ofcPayload);
-
-          if (ofcErr) {
-            console.error('Error inserting OFCs:', ofcErr);
-            throw ofcErr;
+          // Insert OFCs into production table
+          for (const o of parsed.ofcs) {
+            const ofcText = o.option_text || o.option || o.title || '';
+            if (!ofcText) continue;
+            
+            // Resolve taxonomy IDs
+            const sectorId = o.sector_id || await resolveSectorId(o.sector);
+            const subsectorId = o.subsector_id || await resolveSubsectorId(o.subsector);
+            
+            const productionOfc = {
+              option_text: ofcText,
+              discipline: o.discipline || null,
+              sector_id: sectorId,
+              subsector_id: subsectorId
+            };
+            
+            const { data: insertedOfc, error: ofcErr } = await supabase
+              .from('options_for_consideration')
+              .insert(productionOfc)
+              .select('id')
+              .single();
+            
+            if (ofcErr) {
+              console.error('Error inserting production OFC:', ofcErr);
+              continue;
+            }
+            
+            // Store OFC and track which vulnerability it's linked to
+            const ofcKey = o.id || o.title || o.option || ofcText;
+            const linkedVulnKey = o.linked_vulnerability || o.vulnerability_id || o.vuln_id;
+            
+            productionOfcs.push({
+              ofc_id: insertedOfc.id,
+              ofc_key: ofcKey,
+              linked_vuln_key: linkedVulnKey
+            });
+          }
+          
+          console.log(`✅ Inserted ${productionOfcs.length} OFCs into production table`);
+          
+          // --- Create vulnerability-OFC links ---
+          if (productionOfcs.length > 0 && vulnOfcMapping.size > 0) {
+            const linkPromises = [];
+            
+            for (const prodOfc of productionOfcs) {
+              if (!prodOfc.linked_vuln_key) continue;
+              
+              // Find the production vulnerability ID for this OFC's linked vulnerability
+              const prodVulnId = vulnOfcMapping.get(prodOfc.linked_vuln_key);
+              
+              if (prodVulnId) {
+                linkPromises.push(
+                  supabase
+                    .from('vulnerability_ofc_links')
+                    .insert({
+                      vulnerability_id: prodVulnId,
+                      ofc_id: prodOfc.ofc_id,
+                      link_type: 'direct',
+                      confidence_score: 1.0 // Approved by admin = high confidence
+                    })
+                    .then(({ error }) => {
+                      if (error && !error.message.includes('duplicate') && !error.message.includes('unique')) {
+                        console.warn('Error creating vulnerability-OFC link:', error);
+                      }
+                    })
+                );
+              }
+            }
+            
+            await Promise.all(linkPromises);
+            console.log(`✅ Created ${linkPromises.length} vulnerability-OFC links`);
           }
         }
 

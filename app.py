@@ -17,6 +17,7 @@ from routes.process import process_bp
 from routes.library import library_bp
 from routes.analytics import bp as analytics_bp
 from routes.disciplines import bp as disciplines_bp
+from routes.learning import learning_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Next.js frontend
@@ -37,6 +38,7 @@ app.register_blueprint(process_bp)
 app.register_blueprint(library_bp)
 app.register_blueprint(analytics_bp)
 app.register_blueprint(disciplines_bp)
+app.register_blueprint(learning_bp)
 
 # Start background queue worker
 from services.queue_manager import start_worker
@@ -53,6 +55,10 @@ start_realtime_approval_listener()
 # Start analytics collector (aggregates metrics for dashboard)
 from services.analytics_collector import start_collector
 start_collector(interval_minutes=10)
+
+# Start learning monitor (processes learning events and adjusts heuristics)
+from services.learning_engine import start_learning_monitor
+start_learning_monitor(interval_minutes=60)
 
 if __name__ == "__main__":
     import os

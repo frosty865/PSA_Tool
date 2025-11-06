@@ -5,6 +5,7 @@ Handles all Supabase database operations
 
 import os
 import requests
+from datetime import datetime
 
 try:
     from supabase import create_client, Client
@@ -265,4 +266,98 @@ def save_results(results, source_file=None):
         raise Exception(f"Supabase save failed: {str(e)}")
 
 # Add more Supabase functions as needed from your old implementation
+
+def get_learning_events(since):
+    """
+    Return all learning events created since a given timestamp.
+    
+    Args:
+        since: datetime object - events created after this time
+    
+    Returns:
+        List of learning event dictionaries
+    """
+    try:
+        client = get_supabase_client()
+        
+        # Convert datetime to ISO format string
+        since_iso = since.isoformat() if isinstance(since, datetime) else since
+        
+        # Query learning_events table
+        result = client.table("learning_events").select("*").gte("created_at", since_iso).order("created_at", desc=False).execute()
+        
+        return result.data if result.data else []
+        
+    except Exception as e:
+        logging.error(f"Failed to get learning events: {str(e)}")
+        return []
+
+
+def insert_learning_event(event_data):
+    """
+    Insert a learning feedback event into Supabase.
+    
+    Args:
+        event_data: Dictionary with event fields:
+            - submission_id (optional): UUID of submission
+            - event_type: 'approval', 'rejection', 'correction', 'edited'
+            - approved: boolean
+            - model_version: string (e.g., 'psa-engine:latest')
+            - confidence_score: decimal (0.0-1.0)
+            - metadata: JSON object (optional)
+    
+    Returns:
+        Inserted event data or None on error
+    """
+    try:
+        client = get_supabase_client()
+        
+        # Ensure created_at is set
+        if 'created_at' not in event_data:
+            event_data['created_at'] = datetime.utcnow().isoformat()
+        
+        # Insert event
+        result = client.table("learning_events").insert(event_data).execute()
+        
+        if result.data:
+            logging.info(f"Learning event recorded: {event_data.get('event_type')}")
+            return result.data[0]
+        
+        return None
+        
+    except Exception as e:
+        logging.error(f"Failed to insert learning event: {str(e)}")
+        raise Exception(f"Failed to insert learning event: {str(e)}")
+
+
+def insert_learning_stats(stats):
+    """
+    Insert or update learning statistics.
+    
+    Note: This assumes a 'learning_stats' table exists. If it doesn't,
+    this function will fail gracefully (logged as warning).
+    
+    Args:
+        stats: Dictionary with learning statistics
+    
+    Returns:
+        Inserted stats data or None on error
+    """
+    try:
+        client = get_supabase_client()
+        
+        # Try to insert into learning_stats table
+        # If table doesn't exist, this will fail gracefully
+        result = client.table("learning_stats").insert(stats).execute()
+        
+        if result.data:
+            logging.info(f"Learning stats recorded: {stats.get('total_events')} events")
+            return result.data[0]
+        
+        return None
+        
+    except Exception as e:
+        # Log as warning since learning_stats table may not exist
+        logging.warning(f"Could not insert learning stats (table may not exist): {str(e)}")
+        return None
 

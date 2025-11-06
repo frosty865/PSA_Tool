@@ -45,8 +45,17 @@ export async function POST(request) {
     const flaskUrl = getFlaskUrl();
 
     // Step 1: Save file to Flask incoming directory and process it
+    // Read file as array buffer and create new FormData
+    const fileArrayBuffer = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(fileArrayBuffer);
+    
+    // Use form-data compatible approach
+    // Create a new FormData with the file buffer
     const flaskFormData = new FormData();
-    flaskFormData.append('file', file);
+    
+    // Create a File-like object for FormData
+    const fileForFormData = new File([fileBuffer], file.name, { type: file.type || 'application/octet-stream' });
+    flaskFormData.append('file', fileForFormData);
 
     let fileSaved = false;
     let savedFilename = file.name;
@@ -56,6 +65,7 @@ export async function POST(request) {
       const saveResponse = await fetch(`${flaskUrl}/api/process`, {
         method: 'POST',
         body: flaskFormData,
+        // Don't set Content-Type - let fetch set it automatically with boundary
       });
 
       if (saveResponse.ok) {

@@ -27,46 +27,9 @@ export async function POST(request) {
       );
     }
 
-    // Get Flask URL for processing
-    const flaskUrl = getFlaskUrl();
-
-    // Create FormData to forward to Flask
-    const flaskFormData = new FormData();
-    flaskFormData.append('file', file);
-
-    try {
-      // Forward to Flask for preprocessing and metadata extraction
-      const response = await fetch(`${flaskUrl}/api/process`, {
-        method: 'POST',
-        body: flaskFormData,
-      });
-
-      if (!response.ok) {
-        // If Flask fails, try basic extraction
-        return await extractBasicMetadata(file);
-      }
-
-      const result = await response.json();
-      
-      // Extract metadata from filename and basic heuristics
-      const filename = file.name || 'document';
-      const parsedData = {
-        title: extractTitleFromFilename(filename),
-        organization: extractOrgFromFilename(filename),
-        year: extractYearFromFilename(filename),
-        sourceType: detectSourceType(filename),
-        url: '',
-      };
-
-      return NextResponse.json({
-        success: true,
-        parsedData,
-      });
-    } catch (error) {
-      console.error('[parse-metadata] Flask error:', error);
-      // Fallback to basic extraction
-      return await extractBasicMetadata(file);
-    }
+    // Extract metadata from filename directly (no need to call Flask for this)
+    // Flask processing is expensive, so we'll just do basic extraction
+    return await extractBasicMetadata(file);
   } catch (error) {
     console.error('[parse-metadata] Error:', error);
     return NextResponse.json(

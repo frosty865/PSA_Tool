@@ -33,8 +33,12 @@ export async function fetchWithAuth(path, options = {}) {
 
     const token = session?.access_token
 
+    // Don't set Content-Type for FormData - let fetch set it automatically with boundary
+    const isFormData = options.body instanceof FormData
+    
     const headers = {
-      'Content-Type': 'application/json',
+      // Only set Content-Type if not FormData
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers || {}),
       ...(token
         ? { Authorization: `Bearer ${token}` }
@@ -42,6 +46,11 @@ export async function fetchWithAuth(path, options = {}) {
             apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
           }),
+    }
+    
+    // Remove Content-Type from headers if it was set and we're using FormData
+    if (isFormData && headers['Content-Type']) {
+      delete headers['Content-Type']
     }
 
     const res = await fetch(url, {

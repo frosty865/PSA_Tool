@@ -1,6 +1,6 @@
 // Admin-only API route to execute DDL for table cleanup
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '../../../../lib/auth-middleware';
+import { requireAdmin } from '@/app/lib/auth-middleware.js';
 import { createClient } from '@supabase/supabase-js';
 import { Pool } from 'pg';
 

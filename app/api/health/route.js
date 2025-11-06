@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { monitoring } from '../../../lib/monitoring';
+import { monitoring } from '@/app/lib/monitoring.js';
 
 // Cache health check for 30 seconds
 export const revalidate = 30;

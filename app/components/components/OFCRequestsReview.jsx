@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import SafeHTML from './SafeHTML';
-import { fetchWithAuth } from '../lib/fetchWithAuth';
+import { fetchWithAuth } from '@/app/lib/fetchWithAuth.js';
 
 export default function OFCRequestsReview() {
   const [ofcRequests, setOFCRequests] = useState([]);

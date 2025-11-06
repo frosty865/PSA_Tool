@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getProcessedByValue } from '../../../utils/get-user-id';
+import { getProcessedByValue } from '@/app/utils/get-user-id.js';
 
 // Use service role for API submissions to bypass RLS
 const supabase = createClient(

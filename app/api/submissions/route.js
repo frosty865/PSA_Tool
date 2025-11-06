@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
-import { ollamaChatJSON } from '@/lib/ollama.js';
+import { ollamaChatJSON } from '@/app/lib/ollama.js';
 
 export async function POST(request) {
   try {

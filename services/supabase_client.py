@@ -84,5 +84,84 @@ def query_supabase(table, filters=None, limit=None):
     except Exception as e:
         raise Exception(f"Supabase query failed: {str(e)}")
 
+def save_results(results, source_file=None):
+    """
+    Save processing results to Supabase.
+    
+    Args:
+        results: List of result dictionaries from model processing
+        source_file: Original source filename (optional)
+    
+    Returns:
+        Dictionary with save statistics
+    """
+    import logging
+    from datetime import datetime
+    
+    if not results:
+        logging.warning("No results to save to Supabase")
+        return {"saved": 0, "errors": 0}
+    
+    saved_count = 0
+    error_count = 0
+    
+    try:
+        client = get_supabase_client()
+        
+        # Prepare records for insertion
+        records = []
+        for result in results:
+            if result.get('status') == 'failed' or 'error' in result:
+                error_count += 1
+                continue
+            
+            # Extract vulnerabilities and OFCs from result
+            vulnerabilities = result.get('vulnerabilities', [])
+            ofcs = result.get('ofcs', [])
+            
+            # Create submission record if we have data
+            if vulnerabilities or ofcs:
+                record = {
+                    'data': {
+                        'vulnerabilities': vulnerabilities,
+                        'ofcs': ofcs,
+                        'chunk_id': result.get('chunk_id'),
+                        'source_file': result.get('source_file', source_file),
+                        'page_range': result.get('page_range'),
+                        'processed_at': datetime.now().isoformat(),
+                        'model_response': result
+                    },
+                    'status': 'pending',  # Will be reviewed by admin
+                    'created_at': datetime.now().isoformat()
+                }
+                
+                # Add submitter_email if available from environment
+                submitter_email = os.getenv('SUBMITTER_EMAIL')
+                if submitter_email:
+                    record['submitter_email'] = submitter_email
+                
+                records.append(record)
+        
+        # Batch insert records
+        if records:
+            try:
+                # Insert into submissions table
+                response = client.table('submissions').insert(records).execute()
+                saved_count = len(response.data) if response.data else len(records)
+                logging.info(f"Saved {saved_count} records to Supabase submissions table")
+            except Exception as e:
+                logging.error(f"Failed to insert records to Supabase: {str(e)}")
+                error_count += len(records)
+        
+        return {
+            "saved": saved_count,
+            "errors": error_count,
+            "total": len(results)
+        }
+        
+    except Exception as e:
+        logging.error(f"Failed to save results to Supabase: {str(e)}")
+        raise Exception(f"Supabase save failed: {str(e)}")
+
 # Add more Supabase functions as needed from your old implementation
 

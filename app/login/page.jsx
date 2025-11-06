@@ -26,9 +26,10 @@ export default function Login() {
         alert('Check your email for the confirmation link!');
       } else {
         // For login, use our custom JWT authentication API
-        const email = `${username}@vofc.gov`;
+        // Allow full email or construct from username
+        const email = username.includes('@') ? username : `${username}@vofc.gov`;
         
-        console.log('Attempting login with:', { email, password });
+        console.log('Attempting login with:', { email: email.includes('@') ? email.substring(0, email.indexOf('@') + 5) + '...' : email.substring(0, 5) + '...', password: '***' });
         
         const response = await fetch('/api/auth/login', {
           method: 'POST',
@@ -39,9 +40,21 @@ export default function Login() {
           body: JSON.stringify({ email, password }),
         });
         
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { error: errorText || 'Login failed' };
+          }
+          console.error('Login API error:', { status: response.status, error: errorData });
+          throw new Error(errorData.error || `Login failed (${response.status})`);
+        }
+        
         const result = await response.json();
         
-        console.log('Login response:', result);
+        console.log('Login response:', { success: result.success, email: result.user?.email });
         
         if (!result.success) {
           throw new Error(result.error || 'Login failed');
@@ -87,16 +100,19 @@ export default function Login() {
           <div className="card-body">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="form-group">
-                <label className="form-label">Username</label>
+                <label className="form-label">Email or Username</label>
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="form-input"
-                  placeholder="Enter your username"
-                  autoComplete="username"
+                  placeholder="Enter your email or username"
+                  autoComplete="username email"
                 />
+                <small className="text-secondary" style={{display: 'block', marginTop: '4px', fontSize: '0.85rem'}}>
+                  If username, will use username@vofc.gov
+                </small>
               </div>
               
               <div className="form-group">

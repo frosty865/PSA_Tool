@@ -23,9 +23,20 @@ export async function POST(request) {
       );
     }
 
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      console.error('[Login] supabaseAdmin is null - check SUPABASE_SERVICE_ROLE_KEY environment variable');
+      return NextResponse.json(
+        { success: false, error: 'Server configuration error: Supabase admin client not available. Check environment variables.' },
+        { status: 500 }
+      );
+    }
+
     // Create service role client for authentication
     const serviceSupabase = supabaseAdmin;
 
+    console.log('[Login] Attempting authentication for:', email);
+    
     // Use service role for authentication
     const { data, error } = await serviceSupabase.auth.signInWithPassword({
       email,

@@ -669,20 +669,31 @@ def main():
             logging.warning("⚠️ Folder watcher not available (watchdog not installed)")
             logging.info("Falling back to periodic polling mode...")
         
-        # Main loop: periodic Supabase sync
+        # Main loop: periodic Supabase sync and progress updates
         sync_interval = 600  # 10 minutes
+        progress_interval = 30  # Update progress every 30 seconds
         logging.info(f"Starting Supabase sync loop (every {sync_interval} seconds)...")
+        logging.info(f"Progress updates every {progress_interval} seconds...")
+        
+        last_sync = time.time()
+        last_progress = time.time()
         
         while True:
             try:
-                # Sync approved review files to Supabase
-                sync_review_to_supabase()
+                current_time = time.time()
                 
-                # Update progress
-                update_progress()
+                # Update progress more frequently (every 30 seconds)
+                if current_time - last_progress >= progress_interval:
+                    update_progress()
+                    last_progress = current_time
                 
-                # Sleep until next sync
-                time.sleep(sync_interval)
+                # Sync approved review files to Supabase (every 10 minutes)
+                if current_time - last_sync >= sync_interval:
+                    sync_review_to_supabase()
+                    last_sync = current_time
+                
+                # Sleep for a short interval to allow for responsive updates
+                time.sleep(5)  # Check every 5 seconds
                 
             except KeyboardInterrupt:
                 logging.info("Main loop interrupted by user")

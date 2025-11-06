@@ -115,7 +115,7 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
         if (!userRole) {
           let profileError = null
 
-          // Try users_profiles first (by user_id)
+          // Try users_profiles by user_id first (based on schema docs, user_id is the primary key)
           const { data: userProfile, error: userProfileError } = await supabase
             .from('users_profiles')
             .select('role')
@@ -127,7 +127,7 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
             userRole = String(userProfile.role || 'user').toLowerCase()
             console.log('[RoleGate] Got role from users_profiles (user_id):', userRole)
           } else {
-            // Try users_profiles by id
+            // Fallback: Try users_profiles by id (some schemas use id as primary key)
             const { data: userProfileById, error: userProfileByIdError } = await supabase
               .from('users_profiles')
               .select('role')
@@ -139,30 +139,29 @@ export default function RoleGate({ children, requiredRole = 'admin' }) {
               userRole = String(userProfileById.role || 'user').toLowerCase()
               console.log('[RoleGate] Got role from users_profiles (id):', userRole)
             } else {
-              // Fallback to profiles table
-              const { data: profilesData, error: profilesError } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', userId)
-                .maybeSingle()
-
-              if (!profilesError && profilesData) {
-                profile = profilesData
-                userRole = String(profilesData.role || 'user').toLowerCase()
-                console.log('[RoleGate] Got role from profiles:', userRole)
-              } else {
-                profileError = profilesError || userProfileByIdError || userProfileError
-                console.error('[RoleGate] All profile lookups failed:', {
-                  userProfileError: userProfileError?.message,
-                  userProfileByIdError: userProfileByIdError?.message,
-                  profilesError: profilesError?.message
-                })
+              // Log the actual error to help debug
+              profileError = userProfileError || userProfileByIdError
+              console.error('[RoleGate] users_profiles lookup failed:', {
+                userId,
+                byUserIdError: userProfileError?.message || userProfileError?.code || userProfileError,
+                byIdError: userProfileByIdError?.message || userProfileByIdError?.code || userProfileByIdError,
+                byUserIdData: userProfile,
+                byIdData: userProfileById
+              })
+              
+              // If we can't find the profile, check if user has admin metadata
+              if (session.user?.user_metadata?.role) {
+                const metadataRole = String(session.user.user_metadata.role).toLowerCase()
+                if (['admin', 'spsa'].includes(metadataRole)) {
+                  console.log('[RoleGate] Using role from user metadata as fallback:', metadataRole)
+                  userRole = metadataRole
+                }
               }
             }
           }
 
           if (!userRole) {
-            console.error('[RoleGate] Could not determine user role')
+            console.error('[RoleGate] Could not determine user role - redirecting to splash')
             if (isMounted) {
               setLoading(false)
               router.replace('/splash')

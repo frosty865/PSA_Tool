@@ -107,9 +107,12 @@ export async function POST(request) {
         file_size: file.size,
         file_type: file.type || file.name.split('.').pop(),
       },
-      status: 'pending_review', // Changed from 'processing' to match schema
+      status: 'pending_review',
       source: 'document_upload',
       ...(submitterEmail && { submitter_email: submitterEmail }),
+      // Let database handle timestamps with defaults, but include them explicitly to be safe
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
     const { data: submission, error: submissionError } = await supabaseAdmin
@@ -119,18 +122,24 @@ export async function POST(request) {
       .single();
 
     if (submissionError) {
-      console.error('[documents/submit] Submission creation error:', {
+      const errorDetails = {
         message: submissionError.message,
         details: submissionError.details,
         hint: submissionError.hint,
         code: submissionError.code,
-      });
+        fullError: JSON.stringify(submissionError, null, 2),
+      };
+      console.error('[documents/submit] Submission creation error:', errorDetails);
+      console.error('[documents/submit] Submission data attempted:', JSON.stringify(submissionData, null, 2));
       return NextResponse.json(
         { 
           success: false, 
           error: 'Failed to create submission record',
           details: submissionError.message || submissionError.details || 'Unknown error',
+          hint: submissionError.hint,
           code: submissionError.code,
+          // Include full error in development
+          ...(process.env.NODE_ENV === 'development' && { fullError: errorDetails }),
         },
         { status: 500 }
       );

@@ -4,10 +4,10 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getFlaskUrl } from '@/app/lib/server-utils';
 
-const FLASK_URL = process.env.NEXT_PUBLIC_FLASK_URL || 
-                  process.env.NEXT_PUBLIC_FLASK_API_URL || 
-                  'http://localhost:8080';
+// Use the shared utility that handles production detection
+const FLASK_URL = getFlaskUrl();
 
 export async function GET(request) {
   // Log Flask URL for debugging (only in server logs, not exposed to client)
@@ -15,6 +15,8 @@ export async function GET(request) {
   console.log('[Health Proxy] Environment check:', {
     NEXT_PUBLIC_FLASK_URL: process.env.NEXT_PUBLIC_FLASK_URL || 'not set',
     NEXT_PUBLIC_FLASK_API_URL: process.env.NEXT_PUBLIC_FLASK_API_URL || 'not set',
+    NODE_ENV: process.env.NODE_ENV || 'not set',
+    VERCEL: process.env.VERCEL || 'not set',
     resolvedUrl: FLASK_URL
   });
   

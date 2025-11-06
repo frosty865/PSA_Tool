@@ -234,7 +234,27 @@ export default function ProcessingMonitorPage() {
       
       // Check if response indicates an error
       if (data.status === 'error' || !data.status || (res.status !== 200 && res.status !== 201)) {
-        const errorMsg = data.message || data.error || `Control action failed (HTTP ${res.status})`
+        let errorMsg = data.message || data.error || `Control action failed (HTTP ${res.status})`
+        
+        // Add hint if available
+        if (data.hint) {
+          errorMsg += `\n\n💡 ${data.hint}`
+        }
+        
+        // Add troubleshooting steps if available
+        if (data.troubleshooting) {
+          errorMsg += `\n\n🔧 Troubleshooting:\n`
+          if (data.troubleshooting.checkTunnel) {
+            errorMsg += `   • Check tunnel: ${data.troubleshooting.checkTunnel}\n`
+          }
+          if (data.troubleshooting.checkFlask) {
+            errorMsg += `   • Check Flask: ${data.troubleshooting.checkFlask}\n`
+          }
+          if (data.troubleshooting.testLocal) {
+            errorMsg += `   • Test locally: ${data.troubleshooting.testLocal}\n`
+          }
+        }
+        
         throw new Error(errorMsg)
       }
       

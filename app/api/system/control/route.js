@@ -22,6 +22,8 @@ export async function POST(request) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
+    console.log(`[Control Proxy] Attempting to connect to Flask at: ${FLASK_URL}`);
+
     try {
       const response = await fetch(`${FLASK_URL}/api/system/control`, {
         method: 'POST',
@@ -35,17 +37,23 @@ export async function POST(request) {
       });
 
       clearTimeout(timeoutId);
+      
+      console.log(`[Control Proxy] Response status: ${response.status} from ${FLASK_URL}`);
 
       // Handle 502 Bad Gateway - tunnel/server unavailable
       if (response.status === 502 || response.status === 503) {
-        console.error(`[Control Proxy] Gateway error ${response.status}`);
+        console.error(`[Control Proxy] Gateway error ${response.status} from ${FLASK_URL}`);
         
-        // If we tried tunnel and got 502, suggest checking tunnel or using localhost
-        let errorMessage = `Flask server unavailable (${response.status}).`;
-        if (FLASK_URL.includes('flask.frostech.site')) {
-          errorMessage += ' Tunnel may be down. Try restarting tunnel service or check if Flask is accessible locally.';
+        // 502/503 typically means tunnel is up but Flask isn't responding, OR tunnel is misconfigured
+        let errorMessage = `Gateway error (${response.status}) - `;
+        let hint = '';
+        
+        if (FLASK_URL.includes('flask.frostech.site') || FLASK_URL.includes('https://')) {
+          errorMessage += 'Tunnel is responding but Flask may not be accessible through it.';
+          hint = 'Flask is running locally but tunnel cannot reach it. Check: 1) Tunnel service is running (nssm status "VOFC-Tunnel"), 2) Tunnel config points to localhost:8080, 3) Flask is listening on port 8080';
         } else {
-          errorMessage += ' Check Flask service status.';
+          errorMessage += 'Flask server may not be running or not accessible.';
+          hint = 'Check Flask service status: nssm status "VOFC-Flask"';
         }
         
         return NextResponse.json(
@@ -54,7 +62,14 @@ export async function POST(request) {
             message: errorMessage,
             flaskUrl: FLASK_URL,
             action,
-            hint: 'Flask may be running locally but tunnel is down. Check tunnel service status.'
+            hint,
+            troubleshooting: {
+              checkTunnel: 'nssm status "VOFC-Tunnel"',
+              checkFlask: 'nssm status "VOFC-Flask"',
+              testLocal: 'curl http://localhost:8080/api/system/health',
+              restartTunnel: 'nssm restart "VOFC-Tunnel"',
+              restartFlask: 'nssm restart "VOFC-Flask"'
+            }
           },
           { status: 200 } // Return 200 so frontend can handle gracefully
         );

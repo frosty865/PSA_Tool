@@ -8,6 +8,11 @@ import SessionTimeoutWarning from '../components/SessionTimeoutWarning'
 export const metadata = {
   title: 'VOFC Viewer',
   description: 'Vulnerability and Options for Consideration Viewer',
+  icons: {
+    icon: '/images/cisa-logo.png',
+    shortcut: '/images/cisa-logo.png',
+    apple: '/images/cisa-logo.png',
+  },
 }
 
 // Force dynamic rendering to prevent build hangs
@@ -18,6 +23,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        <link rel="icon" href="/images/cisa-logo.png" type="image/png" />
+        <link rel="shortcut icon" href="/images/cisa-logo.png" type="image/png" />
       </head>
       <body className="antialiased">
         <div className="min-h-screen" style={{backgroundColor: 'var(--cisa-gray-lighter)'}}>

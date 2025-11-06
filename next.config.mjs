@@ -31,6 +31,16 @@ const nextConfig = {
   
   // Set output tracing root to prevent warnings
   outputFileTracingRoot: __dirname,
+  
+  // Rewrite favicon.ico to CISA logo to prevent 404 errors
+  async rewrites() {
+    return [
+      {
+        source: '/favicon.ico',
+        destination: '/images/cisa-logo.png',
+      },
+    ];
+  },
 }
 
 export default nextConfig

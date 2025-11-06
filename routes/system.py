@@ -8,6 +8,7 @@ from services.ollama_client import test_ollama
 from services.supabase_client import test_supabase, get_supabase_client
 import os
 import json
+import requests
 from datetime import datetime
 from pathlib import Path
 
@@ -188,11 +189,18 @@ def progress():
             "review": 0
         }), 200
 
-@system_bp.route('/api/system/logstream')
+@system_bp.route('/api/system/logstream', methods=['GET', 'OPTIONS'])
 def log_stream():
     """Server-Sent Events streaming of live processor log."""
     from flask import Response
     import time
+    
+    if request.method == 'OPTIONS':
+        response = Response('', status=200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Cache-Control'
+        return response
     
     def stream():
         import os
@@ -337,18 +345,39 @@ def system_control():
         elif action == "process_existing":
             try:
                 from ollama_auto_processor import get_incoming_files, process_file
+                import traceback
+                
                 INCOMING_DIR = BASE_DIR / "incoming"
+                logging.info(f"[Admin Control] process_existing: Checking {INCOMING_DIR}")
+                
                 existing_files = get_incoming_files()
-                processed = 0
-                for filepath in existing_files:
-                    try:
-                        process_file(filepath)
-                        processed += 1
-                    except Exception as e:
-                        logging.error(f"Error processing {filepath.name}: {e}")
-                msg = f"Processed {processed} existing file(s) from incoming/"
+                logging.info(f"[Admin Control] Found {len(existing_files)} file(s) to process")
+                
+                if not existing_files:
+                    msg = "No files found in incoming/ directory"
+                    logging.info(f"[Admin Control] {msg}")
+                else:
+                    processed = 0
+                    failed = 0
+                    for filepath in existing_files:
+                        try:
+                            logging.info(f"[Admin Control] Processing {filepath.name}...")
+                            process_file(filepath)
+                            processed += 1
+                            logging.info(f"[Admin Control] Successfully processed {filepath.name}")
+                        except Exception as e:
+                            failed += 1
+                            error_msg = f"Error processing {filepath.name}: {e}"
+                            logging.error(f"[Admin Control] {error_msg}")
+                            logging.error(f"[Admin Control] Traceback: {traceback.format_exc()}")
+                    
+                    msg = f"Processed {processed} file(s), {failed} failed from incoming/"
+                    logging.info(f"[Admin Control] {msg}")
             except Exception as e:
-                logging.error(f"Error processing existing files: {e}")
+                import traceback
+                error_msg = f"Error processing existing files: {e}"
+                logging.error(f"[Admin Control] {error_msg}")
+                logging.error(f"[Admin Control] Traceback: {traceback.format_exc()}")
                 msg = f"Process existing error: {str(e)}"
         
         else:

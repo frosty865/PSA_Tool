@@ -68,7 +68,7 @@ console.log(result);
 ### Step 1: File Upload
 - File is received via multipart/form-data
 - Filename is sanitized to prevent path traversal
-- File is saved to `C:/Tools/VOFC-Processor/incoming/` (or project `data/incoming/` as fallback)
+- File is saved to `C:\Tools\Ollama\Data\incoming\`
 
 ### Step 2: Preprocessing
 - Text extraction from PDF/DOCX/TXT
@@ -139,7 +139,7 @@ All processing steps are logged:
 
 ```
 INFO - Received file upload: document.pdf
-INFO - File saved to: C:/Tools/VOFC-Processor/incoming/document.pdf
+INFO - File saved to: C:\Tools\Ollama\Data\incoming\document.pdf
 INFO - Starting preprocessing for document.pdf
 INFO - Preprocessing complete: 15 chunks created
 INFO - Running model inference on 15 chunks
@@ -171,8 +171,7 @@ The endpoint includes comprehensive error handling:
 
 ## File Locations
 
-- **Upload Directory:** `C:/Tools/VOFC-Processor/incoming/` (primary)
-- **Fallback Directory:** `data/incoming/` (if VOFC-Processor doesn't exist)
+- **Upload Directory:** `C:\Tools\Ollama\Data\incoming\`
 - **Preprocessing Logs:** `logs/preprocess.log`
 - **Flask Logs:** Console output (INFO level)
 

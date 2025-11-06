@@ -11,6 +11,7 @@ export default function ProcessingMonitorPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [watcherStatus, setWatcherStatus] = useState('unknown') // 'unknown' | 'running' | 'stopped'
+  const [controlLoading, setControlLoading] = useState(false)
   const logEndRef = useRef(null)
   const eventSourceRef = useRef(null)
 
@@ -179,27 +180,82 @@ export default function ProcessingMonitorPage() {
   if (loading && !progress) {
     return (
       <RoleGate requiredRole="admin">
-        <div className="flex justify-center items-center h-full min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading processor status...</p>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              border: '4px solid var(--cisa-gray-light)',
+              borderTop: '4px solid var(--cisa-blue)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto'
+            }}></div>
+            <p style={{ marginTop: 'var(--spacing-md)', color: 'var(--cisa-gray)' }}>Loading processor status...</p>
           </div>
         </div>
       </RoleGate>
     )
   }
 
+  // Control action handler
+  async function controlAction(action) {
+    try {
+      setControlLoading(true)
+      const res = await fetch('/api/system/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Control action failed' }))
+        throw new Error(errorData.message || `HTTP ${res.status}`)
+      }
+      
+      const data = await res.json()
+      
+      // Check if response indicates an error
+      if (data.status === 'error') {
+        throw new Error(data.message || 'Control action failed')
+      }
+      
+      const message = data.message || data.status || 'Action completed'
+      alert(`✅ ${message}`)
+      
+      // Refresh progress after action
+      setTimeout(async () => {
+        try {
+          const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
+          if (progressRes.ok) {
+            const progressData = await progressRes.json()
+            setProgress(progressData)
+          }
+        } catch (err) {
+          console.error('Error refreshing progress:', err)
+        }
+      }, 1000)
+    } catch (err) {
+      console.error('Error in control action:', err)
+      alert(`❌ Error: ${err.message}`)
+    } finally {
+      setControlLoading(false)
+    }
+  }
+
   return (
     <RoleGate requiredRole="admin">
-      <div className="p-6 space-y-6" style={{ minHeight: '100vh' }}>
-        <div className="flex justify-between items-center mb-6">
+      <div style={{ padding: 'var(--spacing-lg)', minHeight: '100vh' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Auto-Processor Monitor</h1>
-            <p className="text-gray-600">
+            <h1 style={{ fontSize: 'var(--font-size-xxl)', fontWeight: 700, color: 'var(--cisa-black)', marginBottom: 'var(--spacing-sm)' }}>
+              Auto-Processor Monitor
+            </h1>
+            <p style={{ color: 'var(--cisa-gray)', fontSize: 'var(--font-size-base)' }}>
               Real-time monitoring of document processing pipeline and folder watcher
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
             <div
               className="card"
               style={{
@@ -209,7 +265,7 @@ export default function ProcessingMonitorPage() {
                 borderRadius: 'var(--border-radius)'
               }}
             >
-              <div className="flex items-center gap-2">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
                 <span style={{ fontSize: '1.2rem' }}>{watcherColors.icon}</span>
                 <div>
                   <div style={{ fontSize: 'var(--font-size-xs)', color: watcherColors.text, fontWeight: 600 }}>
@@ -225,35 +281,52 @@ export default function ProcessingMonitorPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div style={{
+            backgroundColor: 'var(--cisa-red-light)',
+            border: '1px solid var(--cisa-red)',
+            color: 'var(--cisa-red-dark)',
+            padding: 'var(--spacing-md)',
+            borderRadius: 'var(--border-radius)',
+            marginBottom: 'var(--spacing-md)'
+          }}>
             <strong>Error:</strong> {error}
           </div>
         )}
 
         {/* Folder Status Card */}
-        <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ color: 'var(--cisa-blue)' }}>
+        <div className="card" style={{ padding: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)' }}>
+          <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', marginBottom: 'var(--spacing-md)' }}>
             Folder Status
           </h2>
           {progress ? (
-            <div className="grid md:grid-cols-5 gap-4">
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: 'var(--spacing-md)'
+            }}>
               {Object.entries(progress)
                 .filter(([key]) => key !== 'timestamp' && key !== 'status')
                 .map(([key, val]) => (
                   <div
                     key={key}
-                    className="text-center p-4 rounded-lg"
                     style={{
+                      textAlign: 'center',
+                      padding: 'var(--spacing-md)',
+                      borderRadius: 'var(--border-radius-lg)',
                       backgroundColor: 'var(--cisa-gray-lighter)',
                       border: '1px solid var(--cisa-gray-light)'
                     }}
                   >
-                    <p className="font-semibold capitalize mb-2" style={{ color: 'var(--cisa-gray)' }}>
+                    <p style={{ fontWeight: 600, textTransform: 'capitalize', marginBottom: 'var(--spacing-sm)', color: 'var(--cisa-gray)' }}>
                       {key.replace('_', ' ')}
                     </p>
                     <div
-                      className="inline-block px-4 py-2 rounded-full font-bold text-lg"
                       style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-sm) var(--spacing-md)',
+                        borderRadius: '999px',
+                        fontWeight: 700,
+                        fontSize: 'var(--font-size-lg)',
                         backgroundColor: 'var(--cisa-blue)',
                         color: 'white'
                       }}
@@ -264,37 +337,39 @@ export default function ProcessingMonitorPage() {
                 ))}
             </div>
           ) : (
-            <p className="text-gray-500">No progress data available</p>
+            <p style={{ color: 'var(--cisa-gray)' }}>No progress data available</p>
           )}
           
           {progress?.timestamp && (
-            <div className="mt-4 text-sm text-gray-500">
+            <div style={{ marginTop: 'var(--spacing-md)', fontSize: 'var(--font-size-sm)', color: 'var(--cisa-gray)' }}>
               Last updated: {new Date(progress.timestamp).toLocaleString()}
             </div>
           )}
         </div>
 
         {/* Live Logs Card */}
-        <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900" style={{ color: 'var(--cisa-blue)' }}>
+        <div className="card" style={{ padding: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
+            <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)' }}>
               Live Logs
             </h2>
             <button
               onClick={() => setLogLines([])}
               className="btn btn-secondary btn-sm"
-              style={{ padding: 'var(--spacing-xs) var(--spacing-sm)' }}
             >
               Clear Logs
             </button>
           </div>
           <div
-            className="font-mono text-sm overflow-y-auto p-4 rounded"
             style={{
+              fontFamily: 'monospace',
+              fontSize: 'var(--font-size-sm)',
+              overflowY: 'auto',
+              padding: 'var(--spacing-md)',
+              borderRadius: 'var(--border-radius)',
               backgroundColor: '#1a1a1a',
               color: '#00ff00',
               height: '400px',
-              fontFamily: 'monospace',
               lineHeight: '1.5'
             }}
           >
@@ -313,10 +388,10 @@ export default function ProcessingMonitorPage() {
 
         {/* Quick Actions */}
         <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4" style={{ color: 'var(--cisa-blue)' }}>
+          <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', marginBottom: 'var(--spacing-md)' }}>
             Quick Actions
           </h2>
-          <div className="flex gap-4 flex-wrap">
+          <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
             <button
               onClick={async () => {
                 try {
@@ -327,6 +402,7 @@ export default function ProcessingMonitorPage() {
                   }
                 } catch (err) {
                   console.error('Error refreshing:', err)
+                  alert(`❌ Error refreshing: ${err.message}`)
                 }
               }}
               className="btn btn-primary"
@@ -340,32 +416,43 @@ export default function ProcessingMonitorPage() {
               🗑️ Clear Logs
             </button>
             <button
-              onClick={async () => {
-                try {
-                  const res = await fetch('/api/system/control', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'process_existing' })
-                  })
-                  const data = await res.json()
-                  alert(data.message || 'Processing triggered')
-                  // Refresh progress after a moment
-                  setTimeout(async () => {
-                    const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
-                    if (progressRes.ok) {
-                      const progressData = await progressRes.json()
-                      setProgress(progressData)
-                    }
-                  }, 2000)
-                } catch (err) {
-                  console.error('Error processing existing files:', err)
-                  alert('Failed to process existing files: ' + err.message)
+              onClick={() => controlAction('process_existing')}
+              className="btn btn-success"
+              disabled={controlLoading}
+            >
+              {controlLoading ? '⏳ Processing...' : '⚡ Process Existing Files'}
+            </button>
+            <button
+              onClick={() => controlAction('sync_review')}
+              className="btn btn-info"
+              disabled={controlLoading}
+            >
+              🔄 Sync Review
+            </button>
+            <button
+              onClick={() => controlAction('start_watcher')}
+              className="btn btn-success"
+              disabled={controlLoading}
+            >
+              ▶️ Start Watcher
+            </button>
+            <button
+              onClick={() => controlAction('stop_watcher')}
+              className="btn btn-warning"
+              disabled={controlLoading}
+            >
+              ⏹️ Stop Watcher
+            </button>
+            <button
+              onClick={() => {
+                if (confirm('Clear all files from the errors folder?')) {
+                  controlAction('clear_errors')
                 }
               }}
-              className="btn btn-primary"
-              style={{ backgroundColor: 'var(--cisa-success)' }}
+              className="btn btn-danger"
+              disabled={controlLoading}
             >
-              ⚡ Process Existing Files
+              🗑️ Clear Errors
             </button>
           </div>
         </div>

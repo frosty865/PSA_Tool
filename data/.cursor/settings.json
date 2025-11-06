@@ -1,0 +1,16 @@
+{
+    "env": {
+      "PYTHONPATH": "C:\\Tools;C:\\Tools\\Ollama\\Data",
+      "PATH": "C:\\Tools\\Python311;C:\\Tools\\Python311\\Scripts;C:\\Tools\\Ollama;C:\\Tools\\nssm;${PATH}",
+      "FLASK_APP": "C:\\Tools\\Ollama\\Data\\server.py",
+      "FLASK_ENV": "production"
+    },
+    "terminal": {
+      "shell": "powershell",
+      "cwd": "C:\\Tools\\Ollama\\Data"
+    },
+    "run": {
+      "python": "C:\\Tools\\Python311\\python.exe"
+    }
+  }
+  

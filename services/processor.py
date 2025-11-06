@@ -22,13 +22,14 @@ EXT_HANDLERS = {
     ".txt": txt_extract,
 }
 
-# Data directories
-DATA_DIR = Path(__file__).parent.parent / 'data'
-INCOMING_DIR = DATA_DIR / 'incoming'
-PROCESSED_DIR = DATA_DIR / 'processed'
-ERRORS_DIR = DATA_DIR / 'errors'
-LIBRARY_XLSX = DATA_DIR / 'VOFC_Library.xlsx'
-LIBRARY_PDF = DATA_DIR / 'SAFE_VOFC_Library.pdf'
+# Data directories - Use C:\Tools\Ollama\Data
+BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+DATA_DIR = BASE_DIR
+INCOMING_DIR = BASE_DIR / 'incoming'
+PROCESSED_DIR = BASE_DIR / 'processed'
+ERRORS_DIR = BASE_DIR / 'errors'
+LIBRARY_XLSX = BASE_DIR / 'VOFC_Library.xlsx'
+LIBRARY_PDF = BASE_DIR / 'SAFE_VOFC_Library.pdf'
 
 # Ensure directories exist
 for dir_path in [INCOMING_DIR, PROCESSED_DIR, ERRORS_DIR]:

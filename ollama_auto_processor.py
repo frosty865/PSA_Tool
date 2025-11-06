@@ -33,8 +33,17 @@ except ImportError:
 # Directory Configuration
 # ============================================================================
 
+# Explicitly set to C:\Tools\Ollama\Data\incoming to ensure correct path
 BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
 INCOMING_DIR = BASE_DIR / "incoming"
+
+# Ensure INCOMING_DIR is explicitly set to the correct path
+# Override any environment variable issues by using absolute path
+if not str(INCOMING_DIR).startswith(r"C:\Tools\Ollama\Data\incoming"):
+    # Force the correct path
+    INCOMING_DIR = Path(r"C:\Tools\Ollama\Data\incoming")
+    BASE_DIR = INCOMING_DIR.parent
+
 PROCESSED_DIR = BASE_DIR / "processed"
 LIBRARY_DIR = BASE_DIR / "library"
 ERROR_DIR = BASE_DIR / "errors"
@@ -288,25 +297,43 @@ class IncomingWatcher(FileSystemEventHandler):
     
     def _process_file_if_supported(self, path: Path):
         """Helper method to process a file if it's supported"""
+        # Resolve to absolute path for logging
+        abs_path = path.resolve()
+        logging.info(f"🔍 Checking file: {path.name}")
+        logging.info(f"   Absolute path: {abs_path}")
+        
         # Check if file is supported
         supported_extensions = {'.pdf', '.docx', '.txt', '.xlsx'}
-        if path.suffix.lower() not in supported_extensions:
+        file_ext = path.suffix.lower()
+        if file_ext not in supported_extensions:
+            logging.info(f"   ⏭️  Skipping {path.name} - unsupported extension: {file_ext}")
+            logging.info(f"   Supported: {', '.join(supported_extensions)}")
             return
         
         # Avoid processing the same file multiple times
         if path.name in self.processing_files:
-            logging.debug(f"Skipping {path.name} - already processing")
+            logging.info(f"   ⏭️  Skipping {path.name} - already processing")
             return
         
         # Wait a moment for file to be fully written
+        logging.info(f"   ⏳ Waiting for file to be fully written...")
         time.sleep(1)
         
         # Check if file still exists and is readable
         if not path.exists():
-            logging.warning(f"File {path.name} no longer exists after wait")
+            logging.warning(f"   ⚠️  File {path.name} no longer exists after wait")
             return
         
-        logging.info(f"📂 New file detected: {path.name}")
+        # Verify file is in the correct directory
+        expected_dir = Path(r"C:\Tools\Ollama\Data\incoming")
+        if path.parent.resolve() != expected_dir.resolve():
+            logging.warning(f"   ⚠️  File is not in expected directory!")
+            logging.warning(f"   Expected: {expected_dir.resolve()}")
+            logging.warning(f"   Actual: {path.parent.resolve()}")
+            # Still try to process it if it's a valid file
+        
+        logging.info(f"   ✅ File validated: {path.name} ({path.stat().st_size} bytes)")
+        logging.info(f"📂 Processing new file: {path.name}")
         
         try:
             self.processing_files.add(path.name)
@@ -324,6 +351,8 @@ class IncomingWatcher(FileSystemEventHandler):
             return
         
         path = Path(event.src_path)
+        logging.info(f"🔔 File system event: CREATED - {path}")
+        logging.info(f"   Full path: {path.resolve()}")
         self._process_file_if_supported(path)
     
     def on_moved(self, event):
@@ -333,6 +362,8 @@ class IncomingWatcher(FileSystemEventHandler):
         
         # When a file is moved/copied, event.dest_path contains the new location
         path = Path(event.dest_path) if hasattr(event, 'dest_path') and event.dest_path else Path(event.src_path)
+        logging.info(f"🔔 File system event: MOVED - {path}")
+        logging.info(f"   Full path: {path.resolve()}")
         self._process_file_if_supported(path)
 
 def start_folder_watcher():
@@ -341,23 +372,59 @@ def start_folder_watcher():
         logging.error("Cannot start folder watcher: watchdog not installed")
         return
     
+    # Explicitly ensure we're watching the correct directory
+    watch_dir = Path(r"C:\Tools\Ollama\Data\incoming")
+    
+    # Verify directory exists
+    if not watch_dir.exists():
+        logging.error(f"❌ Incoming directory does not exist: {watch_dir}")
+        logging.info(f"Creating directory: {watch_dir}")
+        watch_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Log the exact path being watched
+    watch_path = str(watch_dir.resolve())
+    logging.info("=" * 60)
+    logging.info(f"📂 Starting folder watcher")
+    logging.info(f"   Watching directory: {watch_path}")
+    logging.info(f"   Directory exists: {watch_dir.exists()}")
+    logging.info(f"   Directory is readable: {os.access(watch_dir, os.R_OK)}")
+    
+    # List existing files in the directory
+    existing_files = list(watch_dir.glob("*.*"))
+    logging.info(f"   Existing files in directory: {len(existing_files)}")
+    if existing_files:
+        for f in existing_files[:5]:  # Show first 5 files
+            logging.info(f"     - {f.name}")
+        if len(existing_files) > 5:
+            logging.info(f"     ... and {len(existing_files) - 5} more")
+    logging.info("=" * 60)
+    
     event_handler = IncomingWatcher()
     observer = Observer()
-    observer.schedule(event_handler, str(INCOMING_DIR), recursive=False)
+    observer.schedule(event_handler, watch_path, recursive=False)
     observer.start()
     
-    logging.info(f"📂 Folder watcher started for {INCOMING_DIR}")
-    logging.info("Monitoring for new files (PDF, DOCX, TXT, XLSX)...")
+    logging.info(f"✅ Folder watcher started successfully")
+    logging.info(f"   Monitoring: {watch_path}")
+    logging.info("   Supported formats: PDF, DOCX, TXT, XLSX")
     
     try:
         while True:
             time.sleep(5)
+            # Periodic health check - verify watcher is still running
+            if not observer.is_alive():
+                logging.error("❌ Observer thread died unexpectedly!")
+                break
     except KeyboardInterrupt:
         logging.info("Folder watcher interrupted by user")
         observer.stop()
-    
-    observer.join()
-    logging.info("Folder watcher stopped")
+    except Exception as e:
+        logging.error(f"❌ Watcher error: {e}")
+        logging.error(traceback.format_exc())
+    finally:
+        observer.stop()
+        observer.join()
+        logging.info("Folder watcher stopped")
 
 # ============================================================================
 # File Processing (Refactored)
@@ -468,9 +535,16 @@ def get_incoming_files() -> list[Path]:
         List of Path objects for files to process
     """
     try:
+        # Explicitly use the correct directory
+        incoming_dir = Path(r"C:\Tools\Ollama\Data\incoming")
+        
+        if not incoming_dir.exists():
+            logging.warning(f"Incoming directory does not exist: {incoming_dir}")
+            return []
+        
         # Get all files (exclude subdirectories and hidden files)
         files = [
-            f for f in INCOMING_DIR.iterdir()
+            f for f in incoming_dir.iterdir()
             if f.is_file() and not f.name.startswith('.')
         ]
         
@@ -478,9 +552,11 @@ def get_incoming_files() -> list[Path]:
         supported_extensions = {'.pdf', '.docx', '.txt', '.xlsx'}
         files = [f for f in files if f.suffix.lower() in supported_extensions]
         
+        logging.debug(f"Found {len(files)} files in {incoming_dir}")
         return sorted(files, key=lambda x: x.stat().st_mtime)  # Process oldest first
     except Exception as e:
         logging.error(f"Error getting incoming files: {e}")
+        logging.error(traceback.format_exc())
         return []
 
 def process_incoming_files() -> None:

@@ -6,8 +6,7 @@ The `preprocess.py` module provides document preprocessing and chunking function
 
 ## Location
 
-**Primary Location:** `C:\Tools\VOFC-Processor\preprocess.py`  
-**Project Location:** `services/preprocess.py` (for development/version control)
+**Primary Location:** `services/preprocess.py` (uses `C:\Tools\Ollama\Data` for data directories)
 
 ## Features
 
@@ -119,7 +118,7 @@ for chunk in chunks:
 Run preprocessing from command line:
 
 ```bash
-python preprocess.py "C:\Tools\VOFC-Processor\incoming\sample.pdf"
+python preprocess.py "C:\Tools\Ollama\Data\incoming\sample.pdf"
 ```
 
 **Output:**
@@ -130,7 +129,7 @@ python preprocess.py "C:\Tools\VOFC-Processor\incoming\sample.pdf"
 **Example Output:**
 ```
 ============================================================
-Preprocessing: C:\Tools\VOFC-Processor\incoming\sample.pdf
+Preprocessing: C:\Tools\Ollama\Data\incoming\sample.pdf
 ============================================================
 
 ✓ Preprocessing complete!
@@ -139,7 +138,7 @@ Preprocessing: C:\Tools\VOFC-Processor\incoming\sample.pdf
   Total characters: 58,234
   Average chunk size: 3,882 chars
 
-✓ Chunks saved to: C:\Tools\VOFC-Processor\incoming\sample_chunks.json
+✓ Chunks saved to: C:\Tools\Ollama\Data\incoming\sample_chunks.json
 
 Chunk Summary:
 ID                       Page Range  Chars    Preview
@@ -237,13 +236,13 @@ Test the module with sample files:
 
 ```bash
 # Test PDF
-python preprocess.py "C:\Tools\VOFC-Processor\incoming\test.pdf"
+python preprocess.py "C:\Tools\Ollama\Data\incoming\test.pdf"
 
 # Test DOCX
-python preprocess.py "C:\Tools\VOFC-Processor\incoming\test.docx"
+python preprocess.py "C:\Tools\Ollama\Data\incoming\test.docx"
 
 # Test TXT
-python preprocess.py "C:\Tools\VOFC-Processor\incoming\test.txt"
+python preprocess.py "C:\Tools\Ollama\Data\incoming\test.txt"
 ```
 
 ## Notes

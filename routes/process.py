@@ -171,11 +171,9 @@ def process_upload():
         logger.info(f"Received file upload: {file.filename}")
         
         # Step 2: Save file to incoming directory
-        # Use VOFC-Processor incoming directory if it exists, otherwise use project data/incoming
-        incoming_dir = Path("C:/Tools/VOFC-Processor/incoming")
-        if not incoming_dir.exists():
-            # Fallback to project data/incoming
-            incoming_dir = INCOMING_DIR
+        # Use C:\Tools\Ollama\Data\incoming
+        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        incoming_dir = base_dir / "incoming"
         
         incoming_dir.mkdir(parents=True, exist_ok=True)
         

@@ -21,15 +21,10 @@ from services.ollama_client import run_model_on_chunks
 from services.postprocess import postprocess_results
 from services.supabase_client import save_results
 
-# Configuration
-EVAL_DIR = Path(r"C:\Tools\VOFC-Processor\eval_docs")
-REPORTS_DIR = Path(r"C:\Tools\VOFC-Processor\eval_reports")
-
-# Fallback to project directories if VOFC-Processor doesn't exist
-if not EVAL_DIR.exists():
-    EVAL_DIR = Path(__file__).parent.parent / 'data' / 'eval_docs'
-if not REPORTS_DIR.exists():
-    REPORTS_DIR = Path(__file__).parent.parent / 'data' / 'eval_reports'
+# Configuration - Use C:\Tools\Ollama\Data
+BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+EVAL_DIR = BASE_DIR / "eval_docs"
+REPORTS_DIR = BASE_DIR / "eval_reports"
 
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 EVAL_DIR.mkdir(parents=True, exist_ok=True)

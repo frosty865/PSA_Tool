@@ -147,18 +147,33 @@ export default function AdminReviewPage() {
         body: JSON.stringify({ action })
       })
       
-      const data = await res.json()
-      if (res.ok) {
-        alert(`✅ ${data.message || 'Action completed'}`)
-        // Refresh progress after action
-        const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
-        if (progressRes.ok) {
-          const progressData = await progressRes.json()
-          setProgress(progressData)
-        }
-      } else {
-        alert(`❌ Error: ${data.message || 'Action failed'}`)
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Control action failed' }))
+        throw new Error(errorData.message || `HTTP ${res.status}`)
       }
+      
+      const data = await res.json()
+      
+      // Check if response indicates an error
+      if (data.status === 'error') {
+        throw new Error(data.message || 'Control action failed')
+      }
+      
+      const message = data.message || data.status || 'Action completed'
+      alert(`✅ ${message}`)
+      
+      // Refresh progress after action
+      setTimeout(async () => {
+        try {
+          const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
+          if (progressRes.ok) {
+            const progressData = await progressRes.json()
+            setProgress(progressData)
+          }
+        } catch (err) {
+          console.error('Error refreshing progress:', err)
+        }
+      }, 1000)
     } catch (err) {
       console.error('Error in control action:', err)
       alert(`❌ Error: ${err.message}`)
@@ -310,28 +325,45 @@ export default function AdminReviewPage() {
   return (
     <RoleGate requiredRole="admin">
       {loading && submissions.length === 0 ? (
-        <div className="flex justify-center items-center h-full min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading submissions...</p>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              border: '4px solid var(--cisa-gray-light)',
+              borderTop: '4px solid var(--cisa-blue)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto'
+            }}></div>
+            <p style={{ marginTop: 'var(--spacing-md)', color: 'var(--cisa-gray)' }}>Loading submissions...</p>
           </div>
         </div>
       ) : (
-      <div className="p-6 space-y-4" style={{ minHeight: '100vh' }}>
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Pending Submissions Review</h1>
-          <p className="text-gray-600">
+      <div style={{ padding: 'var(--spacing-lg)', minHeight: '100vh' }}>
+        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+          <h1 style={{ fontSize: 'var(--font-size-xxl)', fontWeight: 700, color: 'var(--cisa-black)', marginBottom: 'var(--spacing-sm)' }}>
+            Pending Submissions Review
+          </h1>
+          <p style={{ color: 'var(--cisa-gray)', fontSize: 'var(--font-size-base)' }}>
             Review and approve/reject user-submitted entries and document-parsed entries. 
             Approved submissions are moved to production tables and feed the learning system.
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div style={{
+            backgroundColor: 'var(--cisa-red-light)',
+            border: '1px solid var(--cisa-red)',
+            color: 'var(--cisa-red-dark)',
+            padding: 'var(--spacing-md)',
+            borderRadius: 'var(--border-radius)',
+            marginBottom: 'var(--spacing-md)'
+          }}>
             <strong>Error:</strong> {error}
             <button 
               onClick={loadSubmissions}
-              className="ml-4 text-red-800 underline"
+              style={{ marginLeft: 'var(--spacing-md)', color: 'var(--cisa-red-dark)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               Retry
             </button>
@@ -346,43 +378,31 @@ export default function AdminReviewPage() {
             alignItems: 'center',
             marginBottom: 'var(--spacing-md)'
           }}>
-            <h2 className="text-xl font-semibold text-gray-900" style={{ color: 'var(--cisa-blue)', margin: 0 }}>
+            <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', margin: 0 }}>
               System Status
             </h2>
             <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
               <button
                 onClick={() => controlAction('sync_review')}
                 disabled={controlLoading}
-                className="btn btn-sm"
-                style={{
-                  padding: 'var(--spacing-xs) var(--spacing-sm)',
-                  fontSize: 'var(--font-size-sm)',
-                  opacity: controlLoading ? 0.6 : 1
-                }}
+                className="btn btn-sm btn-info"
+                style={{ opacity: controlLoading ? 0.6 : 1 }}
               >
                 🔄 Sync
               </button>
               <button
                 onClick={() => controlAction('start_watcher')}
                 disabled={controlLoading}
-                className="btn btn-sm"
-                style={{
-                  padding: 'var(--spacing-xs) var(--spacing-sm)',
-                  fontSize: 'var(--font-size-sm)',
-                  opacity: controlLoading ? 0.6 : 1
-                }}
+                className="btn btn-sm btn-success"
+                style={{ opacity: controlLoading ? 0.6 : 1 }}
               >
                 ▶️ Start
               </button>
               <button
                 onClick={() => controlAction('stop_watcher')}
                 disabled={controlLoading}
-                className="btn btn-sm"
-                style={{
-                  padding: 'var(--spacing-xs) var(--spacing-sm)',
-                  fontSize: 'var(--font-size-sm)',
-                  opacity: controlLoading ? 0.6 : 1
-                }}
+                className="btn btn-sm btn-warning"
+                style={{ opacity: controlLoading ? 0.6 : 1 }}
               >
                 ⏹️ Stop
               </button>
@@ -393,15 +413,8 @@ export default function AdminReviewPage() {
                   }
                 }}
                 disabled={controlLoading}
-                className="btn btn-sm"
-                style={{
-                  padding: 'var(--spacing-xs) var(--spacing-sm)',
-                  fontSize: 'var(--font-size-sm)',
-                  backgroundColor: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  opacity: controlLoading ? 0.6 : 1
-                }}
+                className="btn btn-sm btn-danger"
+                style={{ opacity: controlLoading ? 0.6 : 1 }}
               >
                 🗑️ Clear Errors
               </button>
@@ -409,27 +422,40 @@ export default function AdminReviewPage() {
           </div>
           
           {progress ? (
-            <div className="grid md:grid-cols-5 gap-4 text-center">
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: 'var(--spacing-md)',
+              textAlign: 'center'
+            }}>
               {Object.entries(progress)
                 .filter(([key]) => key !== 'timestamp' && key !== 'status')
                 .map(([key, val]) => (
                   <div
                     key={key}
-                    className="text-center p-3 rounded-lg"
                     style={{
+                      textAlign: 'center',
+                      padding: 'var(--spacing-sm)',
+                      borderRadius: 'var(--border-radius-lg)',
                       backgroundColor: 'var(--cisa-gray-lighter)',
                       border: '1px solid var(--cisa-gray-light)'
                     }}
                   >
-                    <p className="font-semibold capitalize mb-2" style={{ 
+                    <p style={{ 
+                      fontWeight: 600,
+                      textTransform: 'capitalize',
+                      marginBottom: 'var(--spacing-sm)',
                       color: 'var(--cisa-gray)',
                       fontSize: 'var(--font-size-sm)'
                     }}>
                       {key.replace('_', ' ')}
                     </p>
                     <div
-                      className="inline-block px-3 py-1 rounded-full font-bold"
                       style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-xs) var(--spacing-sm)',
+                        borderRadius: '999px',
+                        fontWeight: 700,
                         backgroundColor: 'var(--cisa-blue)',
                         color: 'white',
                         fontSize: 'var(--font-size-lg)'
@@ -441,11 +467,11 @@ export default function AdminReviewPage() {
                 ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center">Loading system status...</p>
+            <p style={{ color: 'var(--cisa-gray)', textAlign: 'center' }}>Loading system status...</p>
           )}
           
           {progress?.timestamp && (
-            <div className="mt-3 text-sm text-gray-500 text-center">
+            <div style={{ marginTop: 'var(--spacing-sm)', fontSize: 'var(--font-size-sm)', color: 'var(--cisa-gray)', textAlign: 'center' }}>
               Last updated: {new Date(progress.timestamp).toLocaleString()}
             </div>
           )}
@@ -462,7 +488,7 @@ export default function AdminReviewPage() {
             }}
             onClick={() => setLogsExpanded(!logsExpanded)}
           >
-            <h2 className="text-xl font-semibold text-gray-900" style={{ color: 'var(--cisa-blue)', margin: 0 }}>
+            <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', margin: 0 }}>
               Live Processor Logs
             </h2>
             <button
@@ -470,11 +496,7 @@ export default function AdminReviewPage() {
                 e.stopPropagation()
                 setLogs([])
               }}
-              className="btn btn-sm"
-              style={{
-                padding: 'var(--spacing-xs) var(--spacing-sm)',
-                fontSize: 'var(--font-size-sm)'
-              }}
+              className="btn btn-sm btn-secondary"
             >
               Clear
             </button>
@@ -482,12 +504,16 @@ export default function AdminReviewPage() {
           
           {logsExpanded && (
             <div
-              className="font-mono text-sm overflow-y-auto p-3 rounded mt-3"
               style={{
+                fontFamily: 'monospace',
+                fontSize: 'var(--font-size-sm)',
+                overflowY: 'auto',
+                padding: 'var(--spacing-sm)',
+                borderRadius: 'var(--border-radius)',
+                marginTop: 'var(--spacing-sm)',
                 backgroundColor: '#1a1a1a',
                 color: '#00ff00',
                 height: '240px',
-                fontFamily: 'monospace',
                 lineHeight: '1.5'
               }}
             >
@@ -505,53 +531,73 @@ export default function AdminReviewPage() {
         </div>
 
         {submissions.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-500 text-lg">🎉 No pending submissions to review</p>
-            <p className="text-gray-400 text-sm mt-2">All submissions have been processed</p>
+          <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-xxl)' }}>
+            <p style={{ color: 'var(--cisa-gray)', fontSize: 'var(--font-size-lg)' }}>🎉 No pending submissions to review</p>
+            <p style={{ color: 'var(--cisa-gray-light)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--spacing-sm)' }}>All submissions have been processed</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: 'var(--spacing-md)'
+          }}>
             {submissions.map(sub => (
               <div
                 key={sub.id}
-                className="card cursor-pointer hover:shadow-lg transition-shadow"
+                className="card"
                 onClick={() => setSelected(sub)}
                 style={{
+                  cursor: 'pointer',
+                  transition: 'box-shadow 0.3s ease',
                   border: '1px solid var(--cisa-gray-light)',
                   borderRadius: 'var(--border-radius)',
                   padding: 'var(--spacing-lg)',
                   backgroundColor: 'white'
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                }}
               >
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900" style={{ 
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-sm)' }}>
+                  <h3 style={{ 
+                    fontSize: 'var(--font-size-lg)',
+                    fontWeight: 600,
                     color: 'var(--cisa-blue)',
                     margin: 0
                   }}>
                     {sub.document_name}
                   </h3>
-                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                  <span style={{
+                    fontSize: 'var(--font-size-xs)',
+                    backgroundColor: '#fff3cd',
+                    color: '#856404',
+                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                    borderRadius: 'var(--border-radius)'
+                  }}>
                     Pending
                   </span>
                 </div>
                 
-                <p className="text-sm text-gray-500 mb-3">
+                <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-sm)' }}>
                   {new Date(sub.created_at).toLocaleDateString()} at {new Date(sub.created_at).toLocaleTimeString()}
                 </p>
                 
-                <div className="flex gap-4 text-sm">
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)', fontSize: 'var(--font-size-sm)' }}>
                   <div>
-                    <span className="font-semibold text-gray-700">{sub.vulnerability_count || 0}</span>
-                    <span className="text-gray-500 ml-1">vulnerabilities</span>
+                    <span style={{ fontWeight: 600, color: 'var(--cisa-gray)' }}>{sub.vulnerability_count || 0}</span>
+                    <span style={{ color: 'var(--cisa-gray-light)', marginLeft: 'var(--spacing-xs)' }}>vulnerabilities</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700">{sub.ofc_count || 0}</span>
-                    <span className="text-gray-500 ml-1">OFCs</span>
+                    <span style={{ fontWeight: 600, color: 'var(--cisa-gray)' }}>{sub.ofc_count || 0}</span>
+                    <span style={{ color: 'var(--cisa-gray-light)', marginLeft: 'var(--spacing-xs)' }}>OFCs</span>
                   </div>
                 </div>
                 
                 {sub.source && (
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-sm)' }}>
                     Source: {sub.source}
                   </p>
                 )}
@@ -563,56 +609,91 @@ export default function AdminReviewPage() {
         {/* Submission Detail Dialog */}
         {selected && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000
+            }}
             onClick={() => setSelected(null)}
           >
             <div 
-              className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+              className="card"
               onClick={(e) => e.stopPropagation()}
-              style={{ padding: 'var(--spacing-xl)' }}
+              style={{ 
+                maxWidth: '56rem',
+                width: '100%',
+                margin: 'var(--spacing-md)',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                padding: 'var(--spacing-xl)'
+              }}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">{selected.document_name}</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
+                <h2 style={{ fontSize: 'var(--font-size-xxl)', fontWeight: 700, color: 'var(--cisa-black)' }}>{selected.document_name}</h2>
                 <button
                   onClick={() => setSelected(null)}
-                  className="text-gray-500 hover:text-gray-700 text-3xl font-bold"
-                  style={{ lineHeight: 1 }}
+                  style={{ 
+                    color: 'var(--cisa-gray)',
+                    fontSize: 'var(--font-size-xxl)',
+                    fontWeight: 700,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    lineHeight: 1,
+                    padding: 'var(--spacing-xs)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--cisa-black)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--cisa-gray)'}
                 >
                   ×
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
                 <div>
-                  <strong className="text-gray-700">Submitted:</strong>{' '}
-                  <span className="text-gray-600">
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Submitted:</strong>{' '}
+                  <span style={{ color: 'var(--cisa-gray-light)' }}>
                     {new Date(selected.created_at).toLocaleString()}
                   </span>
                 </div>
 
                 {selected.summary && (
                   <div>
-                    <strong className="text-gray-700">Summary:</strong>
-                    <p className="text-gray-600 mt-1">{selected.summary}</p>
+                    <strong style={{ color: 'var(--cisa-gray)' }}>Summary:</strong>
+                    <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>{selected.summary}</p>
                   </div>
                 )}
 
                 {selected.source && (
                   <div>
-                    <strong className="text-gray-700">Source:</strong>{' '}
-                    <span className="text-gray-600">{selected.source}</span>
+                    <strong style={{ color: 'var(--cisa-gray)' }}>Source:</strong>{' '}
+                    <span style={{ color: 'var(--cisa-gray-light)' }}>{selected.source}</span>
                   </div>
                 )}
 
                 <div>
-                  <strong className="text-gray-700">Vulnerabilities ({selected.vulnerabilities?.length || 0}):</strong>
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Vulnerabilities ({selected.vulnerabilities?.length || 0}):</strong>
                   {selected.vulnerabilities && selected.vulnerabilities.length > 0 ? (
-                    <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <ul style={{ listStyleType: 'disc', paddingLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
                       {selected.vulnerabilities.map((v, i) => (
-                        <li key={i} className="text-gray-700">
+                        <li key={i} style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
                           {v.vulnerability || v.title || v.description || JSON.stringify(v)}
                           {v.discipline && (
-                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            <span style={{
+                              marginLeft: 'var(--spacing-sm)',
+                              fontSize: 'var(--font-size-xs)',
+                              backgroundColor: '#cfe2ff',
+                              color: '#084298',
+                              padding: 'var(--spacing-xs) var(--spacing-sm)',
+                              borderRadius: 'var(--border-radius)'
+                            }}>
                               {v.discipline}
                             </span>
                           )}
@@ -620,26 +701,26 @@ export default function AdminReviewPage() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-500 mt-1">No vulnerabilities found</p>
+                    <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>No vulnerabilities found</p>
                   )}
                 </div>
 
                 <div>
-                  <strong className="text-gray-700">Options for Consideration ({selected.ofcs?.length || 0}):</strong>
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Options for Consideration ({selected.ofcs?.length || 0}):</strong>
                   {selected.ofcs && selected.ofcs.length > 0 ? (
-                    <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <ul style={{ listStyleType: 'disc', paddingLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
                       {selected.ofcs.map((ofc, i) => (
-                        <li key={i} className="text-gray-700">
+                        <li key={i} style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
                           {ofc.option_text || ofc.text || ofc.description || JSON.stringify(ofc)}
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-500 mt-1">No OFCs found</p>
+                    <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>No OFCs found</p>
                   )}
                 </div>
 
-                <div className="flex gap-4 pt-4 border-t">
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)', paddingTop: 'var(--spacing-md)', borderTop: '1px solid var(--cisa-gray-light)' }}>
                   <button
                     onClick={() => approveSubmission(selected.id)}
                     disabled={processing === selected.id}

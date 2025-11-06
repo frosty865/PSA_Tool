@@ -47,8 +47,9 @@ try:
 except ImportError:
     NLTK_AVAILABLE = False
 
-# Setup logging
-LOG_DIR = Path(__file__).parent.parent / 'logs'
+# Setup logging - Use C:\Tools\Ollama\Data\automation
+BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+LOG_DIR = BASE_DIR / 'automation'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / 'preprocess.log'
 
@@ -382,7 +383,7 @@ if __name__ == "__main__":
     
     if len(sys.argv) < 2:
         print("Usage: python preprocess.py <path-to-file>")
-        print("Example: python preprocess.py C:\\Tools\\VOFC-Processor\\incoming\\sample.pdf")
+        print("Example: python preprocess.py C:\\Tools\\Ollama\\Data\\incoming\\sample.pdf")
         sys.exit(1)
     
     file_path = sys.argv[1]

@@ -63,6 +63,39 @@ function createSupabaseClient() {
 
   supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, clientOptions)
   window.__supabaseClientInstance = supabaseInstance
+  
+  // Clear session on page close/unload for security
+  if (typeof window !== 'undefined') {
+    const handleBeforeUnload = async () => {
+      try {
+        // Clear session storage (but keep localStorage for session persistence)
+        // Only clear if user explicitly closes tab/window
+        if (window.performance && window.performance.navigation.type === 1) {
+          // Page reload - keep session
+          return;
+        }
+        // For tab close, we'll let the server handle session expiration
+        // but clear any sensitive client-side data
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('[Supabase] Error clearing session on unload:', e);
+      }
+    };
+    
+    // Use pagehide for better cross-browser support
+    window.addEventListener('pagehide', handleBeforeUnload);
+    
+    // Also handle beforeunload for older browsers
+    window.addEventListener('beforeunload', () => {
+      // Clear sessionStorage on page close
+      try {
+        sessionStorage.clear();
+      } catch (e) {
+        // Ignore errors
+      }
+    });
+  }
+  
   return supabaseInstance
 }
 

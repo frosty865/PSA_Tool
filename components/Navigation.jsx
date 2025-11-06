@@ -111,6 +111,21 @@ export default function Navigation({ simple = false }) {
   useEffect(() => {
     // Always load user - we need to check auth even on simple pages to show admin menu
     loadUser();
+    
+    // Listen for auth state changes (login/logout)
+    if (supabase && supabase.auth) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('[Navigation] Auth state changed:', event, session?.user?.email);
+        // Reload user when auth state changes (login, logout, token refresh)
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          loadUser();
+        }
+      });
+      
+      return () => {
+        subscription?.unsubscribe();
+      };
+    }
   }, [loadUser]);
 
   // Debug: Log currentUser changes
@@ -445,15 +460,34 @@ export default function Navigation({ simple = false }) {
           </Link>
           {/* Admin Panel Link - only visible to admins and spsa */}
           {(() => {
-            const isAdmin = !loading && currentUser && (
-              ['admin', 'spsa'].includes(String(currentUser.role || '').toLowerCase()) || 
-              currentUser.is_admin === true
-            );
-            if (process.env.NODE_ENV === 'development') {
+            if (!currentUser || loading) {
+              return false;
+            }
+            
+            // Normalize role to lowercase for comparison
+            const userRole = String(currentUser.role || '').toLowerCase().trim();
+            const isRoleAdmin = ['admin', 'spsa'].includes(userRole);
+            const isFlagAdmin = currentUser.is_admin === true || currentUser.is_admin === 'true';
+            
+            const isAdmin = isRoleAdmin || isFlagAdmin;
+            
+            // Always log in development, and log once in production if admin check fails
+            if (process.env.NODE_ENV === 'development' || (!isAdmin && currentUser)) {
               console.log('[Navigation] Admin button check:', {
                 loading,
-                currentUser: currentUser ? { role: currentUser.role, is_admin: currentUser.is_admin } : null,
-                isAdmin
+                currentUser: currentUser ? { 
+                  role: currentUser.role, 
+                  normalizedRole: userRole,
+                  is_admin: currentUser.is_admin,
+                  rawUser: currentUser
+                } : null,
+                isRoleAdmin,
+                isFlagAdmin,
+                isAdmin,
+                checkDetails: {
+                  roleCheck: `['admin', 'spsa'].includes('${userRole}') = ${isRoleAdmin}`,
+                  flagCheck: `is_admin === true = ${isFlagAdmin}`
+                }
               });
             }
             return isAdmin;

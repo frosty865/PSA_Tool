@@ -20,14 +20,27 @@ bp = Blueprint("analytics", __name__, url_prefix="/api/analytics")
 def get_summary():
     """Get cached analytics summary from local JSON file."""
     path = os.path.join(os.path.dirname(__file__), "..", "data", "analytics.json")
-    if not os.path.exists(path):
-        return jsonify({"status": "pending", "message": "Analytics not ready"}), 202
-    
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    
-    data["retrieved_at"] = datetime.utcnow().isoformat()
-    return jsonify(data)
+    try:
+        if not os.path.exists(path):
+            return jsonify({"status": "pending", "message": "Analytics not ready"}), 202
+        
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        data["retrieved_at"] = datetime.utcnow().isoformat()
+        return jsonify(data)
+    except json.JSONDecodeError as e:
+        return jsonify({
+            "error": "Invalid JSON in analytics file",
+            "message": str(e),
+            "path": path
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to load analytics summary",
+            "message": str(e),
+            "path": path
+        }), 500
 
 
 # Admin export route for retraining

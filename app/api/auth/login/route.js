@@ -169,11 +169,26 @@ export async function POST(request) {
       }
     }
 
-    // Determine final role and admin status
-    let finalRole = profile?.role || metadataRole || 'user';
+    // Determine final role and admin status - normalize to lowercase
+    let finalRole = String(profile?.role || metadataRole || 'user').toLowerCase().trim();
     if (isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin) {
-      finalRole = metadataRole || 'admin';
+      // If user is admin via allowlist/metadata, ensure role is set correctly
+      finalRole = String(metadataRole || 'admin').toLowerCase().trim();
     }
+    
+    // Calculate admin status
+    const isAdmin = isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin || ['admin', 'spsa'].includes(finalRole);
+    
+    console.log('[Login] Final role determination:', {
+      email: data.user.email,
+      profileRole: profile?.role,
+      metadataRole: metadataRole,
+      finalRole: finalRole,
+      isEmailAdmin,
+      isMetadataAdmin,
+      isMetadataRoleAdmin,
+      isAdmin
+    });
     
     // Set the Supabase session cookies
     const response = NextResponse.json({
@@ -185,7 +200,7 @@ export async function POST(request) {
         name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || data.user.email : data.user.user_metadata?.name || data.user.email,
         organization: profile?.organization || data.user.user_metadata?.organization || null,
         username: profile?.username || data.user.user_metadata?.username || data.user.email,
-        is_admin: isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin || ['admin', 'spsa'].includes(String(finalRole).toLowerCase())
+        is_admin: isAdmin
       },
       session: {
         access_token: data.session?.access_token || null,

@@ -9,30 +9,44 @@ import { supabaseAdmin } from '@/app/lib/supabase-admin.js';
 
 export async function GET(request) {
   try {
-    // Get all cookies and find Supabase session
-    const cookieStore = cookies();
-    
-    // Find Supabase auth token cookie - check for the cookie names set by login route
-    let accessToken = null;
-    
-    // First try: sb-access-token (set by login route)
-    const sbAccessToken = cookieStore.get('sb-access-token');
-    if (sbAccessToken) {
-      accessToken = sbAccessToken.value;
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
     }
+
+    // Get token from Authorization header first (preferred method)
+    let accessToken = null;
+    const authHeader = request.headers.get('authorization');
     
-    // Fallback: try other common cookie names
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+      accessToken = authHeader.slice(7).trim();
+    }
+
+    // Fallback to cookies if no header
     if (!accessToken) {
-      const allCookies = cookieStore.getAll();
-      for (const cookie of allCookies) {
-        if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
-          try {
-            const tokenData = JSON.parse(cookie.value);
-            accessToken = tokenData.access_token || tokenData;
-            break;
-          } catch {
-            accessToken = cookie.value;
-            break;
+      const cookieStore = cookies();
+      
+      // First try: sb-access-token (set by login route)
+      const sbAccessToken = cookieStore.get('sb-access-token');
+      if (sbAccessToken) {
+        accessToken = sbAccessToken.value;
+      }
+      
+      // Fallback: try other common cookie names
+      if (!accessToken) {
+        const allCookies = cookieStore.getAll();
+        for (const cookie of allCookies) {
+          if (cookie.name.includes('auth-token') || cookie.name.includes('access-token')) {
+            try {
+              const tokenData = JSON.parse(cookie.value);
+              accessToken = tokenData.access_token || tokenData;
+              break;
+            } catch {
+              accessToken = cookie.value;
+              break;
+            }
           }
         }
       }
@@ -47,13 +61,6 @@ export async function GET(request) {
     }
 
     // Verify token and get user
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
     const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
     
     if (userError || !user) {
@@ -63,35 +70,61 @@ export async function GET(request) {
       );
     }
 
-    // Check if user is admin
-    const { data: profile, error: profileError } = await supabaseAdmin
+    // Check if user is admin - try both id and user_id columns
+    let { data: profile, error: profileError } = await supabaseAdmin
       .from('users_profiles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    // Fallback: try id column if user_id didn't work
+    if (!profile && profileError?.code === 'PGRST116') {
+      const resp = await supabaseAdmin
+        .from('users_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+      profile = resp.data || null;
+      profileError = resp.error;
+    }
 
     // Enhanced error logging for debugging
-    if (profileError) {
+    if (profileError && profileError.code !== 'PGRST116') {
       console.error('[Dashboard Overview] Profile error:', profileError);
     }
     
-    if (!profile) {
-      console.error('[Dashboard Overview] No profile found for user:', user.id);
+    // Check admin status via multiple methods (like verify endpoint)
+    const allowlist = (process.env.ADMIN_EMAILS || '').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
+    const isEmailAdmin = allowlist.includes(String(user.email).toLowerCase());
+    const isMetadataAdmin = user.user_metadata?.is_admin || false;
+    const metadataRole = user.user_metadata?.role || '';
+    const isMetadataRoleAdmin = ['admin', 'spsa'].includes(String(metadataRole).toLowerCase());
+    
+    // If no profile but user is admin via allowlist/metadata, allow access
+    if (!profile && (isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin)) {
+      console.log('[Dashboard Overview] Admin user without profile, allowing access:', user.email);
+      // Continue with admin access
+    } else if (!profile) {
+      console.error('[Dashboard Overview] No profile found for user:', user.id, user.email);
       return NextResponse.json(
         { error: 'Unauthorized - User profile not found' },
         { status: 403 }
       );
     }
     
-    console.log('[Dashboard Overview] User role:', profile.role);
+    // Determine final role
+    const finalRole = String(profile?.role || metadataRole || 'user').toLowerCase().trim();
+    const isAdmin = isEmailAdmin || isMetadataAdmin || isMetadataRoleAdmin || ['admin', 'spsa', 'psa', 'analyst'].includes(finalRole);
     
-    if (!['admin', 'spsa', 'psa', 'analyst'].includes(profile.role)) {
-      console.error('[Dashboard Overview] Insufficient role. User role:', profile.role, 'Required: admin, spsa, psa, or analyst');
+    if (!isAdmin) {
+      console.error('[Dashboard Overview] Insufficient role. User role:', finalRole, 'Required: admin, spsa, psa, or analyst');
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required', userRole: profile.role },
+        { error: 'Unauthorized - Admin access required', userRole: finalRole },
         { status: 403 }
       );
     }
+    
+    console.log('[Dashboard Overview] User authorized:', { email: user.email, role: finalRole, isAdmin });
 
     // Fetch stats and softmatch data
     // For now, return empty arrays to prevent errors

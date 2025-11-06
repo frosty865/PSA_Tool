@@ -3,6 +3,7 @@ import './globals.css'
 import Navigation from '../components/Navigation'
 import AnalyticsProvider from '../components/AnalyticsProvider'
 import AdvancedReturnToTop from '../components/AdvancedReturnToTop'
+import SessionTimeoutWarning from '../components/SessionTimeoutWarning'
 
 export const metadata = {
   title: 'VOFC Viewer',
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
           <AdvancedReturnToTop />
         </div>
         <AnalyticsProvider />
+        <SessionTimeoutWarning />
       </body>
     </html>
   )

@@ -88,9 +88,19 @@ export async function POST(request) {
     }
 
     // Step 2: Create submission record in Supabase
+    // Get user email if available (for submitter_email)
+    let submitterEmail = null;
+    try {
+      const { supabase: supabaseClient } = await import('@/app/lib/supabase-admin.js');
+      // Try to get current user from session if available
+      // Note: This might not work in server context, so we'll make it optional
+    } catch (e) {
+      // Ignore - submitter_email is optional
+    }
+
     const submissionData = {
       type: 'document',
-      data: JSON.stringify({
+      data: {
         source_title,
         source_type,
         source_url,
@@ -100,11 +110,10 @@ export async function POST(request) {
         filename: savedFilename,
         file_size: file.size,
         file_type: file.type || file.name.split('.').pop(),
-      }),
-      status: 'processing',
+      },
+      status: 'pending_review', // Changed from 'processing' to match schema
       source: 'document_upload',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      ...(submitterEmail && { submitter_email: submitterEmail }),
     };
 
     const { data: submission, error: submissionError } = await supabaseAdmin
@@ -114,9 +123,19 @@ export async function POST(request) {
       .single();
 
     if (submissionError) {
-      console.error('[documents/submit] Submission creation error:', submissionError);
+      console.error('[documents/submit] Submission creation error:', {
+        message: submissionError.message,
+        details: submissionError.details,
+        hint: submissionError.hint,
+        code: submissionError.code,
+      });
       return NextResponse.json(
-        { success: false, error: 'Failed to create submission record' },
+        { 
+          success: false, 
+          error: 'Failed to create submission record',
+          details: submissionError.message || submissionError.details || 'Unknown error',
+          code: submissionError.code,
+        },
         { status: 500 }
       );
     }

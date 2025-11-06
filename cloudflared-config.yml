@@ -1,15 +1,16 @@
 # Cloudflare Tunnel Configuration
 # NOTE: The actual config file is located at: C:\Tools\cloudflared\config.yaml
+# Service config file is at: C:\Users\frost\cloudflared\config.yml
 # This file is kept in the project for reference/version control purposes.
 
-tunnel: 17152659-d3ad-4abf-ae71-d0cc9d2b89e3
-
+tunnel: ollama-tunnel
 credentials-file: C:\Users\frost\.cloudflared\17152659-d3ad-4abf-ae71-d0cc9d2b89e3.json
 
 ingress:
   - hostname: ollama.frostech.site
     service: http://localhost:11434
+  - hostname: backend.frostech.site
+    service: http://localhost:8080     # use Flask until backend is active
   - hostname: flask.frostech.site
     service: http://localhost:8080
   - service: http_status:404
-

@@ -38,13 +38,23 @@ export async function POST(request) {
 
       // Handle 502 Bad Gateway - tunnel/server unavailable
       if (response.status === 502 || response.status === 503) {
-        console.error(`[Control Proxy] Gateway error ${response.status} from ${FLASK_URL}`);
+        console.error(`[Control Proxy] Gateway error ${response.status}`);
+        
+        // If we tried tunnel and got 502, suggest checking tunnel or using localhost
+        let errorMessage = `Flask server unavailable (${response.status}).`;
+        if (FLASK_URL.includes('flask.frostech.site')) {
+          errorMessage += ' Tunnel may be down. Try restarting tunnel service or check if Flask is accessible locally.';
+        } else {
+          errorMessage += ' Check Flask service status.';
+        }
+        
         return NextResponse.json(
           { 
             status: 'error', 
-            message: `Flask server unavailable (${response.status}). Check tunnel status and Flask service.`,
+            message: errorMessage,
             flaskUrl: FLASK_URL,
-            action
+            action,
+            hint: 'Flask may be running locally but tunnel is down. Check tunnel service status.'
           },
           { status: 200 } // Return 200 so frontend can handle gracefully
         );

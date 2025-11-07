@@ -55,31 +55,80 @@ def chat(messages, model="llama2", **kwargs):
         raise Exception(f"Ollama chat failed: {str(e)}")
 
 def run_model(model="psa-engine:latest", prompt="", **kwargs):
-    """Run Ollama model with a prompt (uses generate API)"""
+    """
+    Run Ollama model with a prompt.
+    
+    Uses /api/chat with format='json' to enforce JSON output (like old VOFC Engine).
+    Falls back to /api/generate if chat fails.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Try /api/chat first with format='json' (like old VOFC Engine)
+    # This forces Ollama to return valid JSON
+    chat_url = f"{OLLAMA_HOST}/api/chat"
+    chat_payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "format": "json",  # CRITICAL: Forces JSON output
+        "stream": False,
+        **kwargs
+    }
+    
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "stream": False,  # Get complete response
-                **kwargs
-            },
-            timeout=300  # Longer timeout for analysis
-        )
+        # Try chat API first (enforces JSON format)
+        response = requests.post(chat_url, json=chat_payload, timeout=300)
         response.raise_for_status()
         result = response.json()
         
-        # Extract the generated text from the response
+        # Extract content from chat response
         if isinstance(result, dict):
-            if 'response' in result:
+            # Chat API returns: {"message": {"content": "..."}, ...}
+            if 'message' in result and 'content' in result['message']:
+                return result['message']['content']
+            # Fallback to 'response' field
+            elif 'response' in result:
                 return result['response']
-            elif 'text' in result:
-                return result['text']
-            else:
-                return result
-        return result
+        
+        # If we got here, try generate API as fallback
+        logger.warning("Chat API returned unexpected format, falling back to generate API")
+        raise ValueError("Unexpected chat response format")
+        
+    except (requests.exceptions.RequestException, ValueError) as e:
+        # Fallback to /api/generate if chat fails
+        logger.debug(f"Chat API failed ({e}), falling back to generate API")
+        generate_url = f"{OLLAMA_HOST}/api/generate"
+        generate_payload = {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            **kwargs
+        }
+        
+        try:
+            response = requests.post(generate_url, json=generate_payload, timeout=300)
+            response.raise_for_status()
+            result = response.json()
+            
+            # Extract the generated text from the response
+            if isinstance(result, dict):
+                if 'response' in result:
+                    return result['response']
+                elif 'text' in result:
+                    return result['text']
+                else:
+                    return result
+            return result
+        except requests.exceptions.RequestException as gen_e:
+            logger.error(f"Both chat and generate APIs failed. Generate error: {gen_e}")
+            raise Exception(f"Ollama model execution failed: {str(gen_e)}")
     except Exception as e:
+        logger.error(f"Unexpected error in Ollama model execution: {e}")
         raise Exception(f"Ollama model execution failed: {str(e)}")
 
 def run_model_on_chunks(chunks, model="psa-engine:latest"):
@@ -93,6 +142,9 @@ def run_model_on_chunks(chunks, model="psa-engine:latest"):
     Returns:
         List of results, one per chunk
     """
+    import json
+    import logging
+    
     results = []
     
     for idx, chunk in enumerate(chunks, start=1):
@@ -100,57 +152,97 @@ def run_model_on_chunks(chunks, model="psa-engine:latest"):
             chunk_content = chunk.get('content', '')
             chunk_id = chunk.get('chunk_id', f'chunk_{idx}')
             
-            # Create prompt for vulnerability analysis
-            prompt = f"""Analyze this document chunk for vulnerabilities and options for consideration.
+            # Create prompt for vulnerability analysis with schema wrapper
+            # This ensures the model returns structured, parseable JSON
+            # Include chunk metadata for context
+            chunk_meta = {
+                "chunk_id": chunk_id,
+                "page_range": chunk.get('page_range', 'unknown'),
+                "source_title": chunk.get('source_title', chunk.get('source_file', 'unknown')),
+                "filename": chunk.get('source_file', chunk.get('filename', 'unknown'))
+            }
+            
+            prompt = f"""Document: {chunk_meta['filename']}
+Section: pages {chunk_meta['page_range']}
+Extract vulnerabilities and mitigations from this section.
 
-Chunk ID: {chunk_id}
-Source: {chunk.get('source_file', 'unknown')}
-Page Range: {chunk.get('page_range', 'unknown')}
+CRITICAL: Respond ONLY in valid JSON. No markdown, no explanations, no code blocks.
 
-Document Content:
+Required JSON structure (array format):
+
+[{{"vulnerability":"...","option_for_consideration":"...","confidence_score":<float>,"page_range":"{chunk_meta['page_range']}","source_file":"{chunk_meta['filename']}"}}]
+
+If you have no data, return: []
+
+Text:
+
 {chunk_content}
 
-Please identify:
-1. Any security vulnerabilities mentioned
-2. Options for consideration (OFCs)
-3. Relevant disciplines and sectors
-4. Key recommendations
-
-Format your response as JSON with the following structure:
-{{
-    "vulnerabilities": [...],
-    "ofcs": [...],
-    "disciplines": [...],
-    "sectors": [...],
-    "recommendations": [...]
-}}
-"""
+Remember: Return ONLY valid JSON, nothing else."""
             
             # Run model on chunk
             result_text = run_model(model=model, prompt=prompt)
             
-            # Try to parse JSON response, fallback to raw text
+            # Try to parse JSON response
+            # Expected format: [{"vulnerability": "...", "option_for_consideration": "...", "confidence_score": <float>}]
             try:
-                import json
-                result_data = json.loads(result_text)
+                parsed = json.loads(result_text)
+                
+                # Handle array response (new schema format)
+                if isinstance(parsed, list):
+                    # Each item in the array is a vulnerability-OFC pair
+                    # Preserve metadata from chunk
+                    result_data = {
+                        "vulnerabilities": [item.get("vulnerability", "") for item in parsed if item.get("vulnerability")],
+                        "ofcs": [item.get("option_for_consideration", "") for item in parsed if item.get("option_for_consideration")],
+                        "vulnerability_ofc_pairs": parsed,  # Keep original pairs for reference
+                        "chunk_id": chunk_id,
+                        "source_file": chunk.get('source_file') or chunk.get('filename', 'unknown'),
+                        "filename": chunk.get('filename') or chunk.get('source_file', 'unknown'),
+                        "page_range": chunk.get('page_range', 'unknown'),
+                        "source_title": chunk.get('source_title'),
+                        "file_hash": chunk.get('file_hash'),
+                        "char_count": chunk.get('char_count', 0)
+                    }
+                # Handle object response (legacy format)
+                elif isinstance(parsed, dict):
+                    result_data = parsed
+                    result_data['chunk_id'] = chunk_id
+                    result_data['source_file'] = chunk.get('source_file') or chunk.get('filename', 'unknown')
+                    result_data['filename'] = chunk.get('filename') or chunk.get('source_file', 'unknown')
+                    result_data['page_range'] = chunk.get('page_range', 'unknown')
+                    result_data['source_title'] = chunk.get('source_title')
+                    result_data['file_hash'] = chunk.get('file_hash')
+                    result_data['char_count'] = chunk.get('char_count', 0)
+                else:
+                    # Unexpected format, wrap it
+                    result_data = {
+                        "raw_response": result_text,
+                        "chunk_id": chunk_id,
+                        "source_file": chunk.get('source_file') or chunk.get('filename', 'unknown'),
+                        "filename": chunk.get('filename') or chunk.get('source_file', 'unknown'),
+                        "page_range": chunk.get('page_range', 'unknown'),
+                        "source_title": chunk.get('source_title'),
+                        "file_hash": chunk.get('file_hash'),
+                        "char_count": chunk.get('char_count', 0)
+                    }
             except (json.JSONDecodeError, ValueError):
                 # If not JSON, wrap in structure
                 result_data = {
                     "raw_response": result_text,
-                    "chunk_id": chunk_id
+                    "chunk_id": chunk_id,
+                    "source_file": chunk.get('source_file') or chunk.get('filename', 'unknown'),
+                    "filename": chunk.get('filename') or chunk.get('source_file', 'unknown'),
+                    "page_range": chunk.get('page_range', 'unknown'),
+                    "source_title": chunk.get('source_title'),
+                    "file_hash": chunk.get('file_hash'),
+                    "char_count": chunk.get('char_count', 0)
                 }
-            
-            # Add chunk metadata to result
-            result_data['chunk_id'] = chunk_id
-            result_data['source_file'] = chunk.get('source_file', 'unknown')
-            result_data['page_range'] = chunk.get('page_range', 'unknown')
-            result_data['char_count'] = chunk.get('char_count', 0)
             
             results.append(result_data)
             
         except Exception as e:
             # Log error but continue with other chunks
-            import logging
             logging.error(f"Failed to process chunk {chunk.get('chunk_id', idx)}: {str(e)}")
             results.append({
                 "chunk_id": chunk.get('chunk_id', f'chunk_{idx}'),
@@ -159,75 +251,4 @@ Format your response as JSON with the following structure:
             })
     
     return results
-
-
-def retrain_model(model_name="psa-engine:latest"):
-    """
-    Trigger model retraining/refresh.
-    
-    This is a placeholder for retraining logic. Options include:
-    - Pull latest model version from Ollama registry
-    - Fine-tune model with new training data from Supabase
-    - Restart model service after retraining
-    
-    Args:
-        model_name: Name of the model to retrain (default: "psa-engine:latest")
-    
-    Returns:
-        True if retraining was initiated successfully, False otherwise
-    """
-    import subprocess
-    import logging
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
-    
-    try:
-        logger.info(f"Starting retraining sequence for model: {model_name}")
-        
-        # Option 1: Pull latest model version (simple refresh)
-        # This ensures we have the latest version of the model
-        logger.info("Pulling latest model version from Ollama registry...")
-        pull_result = subprocess.run(
-            ["ollama", "pull", model_name],
-            capture_output=True,
-            text=True,
-            timeout=600  # 10 minute timeout for model pull
-        )
-        
-        if pull_result.returncode == 0:
-            logger.info(f"Model {model_name} pulled successfully")
-            logger.info(f"Pull output: {pull_result.stdout[:200]}")  # Log first 200 chars
-        else:
-            logger.warning(f"Model pull returned non-zero exit code: {pull_result.returncode}")
-            logger.warning(f"Pull error: {pull_result.stderr[:200]}")
-            # Continue anyway - model might already be up to date
-        
-        # Option 2: Future enhancement - Fine-tune with new data
-        # This would:
-        # 1. Export approved/rejected samples from Supabase
-        # 2. Create training dataset
-        # 3. Run fine-tuning script
-        # 4. Create new model version
-        # For now, we just log that this could be implemented
-        logger.info("Retraining complete. Model refreshed.")
-        logger.info("Note: Full fine-tuning with training data can be implemented here")
-        
-        return True
-        
-    except subprocess.TimeoutExpired:
-        logger.error(f"Model pull timed out after 10 minutes")
-        return False
-    except FileNotFoundError:
-        logger.error("Ollama CLI not found. Make sure Ollama is installed and in PATH.")
-        return False
-    except Exception as e:
-        logger.error(f"Error during model retraining: {e}", exc_info=True)
-        return False
-
-
-# Add more Ollama functions as needed from your old implementation
 

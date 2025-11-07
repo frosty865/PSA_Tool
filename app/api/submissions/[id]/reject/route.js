@@ -75,8 +75,26 @@ export async function POST(request, { params }) {
 
     if (updateError) {
       console.error('Database error:', updateError);
+      console.error('Update data:', updateData);
+      console.error('Submission ID:', id);
+      console.error('Submission current status:', submission?.status);
+      
+      // Provide more detailed error information
+      const errorDetails = {
+        message: updateError.message,
+        code: updateError.code,
+        details: updateError.details,
+        hint: updateError.hint
+      };
+      
       return NextResponse.json(
-        { error: 'Failed to reject submission', details: updateError.message },
+        { 
+          error: 'Failed to reject submission', 
+          details: updateError.message,
+          code: updateError.code,
+          hint: updateError.hint || 'Check if status constraint allows "rejected"',
+          currentStatus: submission?.status
+        },
         { status: 500 }
       );
     }

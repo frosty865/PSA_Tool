@@ -634,27 +634,48 @@ Return audited records with status. If no valid data, return: {{"records": [], "
         if isinstance(parsed, list):
             auditor_records = parsed
             metadata = {"status": "accepted_all", "total": len(auditor_records), "accepted": len(auditor_records)}
+            logging.info(f"   - Parsed list response: {len(auditor_records)} records")
         elif isinstance(parsed, dict):
             auditor_records = parsed.get("records", records)
             metadata = parsed.get("metadata", {"status": "accepted_all", "total": len(auditor_records)})
+            logging.info(f"   - Parsed dict response: {len(auditor_records)} records, metadata: {metadata}")
         else:
             auditor_records = records
             metadata = {"status": "error", "total": len(records)}
+            logging.warning(f"   - ⚠️  Unexpected response type: {type(parsed)}")
         
-        logging.info(f"Phase 3 complete: {len(auditor_records)} audited records")
+        total_duration = time.time() - start_time
+        logging.info(f"   [Phase 3] COMPLETE: {len(auditor_records)} audited records")
+        logging.info(f"      - Input: {input_count} records")
+        logging.info(f"      - Output: {len(auditor_records)} records")
+        if metadata:
+            accepted = metadata.get("accepted", 0)
+            rejected = metadata.get("rejected", 0)
+            needs_review = metadata.get("needs_review", 0)
+            logging.info(f"      - Audit status: {accepted} accepted, {rejected} rejected, {needs_review} needs_review")
+        logging.info(f"      - Total duration: {total_duration:.2f}s")
+        
         return {"records": auditor_records, "phase": "auditor", "count": len(auditor_records), "metadata": metadata}
         
     except json.JSONDecodeError as je:
-        logging.error(f"Phase 3: Failed to parse JSON from auditor: {je}")
+        total_duration = time.time() - start_time
+        logging.error(f"   ❌ Phase 3: Failed to parse JSON from auditor: {je}")
+        logging.error(f"      - Response preview: {result_text[:200] if 'result_text' in locals() else 'N/A'}...")
+        logging.error(f"      - Duration: {total_duration:.2f}s")
+        logging.warning(f"   - Marking all records as accepted (fallback)")
         # Fallback: mark all as accepted
         return {
             "records": records,
             "phase": "auditor",
             "count": len(records),
-            "metadata": {"status": "auditor_parse_failed", "total": len(records), "accepted": len(records)}
+            "metadata": {"status": "auditor_parse_failed", "total": len(records), "accepted": len(records), "error": str(je)}
         }
     except Exception as e:
-        logging.error(f"Phase 3: Auditor failed: {e}")
+        total_duration = time.time() - start_time
+        logging.error(f"   ❌ Phase 3: Auditor failed: {type(e).__name__}: {e}")
+        logging.error(f"      - Duration: {total_duration:.2f}s")
+        logging.error(f"      - Traceback: {traceback.format_exc()}")
+        logging.warning(f"   - Marking all records as accepted (fallback)")
         # Fallback: mark all as accepted
         return {
             "records": records,

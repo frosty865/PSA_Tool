@@ -80,13 +80,13 @@ export default function ProcessingMonitorPage() {
     // Setup SSE connection to Flask
     const setupSSE = () => {
       try {
-        // Detect Flask URL - use production tunnel URL if not localhost
+        // Detect Flask URL based on current hostname
         const isProduction = typeof window !== 'undefined' && 
                            window.location.hostname !== 'localhost' && 
                            window.location.hostname !== '127.0.0.1'
         const flaskUrl = isProduction 
           ? 'https://flask.frostech.site'
-          : 'http://localhost:8080'
+          : 'http://10.0.0.213:8080'
         
         const streamUrl = `${flaskUrl}/api/system/logstream`
         
@@ -394,7 +394,16 @@ export default function ProcessingMonitorPage() {
             </h2>
             <button
               onClick={() => setLogLines([])}
-              className="btn btn-secondary btn-sm"
+              style={{
+                padding: 'var(--spacing-xs) var(--spacing-md)',
+                backgroundColor: 'var(--cisa-gray)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-sm)'
+              }}
             >
               Clear Logs
             </button>
@@ -438,47 +447,106 @@ export default function ProcessingMonitorPage() {
                   if (res.ok) {
                     const data = await res.json()
                     setProgress(data)
+                    alert('✅ Status refreshed')
                   }
                 } catch (err) {
                   console.error('Error refreshing:', err)
                   alert(`❌ Error refreshing: ${err.message}`)
                 }
               }}
-              className="btn btn-primary"
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: 'var(--cisa-blue)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)'
+              }}
             >
               🔄 Refresh Status
             </button>
             <button
               onClick={() => setLogLines([])}
-              className="btn btn-secondary"
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: 'var(--cisa-gray)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)'
+              }}
             >
               🗑️ Clear Logs
             </button>
             <button
               onClick={() => controlAction('process_existing')}
-              className="btn btn-success"
               disabled={controlLoading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#00a651',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: controlLoading ? 0.6 : 1
+              }}
             >
               {controlLoading ? '⏳ Processing...' : '⚡ Process Existing Files'}
             </button>
             <button
               onClick={() => controlAction('sync_review')}
-              className="btn btn-info"
               disabled={controlLoading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#17a2b8',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: controlLoading ? 0.6 : 1
+              }}
             >
               🔄 Sync Review
             </button>
             <button
               onClick={() => controlAction('start_watcher')}
-              className="btn btn-success"
               disabled={controlLoading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#00a651',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: controlLoading ? 0.6 : 1
+              }}
             >
               ▶️ Start Watcher
             </button>
             <button
               onClick={() => controlAction('stop_watcher')}
-              className="btn btn-warning"
               disabled={controlLoading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#ffc107',
+                color: '#000',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: controlLoading ? 0.6 : 1
+              }}
             >
               ⏹️ Stop Watcher
             </button>
@@ -488,8 +556,18 @@ export default function ProcessingMonitorPage() {
                   controlAction('clear_errors')
                 }
               }}
-              className="btn btn-danger"
               disabled={controlLoading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: controlLoading ? 0.6 : 1
+              }}
             >
               🗑️ Clear Errors
             </button>

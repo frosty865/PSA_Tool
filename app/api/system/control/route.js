@@ -19,8 +19,9 @@ export async function POST(request) {
     }
 
     // Add timeout to prevent hanging requests
+    // Increased to 60 seconds for long-running operations like processing files
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
     console.log(`[Control Proxy] Attempting to connect to Flask at: ${FLASK_URL}`);
 

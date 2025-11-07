@@ -12,12 +12,25 @@ export async function GET(request) {
     // Get progress from auto-processor
     let progress = null;
     try {
-      const progressResponse = await fetch(`${flaskUrl}/api/system/progress`);
+      // Add timeout for progress fetch (30 seconds should be enough)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
+      const progressResponse = await fetch(`${flaskUrl}/api/system/progress`, {
+        signal: controller.signal,
+        cache: 'no-store',
+      });
+      clearTimeout(timeoutId);
+      
       if (progressResponse.ok) {
         progress = await progressResponse.json();
       }
     } catch (e) {
-      console.warn('[monitor/processing] Failed to get progress:', e);
+      if (e.name === 'AbortError') {
+        console.warn('[monitor/processing] Progress fetch timeout');
+      } else {
+        console.warn('[monitor/processing] Failed to get progress:', e);
+      }
     }
     
     // Get Ollama service status

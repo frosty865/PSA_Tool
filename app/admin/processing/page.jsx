@@ -26,8 +26,11 @@ export default function ProcessingMonitorPage() {
         const data = await res.json()
         setProgress(data)
         
-        // Determine watcher status based on timestamp freshness
-        if (data.timestamp) {
+        // Use explicit watcher_status from backend if available, otherwise fall back to timestamp inference
+        if (data.watcher_status) {
+          setWatcherStatus(data.watcher_status)
+        } else if (data.timestamp) {
+          // Fallback: Determine watcher status based on timestamp freshness
           const timestamp = new Date(data.timestamp)
           const now = new Date()
           const diffSeconds = (now.getTime() - timestamp.getTime()) / 1000

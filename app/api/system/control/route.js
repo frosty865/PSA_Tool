@@ -78,6 +78,8 @@ export async function POST(request) {
       // Handle non-OK responses
       if (!response.ok) {
         let errorMessage = `Control action failed (HTTP ${response.status})`;
+        let hint = '';
+        
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorData.error || errorMessage;
@@ -91,13 +93,25 @@ export async function POST(request) {
           }
         }
         
+        // Special handling for 404 - route doesn't exist
+        if (response.status === 404) {
+          errorMessage = `Route not found: /api/system/control`;
+          hint = 'The control endpoint is not available. Flask may need to be restarted to load new routes. Run: nssm restart "VOFC-Flask" (as Administrator)';
+        }
+        
         console.error(`[Control Proxy] Flask returned ${response.status}: ${errorMessage}`);
         return NextResponse.json(
           {
             status: 'error',
             message: errorMessage,
+            hint,
             flaskUrl: FLASK_URL,
-            action
+            action,
+            troubleshooting: response.status === 404 ? {
+              restartFlask: 'nssm restart "VOFC-Flask" (run as Administrator)',
+              checkFlask: 'nssm status "VOFC-Flask"',
+              testLocal: 'curl http://localhost:8080/api/system/control -X POST -H "Content-Type: application/json" -d \'{"action":"start_watcher"}\''
+            } : undefined
           },
           { status: 200 } // Return 200 so frontend can handle gracefully
         );

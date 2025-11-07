@@ -24,6 +24,8 @@ export default function ModelAnalytics() {
   const [health, setHealth] = useState(null)
   const [events, setEvents] = useState([])
   const [modelInfo, setModelInfo] = useState(null)
+  const [progress, setProgress] = useState(null)
+  const [monitoring, setMonitoring] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastRefresh, setLastRefresh] = useState(null)
@@ -34,11 +36,13 @@ export default function ModelAnalytics() {
       setError(null)
       
       // Fetch all data in parallel
-      const [learnRes, healthRes, eventsRes, modelRes] = await Promise.all([
+      const [learnRes, healthRes, eventsRes, modelRes, progressRes, monitorRes] = await Promise.all([
         fetch('/api/learning/stats?limit=50', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/system/health', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/system/events', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch('/api/models/info', { cache: 'no-store' }).catch(() => ({ ok: false }))
+        fetch('/api/models/info', { cache: 'no-store' }).catch(() => ({ ok: false })),
+        fetch('/api/system/progress', { cache: 'no-store' }).catch(() => ({ ok: false })),
+        fetch('/api/monitor/processing', { cache: 'no-store' }).catch(() => ({ ok: false }))
       ])
 
       // Process learning stats
@@ -79,6 +83,22 @@ export default function ModelAnalytics() {
         setModelInfo(modelData)
       } else {
         setModelInfo(null)
+      }
+
+      // Process progress
+      if (progressRes.ok) {
+        const progressData = await progressRes.json()
+        setProgress(progressData)
+      } else {
+        setProgress(null)
+      }
+
+      // Process monitoring data
+      if (monitorRes.ok) {
+        const monitorData = await monitorRes.json()
+        setMonitoring(monitorData.monitoring || null)
+      } else {
+        setMonitoring(null)
       }
 
       setLastRefresh(new Date())
@@ -327,8 +347,280 @@ export default function ModelAnalytics() {
                       {health?.ollama === 'ok' ? 'Online' : 'Offline'}
                     </div>
                   </div>
+                  {modelInfo?.status && (
+                    <div>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-sm)' 
+                      }}>
+                        Availability
+                      </p>
+                      <div style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-xs) var(--spacing-md)',
+                        backgroundColor: modelInfo.status === 'available' ? '#D1FAE5' : '#FEE2E2',
+                        color: modelInfo.status === 'available' ? '#065F46' : '#991B1B',
+                        borderRadius: '999px',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: 600
+                      }}>
+                        {modelInfo.status === 'available' ? 'Available' : modelInfo.status === 'error' ? 'Error' : 'Unknown'}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Model Usage Statistics */}
+              {(progress || monitoring) && (
+                <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
+                  <h2 style={{ 
+                    fontSize: 'var(--font-size-xl)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-blue)', 
+                    marginBottom: 'var(--spacing-md)' 
+                  }}>
+                    Model Usage Statistics
+                  </h2>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: 'var(--spacing-md)'
+                  }}>
+                    <div style={{
+                      padding: 'var(--spacing-md)',
+                      backgroundColor: '#F0F9FF',
+                      borderRadius: 'var(--border-radius)',
+                      border: '1px solid #BAE6FD'
+                    }}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Documents Processed
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-xxl)', 
+                        fontWeight: 700, 
+                        color: 'var(--cisa-blue)' 
+                      }}>
+                        {progress?.processed || monitoring?.file_processing?.completed?.count || 0}
+                      </p>
+                    </div>
+                    <div style={{
+                      padding: 'var(--spacing-md)',
+                      backgroundColor: '#FEF3C7',
+                      borderRadius: 'var(--border-radius)',
+                      border: '1px solid #FDE68A'
+                    }}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Pending Processing
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-xxl)', 
+                        fontWeight: 700, 
+                        color: '#D97706' 
+                      }}>
+                        {progress?.incoming || monitoring?.file_processing?.docs?.count || 0}
+                      </p>
+                    </div>
+                    <div style={{
+                      padding: 'var(--spacing-md)',
+                      backgroundColor: '#FEE2E2',
+                      borderRadius: 'var(--border-radius)',
+                      border: '1px solid #FECACA'
+                    }}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Processing Errors
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-xxl)', 
+                        fontWeight: 700, 
+                        color: '#DC2626' 
+                      }}>
+                        {progress?.errors || monitoring?.file_processing?.failed?.count || 0}
+                      </p>
+                    </div>
+                    <div style={{
+                      padding: 'var(--spacing-md)',
+                      backgroundColor: '#D1FAE5',
+                      borderRadius: 'var(--border-radius)',
+                      border: '1px solid #A7F3D0'
+                    }}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Success Rate
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-xxl)', 
+                        fontWeight: 700, 
+                        color: '#059669' 
+                      }}>
+                        {(() => {
+                          const processed = progress?.processed || monitoring?.file_processing?.completed?.count || 0
+                          const errors = progress?.errors || monitoring?.file_processing?.failed?.count || 0
+                          const total = processed + errors
+                          if (total === 0) return '0%'
+                          return `${Math.round((processed / total) * 100)}%`
+                        })()}
+                      </p>
+                    </div>
+                    {monitoring?.submissions?.analysis && (
+                      <>
+                        <div style={{
+                          padding: 'var(--spacing-md)',
+                          backgroundColor: '#E0E7FF',
+                          borderRadius: 'var(--border-radius)',
+                          border: '1px solid #C7D2FE'
+                        }}>
+                          <p style={{ 
+                            fontSize: 'var(--font-size-sm)', 
+                            color: 'var(--cisa-gray)', 
+                            marginBottom: 'var(--spacing-xs)' 
+                          }}>
+                            Total Submissions
+                          </p>
+                          <p style={{ 
+                            fontSize: 'var(--font-size-xxl)', 
+                            fontWeight: 700, 
+                            color: '#4F46E5' 
+                          }}>
+                            {monitoring.submissions.analysis.total || 0}
+                          </p>
+                        </div>
+                        <div style={{
+                          padding: 'var(--spacing-md)',
+                          backgroundColor: '#F3E8FF',
+                          borderRadius: 'var(--border-radius)',
+                          border: '1px solid #E9D5FF'
+                        }}>
+                          <p style={{ 
+                            fontSize: 'var(--font-size-sm)', 
+                            color: 'var(--cisa-gray)', 
+                            marginBottom: 'var(--spacing-xs)' 
+                          }}>
+                            With Model Results
+                          </p>
+                          <p style={{ 
+                            fontSize: 'var(--font-size-xxl)', 
+                            fontWeight: 700, 
+                            color: '#9333EA' 
+                          }}>
+                            {monitoring.submissions.analysis.with_ollama_results || 0}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Processing Status */}
+              {progress && (
+                <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
+                  <h2 style={{ 
+                    fontSize: 'var(--font-size-xl)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-blue)', 
+                    marginBottom: 'var(--spacing-md)' 
+                  }}>
+                    Processing Status
+                  </h2>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: 'var(--spacing-md)'
+                  }}>
+                    <div>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Watcher Status
+                      </p>
+                      <div style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-xs) var(--spacing-md)',
+                        backgroundColor: progress.watcher_status === 'running' ? '#D1FAE5' : '#FEE2E2',
+                        color: progress.watcher_status === 'running' ? '#065F46' : '#991B1B',
+                        borderRadius: '999px',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: 600
+                      }}>
+                        {progress.watcher_status === 'running' ? 'Running' : progress.watcher_status === 'stopped' ? 'Stopped' : 'Unknown'}
+                      </div>
+                    </div>
+                    <div>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Library Files
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-lg)', 
+                        fontWeight: 700, 
+                        color: 'var(--cisa-blue)' 
+                      }}>
+                        {progress.library || 0}
+                      </p>
+                    </div>
+                    <div>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Review Files
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-lg)', 
+                        fontWeight: 700, 
+                        color: '#9333EA' 
+                      }}>
+                        {progress.review || 0}
+                      </p>
+                    </div>
+                    {progress.timestamp && (
+                      <div>
+                        <p style={{ 
+                          fontSize: 'var(--font-size-sm)', 
+                          fontWeight: 600, 
+                          color: 'var(--cisa-gray)', 
+                          marginBottom: 'var(--spacing-xs)' 
+                        }}>
+                          Last Update
+                        </p>
+                        <p style={{ 
+                          fontSize: 'var(--font-size-sm)', 
+                          color: 'var(--cisa-gray-dark)' 
+                        }}>
+                          {formatTimestamp(progress.timestamp)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Learning Performance Trends */}
               {chartData.length > 0 && (

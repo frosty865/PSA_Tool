@@ -1,0 +1,59 @@
+version: 1.3
+description: >
+  Unified rule set for extracting vulnerabilities and options for consideration (OFCs)
+  from structured federal or DoD guidance such as UFC, FEMA, DHS, or CISA documents.
+
+patterns:
+  # --- DIRECTIVE / OFC TRIGGERS (Positive statements) ---
+  positive_directives:
+    - \bshall\b
+    - \bmust\b
+    - \bis required to\b
+    - \bwill\b
+    - \bshould\b
+    - \bis to be\b
+    - \bprovide\b
+    - \bensure\b
+    - \bdesigned to\b
+    - \bconstructed to\b
+    - \bcomply with\b
+    - \bprotect against\b
+
+  # --- VULNERABILITY / RISK TRIGGERS (Negative statements) ---
+  negative_triggers:
+    - \bdoes not\b
+    - \bnot provided\b
+    - \bwithout\b
+    - \black of\b
+    - \babsence of\b
+    - \bfailure to\b
+    - \bnot maintained\b
+    - \bmissing\b
+    - \bunavailable\b
+
+  # --- STRUCTURE / SECTION HEADINGS ---
+  section_headers:
+    - ^[A-Z ]{4,}$                 # UPPERCASE headings (e.g., STANDARD 2-3.2.3 GLAZING)
+    - ^[0-9]+(\.[0-9]+)+\s+.+$     # Numeric sections (e.g., 2.3.2.3 Windows)
+    - ^STANDARD\s+[0-9A-Z\.-]+.*$  # Explicit "STANDARD" lines
+    - ^Rationale:.*$
+    - ^Requirement:.*$
+    - ^Design Guidance:.*$
+
+  # --- INFERENCE OPTIONS ---
+  inference:
+    invert_positive_directives: true     # turn "shall" → vulnerability form
+    link_vuln_and_ofc_by_section: true   # auto-join by same section
+    window_sentences: 2                  # capture ±2 sentences around match
+    merge_rationale: true                # attach Rationale paragraphs to OFC context
+
+  # --- SCORING WEIGHTS ---
+  weights:
+    directive_trigger: 0.6
+    rationale_context: 0.2
+    section_alignment: 0.2
+
+defaults:
+  confidence_threshold: 0.65
+  parser_version: vofc-parser:latest
+

@@ -6,6 +6,19 @@ import { Loader2, RefreshCw } from 'lucide-react'
 import RoleGate from '@/components/RoleGate'
 import '@/styles/cisa.css'
 
+// Add spin animation for refresh button
+const spinKeyframes = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+`
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style')
+  style.textContent = spinKeyframes
+  document.head.appendChild(style)
+}
+
 export default function ModelAnalytics() {
   const [stats, setStats] = useState([])
   const [health, setHealth] = useState(null)
@@ -40,7 +53,14 @@ export default function ModelAnalytics() {
       // Process health
       if (healthRes.ok) {
         const healthData = await healthRes.json()
-        setHealth(healthData)
+        // Normalize health status - Flask returns "ok" or "online", normalize to "ok"
+        const normalizedHealth = {
+          ...healthData,
+          flask: healthData.flask === 'ok' || healthData.flask === 'online' ? 'ok' : 'offline',
+          ollama: healthData.ollama === 'ok' || healthData.ollama === 'online' ? 'ok' : 'offline',
+          supabase: healthData.supabase === 'ok' || healthData.supabase === 'online' ? 'ok' : 'offline',
+        }
+        setHealth(normalizedHealth)
       } else {
         setHealth(null)
       }
@@ -110,71 +130,200 @@ export default function ModelAnalytics() {
 
   return (
     <RoleGate requiredRole="admin">
-      <div className="page-container">
-        <div className="content-wrapper">
+      <div style={{ padding: 'var(--spacing-lg)', minHeight: '100vh' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* Header */}
-          <div className="mb-6 flex justify-between items-center">
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: 'var(--spacing-lg)' 
+          }}>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Model Analytics & Performance</h1>
-              <p className="text-gray-600 mt-2">
+              <h1 style={{ 
+                fontSize: 'var(--font-size-xxl)', 
+                fontWeight: 700, 
+                color: 'var(--cisa-black)', 
+                marginBottom: 'var(--spacing-sm)' 
+              }}>
+                Model Analytics & Performance
+              </h1>
+              <p style={{ 
+                color: 'var(--cisa-gray)', 
+                fontSize: 'var(--font-size-base)' 
+              }}>
                 Live model performance, retraining events, and system health metrics
               </p>
             </div>
             <button
-              onClick={fetchData}
+              onClick={async () => {
+                console.log('[Model Analytics] Manual refresh triggered')
+                await fetchData()
+              }}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--spacing-sm)',
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: loading ? 'var(--cisa-gray)' : 'var(--cisa-blue)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.target.style.backgroundColor = 'var(--cisa-blue-dark)'
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.target.style.backgroundColor = 'var(--cisa-blue)'
+              }}
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw 
+                style={{ 
+                  width: '16px', 
+                  height: '16px',
+                  animation: loading ? 'spin 1s linear infinite' : 'none'
+                }} 
+              />
+              {loading ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              <p className="font-medium">Error loading analytics:</p>
-              <p className="text-sm">{error}</p>
+            <div style={{
+              marginBottom: 'var(--spacing-lg)',
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FECACA',
+              color: '#991B1B',
+              padding: 'var(--spacing-md)',
+              borderRadius: 'var(--border-radius)'
+            }}>
+              <p style={{ fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Error loading analytics:</p>
+              <p style={{ fontSize: 'var(--font-size-sm)' }}>{error}</p>
             </div>
           )}
 
           {loading && !stats.length && !modelInfo ? (
-            <div className="flex justify-center items-center h-96">
-              <div className="text-center">
-                <Loader2 className="animate-spin w-8 h-8 mx-auto mb-4 text-blue-600" />
-                <p className="text-gray-600">Loading model analytics...</p>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '400px'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <Loader2 style={{
+                  animation: 'spin 1s linear infinite',
+                  width: '32px',
+                  height: '32px',
+                  margin: '0 auto var(--spacing-md)',
+                  color: 'var(--cisa-blue)'
+                }} />
+                <p style={{ color: 'var(--cisa-gray)' }}>Loading model analytics...</p>
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
               {/* Current Model Summary */}
-              <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Model Status</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+              <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
+                <h2 style={{ 
+                  fontSize: 'var(--font-size-xl)', 
+                  fontWeight: 600, 
+                  color: 'var(--cisa-blue)', 
+                  marginBottom: 'var(--spacing-md)' 
+                }}>
+                  Current Model Status
+                </h2>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: 'var(--spacing-md)',
+                  textAlign: 'center'
+                }}>
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-2">Model</p>
-                    <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                    <p style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 600, 
+                      color: 'var(--cisa-gray)', 
+                      marginBottom: 'var(--spacing-sm)' 
+                    }}>
+                      Model
+                    </p>
+                    <div style={{
+                      display: 'inline-block',
+                      padding: 'var(--spacing-xs) var(--spacing-md)',
+                      backgroundColor: '#DBEAFE',
+                      color: '#1E40AF',
+                      borderRadius: '999px',
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: 600
+                    }}>
                       {modelInfo?.name || 'Unknown'}
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-2">Version</p>
-                    <div className="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-semibold">
+                    <p style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 600, 
+                      color: 'var(--cisa-gray)', 
+                      marginBottom: 'var(--spacing-sm)' 
+                    }}>
+                      Version
+                    </p>
+                    <div style={{
+                      display: 'inline-block',
+                      padding: 'var(--spacing-xs) var(--spacing-md)',
+                      backgroundColor: 'var(--cisa-gray-lighter)',
+                      color: 'var(--cisa-gray-dark)',
+                      borderRadius: '999px',
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: 600
+                    }}>
                       {modelInfo?.version || 'N/A'}
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-2">Size</p>
-                    <div className="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-semibold">
+                    <p style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 600, 
+                      color: 'var(--cisa-gray)', 
+                      marginBottom: 'var(--spacing-sm)' 
+                    }}>
+                      Size
+                    </p>
+                    <div style={{
+                      display: 'inline-block',
+                      padding: 'var(--spacing-xs) var(--spacing-md)',
+                      backgroundColor: 'var(--cisa-gray-lighter)',
+                      color: 'var(--cisa-gray-dark)',
+                      borderRadius: '999px',
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: 600
+                    }}>
                       {modelInfo?.size_gb ? `${modelInfo.size_gb} GB` : '—'}
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-2">Status</p>
-                    <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                      health?.ollama === 'ok' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <p style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 600, 
+                      color: 'var(--cisa-gray)', 
+                      marginBottom: 'var(--spacing-sm)' 
+                    }}>
+                      Status
+                    </p>
+                    <div style={{
+                      display: 'inline-block',
+                      padding: 'var(--spacing-xs) var(--spacing-md)',
+                      backgroundColor: health?.ollama === 'ok' ? '#D1FAE5' : '#FEE2E2',
+                      color: health?.ollama === 'ok' ? '#065F46' : '#991B1B',
+                      borderRadius: '999px',
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: 600
+                    }}>
                       {health?.ollama === 'ok' ? 'Online' : 'Offline'}
                     </div>
                   </div>
@@ -269,36 +418,80 @@ export default function ModelAnalytics() {
 
               {/* System Health Summary */}
               {health && (
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">System Health</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
+                  <h2 style={{ 
+                    fontSize: 'var(--font-size-xl)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-blue)', 
+                    marginBottom: 'var(--spacing-md)' 
+                  }}>
+                    System Health
+                  </h2>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                    gap: 'var(--spacing-md)'
+                  }}>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">Flask</p>
-                      <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        health.flask === 'ok' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Flask
+                      </p>
+                      <div style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-xs) var(--spacing-md)',
+                        backgroundColor: health.flask === 'ok' ? '#D1FAE5' : '#FEE2E2',
+                        color: health.flask === 'ok' ? '#065F46' : '#991B1B',
+                        borderRadius: '999px',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: 600
+                      }}>
                         {health.flask === 'ok' ? 'Online' : 'Offline'}
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">Ollama</p>
-                      <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        health.ollama === 'ok' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Ollama
+                      </p>
+                      <div style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-xs) var(--spacing-md)',
+                        backgroundColor: health.ollama === 'ok' ? '#D1FAE5' : '#FEE2E2',
+                        color: health.ollama === 'ok' ? '#065F46' : '#991B1B',
+                        borderRadius: '999px',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: 600
+                      }}>
                         {health.ollama === 'ok' ? 'Online' : 'Offline'}
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 mb-1">Supabase</p>
-                      <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                        health.supabase === 'ok' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        fontWeight: 600, 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)' 
+                      }}>
+                        Supabase
+                      </p>
+                      <div style={{
+                        display: 'inline-block',
+                        padding: 'var(--spacing-xs) var(--spacing-md)',
+                        backgroundColor: health.supabase === 'ok' ? '#D1FAE5' : '#FEE2E2',
+                        color: health.supabase === 'ok' ? '#065F46' : '#991B1B',
+                        borderRadius: '999px',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: 600
+                      }}>
                         {health.supabase === 'ok' ? 'Online' : 'Offline'}
                       </div>
                     </div>
@@ -307,9 +500,14 @@ export default function ModelAnalytics() {
               )}
 
               {/* Footer Info */}
-              <div className="text-sm text-gray-500 text-center">
+              <div style={{
+                fontSize: 'var(--font-size-sm)',
+                color: 'var(--cisa-gray)',
+                textAlign: 'center',
+                marginTop: 'var(--spacing-md)'
+              }}>
                 <p>Last refreshed: {lastRefresh ? lastRefresh.toLocaleString() : 'Never'}</p>
-                <p className="mt-1">Auto-refreshes every 60 seconds</p>
+                <p style={{ marginTop: 'var(--spacing-xs)' }}>Auto-refreshes every 60 seconds</p>
               </div>
             </div>
           )}

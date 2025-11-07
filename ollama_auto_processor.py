@@ -261,14 +261,32 @@ def phase1_parser(chunks: list, filepath: Path) -> Dict[str, Any]:
     Returns:
         Dictionary with parser output (raw structured JSON)
     """
+    import threading
     model_name = "vofc-parser:latest"
+    thread_id = threading.current_thread().ident
+    thread_name = threading.current_thread().name
+    
     logging.info(f"🔍 Phase 1: Running parser ({model_name}) on {len(chunks)} chunks...")
+    logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
+    logging.info(f"   File: {filepath.name}")
+    logging.info(f"   Chunk processing: Starting chunk 1/{len(chunks)}")
     
     parser_results = []
+    start_time = time.time()
+    successful_chunks = 0
+    failed_chunks = 0
     
     for idx, chunk_data in enumerate(chunks, start=1):
+        chunk_start_time = time.time()
         chunk_text = chunk_data.get("content") or chunk_data.get("text", "")
         page_num = chunk_data.get("page", 1)
+        chunk_id = chunk_data.get("chunk_id", f"chunk_{idx:03d}")
+        chunk_size = len(chunk_text)
+        
+        logging.info(f"   [Phase 1] Processing chunk {idx}/{len(chunks)} ({chunk_id})")
+        logging.info(f"      - Page: {page_num}")
+        logging.info(f"      - Chunk size: {chunk_size} characters")
+        logging.info(f"      - Model: {model_name}")
         
         prompt = f"""You are a document parser for security assessments.
 
@@ -299,39 +317,88 @@ Text:
 
 Remember: Return ONLY valid JSON, nothing else."""
         
+        prompt_size = len(prompt)
+        logging.info(f"      - Prompt size: {prompt_size} characters")
+        logging.info(f"      - Calling model API...")
+        
         try:
+            model_call_start = time.time()
             result_text = run_model(model=model_name, prompt=prompt)
+            model_call_duration = time.time() - model_call_start
             
             if not result_text or not result_text.strip():
+                logging.warning(f"      - ⚠️  Empty response from model (duration: {model_call_duration:.2f}s)")
+                failed_chunks += 1
                 continue
+            
+            response_size = len(result_text)
+            logging.info(f"      - ✅ Model response received (duration: {model_call_duration:.2f}s, size: {response_size} chars)")
+            logging.info(f"      - Parsing JSON response...")
             
             # Clean and parse JSON
             json_text = result_text.strip()
             if json_text.startswith("```"):
                 lines = json_text.split("\n")
                 json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
+                logging.info(f"      - Removed markdown code blocks from response")
             
             parsed = json.loads(json_text)
+            records_found = 0
+            
             if isinstance(parsed, list):
+                records_found = len(parsed)
                 for record in parsed:
                     record["source_file"] = chunk_data.get("filename", filepath.name)
                     record["source_page"] = page_num
                     record["page_range"] = str(page_num)
-                    record["chunk_id"] = chunk_data.get("chunk_id", f"chunk_{idx:03d}")
+                    record["chunk_id"] = chunk_id
                     parser_results.append(record)
+                logging.info(f"      - ✅ Parsed {records_found} records from array response")
             elif isinstance(parsed, dict):
+                records_found = 1
                 parsed["source_file"] = chunk_data.get("filename", filepath.name)
                 parsed["source_page"] = page_num
                 parsed["page_range"] = str(page_num)
-                parsed["chunk_id"] = chunk_data.get("chunk_id", f"chunk_{idx:03d}")
+                parsed["chunk_id"] = chunk_id
                 parser_results.append(parsed)
+                logging.info(f"      - ✅ Parsed 1 record from object response")
+            else:
+                logging.warning(f"      - ⚠️  Unexpected response type: {type(parsed)}")
+                failed_chunks += 1
+                continue
+            
+            successful_chunks += 1
+            chunk_duration = time.time() - chunk_start_time
+            logging.info(f"      - ✅ Chunk {idx}/{len(chunks)} complete ({chunk_duration:.2f}s, {records_found} records)")
                 
         except json.JSONDecodeError as je:
-            logging.warning(f"Phase 1: Failed to parse JSON from parser on chunk {idx}: {je}")
+            chunk_duration = time.time() - chunk_start_time
+            logging.error(f"      - ❌ JSON parse error on chunk {idx}: {je}")
+            logging.error(f"      - Response preview: {result_text[:200] if 'result_text' in locals() else 'N/A'}...")
+            logging.error(f"      - Duration: {chunk_duration:.2f}s")
+            failed_chunks += 1
         except Exception as e:
-            logging.error(f"Phase 1: Parser failed on chunk {idx}: {e}")
+            chunk_duration = time.time() - chunk_start_time
+            logging.error(f"      - ❌ Model call failed on chunk {idx}: {type(e).__name__}: {e}")
+            logging.error(f"      - Duration: {chunk_duration:.2f}s")
+            logging.error(f"      - Traceback: {traceback.format_exc()}")
+            failed_chunks += 1
+        
+        # Progress update every 10 chunks
+        if idx % 10 == 0:
+            elapsed = time.time() - start_time
+            remaining_chunks = len(chunks) - idx
+            avg_time_per_chunk = elapsed / idx
+            estimated_remaining = remaining_chunks * avg_time_per_chunk
+            logging.info(f"   [Phase 1] Progress: {idx}/{len(chunks)} chunks ({elapsed:.1f}s elapsed, ~{estimated_remaining:.1f}s remaining)")
     
-    logging.info(f"Phase 1 complete: {len(parser_results)} raw records extracted")
+    total_duration = time.time() - start_time
+    logging.info(f"   [Phase 1] COMPLETE: {len(parser_results)} raw records extracted")
+    logging.info(f"      - Successful chunks: {successful_chunks}/{len(chunks)}")
+    logging.info(f"      - Failed chunks: {failed_chunks}/{len(chunks)}")
+    logging.info(f"      - Total duration: {total_duration:.2f}s")
+    logging.info(f"      - Average time per chunk: {total_duration/len(chunks):.2f}s")
+    
     return {"records": parser_results, "phase": "parser", "count": len(parser_results)}
 
 
@@ -348,16 +415,29 @@ def phase2_engine(parser_output: Dict[str, Any], filepath: Path) -> Dict[str, An
     Returns:
         Dictionary with normalized, validated JSON
     """
+    import threading
     model_name = "vofc-engine:latest"
-    logging.info(f"🧠 Phase 2: Running engine ({model_name}) on {parser_output['count']} parser records...")
+    thread_id = threading.current_thread().ident
+    thread_name = threading.current_thread().name
+    
+    start_time = time.time()
+    input_count = parser_output.get("count", 0)
+    
+    logging.info(f"🧠 Phase 2: Running engine ({model_name}) on {input_count} parser records...")
+    logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
+    logging.info(f"   File: {filepath.name}")
     
     records = parser_output.get("records", [])
     if not records:
-        logging.warning("Phase 2: No records from parser, skipping")
+        logging.warning("   ⚠️  Phase 2: No records from parser, skipping")
         return {"records": [], "phase": "engine", "count": 0}
+    
+    logging.info(f"   - Input records: {len(records)}")
     
     # Prepare input for engine (consolidate all records)
     input_json = json.dumps(records, indent=2)
+    input_size = len(input_json)
+    logging.info(f"   - Input JSON size: {input_size} characters")
     
     prompt = f"""You are a normalization and validation engine for security assessments.
 
@@ -388,31 +468,56 @@ Output format (array):
 
 Return normalized, deduplicated records. If no valid data, return: []"""
     
+    prompt_size = len(prompt)
+    logging.info(f"   - Prompt size: {prompt_size} characters")
+    logging.info(f"   - Calling model API...")
+    
     try:
+        model_call_start = time.time()
         result_text = run_model(model=model_name, prompt=prompt)
+        model_call_duration = time.time() - model_call_start
         
         if not result_text or not result_text.strip():
-            logging.warning("Phase 2: Empty response from engine")
+            logging.warning(f"   ⚠️  Phase 2: Empty response from engine (duration: {model_call_duration:.2f}s)")
             return {"records": [], "phase": "engine", "count": 0}
+        
+        response_size = len(result_text)
+        logging.info(f"   - ✅ Model response received (duration: {model_call_duration:.2f}s, size: {response_size} chars)")
+        logging.info(f"   - Parsing JSON response...")
         
         # Clean and parse JSON
         json_text = result_text.strip()
         if json_text.startswith("```"):
             lines = json_text.split("\n")
             json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
+            logging.info(f"   - Removed markdown code blocks from response")
         
         parsed = json.loads(json_text)
         engine_records = parsed if isinstance(parsed, list) else [parsed] if isinstance(parsed, dict) else []
         
-        logging.info(f"Phase 2 complete: {len(engine_records)} normalized records")
+        total_duration = time.time() - start_time
+        logging.info(f"   [Phase 2] COMPLETE: {len(engine_records)} normalized records")
+        logging.info(f"      - Input: {input_count} records")
+        logging.info(f"      - Output: {len(engine_records)} records")
+        logging.info(f"      - Reduction: {input_count - len(engine_records)} records (deduplication)")
+        logging.info(f"      - Total duration: {total_duration:.2f}s")
+        
         return {"records": engine_records, "phase": "engine", "count": len(engine_records)}
         
     except json.JSONDecodeError as je:
-        logging.error(f"Phase 2: Failed to parse JSON from engine: {je}")
+        total_duration = time.time() - start_time
+        logging.error(f"   ❌ Phase 2: Failed to parse JSON from engine: {je}")
+        logging.error(f"      - Response preview: {result_text[:200] if 'result_text' in locals() else 'N/A'}...")
+        logging.error(f"      - Duration: {total_duration:.2f}s")
+        logging.warning(f"   - Using parser output as fallback (no normalization)")
         # Fallback: return parser output as-is
         return {"records": records, "phase": "engine", "count": len(records), "error": "engine_parse_failed"}
     except Exception as e:
-        logging.error(f"Phase 2: Engine failed: {e}")
+        total_duration = time.time() - start_time
+        logging.error(f"   ❌ Phase 2: Engine failed: {type(e).__name__}: {e}")
+        logging.error(f"      - Duration: {total_duration:.2f}s")
+        logging.error(f"      - Traceback: {traceback.format_exc()}")
+        logging.warning(f"   - Using parser output as fallback (no normalization)")
         # Fallback: return parser output as-is
         return {"records": records, "phase": "engine", "count": len(records), "error": str(e)}
 
@@ -430,16 +535,29 @@ def phase3_auditor(engine_output: Dict[str, Any], filepath: Path) -> Dict[str, A
     Returns:
         Dictionary with audited JSON + metadata (accepted/rejected/needs_review)
     """
+    import threading
     model_name = "vofc-auditor:latest"
-    logging.info(f"🔍 Phase 3: Running auditor ({model_name}) on {engine_output['count']} engine records...")
+    thread_id = threading.current_thread().ident
+    thread_name = threading.current_thread().name
+    
+    start_time = time.time()
+    input_count = engine_output.get("count", 0)
+    
+    logging.info(f"🔍 Phase 3: Running auditor ({model_name}) on {input_count} engine records...")
+    logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
+    logging.info(f"   File: {filepath.name}")
     
     records = engine_output.get("records", [])
     if not records:
-        logging.warning("Phase 3: No records from engine, skipping")
+        logging.warning("   ⚠️  Phase 3: No records from engine, skipping")
         return {"records": [], "phase": "auditor", "count": 0, "metadata": {"status": "empty"}}
+    
+    logging.info(f"   - Input records: {len(records)}")
     
     # Prepare input for auditor
     input_json = json.dumps(records, indent=2)
+    input_size = len(input_json)
+    logging.info(f"   - Input JSON size: {input_size} characters")
     
     prompt = f"""You are a quality assurance auditor for security assessments.
 
@@ -479,11 +597,18 @@ Output format:
 
 Return audited records with status. If no valid data, return: {{"records": [], "metadata": {{"status": "empty"}}}}"""
     
+    prompt_size = len(prompt)
+    logging.info(f"   - Prompt size: {prompt_size} characters")
+    logging.info(f"   - Calling model API...")
+    
     try:
+        model_call_start = time.time()
         result_text = run_model(model=model_name, prompt=prompt)
+        model_call_duration = time.time() - model_call_start
         
         if not result_text or not result_text.strip():
-            logging.warning("Phase 3: Empty response from auditor")
+            logging.warning(f"   ⚠️  Phase 3: Empty response from auditor (duration: {model_call_duration:.2f}s)")
+            logging.warning("   - Marking all records as accepted (fallback)")
             # Fallback: mark all as accepted
             return {
                 "records": records,
@@ -492,11 +617,16 @@ Return audited records with status. If no valid data, return: {{"records": [], "
                 "metadata": {"status": "accepted_all", "total": len(records), "accepted": len(records)}
             }
         
+        response_size = len(result_text)
+        logging.info(f"   - ✅ Model response received (duration: {model_call_duration:.2f}s, size: {response_size} chars)")
+        logging.info(f"   - Parsing JSON response...")
+        
         # Clean and parse JSON
         json_text = result_text.strip()
         if json_text.startswith("```"):
             lines = json_text.split("\n")
             json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
+            logging.info(f"   - Removed markdown code blocks from response")
         
         parsed = json.loads(json_text)
         
@@ -550,14 +680,29 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
     temp_outputs = {}  # Store intermediate outputs for debugging
     
     try:
+        import threading
+        thread_id = threading.current_thread().ident
+        thread_name = threading.current_thread().name
+        process_start_time = time.time()
+        
         logging.info(f"🚀 Starting 3-phase processing for {filepath.name}")
+        logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
+        logging.info(f"   File path: {filepath.resolve()}")
+        logging.info(f"   File size: {filepath.stat().st_size if filepath.exists() else 0} bytes")
+        logging.info(f"   Timestamp: {datetime.now().isoformat()}")
         
         # Step 1: Extract text per page for full source traceability
         # Try page-based extraction first (for PDFs)
         pages = None
         if filepath.suffix.lower() == '.pdf' and PYMUPDF_AVAILABLE:
-            logging.info(f"Extracting text with page numbers from {filepath.name}...")
+            logging.info(f"   [Step 1] Extracting text with page numbers from {filepath.name}...")
+            extract_start = time.time()
             pages = extract_text_with_pages(filepath)
+            extract_duration = time.time() - extract_start
+            if pages:
+                logging.info(f"   ✅ Extracted {len(pages)} pages ({extract_duration:.2f}s)")
+            else:
+                logging.warning(f"   ⚠️  No pages extracted ({extract_duration:.2f}s)")
         
         all_chunks = []
         results = []
@@ -663,7 +808,11 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
         if not chunks_for_parser:
             raise ValueError(f"No chunks created for {filepath.name}")
         
-        logging.info(f"Prepared {len(chunks_for_parser)} chunks for 3-phase processing")
+        prep_duration = time.time() - process_start_time
+        logging.info(f"   [Preparation] COMPLETE: {len(chunks_for_parser)} chunks prepared ({prep_duration:.2f}s)")
+        logging.info(f"   ========================================")
+        logging.info(f"   Starting 3-phase pipeline...")
+        logging.info(f"   ========================================")
         
         # ========================================================================
         # 3-PHASE PIPELINE
@@ -1009,12 +1158,28 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                 # Still try to process it if it's a valid file
             
             logging.info(f"   ✅ File validated: {path.name} ({path.stat().st_size} bytes)")
+            import threading
+            thread_id = threading.current_thread().ident
+            thread_name = threading.current_thread().name
+            
             logging.info(f"📂 Processing new file: {path.name}")
+            logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
+            logging.info(f"   File path: {abs_path}")
+            logging.info(f"   Current processing files: {list(self.processing_files)}")
+            logging.info(f"   Already in processed_files: {abs_path in processed_files}")
+            
+            # Check if another thread is already processing this file
+            if path.name in self.processing_files:
+                logging.warning(f"   ⚠️  File {path.name} is already being processed by another thread!")
+                logging.warning(f"   - Skipping to prevent duplicate processing")
+                return
             
             try:
                 self.processing_files.add(path.name)
+                logging.info(f"   ✅ Added {path.name} to processing_files set")
                 # Mark as processed with timestamp before processing (prevents race condition)
                 processed_files[abs_path] = time.time()
+                logging.info(f"   ✅ Marked {path.name} in processed_files dict")
                 # Store file hash
                 try:
                     current_hash = file_hash(abs_path)

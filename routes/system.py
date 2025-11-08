@@ -37,6 +37,31 @@ def test_model_manager():
             # Check if service is running
             if 'RUNNING' in output:
                 return 'ok'
+            elif 'PAUSED' in output or 'PAUSE_PENDING' in output:
+                # Service is paused - try to resume it automatically
+                try:
+                    resume_result = subprocess.run(
+                        ['nssm', 'resume', 'VOFC-ModelManager'],
+                        capture_output=True,
+                        text=True,
+                        timeout=2
+                    )
+                    if resume_result.returncode == 0:
+                        # Give it a moment, then check again
+                        import time
+                        time.sleep(1)
+                        # Re-check status
+                        recheck = subprocess.run(
+                            ['sc', 'query', 'VOFC-ModelManager'],
+                            capture_output=True,
+                            text=True,
+                            timeout=2
+                        )
+                        if 'RUNNING' in recheck.stdout:
+                            return 'ok'
+                except:
+                    pass  # If resume fails, continue to return 'offline'
+                return 'offline'  # Paused services are treated as offline
             elif 'STOPPED' in output or 'STOP_PENDING' in output:
                 return 'offline'
             else:

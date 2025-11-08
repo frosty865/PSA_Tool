@@ -49,25 +49,43 @@ logging.basicConfig(
     filemode='a'  # Append mode
 )
 
-# Load environment variables from .env file if it exists
-# Do this AFTER logging is set up so we can log the result
-# Use override=False so system environment variables take precedence
-try:
-    from dotenv import load_dotenv
-    # Try to load .env from project root
-    project_root = Path(__file__).parent.parent
-    env_file = project_root / ".env"
-    if env_file.exists():
-        # Don't override existing environment variables (system vars take precedence)
-        load_dotenv(env_file, override=False)
-        logging.info(f"Loaded environment variables from {env_file} (system vars take precedence)")
-    else:
-        logging.warning(f".env file not found at {env_file}")
-except ImportError:
-    # python-dotenv not installed, skip .env loading
-    logging.warning("python-dotenv not installed - .env file will not be loaded automatically")
-except Exception as e:
-    logging.warning(f"Failed to load .env file: {e}")
+# Check if Supabase credentials are already available from NSSM/system environment
+supabase_url_available = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL')
+supabase_key_available = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+
+# Only load .env file if credentials are not already set (NSSM/system vars take precedence)
+if not (supabase_url_available and supabase_key_available):
+    try:
+        from dotenv import load_dotenv
+        # Try to load .env from project root
+        project_root = Path(__file__).parent.parent
+        env_file = project_root / ".env"
+        if env_file.exists():
+            # Don't override existing environment variables (system vars take precedence)
+            load_dotenv(env_file, override=False)
+            logging.info(f"Loaded environment variables from {env_file} (system vars take precedence)")
+        else:
+            logging.warning(f".env file not found at {env_file}")
+    except ImportError:
+        # python-dotenv not installed, skip .env loading
+        logging.warning("python-dotenv not installed - .env file will not be loaded automatically")
+    except Exception as e:
+        logging.warning(f"Failed to load .env file: {e}")
+else:
+    logging.info("Using Supabase credentials from NSSM/system environment variables")
+
+# Verify credentials are available after loading
+final_supabase_url = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL')
+final_supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+
+if final_supabase_url and final_supabase_key:
+    # Log first few chars of key for verification (don't log full key)
+    key_preview = final_supabase_key[:20] + "..." if len(final_supabase_key) > 20 else final_supabase_key
+    logging.info(f"Supabase credentials verified - URL: {final_supabase_url[:30]}..., Key: {key_preview} (length: {len(final_supabase_key)})")
+else:
+    logging.error("Supabase credentials not available after environment loading!")
+    logging.error(f"  SUPABASE_URL: {'SET' if final_supabase_url else 'NOT SET'}")
+    logging.error(f"  SUPABASE_SERVICE_ROLE_KEY: {'SET' if final_supabase_key else 'NOT SET'}")
 
 from services.supabase_client import get_supabase_client
 
@@ -268,14 +286,21 @@ def evaluate_models():
 if __name__ == "__main__":
     log("=== VOFC Model Manager Run Start ===")
     
-    try:
-        while True:
+    # Keep service running even after errors
+    while True:
+        try:
             evaluate_models()
             log("[INFO] Sleeping for 6 hours before next check...")
             time.sleep(21600)  # 6 hours
-    except Exception as e:
-        logging.exception(f"[ERROR] ModelManager crashed: {e}")
-        log(f"[ERROR] ModelManager crashed: {e}")
-    finally:
-        log("=== VOFC Model Manager Run End ===")
+        except KeyboardInterrupt:
+            log("[INFO] Received interrupt signal, shutting down...")
+            break
+        except Exception as e:
+            logging.exception(f"[ERROR] ModelManager error in evaluation cycle: {e}")
+            log(f"[ERROR] ModelManager error in evaluation cycle: {e}")
+            log("[INFO] Will retry in 1 hour...")
+            # Sleep for 1 hour before retrying after an error (instead of 6 hours)
+            time.sleep(3600)  # 1 hour
+    
+    log("=== VOFC Model Manager Run End ===")
 

@@ -10,6 +10,7 @@ export default function AuditLogPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [filter, setFilter] = useState('all') // 'all', 'approved', 'rejected', 'edited'
+  const [clearing, setClearing] = useState(false)
 
   useEffect(() => {
     loadAuditLogs()
@@ -72,6 +73,39 @@ export default function AuditLogPage() {
     }
   }
 
+  async function clearAuditTrail() {
+    if (!confirm('Are you sure you want to clear the entire audit trail? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setClearing(true)
+      setError(null)
+      
+      const res = await fetchWithAuth('/api/admin/audit', {
+        method: 'DELETE',
+        cache: 'no-store'
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || `Failed to clear audit trail: ${res.status}`)
+      }
+      
+      const data = await res.json()
+      alert(`Audit trail cleared successfully. ${data.deleted || 0} entries deleted.`)
+      
+      // Reload the audit logs (will be empty now)
+      await loadAuditLogs()
+    } catch (err) {
+      console.error('Error clearing audit trail:', err)
+      setError(err.message)
+      alert(`Error clearing audit trail: ${err.message}`)
+    } finally {
+      setClearing(false)
+    }
+  }
+
   return (
     <RoleGate requiredRole="admin">
       {loading && logs.length === 0 ? (
@@ -84,11 +118,25 @@ export default function AuditLogPage() {
       ) : (
       <div className="p-6 space-y-4" style={{ minHeight: '100vh' }}>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Review Audit Trail</h1>
-          <p className="text-gray-600">
-            Track all admin review actions including approvals, rejections, and edits.
-            Each entry links to the affected submission and production records.
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Review Audit Trail</h1>
+              <p className="text-gray-600">
+                Track all admin review actions including approvals, rejections, and edits.
+                Each entry links to the affected submission and production records.
+              </p>
+            </div>
+            {logs.length > 0 && (
+              <button
+                onClick={clearAuditTrail}
+                disabled={clearing}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                style={{ minWidth: '120px' }}
+              >
+                {clearing ? 'Clearing...' : '🗑️ Clear All'}
+              </button>
+            )}
+          </div>
         </div>
 
         {error && (

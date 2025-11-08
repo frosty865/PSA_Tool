@@ -679,6 +679,32 @@ export default function AdminReviewPage() {
                               </span>
                             )}
                           </div>
+                          {ofc.sources && Array.isArray(ofc.sources) && ofc.sources.length > 0 && (
+                            <div style={{ marginTop: 'var(--spacing-xs)' }}>
+                              <strong style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)' }}>Sources:</strong>
+                              <div style={{ marginTop: 'var(--spacing-xs)' }}>
+                                {ofc.sources.map((source, idx) => (
+                                  <div key={idx} style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    color: 'var(--cisa-gray-light)',
+                                    marginBottom: 'var(--spacing-xs)'
+                                  }}>
+                                    {source.source_title || source.source_text || 'Source'}
+                                    {source.source_url && (
+                                      <a 
+                                        href={source.source_url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{ marginLeft: 'var(--spacing-xs)', color: 'var(--cisa-blue)' }}
+                                      >
+                                        (link)
+                                      </a>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

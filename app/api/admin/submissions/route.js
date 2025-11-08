@@ -79,7 +79,7 @@ export async function GET(request) {
     const status = url.searchParams.get('status') || 'pending_review'
     const source = url.searchParams.get('source') // Optional source filter
 
-    // Fetch submissions with related vulnerabilities and OFCs
+    // Fetch submissions with related vulnerabilities, OFCs, sources, and OFC-source links
     let query = supabase
       .from('submissions')
       .select(`
@@ -110,6 +110,11 @@ export async function GET(request) {
           source_url,
           author_org,
           publication_year
+        ),
+        submission_ofc_sources (
+          id,
+          ofc_id,
+          source_id
         )
       `)
       .order('created_at', { ascending: false })
@@ -141,7 +146,7 @@ export async function GET(request) {
 
     console.log(`[Admin Submissions API] Found ${data?.length || 0} submissions with status="${status}"${source ? ` and source="${source}"` : ''}`)
     
-    // Enrich submissions with counts and extract source_file from data JSONB
+    // Enrich submissions with counts, extract source_file from data JSONB, and link OFCs to sources
     const enriched = (Array.isArray(data) ? data : []).map(sub => {
       // Extract source_file from data JSONB
       let sourceFile = null
@@ -154,13 +159,43 @@ export async function GET(request) {
         // Ignore parse errors
       }
       
+      // Link OFCs to their sources using submission_ofc_sources junction table
+      const ofcSourceLinks = sub.submission_ofc_sources || []
+      const sources = sub.submission_sources || []
+      const ofcs = (sub.submission_options_for_consideration || []).map(ofc => {
+        // Find all source links for this OFC
+        const links = ofcSourceLinks.filter(link => link.ofc_id === ofc.id)
+        const ofcSources = links.map(link => {
+          return sources.find(s => s.id === link.source_id)
+        }).filter(Boolean) // Remove undefined entries
+        
+        // If no sources linked via junction table, check if OFC has source info directly
+        if (ofcSources.length === 0 && (ofc.source || ofc.source_title || ofc.source_url)) {
+          // Create a source object from OFC's own source fields
+          ofcSources.push({
+            id: null,
+            source_title: ofc.source_title || ofc.source || 'Source',
+            source_url: ofc.source_url || null,
+            source_text: ofc.source || null,
+            author_org: null,
+            publication_year: null
+          })
+        }
+        
+        return {
+          ...ofc,
+          sources: ofcSources
+        }
+      })
+      
       return {
         ...sub,
         source_file: sourceFile,
         document_name: documentName || sub.document_name || `Submission ${sub.id.slice(0, 8)}`,
         vulnerability_count: sub.submission_vulnerabilities?.length || 0,
         ofc_count: sub.submission_options_for_consideration?.length || 0,
-        source_count: sub.submission_sources?.length || 0
+        source_count: sub.submission_sources?.length || 0,
+        submission_options_for_consideration: ofcs // Replace with enriched OFCs that have sources
       }
     })
     

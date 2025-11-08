@@ -1155,6 +1155,31 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                 logging.info(f"   Supported: {', '.join(supported_extensions)}")
                 return
             
+            # Check if file is a log file (should always be processed)
+            filename_lower = path.name.lower()
+            is_log_file = (
+                '.log' in filename_lower or 
+                'log' in filename_lower or
+                (file_ext == '.txt' and 'log' in filename_lower)
+            )
+            
+            if is_log_file:
+                logging.info(f"   📋 Detected log file: {path.name} - will process regardless of library status")
+            
+            # Check if file exists in library directory
+            library_path = LIBRARY_DIR / path.name
+            file_in_library = library_path.exists()
+            
+            # Process if: NOT in library OR it's a log file
+            if file_in_library and not is_log_file:
+                logging.info(f"   ⏭️  Skipping {path.name} - already in library (not a log file)")
+                return
+            
+            if not file_in_library:
+                logging.info(f"   ✅ File {path.name} not in library - will process")
+            elif is_log_file:
+                logging.info(f"   ✅ File {path.name} is a log file - will process even though in library")
+            
             # Check if already processing (by filename) - THIS IS THE PRIMARY CHECK
             # The processing_files set is checked FIRST and is the source of truth
             if path.name in self.processing_files:
@@ -1191,14 +1216,18 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                 logging.debug(f"   ℹ️  Processed file tracking is DISABLED (ENABLE_PROCESSED_TRACKING=false)")
             
             # Optional: Check file hash to skip unchanged files
-            try:
-                current_hash = file_hash(abs_path)
-                if current_hash and abs_path in processed_file_hashes:
-                    if processed_file_hashes[abs_path] == current_hash:
-                        logging.info(f"   ⏭️  Skipping {path.name} - file content unchanged (hash match)")
-                        return
-            except Exception as e:
-                logging.debug(f"   Could not check file hash: {e}")
+            # Skip hash check for log files or files not in library (they should be processed)
+            if not is_log_file and file_in_library:
+                try:
+                    current_hash = file_hash(abs_path)
+                    if current_hash and abs_path in processed_file_hashes:
+                        if processed_file_hashes[abs_path] == current_hash:
+                            logging.info(f"   ⏭️  Skipping {path.name} - file content unchanged (hash match)")
+                            return
+                except Exception as e:
+                    logging.debug(f"   Could not check file hash: {e}")
+            else:
+                logging.debug(f"   ℹ️  Skipping hash check - file is log or not in library")
             
             # Debounce: Wait for file to be fully written (avoid partial writes)
             logging.info(f"   ⏳ Debouncing (waiting for file to be fully written)...")
@@ -1297,9 +1326,10 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
             
             path = Path(event.src_path)
             
-            # Explicit filter: Only process PDFs in incoming directory
+            # Process supported file types in incoming directory
+            supported_extensions = {'.pdf', '.docx', '.txt', '.xlsx'}
             if (
-                path.suffix.lower() == ".pdf"
+                path.suffix.lower() in supported_extensions
                 and "incoming" in path.parts
                 and "processed" not in path.parts
                 and "library" not in path.parts

@@ -1604,25 +1604,20 @@ def process_file(filepath: Path) -> Path:
             logging.warning("Skipping file write, moving to errors")
             output_json_valid = False
         
-        # Completion guard: Only move to library if JSON is valid
+        # Completion guard: Only proceed if JSON is valid
         if output_json_valid:
-            # Save JSON output
-            json_path = PROCESSED_DIR / f"{filepath.stem}.json"
-            with open(json_path, "w", encoding="utf-8") as jf:
-                json.dump(result, jf, indent=2, ensure_ascii=False, default=str)
-            logging.info(f"Saved model output to {json_path}")
-            
-            # 3️⃣ Move original PDF to library folder (file already moved to processing/)
-            dest_pdf = LIBRARY_DIR / filepath.name
-            if filepath.exists():
-                shutil.move(str(filepath), str(dest_pdf))
-                logging.info(f"Moved {filepath.name} to library folder.")
-            else:
-                logging.warning(f"File {filepath.name} already moved, skipping library move")
+            # Use handle_successful_processing to:
+            # 1. Save JSON to processed/
+            # 2. Move file to library/
+            # 3. Copy JSON to review/ for admin validation
+            # 4. Sync to Supabase submissions table
+            handle_successful_processing(filepath, result)
             
             # Update progress
             update_progress()
             
+            # Return path to processed JSON
+            json_path = PROCESSED_DIR / f"{filepath.stem}_vofc.json"
             return json_path
         else:
             # Move to errors if JSON is invalid (file already moved to processing/)

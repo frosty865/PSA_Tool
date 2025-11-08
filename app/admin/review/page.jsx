@@ -19,28 +19,9 @@ export default function AdminReviewPage() {
   const [controlLoading, setControlLoading] = useState(false)
 
   useEffect(() => {
-    // Check if we have a valid session before loading
-    const checkSessionAndLoad = async () => {
-      try {
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        )
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          loadSubmissions()
-        } else {
-          console.log('No session found, skipping initial load')
-          setError('Please log in to view submissions')
-        }
-      } catch (err) {
-        console.error('Error checking session:', err)
-        setError('Authentication error')
-      }
-    }
-    
-    checkSessionAndLoad()
+    // RoleGate ensures user is authenticated before rendering
+    // So we can directly load submissions
+    loadSubmissions()
     
     // Auto-sync review files to submissions if there are files but no submissions
     const autoSync = async () => {
@@ -88,41 +69,13 @@ export default function AdminReviewPage() {
     
     autoSync()
     
-    // Set up polling - only poll if we have a session
-    let pollInterval = null
-    const setupPolling = async () => {
-      try {
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        )
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          if (!pollInterval) {
-            pollInterval = setInterval(() => {
-              loadSubmissions()
-            }, 30000) // Refresh every 30s
-          }
-        } else {
-          // Clear interval if no session
-          if (pollInterval) {
-            clearInterval(pollInterval)
-            pollInterval = null
-          }
-        }
-      } catch (err) {
-        console.error('Error in polling setup:', err)
-      }
-    }
-    
-    // Check session before polling
-    setupPolling()
-    const checkInterval = setInterval(setupPolling, 60000) // Check every minute
+    // Set up polling - RoleGate ensures user is authenticated
+    const pollInterval = setInterval(() => {
+      loadSubmissions()
+    }, 30000) // Refresh every 30s
     
     return () => {
       if (pollInterval) clearInterval(pollInterval)
-      clearInterval(checkInterval)
     }
   }, [])
 
@@ -583,7 +536,7 @@ export default function AdminReviewPage() {
                 )}
 
                 <div>
-                  <strong style={{ color: 'var(--cisa-gray)' }}>Vulnerabilities ({selected.submission_vulnerabilities?.length || 0}):</strong>
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Vulnerabilities ({selected.vulnerability_count || selected.submission_vulnerabilities?.length || 0}):</strong>
                   {selected.submission_vulnerabilities && selected.submission_vulnerabilities.length > 0 ? (
                     <div style={{ marginTop: 'var(--spacing-sm)' }}>
                       {selected.submission_vulnerabilities.map((v, i) => (
@@ -641,7 +594,7 @@ export default function AdminReviewPage() {
                 </div>
 
                 <div>
-                  <strong style={{ color: 'var(--cisa-gray)' }}>Options for Consideration ({selected.submission_options_for_consideration?.length || 0}):</strong>
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Options for Consideration ({selected.ofc_count || selected.submission_options_for_consideration?.length || 0}):</strong>
                   {selected.submission_options_for_consideration && selected.submission_options_for_consideration.length > 0 ? (
                     <div style={{ marginTop: 'var(--spacing-sm)' }}>
                       {selected.submission_options_for_consideration.map((ofc, i) => (

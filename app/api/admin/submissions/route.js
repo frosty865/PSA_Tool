@@ -146,6 +146,107 @@ export async function GET(request) {
 
     console.log(`[Admin Submissions API] Found ${data?.length || 0} submissions with status="${status}"${source ? ` and source="${source}"` : ''}`)
     
+    // Fetch actual counts from database for each submission
+    // Use a timeout to prevent hanging
+    const submissionIds = (Array.isArray(data) ? data : []).map(sub => sub.id)
+    
+    // Helper function to add timeout to promises
+    const withTimeout = (promise, timeoutMs = 5000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Query timeout')), timeoutMs)
+        )
+      ])
+    }
+    
+    // Get actual counts from database by fetching all records and counting
+    // Use timeout and fallback to empty object if queries fail
+    let vulnCounts = {}
+    let ofcCounts = {}
+    let sourceCounts = {}
+    
+    if (submissionIds.length > 0) {
+      try {
+        const [vulnResult, ofcResult, sourceResult] = await Promise.allSettled([
+          // Count vulnerabilities per submission
+          withTimeout(
+            supabase
+              .from('submission_vulnerabilities')
+              .select('submission_id')
+              .in('submission_id', submissionIds)
+              .then(result => {
+                const counts = {}
+                if (result.data) {
+                  result.data.forEach(v => {
+                    counts[v.submission_id] = (counts[v.submission_id] || 0) + 1
+                  })
+                }
+                return counts
+              }),
+            5000
+          ),
+          
+          // Count OFCs per submission
+          withTimeout(
+            supabase
+              .from('submission_options_for_consideration')
+              .select('submission_id')
+              .in('submission_id', submissionIds)
+              .then(result => {
+                const counts = {}
+                if (result.data) {
+                  result.data.forEach(o => {
+                    counts[o.submission_id] = (counts[o.submission_id] || 0) + 1
+                  })
+                }
+                return counts
+              }),
+            5000
+          ),
+          
+          // Count sources per submission
+          withTimeout(
+            supabase
+              .from('submission_sources')
+              .select('submission_id')
+              .in('submission_id', submissionIds)
+              .then(result => {
+                const counts = {}
+                if (result.data) {
+                  result.data.forEach(s => {
+                    counts[s.submission_id] = (counts[s.submission_id] || 0) + 1
+                  })
+                }
+                return counts
+              }),
+            5000
+          )
+        ])
+        
+        if (vulnResult.status === 'fulfilled') {
+          vulnCounts = vulnResult.value
+        } else {
+          console.warn('[Admin Submissions API] Failed to count vulnerabilities:', vulnResult.reason)
+        }
+        
+        if (ofcResult.status === 'fulfilled') {
+          ofcCounts = ofcResult.value
+        } else {
+          console.warn('[Admin Submissions API] Failed to count OFCs:', ofcResult.reason)
+        }
+        
+        if (sourceResult.status === 'fulfilled') {
+          sourceCounts = sourceResult.value
+        } else {
+          console.warn('[Admin Submissions API] Failed to count sources:', sourceResult.reason)
+        }
+      } catch (err) {
+        console.error('[Admin Submissions API] Error in count queries:', err)
+        // Continue with empty counts - will fall back to array lengths
+      }
+    }
+    
     // Enrich submissions with counts, extract source_file from data JSONB, and link OFCs to sources
     const enriched = (Array.isArray(data) ? data : []).map(sub => {
       // Extract source_file from data JSONB
@@ -188,13 +289,18 @@ export async function GET(request) {
         }
       })
       
+      // Use actual database counts instead of array lengths
+      const actualVulnCount = vulnCounts[sub.id] ?? (sub.submission_vulnerabilities?.length || 0)
+      const actualOfcCount = ofcCounts[sub.id] ?? (sub.submission_options_for_consideration?.length || 0)
+      const actualSourceCount = sourceCounts[sub.id] ?? (sub.submission_sources?.length || 0)
+      
       return {
         ...sub,
         source_file: sourceFile,
         document_name: documentName || sub.document_name || `Submission ${sub.id.slice(0, 8)}`,
-        vulnerability_count: sub.submission_vulnerabilities?.length || 0,
-        ofc_count: sub.submission_options_for_consideration?.length || 0,
-        source_count: sub.submission_sources?.length || 0,
+        vulnerability_count: actualVulnCount,
+        ofc_count: actualOfcCount,
+        source_count: actualSourceCount,
         submission_options_for_consideration: ofcs // Replace with enriched OFCs that have sources
       }
     })

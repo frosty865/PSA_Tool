@@ -234,7 +234,7 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
             "subsector": subsector,  # Store resolved name
             "page_ref": v.get("page_ref"),
             "chunk_id": v.get("chunk_id"),
-            # "audit_status": v.get("audit_status", "pending"),  # Column may not exist
+            "audit_status": v.get("audit_status", "pending"),  # Track review status
             "source": v.get("source") or data.get("source_file") or None,
             "source_title": v.get("source_title") or data.get("source_file") or None,
             "source_url": v.get("source_url") or None,
@@ -302,7 +302,7 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
             "discipline_id": discipline_id,  # Store ID directly
             "discipline": discipline,  # Store resolved name
             "confidence_score": float(o.get("confidence_score", 0.8)) if o.get("confidence_score") else None,
-            # "audit_status": o.get("audit_status", "pending"),  # Column may not exist
+            "audit_status": o.get("audit_status", "pending"),  # Track review status
             "source": o.get("source") or data.get("source_file") or None,
             "source_title": o.get("source_title") or data.get("source_file") or None,
             "source_url": o.get("source_url") or None,

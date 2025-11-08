@@ -128,8 +128,15 @@ export async function GET(request) {
     const { data, error: dbError } = await query
 
     if (dbError) {
-      console.error('Database error:', dbError)
-      return NextResponse.json({ error: dbError.message }, { status: 500 })
+      console.error('[Admin Submissions API] Database error:', JSON.stringify(dbError, null, 2))
+      console.error('[Admin Submissions API] Query status:', status)
+      console.error('[Admin Submissions API] Query source:', source)
+      return NextResponse.json({ 
+        error: dbError.message,
+        code: dbError.code,
+        hint: dbError.hint,
+        details: dbError.details
+      }, { status: 500 })
     }
 
     console.log(`[Admin Submissions API] Found ${data?.length || 0} submissions with status="${status}"${source ? ` and source="${source}"` : ''}`)
@@ -164,7 +171,11 @@ export async function GET(request) {
       submissions: enriched
     })
   } catch (e) {
-    console.error('Admin submissions API error:', e)
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    console.error('[Admin Submissions API] Unexpected error:', e)
+    console.error('[Admin Submissions API] Error stack:', e.stack)
+    return NextResponse.json({ 
+      error: e.message || 'Internal server error',
+      details: e.toString()
+    }, { status: 500 })
   }
 }

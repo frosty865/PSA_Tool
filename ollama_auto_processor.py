@@ -54,6 +54,10 @@ BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
 # Processed Files Tracking (Prevent Duplicate Processing)
 # ============================================================================
 
+# Flag to enable/disable processed file tracking
+# Set to False to disable tracking (useful for testing)
+ENABLE_PROCESSED_TRACKING = os.getenv("ENABLE_PROCESSED_TRACKING", "false").lower() == "true"
+
 # Global dict to track processed files with timestamps (path -> timestamp) for time-based debouncing
 processed_files = {}
 
@@ -925,7 +929,8 @@ Return ONLY valid JSON array."""
                 auditor_output = phase3_auditor(engine_output, filepath)
                 temp_outputs["phase3_auditor"] = auditor_output
                 
-                # Save Phase 3 output to temp directory
+                # Save Phase 3 output to temp directory for debugging (intermediate step)
+                # The final output will be saved to review/ via handle_successful_processing
                 temp_file = REVIEW_TEMP_DIR / f"{filepath.stem}_phase3_auditor.json"
                 with open(temp_file, "w", encoding="utf-8") as f:
                     json.dump(auditor_output, f, indent=2, default=str)
@@ -1068,7 +1073,20 @@ def handle_successful_processing(filepath: Path, result: Dict[str, Any]) -> None
         # Copy JSON output to review/ for admin validation
         review_path = REVIEW_DIR / json_out.name
         shutil.copy(str(json_out), str(review_path))
-        logging.info(f"Copied JSON to review/ for admin validation")
+        logging.info(f"Copied JSON to {review_path} for admin validation")
+        
+        # Sync to submissions table as pending_review
+        try:
+            from services.supabase_sync import sync_processed_result
+            logging.info(f"📤 Syncing {review_path.name} to Supabase...")
+            submission_id = sync_processed_result(str(review_path), submitter_email="system@psa.local")
+            logging.info(f"✅ Created submission {submission_id} for review")
+        except Exception as sync_err:
+            logging.error(f"❌ Failed to create submission for {filepath.name}: {sync_err}")
+            logging.error(f"   Error type: {type(sync_err).__name__}")
+            import traceback
+            logging.error(f"   Traceback: {traceback.format_exc()}")
+            # Don't fail the whole process if sync fails, but log the error clearly
         
     except Exception as e:
         logging.error(f"Error handling successful processing for {filepath.name}: {e}")
@@ -1137,19 +1155,40 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                 logging.info(f"   Supported: {', '.join(supported_extensions)}")
                 return
             
-            # Check if already processed (by path) - time-based check
-            now = time.time()
-            if abs_path in processed_files:
-                time_since = now - processed_files[abs_path]
-                if time_since < 5:
-                    logging.info(f"   ⏭️  Skipping {path.name} - already processed ({time_since:.1f}s ago)")
-                    return
-                # If >5s ago, allow reprocessing (file may have been modified)
-            
-            # Check if already processing
+            # Check if already processing (by filename) - THIS IS THE PRIMARY CHECK
+            # The processing_files set is checked FIRST and is the source of truth
             if path.name in self.processing_files:
                 logging.info(f"   ⏭️  Skipping {path.name} - already processing")
                 return
+            
+            # Only check processed_files if tracking is enabled
+            if ENABLE_PROCESSED_TRACKING:
+                # Only check processed_files for files that are >5 seconds old (to allow retries)
+                # Don't check for very recent entries (0.0s) as that causes false positives
+                now = time.time()
+                original_incoming_path = (BASE_DIR / "incoming" / path.name).resolve()
+                
+                # Check current path (processing/ path) - only skip if >5s old
+                if abs_path in processed_files:
+                    time_since = now - processed_files[abs_path]
+                    if time_since > 5:  # Only skip if processed more than 5 seconds ago
+                        logging.info(f"   ⏭️  Skipping {path.name} - already processed ({time_since:.1f}s ago)")
+                        return
+                    # If <5s, remove the entry (likely from a failed/stuck attempt)
+                    logging.debug(f"   ℹ️  Removing recent processed entry ({time_since:.1f}s old) - allowing retry")
+                    del processed_files[abs_path]
+                
+                # Check original incoming path - only skip if >5s old
+                if original_incoming_path in processed_files and original_incoming_path != abs_path:
+                    time_since = now - processed_files[original_incoming_path]
+                    if time_since > 5:  # Only skip if processed more than 5 seconds ago
+                        logging.info(f"   ⏭️  Skipping {path.name} - already processed from incoming ({time_since:.1f}s ago)")
+                        return
+                    # If <5s, remove the entry
+                    logging.debug(f"   ℹ️  Removing recent processed entry from incoming path ({time_since:.1f}s old)")
+                    del processed_files[original_incoming_path]
+            else:
+                logging.debug(f"   ℹ️  Processed file tracking is DISABLED (ENABLE_PROCESSED_TRACKING=false)")
             
             # Optional: Check file hash to skip unchanged files
             try:
@@ -1196,11 +1235,21 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                 return
             
             try:
+                # Add to processing set FIRST (prevents race condition)
                 self.processing_files.add(path.name)
                 logging.info(f"   ✅ Added {path.name} to processing_files set")
-                # Mark as processed with timestamp before processing (prevents race condition)
-                processed_files[abs_path] = time.time()
-                logging.info(f"   ✅ Marked {path.name} in processed_files dict")
+                
+                # Mark as processed with timestamp AFTER adding to processing set (only if tracking enabled)
+                # This prevents duplicate processing but allows the check above to work
+                if ENABLE_PROCESSED_TRACKING:
+                    processed_files[abs_path] = time.time()
+                    # Also mark original incoming path if different
+                    original_incoming_path = (BASE_DIR / "incoming" / path.name).resolve()
+                    if original_incoming_path != abs_path:
+                        processed_files[original_incoming_path] = time.time()
+                    logging.info(f"   ✅ Marked {path.name} in processed_files dict")
+                else:
+                    logging.debug(f"   ℹ️  Skipping processed_files tracking (ENABLE_PROCESSED_TRACKING=false)")
                 # Store file hash
                 try:
                     current_hash = file_hash(abs_path)
@@ -1287,21 +1336,14 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                     logging.error(f"Failed to move file to processing/: {move_err}")
                     # Continue with original path, but file may be re-triggered
                 
-                # Time-based debouncing: skip if same file seen <5s ago
-                now = time.time()
-                if abs_path in processed_files:
-                    time_since = now - processed_files[abs_path]
-                    if time_since < 5:
-                        logging.info(f"⏭️  Skipping {path.name} - already processed ({time_since:.1f}s ago)")
-                        # File is already in processing/, so it's safe
-                        return
-                    # If >5s ago, remove old entry and allow reprocessing
-                    del processed_files[abs_path]
-                
-                # Update timestamp (file is now in processing/, safe to process)
-                processed_files[abs_path] = now
+                # Check if already processing (by filename, not path, since path changed)
+                if path.name in self.processing_files:
+                    logging.info(f"⏭️  Skipping {path.name} - already processing")
+                    return
                 
                 logging.info(f"📄 Detected new file: {path.name}")
+                # Don't mark as processed yet - let _process_file_if_supported handle it
+                # It will check and mark appropriately
                 self._process_file_if_supported(path)
         
         def on_moved(self, event):
@@ -1310,10 +1352,27 @@ if WATCHDOG_AVAILABLE and FileSystemEventHandler:
                 return
             
             # When a file is moved/copied, event.dest_path contains the new location
-            path = Path(event.dest_path) if hasattr(event, 'dest_path') and event.dest_path else Path(event.src_path)
-            logging.info(f"🔔 File system event: MOVED - {path}")
-            logging.info(f"   Full path: {path.resolve()}")
-            self._process_file_if_supported(path)
+            dest_path = Path(event.dest_path) if hasattr(event, 'dest_path') and event.dest_path else None
+            src_path = Path(event.src_path) if hasattr(event, 'src_path') and event.src_path else None
+            
+            # Ignore moves TO processing/ directory (handled by on_created)
+            if dest_path and "processing" in dest_path.parts:
+                logging.debug(f"🔔 Ignoring move to processing/: {dest_path.name} (handled by on_created)")
+                return
+            
+            # Only process if file is being moved INTO incoming/ directory
+            if dest_path and "incoming" in dest_path.parts:
+                # File is being moved/copied into incoming/
+                logging.info(f"🔔 File system event: MOVED INTO incoming - {dest_path.name}")
+                logging.info(f"   Full path: {dest_path.resolve()}")
+                # Check if already processing to avoid duplicate
+                if dest_path.name not in self.processing_files:
+                    self._process_file_if_supported(dest_path)
+                else:
+                    logging.info(f"   ⏭️  Skipping {dest_path.name} - already processing")
+            else:
+                # Other moves - log but don't process
+                logging.debug(f"🔔 File system event: MOVED - {dest_path or src_path} (not processing)")
 else:
     # Fallback class when watchdog is not available
     class IncomingWatcher:
@@ -1595,6 +1654,88 @@ def process_file(filepath: Path) -> Path:
 # ============================================================================
 
 # Note: check_review_approval and insert_library_record are imported from services.supabase_client
+
+def sync_review_files_to_submissions() -> None:
+    """
+    Sync review JSON files from review/ folder to Supabase submissions table as pending_review.
+    This makes files available for admin review in the dashboard.
+    Only creates submissions for files that don't already have a submission record.
+    """
+    try:
+        from services.supabase_sync import sync_processed_result
+        
+        review_files = list(REVIEW_DIR.glob("*.json"))
+        
+        if not review_files:
+            return
+        
+        logging.info(f"Checking {len(review_files)} review file(s) for submission sync...")
+        
+        synced_count = 0
+        skipped_count = 0
+        
+        for review_file in review_files:
+            try:
+                # Check if a submission already exists for this file
+                filename_stem = review_file.stem.replace('_vofc', '').replace('_phase3_auditor', '')
+                
+                # Check if submission already exists by checking source_file in data JSONB column
+                client = get_supabase_client()
+                # Query all recent submissions and filter in Python (JSONB queries can be tricky)
+                all_results = client.table('submissions').select('id, data').order('created_at', desc=True).limit(100).execute()
+                
+                submission_exists = False
+                if all_results.data:
+                    import json
+                    for sub in all_results.data:
+                        sub_data = sub.get('data', {})
+                        if isinstance(sub_data, str):
+                            try:
+                                sub_data = json.loads(sub_data)
+                            except:
+                                continue
+                        source_file = sub_data.get('source_file', '')
+                        document_name = sub_data.get('document_name', '')
+                        if filename_stem.lower() in str(source_file).lower() or filename_stem.lower() in str(document_name).lower():
+                            submission_exists = True
+                            break
+                
+                result = type('obj', (object,), {'data': [] if not submission_exists else [{'id': 'found'}]})()
+                
+                if result.data and len(result.data) > 0:
+                    logging.debug(f"⏭️  Skipping {review_file.name} - submission already exists")
+                    skipped_count += 1
+                    continue
+                
+                logging.info(f"📤 Creating submission for review file: {review_file.name}")
+                
+                # Sync to submissions table as pending_review
+                try:
+                    logging.info(f"📤 Syncing {review_file.name} to Supabase...")
+                    submission_id = sync_processed_result(str(review_file), submitter_email="system@psa.local")
+                    logging.info(f"✅ Created submission {submission_id} for {review_file.name}")
+                    synced_count += 1
+                except Exception as sync_err:
+                    logging.error(f"❌ Failed to create submission for {review_file.name}: {sync_err}")
+                    logging.error(f"   Error type: {type(sync_err).__name__}")
+                    import traceback
+                    logging.error(f"   Traceback: {traceback.format_exc()}")
+                    # Continue processing other files
+                    continue
+                    
+            except Exception as e:
+                logging.error(f"❌ Error processing {review_file.name}: {e}")
+                logging.error(traceback.format_exc())
+                continue
+        
+        if synced_count > 0:
+            logging.info(f"📊 Created {synced_count} submission(s) from review files")
+        if skipped_count > 0:
+            logging.info(f"⏭️  Skipped {skipped_count} file(s) (already have submissions)")
+        
+    except Exception as e:
+        logging.error(f"Error in sync_review_files_to_submissions: {e}")
+        logging.error(traceback.format_exc())
 
 def sync_review_to_supabase() -> None:
     """

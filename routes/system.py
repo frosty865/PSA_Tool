@@ -300,10 +300,53 @@ def system_control():
             try:
                 from ollama_auto_processor import sync_review_to_supabase
                 sync_review_to_supabase()
-                msg = "Review sync triggered"
+                msg = "Review sync triggered (approved files to production)"
             except Exception as e:
                 logging.error(f"Error in sync_review: {e}")
                 msg = f"Sync error: {str(e)}"
+        
+        elif action == "sync_review_to_submissions":
+            try:
+                from ollama_auto_processor import sync_review_files_to_submissions
+                sync_review_files_to_submissions()
+                msg = "Review files synced to submissions table"
+            except Exception as e:
+                logging.error(f"Error in sync_review_to_submissions: {e}")
+                msg = f"Sync error: {str(e)}"
+        
+        elif action == "clear_processed_tracking":
+            try:
+                from ollama_auto_processor import processed_files, processed_file_hashes
+                count_before = len(processed_files)
+                processed_files.clear()
+                processed_file_hashes.clear()
+                msg = f"Cleared in-memory tracking ({count_before} entries removed)"
+            except Exception as e:
+                logging.error(f"Error clearing processed tracking: {e}")
+                msg = f"Clear error: {str(e)}"
+        
+        elif action == "enable_processed_tracking":
+            try:
+                from ollama_auto_processor import ENABLE_PROCESSED_TRACKING
+                import ollama_auto_processor
+                ollama_auto_processor.ENABLE_PROCESSED_TRACKING = True
+                msg = "Processed file tracking ENABLED"
+            except Exception as e:
+                logging.error(f"Error enabling processed tracking: {e}")
+                msg = f"Enable error: {str(e)}"
+        
+        elif action == "disable_processed_tracking":
+            try:
+                from ollama_auto_processor import ENABLE_PROCESSED_TRACKING
+                import ollama_auto_processor
+                ollama_auto_processor.ENABLE_PROCESSED_TRACKING = False
+                # Also clear existing tracking
+                ollama_auto_processor.processed_files.clear()
+                ollama_auto_processor.processed_file_hashes.clear()
+                msg = "Processed file tracking DISABLED and cleared"
+            except Exception as e:
+                logging.error(f"Error disabling processed tracking: {e}")
+                msg = f"Disable error: {str(e)}"
         
         elif action == "start_watcher":
             try:

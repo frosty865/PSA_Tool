@@ -44,6 +44,7 @@ export async function POST(request, { params }) {
     }
 
     // Update submission status to rejected
+    // Start with minimal update - don't try rejection_reason column (it may not exist)
     const updateData = {
       status: 'rejected',
       processed_at: new Date().toISOString(),
@@ -54,17 +55,37 @@ export async function POST(request, { params }) {
     const validProcessedBy = await getProcessedByValue(processedBy);
     if (validProcessedBy) {
       updateData.processed_by = validProcessedBy;
-    } else if (processedBy && processedBy.includes('@')) {
-      // If we can't convert email to UUID, store it in comments
-      updateData.comments = `Rejected by: ${processedBy}`;
     }
     
-    // Add rejection comments if provided
-    if (comments) {
-      updateData.comments = updateData.comments 
-        ? `${updateData.comments}\nRejection reason: ${comments}`
-        : `Rejection reason: ${comments}`;
+    // Store rejection reason in data JSONB (don't try rejection_reason column)
+    // This is safer since we know data JSONB exists
+    let currentData = submission.data || {};
+    if (typeof currentData === 'string') {
+      try {
+        currentData = JSON.parse(currentData);
+      } catch (e) {
+        console.warn('[REJECT] Failed to parse existing data as JSON:', e);
+        currentData = {};
+      }
     }
+    
+    // Ensure currentData is an object
+    if (!currentData || typeof currentData !== 'object' || Array.isArray(currentData)) {
+      currentData = {};
+    }
+    
+    // Build rejection note
+    let rejectionNote = comments || `Rejected by: ${processedBy || 'admin'}`;
+    if (processedBy && processedBy.includes('@') && !validProcessedBy) {
+      rejectionNote = `${rejectionNote}\nRejected by: ${processedBy}`;
+    }
+    
+    // Merge rejection data into existing data JSONB
+    updateData.data = {
+      ...currentData,
+      rejection_reason: rejectionNote,
+      rejected_at: new Date().toISOString()
+    };
     
     const { data: updatedSubmission, error: updateError } = await supabase
       .from('submissions')
@@ -74,19 +95,13 @@ export async function POST(request, { params }) {
       .single();
 
     if (updateError) {
-      console.error('Database error:', updateError);
-      console.error('Update data:', updateData);
-      console.error('Submission ID:', id);
-      console.error('Submission current status:', submission?.status);
+      console.error('[REJECT] Database error:', JSON.stringify(updateError, null, 2));
+      console.error('[REJECT] Update data keys:', Object.keys(updateData));
+      console.error('[REJECT] Submission ID:', id);
+      console.error('[REJECT] Submission current status:', submission?.status);
+      console.error('[REJECT] Submission data type:', typeof submission?.data);
       
-      // Provide more detailed error information
-      const errorDetails = {
-        message: updateError.message,
-        code: updateError.code,
-        details: updateError.details,
-        hint: updateError.hint
-      };
-      
+      // Return detailed error
       return NextResponse.json(
         { 
           error: 'Failed to reject submission', 
@@ -124,7 +139,7 @@ export async function POST(request, { params }) {
 
     return NextResponse.json({
       success: true,
-      submission: updatedSubmission,
+      submission: updatedSubmission || submission,
       message: 'Submission rejected successfully'
     });
 

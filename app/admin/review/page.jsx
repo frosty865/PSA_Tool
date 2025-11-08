@@ -19,9 +19,111 @@ export default function AdminReviewPage() {
   const [controlLoading, setControlLoading] = useState(false)
 
   useEffect(() => {
-    loadSubmissions()
-    const interval = setInterval(loadSubmissions, 30000) // Refresh every 30s
-    return () => clearInterval(interval)
+    // Check if we have a valid session before loading
+    const checkSessionAndLoad = async () => {
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          loadSubmissions()
+        } else {
+          console.log('No session found, skipping initial load')
+          setError('Please log in to view submissions')
+        }
+      } catch (err) {
+        console.error('Error checking session:', err)
+        setError('Authentication error')
+      }
+    }
+    
+    checkSessionAndLoad()
+    
+    // Auto-sync review files to submissions if there are files but no submissions
+    const autoSync = async () => {
+      try {
+        const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
+        if (progressRes.ok) {
+          const progressData = await progressRes.json()
+          // If there are review files, check if we need to sync
+          if (progressData.review > 0) {
+            // Try to sync after a short delay to let submissions load first
+            setTimeout(async () => {
+              const subsRes = await fetchWithAuth('/api/admin/submissions?status=pending_review', { 
+                cache: 'no-store' 
+              })
+              if (subsRes.ok) {
+                const subsData = await subsRes.json()
+                const subs = subsData.allSubmissions || subsData.submissions || []
+                // If there are review files but no submissions, auto-sync
+                if (subs.length === 0 && progressData.review > 0) {
+                  console.log('Auto-syncing review files to submissions...')
+                  try {
+                    const syncRes = await fetch('/api/system/control', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ action: 'sync_review_to_submissions' })
+                    })
+                    if (syncRes.ok) {
+                      console.log('Auto-sync completed')
+                      // Reload submissions after sync
+                      setTimeout(loadSubmissions, 2000)
+                    }
+                  } catch (syncErr) {
+                    console.error('Auto-sync error:', syncErr)
+                  }
+                }
+              }
+            }, 2000)
+          }
+        }
+      } catch (err) {
+        console.error('Error in auto-sync check:', err)
+      }
+    }
+    
+    autoSync()
+    
+    // Set up polling - only poll if we have a session
+    let pollInterval = null
+    const setupPolling = async () => {
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          if (!pollInterval) {
+            pollInterval = setInterval(() => {
+              loadSubmissions()
+            }, 30000) // Refresh every 30s
+          }
+        } else {
+          // Clear interval if no session
+          if (pollInterval) {
+            clearInterval(pollInterval)
+            pollInterval = null
+          }
+        }
+      } catch (err) {
+        console.error('Error in polling setup:', err)
+      }
+    }
+    
+    // Check session before polling
+    setupPolling()
+    const checkInterval = setInterval(setupPolling, 60000) // Check every minute
+    
+    return () => {
+      if (pollInterval) clearInterval(pollInterval)
+      clearInterval(checkInterval)
+    }
   }, [])
 
   // Poll progress.json every 10 seconds
@@ -41,99 +143,6 @@ export default function AdminReviewPage() {
     fetchProgress()
     const timer = setInterval(fetchProgress, 10000)
     return () => clearInterval(timer)
-  }, [])
-
-  // Live log stream (Server-Sent Events with polling fallback)
-  useEffect(() => {
-    let pollInterval = null
-    let evtSource = null
-    
-    // Initial load of recent logs
-    const loadInitialLogs = async () => {
-      try {
-        const res = await fetch('/api/system/logs?tail=20', { cache: 'no-store' })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.lines && data.lines.length > 0) {
-            setLogs(data.lines)
-          }
-        }
-      } catch (err) {
-        console.error('Error loading initial logs:', err)
-      }
-    }
-
-    // Setup SSE connection to Flask
-    const setupSSE = () => {
-      try {
-        // Detect Flask URL - use production tunnel URL if not localhost
-        const isProduction = typeof window !== 'undefined' && 
-                           window.location.hostname !== 'localhost' && 
-                           window.location.hostname !== '127.0.0.1'
-        const flaskUrl = isProduction 
-          ? 'https://flask.frostech.site'
-          : 'http://localhost:8080'
-        
-        const streamUrl = `${flaskUrl}/api/system/logstream`
-        
-        evtSource = new EventSource(streamUrl)
-
-        evtSource.onmessage = (e) => {
-          if (e.data) {
-            setLogs((prev) => {
-              const newLines = [...prev, e.data]
-              // Keep only last 50 lines to prevent memory issues
-              return newLines.slice(-50)
-            })
-          }
-        }
-
-        evtSource.onerror = (err) => {
-          console.warn('SSE connection error, falling back to polling:', err)
-          if (evtSource) {
-            evtSource.close()
-          }
-          setupPolling()
-        }
-      } catch (error) {
-        console.warn('SSE not available, using polling:', error)
-        setupPolling()
-      }
-    }
-
-    // Fallback polling method
-    const setupPolling = () => {
-      pollInterval = setInterval(async () => {
-        try {
-          const res = await fetch('/api/system/logs?tail=5', { cache: 'no-store' })
-          if (res.ok) {
-            const data = await res.json()
-            if (data.lines && data.lines.length > 0) {
-              setLogs((prev) => {
-                const existingLastLine = prev[prev.length - 1]
-                const newLines = data.lines.filter((line) => line !== existingLastLine)
-                const combined = [...prev, ...newLines]
-                return combined.slice(-50)
-              })
-            }
-          }
-        } catch (err) {
-          console.error('Error polling logs:', err)
-        }
-      }, 5000)
-    }
-
-    loadInitialLogs()
-    setupSSE()
-
-    return () => {
-      if (evtSource) {
-        evtSource.close()
-      }
-      if (pollInterval) {
-        clearInterval(pollInterval)
-      }
-    }
   }, [])
 
   // Control action handler
@@ -174,6 +183,11 @@ export default function AdminReviewPage() {
           console.error('Error refreshing progress:', err)
         }
       }, 1000)
+      
+      // Reload submissions if syncing
+      if (action === 'sync_review_to_submissions') {
+        setTimeout(loadSubmissions, 1000)
+      }
     } catch (err) {
       console.error('Error in control action:', err)
       alert(`❌ Error: ${err.message}`)
@@ -191,66 +205,24 @@ export default function AdminReviewPage() {
       })
       
       if (!res.ok) {
+        // If 401, don't throw - let fetchWithAuth handle redirect
+        if (res.status === 401 || res.status === 403) {
+          console.warn('Authentication failed, redirecting to login...')
+          return // fetchWithAuth will handle redirect
+        }
         throw new Error(`Failed to load submissions: ${res.status}`)
       }
       
       const data = await res.json()
       const subs = data.allSubmissions || data.submissions || []
       
-      // Enrich submissions with vulnerability and OFC counts
-      const enriched = await Promise.all(subs.map(async (sub) => {
-        let vulnCount = 0
-        let ofcCount = 0
-        let vulnerabilities = []
-        let ofcs = []
-        
-        // Parse submission data
-        let parsedData = {}
-        try {
-          if (sub.data) {
-            parsedData = typeof sub.data === 'string' ? JSON.parse(sub.data) : sub.data
-          }
-        } catch (e) {
-          console.warn('Error parsing submission data:', e)
-        }
-        
-        // Extract vulnerabilities
-        if (Array.isArray(parsedData.vulnerabilities)) {
-          vulnerabilities = parsedData.vulnerabilities
-          vulnCount = vulnerabilities.length
-        } else if (parsedData.vulnerability) {
-          vulnerabilities = [parsedData.vulnerability]
-          vulnCount = 1
-        }
-        
-        // Extract OFCs
-        if (Array.isArray(parsedData.options_for_consideration)) {
-          ofcs = parsedData.options_for_consideration
-          ofcCount = ofcs.length
-        } else if (Array.isArray(parsedData.ofcs)) {
-          ofcs = parsedData.ofcs
-          ofcCount = ofcs.length
-        } else if (parsedData.options_for_consideration) {
-          ofcs = [parsedData.options_for_consideration]
-          ofcCount = 1
-        }
-        
-        return {
-          ...sub,
-          document_name: sub.document_name || sub.source_file || sub.title || `Submission ${sub.id.slice(0, 8)}`,
-          created_at: sub.created_at || sub.createdAt || new Date().toISOString(),
-          vulnerability_count: vulnCount,
-          ofc_count: ofcCount,
-          vulnerabilities,
-          ofcs,
-          summary: parsedData.summary || sub.summary || 'No summary available'
-        }
-      }))
-      
-      setSubmissions(enriched)
+      setSubmissions(subs)
     } catch (err) {
       console.error('Error loading submissions:', err)
-      setError(err.message)
+      // Don't set error for auth failures - redirect is handled
+      if (!err.message.includes('401') && !err.message.includes('403')) {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -322,6 +294,16 @@ export default function AdminReviewPage() {
     }
   }
 
+  // Extract summary from data JSONB
+  function getSummary(submission) {
+    try {
+      const data = typeof submission.data === 'string' ? JSON.parse(submission.data) : submission.data
+      return data?.summary || data?.description || null
+    } catch (e) {
+      return null
+    }
+  }
+
   return (
     <RoleGate requiredRole="admin">
       {loading && submissions.length === 0 ? (
@@ -346,8 +328,7 @@ export default function AdminReviewPage() {
             Pending Submissions Review
           </h1>
           <p style={{ color: 'var(--cisa-gray)', fontSize: 'var(--font-size-base)' }}>
-            Review and approve/reject user-submitted entries and document-parsed entries. 
-            Approved submissions are moved to production tables and feed the learning system.
+            Review and approve/reject document-parsed entries. Approved submissions are moved to production tables.
           </p>
         </div>
 
@@ -383,40 +364,22 @@ export default function AdminReviewPage() {
             </h2>
             <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
               <button
+                onClick={() => controlAction('sync_review_to_submissions')}
+                disabled={controlLoading}
+                className="btn btn-sm btn-primary"
+                style={{ opacity: controlLoading ? 0.6 : 1 }}
+                title="Sync review files to submissions table"
+              >
+                📤 Sync to Submissions
+              </button>
+              <button
                 onClick={() => controlAction('sync_review')}
                 disabled={controlLoading}
                 className="btn btn-sm btn-info"
                 style={{ opacity: controlLoading ? 0.6 : 1 }}
+                title="Sync approved files to production"
               >
-                🔄 Sync
-              </button>
-              <button
-                onClick={() => controlAction('start_watcher')}
-                disabled={controlLoading}
-                className="btn btn-sm btn-success"
-                style={{ opacity: controlLoading ? 0.6 : 1 }}
-              >
-                ▶️ Start
-              </button>
-              <button
-                onClick={() => controlAction('stop_watcher')}
-                disabled={controlLoading}
-                className="btn btn-sm btn-warning"
-                style={{ opacity: controlLoading ? 0.6 : 1 }}
-              >
-                ⏹️ Stop
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm('Clear all files from the errors folder?')) {
-                    controlAction('clear_errors')
-                  }
-                }}
-                disabled={controlLoading}
-                className="btn btn-sm btn-danger"
-                style={{ opacity: controlLoading ? 0.6 : 1 }}
-              >
-                🗑️ Clear Errors
+                🔄 Sync Approved
               </button>
             </div>
           </div>
@@ -469,65 +432,6 @@ export default function AdminReviewPage() {
           ) : (
             <p style={{ color: 'var(--cisa-gray)', textAlign: 'center' }}>Loading system status...</p>
           )}
-          
-          {progress?.timestamp && (
-            <div style={{ marginTop: 'var(--spacing-sm)', fontSize: 'var(--font-size-sm)', color: 'var(--cisa-gray)', textAlign: 'center' }}>
-              Last updated: {new Date(progress.timestamp).toLocaleString()}
-            </div>
-          )}
-        </div>
-
-        {/* System Logs (Collapsible) */}
-        <div className="card" style={{ padding: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)' }}>
-          <div 
-            style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              cursor: 'pointer'
-            }}
-            onClick={() => setLogsExpanded(!logsExpanded)}
-          >
-            <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', margin: 0 }}>
-              Live Processor Logs
-            </h2>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setLogs([])
-              }}
-              className="btn btn-sm btn-secondary"
-            >
-              Clear
-            </button>
-          </div>
-          
-          {logsExpanded && (
-            <div
-              style={{
-                fontFamily: 'monospace',
-                fontSize: 'var(--font-size-sm)',
-                overflowY: 'auto',
-                padding: 'var(--spacing-sm)',
-                borderRadius: 'var(--border-radius)',
-                marginTop: 'var(--spacing-sm)',
-                backgroundColor: '#1a1a1a',
-                color: '#00ff00',
-                height: '240px',
-                lineHeight: '1.5'
-              }}
-            >
-              {logs.length === 0 ? (
-                <div style={{ color: '#888' }}>Waiting for log entries...</div>
-              ) : (
-                logs.map((line, i) => (
-                  <div key={i} style={{ marginBottom: '2px' }}>
-                    {line}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
         </div>
 
         {submissions.length === 0 ? (
@@ -568,7 +472,7 @@ export default function AdminReviewPage() {
                     color: 'var(--cisa-blue)',
                     margin: 0
                   }}>
-                    {sub.document_name}
+                    {sub.document_name || sub.source_file || `Submission ${sub.id.slice(0, 8)}`}
                   </h3>
                   <span style={{
                     fontSize: 'var(--font-size-xs)',
@@ -636,7 +540,9 @@ export default function AdminReviewPage() {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
-                <h2 style={{ fontSize: 'var(--font-size-xxl)', fontWeight: 700, color: 'var(--cisa-black)' }}>{selected.document_name}</h2>
+                <h2 style={{ fontSize: 'var(--font-size-xxl)', fontWeight: 700, color: 'var(--cisa-black)' }}>
+                  {selected.document_name || selected.source_file || `Submission ${selected.id.slice(0, 8)}`}
+                </h2>
                 <button
                   onClick={() => setSelected(null)}
                   style={{ 
@@ -649,8 +555,6 @@ export default function AdminReviewPage() {
                     lineHeight: 1,
                     padding: 'var(--spacing-xs)'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--cisa-black)'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--cisa-gray)'}
                 >
                   ×
                 </button>
@@ -664,10 +568,10 @@ export default function AdminReviewPage() {
                   </span>
                 </div>
 
-                {selected.summary && (
+                {getSummary(selected) && (
                   <div>
                     <strong style={{ color: 'var(--cisa-gray)' }}>Summary:</strong>
-                    <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>{selected.summary}</p>
+                    <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>{getSummary(selected)}</p>
                   </div>
                 )}
 
@@ -679,42 +583,105 @@ export default function AdminReviewPage() {
                 )}
 
                 <div>
-                  <strong style={{ color: 'var(--cisa-gray)' }}>Vulnerabilities ({selected.vulnerabilities?.length || 0}):</strong>
-                  {selected.vulnerabilities && selected.vulnerabilities.length > 0 ? (
-                    <ul style={{ listStyleType: 'disc', paddingLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
-                      {selected.vulnerabilities.map((v, i) => (
-                        <li key={i} style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
-                          {v.vulnerability || v.title || v.description || JSON.stringify(v)}
-                          {v.discipline && (
-                            <span style={{
-                              marginLeft: 'var(--spacing-sm)',
-                              fontSize: 'var(--font-size-xs)',
-                              backgroundColor: '#cfe2ff',
-                              color: '#084298',
-                              padding: 'var(--spacing-xs) var(--spacing-sm)',
-                              borderRadius: 'var(--border-radius)'
-                            }}>
-                              {v.discipline}
-                            </span>
-                          )}
-                        </li>
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Vulnerabilities ({selected.submission_vulnerabilities?.length || 0}):</strong>
+                  {selected.submission_vulnerabilities && selected.submission_vulnerabilities.length > 0 ? (
+                    <div style={{ marginTop: 'var(--spacing-sm)' }}>
+                      {selected.submission_vulnerabilities.map((v, i) => (
+                        <div key={v.id || i} style={{ 
+                          padding: 'var(--spacing-sm)',
+                          marginBottom: 'var(--spacing-sm)',
+                          backgroundColor: 'var(--cisa-gray-lighter)',
+                          borderRadius: 'var(--border-radius)',
+                          border: '1px solid var(--cisa-gray-light)'
+                        }}>
+                          <p style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
+                            {v.vulnerability}
+                          </p>
+                          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                            {v.discipline && (
+                              <span style={{
+                                fontSize: 'var(--font-size-xs)',
+                                backgroundColor: '#cfe2ff',
+                                color: '#084298',
+                                padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                borderRadius: 'var(--border-radius)'
+                              }}>
+                                {v.discipline}
+                              </span>
+                            )}
+                            {v.sector && (
+                              <span style={{
+                                fontSize: 'var(--font-size-xs)',
+                                backgroundColor: '#d1e7dd',
+                                color: '#0f5132',
+                                padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                borderRadius: 'var(--border-radius)'
+                              }}>
+                                {v.sector}
+                              </span>
+                            )}
+                            {v.subsector && (
+                              <span style={{
+                                fontSize: 'var(--font-size-xs)',
+                                backgroundColor: '#fff3cd',
+                                color: '#856404',
+                                padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                borderRadius: 'var(--border-radius)'
+                              }}>
+                                {v.subsector}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
                     <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>No vulnerabilities found</p>
                   )}
                 </div>
 
                 <div>
-                  <strong style={{ color: 'var(--cisa-gray)' }}>Options for Consideration ({selected.ofcs?.length || 0}):</strong>
-                  {selected.ofcs && selected.ofcs.length > 0 ? (
-                    <ul style={{ listStyleType: 'disc', paddingLeft: 'var(--spacing-lg)', marginTop: 'var(--spacing-sm)' }}>
-                      {selected.ofcs.map((ofc, i) => (
-                        <li key={i} style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
-                          {ofc.option_text || ofc.text || ofc.description || JSON.stringify(ofc)}
-                        </li>
+                  <strong style={{ color: 'var(--cisa-gray)' }}>Options for Consideration ({selected.submission_options_for_consideration?.length || 0}):</strong>
+                  {selected.submission_options_for_consideration && selected.submission_options_for_consideration.length > 0 ? (
+                    <div style={{ marginTop: 'var(--spacing-sm)' }}>
+                      {selected.submission_options_for_consideration.map((ofc, i) => (
+                        <div key={ofc.id || i} style={{ 
+                          padding: 'var(--spacing-sm)',
+                          marginBottom: 'var(--spacing-sm)',
+                          backgroundColor: 'var(--cisa-gray-lighter)',
+                          borderRadius: 'var(--border-radius)',
+                          border: '1px solid var(--cisa-gray-light)'
+                        }}>
+                          <p style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
+                            {ofc.option_text}
+                          </p>
+                          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
+                            {ofc.discipline && (
+                              <span style={{
+                                fontSize: 'var(--font-size-xs)',
+                                backgroundColor: '#cfe2ff',
+                                color: '#084298',
+                                padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                borderRadius: 'var(--border-radius)'
+                              }}>
+                                {ofc.discipline}
+                              </span>
+                            )}
+                            {ofc.confidence_score && (
+                              <span style={{
+                                fontSize: 'var(--font-size-xs)',
+                                backgroundColor: '#f8d7da',
+                                color: '#721c24',
+                                padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                borderRadius: 'var(--border-radius)'
+                              }}>
+                                Confidence: {(ofc.confidence_score * 100).toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
                     <p style={{ color: 'var(--cisa-gray-light)', marginTop: 'var(--spacing-xs)' }}>No OFCs found</p>
                   )}

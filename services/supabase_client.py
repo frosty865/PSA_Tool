@@ -480,10 +480,27 @@ def check_review_approval(filename):
         clean_filename = filename.replace('_vofc', '')
         
         # Check submissions table for approved status
-        # Match by source_file or document_name containing the filename
-        result = client.table('submissions').select('id, status, source_file, document_name').or_(
-            f'source_file.ilike.%{clean_filename}%,document_name.ilike.%{clean_filename}%'
-        ).order('created_at', desc=True).limit(1).execute()
+        # Match by source_file in data JSONB column
+        # Query recent submissions and filter in Python (more reliable than JSONB queries)
+        import json
+        all_results = client.table('submissions').select('id, status, data').order('created_at', desc=True).limit(100).execute()
+        
+        result_data = []
+        if all_results.data:
+            for sub in all_results.data:
+                sub_data = sub.get('data', {})
+                if isinstance(sub_data, str):
+                    try:
+                        sub_data = json.loads(sub_data)
+                    except:
+                        continue
+                source_file = sub_data.get('source_file', '')
+                document_name = sub_data.get('document_name', '')
+                if clean_filename.lower() in str(source_file).lower() or clean_filename.lower() in str(document_name).lower():
+                    result_data = [sub]
+                    break
+        
+        result = type('obj', (object,), {'data': result_data})()
         
         if result.data and len(result.data) > 0:
             submission = result.data[0]

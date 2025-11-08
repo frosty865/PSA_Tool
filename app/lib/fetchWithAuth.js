@@ -22,13 +22,40 @@ export async function fetchWithAuth(path, options = {}) {
 
   // Get current session or refresh silently
   try {
-    const {
+    let {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession()
 
     if (sessionError) {
       console.warn('[fetchWithAuth] session error:', sessionError.message)
+    }
+
+    // If session is expired or missing, try to refresh it
+    if (!session || (session.expires_at && session.expires_at * 1000 < Date.now() + 60000)) {
+      // Refresh if expired or expiring within 1 minute
+      console.log('[fetchWithAuth] Session expired or expiring soon, attempting refresh...')
+      try {
+        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+        if (!refreshError && refreshedSession) {
+          session = refreshedSession
+          console.log('[fetchWithAuth] Session refreshed successfully')
+        } else {
+          console.warn('[fetchWithAuth] Failed to refresh session:', refreshError?.message)
+          // If refresh fails and we have no session, redirect immediately
+          if (!session && typeof window !== 'undefined') {
+            console.log('[fetchWithAuth] No valid session, redirecting to login...')
+            window.location.href = '/splash'
+            return new Response(null, { status: 401 })
+          }
+        }
+      } catch (refreshErr) {
+        console.error('[fetchWithAuth] Error during session refresh:', refreshErr)
+        if (!session && typeof window !== 'undefined') {
+          window.location.href = '/splash'
+          return new Response(null, { status: 401 })
+        }
+      }
     }
 
     const token = session?.access_token

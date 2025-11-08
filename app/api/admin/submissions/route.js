@@ -79,9 +79,39 @@ export async function GET(request) {
     const status = url.searchParams.get('status') || 'pending_review'
     const source = url.searchParams.get('source') // Optional source filter
 
+    // Fetch submissions with related vulnerabilities and OFCs
     let query = supabase
       .from('submissions')
-      .select('*')
+      .select(`
+        *,
+        submission_vulnerabilities (
+          id,
+          vulnerability,
+          discipline,
+          sector,
+          subsector,
+          audit_status,
+          source,
+          source_title
+        ),
+        submission_options_for_consideration (
+          id,
+          option_text,
+          discipline,
+          confidence_score,
+          audit_status,
+          source,
+          source_title
+        ),
+        submission_sources (
+          id,
+          source_text,
+          source_title,
+          source_url,
+          author_org,
+          publication_year
+        )
+      `)
       .order('created_at', { ascending: false })
       .limit(100)
 
@@ -104,11 +134,34 @@ export async function GET(request) {
 
     console.log(`[Admin Submissions API] Found ${data?.length || 0} submissions with status="${status}"${source ? ` and source="${source}"` : ''}`)
     
+    // Enrich submissions with counts and extract source_file from data JSONB
+    const enriched = (Array.isArray(data) ? data : []).map(sub => {
+      // Extract source_file from data JSONB
+      let sourceFile = null
+      let documentName = null
+      try {
+        const parsedData = typeof sub.data === 'string' ? JSON.parse(sub.data) : sub.data
+        sourceFile = parsedData?.source_file || parsedData?.sourceFile || null
+        documentName = parsedData?.document_name || parsedData?.documentName || sourceFile || null
+      } catch (e) {
+        // Ignore parse errors
+      }
+      
+      return {
+        ...sub,
+        source_file: sourceFile,
+        document_name: documentName || sub.document_name || `Submission ${sub.id.slice(0, 8)}`,
+        vulnerability_count: sub.submission_vulnerabilities?.length || 0,
+        ofc_count: sub.submission_options_for_consideration?.length || 0,
+        source_count: sub.submission_sources?.length || 0
+      }
+    })
+    
     // Return in expected format for SubmissionReview component
     return NextResponse.json({
       success: true,
-      allSubmissions: Array.isArray(data) ? data : [],
-      submissions: Array.isArray(data) ? data : []
+      allSubmissions: enriched,
+      submissions: enriched
     })
   } catch (e) {
     console.error('Admin submissions API error:', e)

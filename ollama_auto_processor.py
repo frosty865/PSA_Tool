@@ -1930,6 +1930,152 @@ def cleanup_review_files(days_old: int = 30) -> None:
     except Exception as e:
         logging.warning(f"Error during cleanup: {e}")
 
+def cleanup_review_temp_files() -> None:
+    """
+    Clean up stuck intermediate files in review/temp.
+    If a final output exists in processed/ or review/, remove the temp files.
+    Otherwise, try to reconstruct the final output from phase3_auditor.json.
+    """
+    try:
+        if not REVIEW_TEMP_DIR.exists():
+            return
+        
+        temp_files = list(REVIEW_TEMP_DIR.glob("*.json"))
+        if not temp_files:
+            return
+        
+        logging.info(f"Found {len(temp_files)} file(s) in review/temp")
+        
+        # Group files by base name
+        file_groups = {}
+        for temp_file in temp_files:
+            # Extract base name (e.g., "document_phase3_auditor.json" -> "document")
+            base_name = temp_file.stem
+            if "_phase1_parser" in base_name:
+                base_name = base_name.replace("_phase1_parser", "")
+            elif "_phase2_engine" in base_name:
+                base_name = base_name.replace("_phase2_engine", "")
+            elif "_phase3_auditor" in base_name:
+                base_name = base_name.replace("_phase3_auditor", "")
+            elif "_error" in base_name:
+                base_name = base_name.replace("_error", "")
+            
+            if base_name not in file_groups:
+                file_groups[base_name] = []
+            file_groups[base_name].append(temp_file)
+        
+        cleaned_count = 0
+        reconstructed_count = 0
+        
+        for base_name, group_files in file_groups.items():
+            # Check if final output already exists
+            final_processed = PROCESSED_DIR / f"{base_name}_vofc.json"
+            final_review = REVIEW_DIR / f"{base_name}_vofc.json"
+            
+            if final_processed.exists() or final_review.exists():
+                # Final output exists, just clean up temp files
+                for temp_file in group_files:
+                    try:
+                        temp_file.unlink()
+                        cleaned_count += 1
+                        logging.info(f"✅ Removed temp file (final exists): {temp_file.name}")
+                    except Exception as e:
+                        logging.warning(f"Failed to remove {temp_file.name}: {e}")
+            else:
+                # Try to reconstruct from phase3_auditor.json
+                phase3_file = None
+                for temp_file in group_files:
+                    if "_phase3_auditor" in temp_file.name:
+                        phase3_file = temp_file
+                        break
+                
+                if phase3_file and phase3_file.exists():
+                    try:
+                        # Load phase3 output
+                        with open(phase3_file, "r", encoding="utf-8") as f:
+                            phase3_data = json.load(f)
+                        
+                        # Reconstruct final result structure
+                        records = phase3_data.get("records", [])
+                        if records:
+                            # Post-process the records
+                            postprocessed = postprocess_results(records)
+                            
+                            if postprocessed:
+                                # Create final result structure
+                                result = {
+                                    "source_file": base_name,
+                                    "processed_at": datetime.now().isoformat(),
+                                    "phase3_auditor_count": len(records),
+                                    "final_records": len(postprocessed),
+                                    "reconstructed": True,
+                                    "vulnerabilities": [
+                                        {
+                                            "vulnerability": r.get("vulnerability", ""),
+                                            "discipline_id": r.get("discipline_id"),
+                                            "category": r.get("category"),
+                                            "sector_id": r.get("sector_id"),
+                                            "subsector_id": r.get("subsector_id"),
+                                            "page_ref": r.get("page_ref"),
+                                            "chunk_id": r.get("chunk_id"),
+                                            "audit_status": r.get("audit_status", "accepted")
+                                        }
+                                        for r in postprocessed
+                                    ],
+                                    "options_for_consideration": [
+                                        {
+                                            "option_text": ofc,
+                                            "vulnerability": r.get("vulnerability", ""),
+                                            "discipline_id": r.get("discipline_id"),
+                                            "sector_id": r.get("sector_id"),
+                                            "subsector_id": r.get("subsector_id"),
+                                            "audit_status": r.get("audit_status", "accepted")
+                                        }
+                                        for r in postprocessed
+                                        for ofc in r.get("options_for_consideration", [])
+                                    ],
+                                    "summary": f"Reconstructed from temp: {len(postprocessed)} vulnerabilities"
+                                }
+                                
+                                # Save to processed/
+                                json_out = PROCESSED_DIR / f"{base_name}_vofc.json"
+                                with open(json_out, "w", encoding="utf-8") as jf:
+                                    json.dump(result, jf, indent=2)
+                                
+                                # Copy to review/
+                                review_path = REVIEW_DIR / json_out.name
+                                shutil.copy(str(json_out), str(review_path))
+                                
+                                logging.info(f"✅ Reconstructed final output from {phase3_file.name}")
+                                logging.info(f"   Saved to: {json_out}")
+                                logging.info(f"   Copied to: {review_path}")
+                                
+                                # Clean up all temp files for this base_name
+                                for temp_file in group_files:
+                                    try:
+                                        temp_file.unlink()
+                                        cleaned_count += 1
+                                    except Exception as e:
+                                        logging.warning(f"Failed to remove {temp_file.name}: {e}")
+                                
+                                reconstructed_count += 1
+                            else:
+                                logging.warning(f"Could not post-process records from {phase3_file.name}")
+                        else:
+                            logging.warning(f"No records in {phase3_file.name}")
+                    except Exception as e:
+                        logging.error(f"Error reconstructing from {phase3_file.name}: {e}")
+                        logging.error(traceback.format_exc())
+        
+        if cleaned_count > 0 or reconstructed_count > 0:
+            logging.info(f"✅ Cleanup complete: {cleaned_count} temp files removed, {reconstructed_count} outputs reconstructed")
+        else:
+            logging.info("No cleanup needed or reconstruction possible")
+            
+    except Exception as e:
+        logging.error(f"Error in cleanup_review_temp_files: {e}")
+        logging.error(traceback.format_exc())
+
 # ============================================================================
 # Main Entry Point
 # ============================================================================

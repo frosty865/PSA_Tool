@@ -385,6 +385,15 @@ def system_control():
                 logging.error(f"Error clearing errors: {e}")
                 msg = f"Clear errors error: {str(e)}"
         
+        elif action == "cleanup_review_temp":
+            try:
+                from ollama_auto_processor import cleanup_review_temp_files
+                cleanup_review_temp_files()
+                msg = "Review temp files cleanup completed"
+            except Exception as e:
+                logging.error(f"Error in cleanup_review_temp: {e}")
+                msg = f"Cleanup error: {str(e)}"
+        
         elif action == "process_existing":
             try:
                 from ollama_auto_processor import get_incoming_files, process_file

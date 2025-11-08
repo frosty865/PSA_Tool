@@ -1,0 +1,54 @@
+{
+  "vulnerabilities": [
+    {
+      "vulnerability": "No formal threat-assessment program",
+      "discipline_id": null,
+      "category": "Behavioral",
+      "sector_id": null,
+      "subsector_id": null,
+      "page_ref": "1-10",
+      "chunk_id": "usss_averting_2021_chunk_01"
+    },
+    {
+      "vulnerability": "Lack of information sharing protocols between schools and law enforcement",
+      "discipline_id": null,
+      "category": "Operational",
+      "sector_id": null,
+      "subsector_id": null,
+      "page_ref": "11-20",
+      "chunk_id": "usss_averting_2021_chunk_02"
+    }
+  ],
+  "options_for_consideration": [
+    {
+      "option_text": "Establish and train multidisciplinary behavioral threat assessment teams",
+      "vulnerability": "No formal threat-assessment program",
+      "discipline_id": null,
+      "sector_id": null,
+      "subsector_id": null
+    },
+    {
+      "option_text": "Adopt and implement standard operating procedures following REMS/USSS guidelines",
+      "vulnerability": "No formal threat-assessment program",
+      "discipline_id": null,
+      "sector_id": null,
+      "subsector_id": null
+    },
+    {
+      "option_text": "Create formal information sharing agreements with local law enforcement",
+      "vulnerability": "Lack of information sharing protocols between schools and law enforcement",
+      "discipline_id": null,
+      "sector_id": null,
+      "subsector_id": null
+    }
+  ],
+  "references": [
+    {
+      "title": "Averting Targeted School Violence: A U.S. Secret Service Analysis of Plots Against Schools",
+      "url": "https://www.secretservice.gov/sites/default/files/reports/2021-03/USSS_Averting_Targeted_School_Violence.2021.03.pdf",
+      "author": "U.S. Secret Service National Threat Assessment Center",
+      "publication_date": "2021-03-01"
+    }
+  ]
+}
+

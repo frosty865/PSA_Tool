@@ -1,14 +1,203 @@
 """
 Ollama client service
-Handles all Ollama API interactions
+Handles all Ollama API interactions with runtime configuration support
 """
 
 import requests
 import os
+import yaml
+import logging
+from pathlib import Path
+from typing import Dict, Any, Optional, List
+
+logger = logging.getLogger(__name__)
 
 # Use OLLAMA_HOST environment variable (managed by NSSM service)
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11434')
 OLLAMA_URL = OLLAMA_HOST  # Backward compatibility
+
+# Engine configuration cache
+_engine_config: Optional[Dict[str, Any]] = None
+
+def load_engine_config() -> Dict[str, Any]:
+    """
+    Load VOFC engine configuration from YAML file or environment variables.
+    
+    Configuration can be set via:
+    1. YAML file at path specified by VOFC_ENGINE_CONFIG env var
+    2. Default path: C:/Tools/Ollama/vofc_config.yaml
+    3. Environment variables (VOFC_ENGINE_TOPICS_*)
+    
+    Returns:
+        Dictionary with engine configuration
+    """
+    global _engine_config
+    
+    if _engine_config is not None:
+        return _engine_config
+    
+    # Default configuration
+    default_config = {
+        "VOFC_ENGINE_TOPICS": {
+            "narrative_risk": True,
+            "thematic_expansion": True,
+            "target_vulnerabilities_per_doc": 10,
+            "target_ofcs_per_vulnerability": 3
+        },
+        "document_biases": {},  # Document-specific prompt enhancements
+        "themes": []  # Global themes to emphasize
+    }
+    
+    # Try to load from YAML file
+    config_path = os.getenv("VOFC_ENGINE_CONFIG", "C:/Tools/Ollama/vofc_config.yaml")
+    config_file = Path(config_path)
+    
+    if config_file.exists():
+        try:
+            with open(config_file, "r", encoding="utf-8") as f:
+                yaml_config = yaml.safe_load(f) or {}
+                # Merge with defaults
+                _engine_config = {**default_config, **yaml_config}
+                logger.info(f"Loaded engine config from {config_path}")
+        except Exception as e:
+            logger.warning(f"Failed to load config from {config_path}: {e}, using defaults")
+            _engine_config = default_config
+    else:
+        logger.info(f"Config file not found at {config_path}, using defaults")
+        _engine_config = default_config
+    
+    return _engine_config
+
+
+def get_document_bias(file_path: str) -> str:
+    """
+    Get document-specific prompt bias based on filename patterns.
+    
+    Args:
+        file_path: Path or filename of the document
+    
+    Returns:
+        Additional prompt instructions to append
+    """
+    config = load_engine_config()
+    biases = config.get("document_biases", {})
+    
+    # Check for pattern matches
+    file_lower = file_path.lower()
+    bias_prompts = []
+    
+    for pattern, bias_config in biases.items():
+        if pattern.lower() in file_lower:
+            if isinstance(bias_config, dict):
+                prompts = bias_config.get("prompts", [])
+                if isinstance(prompts, list):
+                    bias_prompts.extend(prompts)
+                elif isinstance(prompts, str):
+                    bias_prompts.append(prompts)
+            elif isinstance(bias_config, str):
+                bias_prompts.append(bias_config)
+    
+    # Hard-coded patterns (can be moved to config)
+    if "usss" in file_lower or "averting" in file_lower:
+        bias_prompts.append("Focus on systemic and behavioral vulnerabilities, not IT or cyber.")
+        bias_prompts.append("Look for narrative findings and recommended actions.")
+    
+    return "\n".join(bias_prompts) if bias_prompts else ""
+
+
+def get_enrichment_context(file_path: str) -> str:
+    """
+    Get enrichment context from learning events for a document.
+    
+    This retrieves themes and examples from past corrections to inform prompts.
+    
+    Args:
+        file_path: Path or filename of the document
+    
+    Returns:
+        Additional prompt context based on past corrections
+    """
+    try:
+        from services.learning_feedback import get_enrichment_themes, get_enrichment_examples
+        
+        filename = Path(file_path).name
+        themes = get_enrichment_themes(filename, limit=5)
+        examples = get_enrichment_examples(filename, limit=3)
+        
+        context_parts = []
+        
+        if themes:
+            context_parts.append(f"Emphasize these themes: {', '.join(themes)}")
+        
+        if examples:
+            context_parts.append("\nExample patterns to look for:")
+            for ex in examples[:2]:  # Limit to 2 examples to avoid prompt bloat
+                vuln = ex.get("vulnerability", "")
+                ofcs = ex.get("ofcs", [])
+                if vuln and ofcs:
+                    context_parts.append(f"- Vulnerability: {vuln}")
+                    context_parts.append(f"  OFCs: {', '.join(ofcs[:2])}")  # Limit OFCs
+        
+        return "\n".join(context_parts) if context_parts else ""
+        
+    except Exception as e:
+        logger.debug(f"Could not load enrichment context: {e}")
+        return ""
+
+
+def build_enhanced_prompt(base_prompt: str, file_path: str = "", text: str = "") -> str:
+    """
+    Build an enhanced prompt with configuration-based enhancements.
+    
+    Args:
+        base_prompt: Base prompt text
+        file_path: Path to source document (for bias detection)
+        text: Document text (for context)
+    
+    Returns:
+        Enhanced prompt with configuration and enrichment context
+    """
+    config = load_engine_config()
+    topics = config.get("VOFC_ENGINE_TOPICS", {})
+    
+    enhancements = []
+    
+    # Add document-specific bias
+    if file_path:
+        bias = get_document_bias(file_path)
+        if bias:
+            enhancements.append(bias)
+    
+    # Add enrichment context from learning events
+    if file_path:
+        enrichment = get_enrichment_context(file_path)
+        if enrichment:
+            enhancements.append(enrichment)
+    
+    # Add configuration-based instructions
+    if topics.get("narrative_risk", False):
+        enhancements.append("Focus on narrative risk patterns and behavioral indicators.")
+    
+    if topics.get("thematic_expansion", False):
+        target_vulns = topics.get("target_vulnerabilities_per_doc", 10)
+        target_ofcs = topics.get("target_ofcs_per_vulnerability", 3)
+        enhancements.append(
+            f"Aim to extract approximately {target_vulns} vulnerabilities per document, "
+            f"with {target_ofcs} options for consideration per vulnerability."
+        )
+    
+    # Add global themes
+    themes = config.get("themes", [])
+    if themes:
+        enhancements.append(f"Emphasize these themes: {', '.join(themes)}")
+    
+    # Combine enhancements
+    if enhancements:
+        enhancement_text = "\n".join(enhancements)
+        return f"{base_prompt}\n\n{enhancement_text}"
+    
+    return base_prompt
+
 
 def test_ollama():
     """Test Ollama connection (assumes Ollama is running as NSSM service)"""
@@ -54,15 +243,22 @@ def chat(messages, model="llama2", **kwargs):
     except Exception as e:
         raise Exception(f"Ollama chat failed: {str(e)}")
 
-def run_model(model="psa-engine:latest", prompt="", **kwargs):
+def run_model(model="psa-engine:latest", prompt="", file_path="", **kwargs):
     """
     Run Ollama model with a prompt.
     
     Uses /api/chat with format='json' to enforce JSON output (like old VOFC Engine).
     Falls back to /api/generate if chat fails.
+    
+    Args:
+        model: Model name (default: "psa-engine:latest")
+        prompt: Base prompt text
+        file_path: Optional file path for configuration-based prompt enhancement
+        **kwargs: Additional arguments to pass to Ollama API
     """
-    import logging
-    logger = logging.getLogger(__name__)
+    # Enhance prompt with configuration if file_path provided
+    if file_path:
+        prompt = build_enhanced_prompt(prompt, file_path=file_path)
     
     # Try /api/chat first with format='json' (like old VOFC Engine)
     # This forces Ollama to return valid JSON
@@ -131,19 +327,19 @@ def run_model(model="psa-engine:latest", prompt="", **kwargs):
         logger.error(f"Unexpected error in Ollama model execution: {e}")
         raise Exception(f"Ollama model execution failed: {str(e)}")
 
-def run_model_on_chunks(chunks, model="psa-engine:latest"):
+def run_model_on_chunks(chunks, model="psa-engine:latest", file_path=""):
     """
     Run Ollama model on a list of document chunks.
     
     Args:
         chunks: List of chunk dictionaries with 'content' field
         model: Ollama model name (default: "psa-engine:latest")
+        file_path: Optional file path for configuration-based prompt enhancement
     
     Returns:
         List of results, one per chunk
     """
     import json
-    import logging
     
     results = []
     
@@ -162,7 +358,7 @@ def run_model_on_chunks(chunks, model="psa-engine:latest"):
                 "filename": chunk.get('source_file', chunk.get('filename', 'unknown'))
             }
             
-            prompt = f"""Document: {chunk_meta['filename']}
+            base_prompt = f"""Document: {chunk_meta['filename']}
 Section: pages {chunk_meta['page_range']}
 Extract vulnerabilities and mitigations from this section.
 
@@ -180,8 +376,11 @@ Text:
 
 Remember: Return ONLY valid JSON, nothing else."""
             
+            # Enhance prompt with configuration
+            prompt = build_enhanced_prompt(base_prompt, file_path=file_path or chunk_meta['filename'])
+            
             # Run model on chunk
-            result_text = run_model(model=model, prompt=prompt)
+            result_text = run_model(model=model, prompt=prompt, file_path=file_path or chunk_meta['filename'])
             
             # Try to parse JSON response
             # Expected format: [{"vulnerability": "...", "option_for_consideration": "...", "confidence_score": <float>}]

@@ -16,6 +16,7 @@ except ImportError:
     Client = None
 
 # Use SUPABASE_URL (primary) or fallback to NEXT_PUBLIC_SUPABASE_URL
+# Note: These are read at module import, but get_supabase_client() will re-read them dynamically
 SUPABASE_URL = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL', '').rstrip('/')
 SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
 
@@ -24,10 +25,17 @@ supabase: Client = None
 def get_supabase_client():
     """Get or create Supabase client"""
     global supabase
-    if supabase is None:
-        if not SUPABASE_URL or not SUPABASE_KEY:
-            raise Exception("Supabase credentials not configured")
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    # Re-read environment variables each time to handle dynamic changes
+    supabase_url = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL', '').rstrip('/')
+    supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+    
+    if not supabase_url or not supabase_key:
+        raise Exception("Supabase credentials not configured")
+    
+    # Recreate client if credentials changed or client doesn't exist
+    if supabase is None or supabase_url != SUPABASE_URL or supabase_key != SUPABASE_KEY:
+        supabase = create_client(supabase_url, supabase_key)
+    
     return supabase
 
 def test_supabase():

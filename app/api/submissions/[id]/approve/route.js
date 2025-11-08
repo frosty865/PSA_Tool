@@ -229,7 +229,8 @@ export async function POST(request, { params }) {
               description: vulnerabilityText,
               discipline: v.discipline || null,
               sector_id: sectorId,
-              subsector_id: subsectorId
+              subsector_id: subsectorId,
+              severity_level: v.severity_level || null  // Copy severity level from submission
             };
             
             const { data: insertedVuln, error: vulnErr } = await supabase
@@ -423,11 +424,10 @@ export async function POST(request, { params }) {
         }
       }
     } else if (status === 'rejected') {
-      // On REJECT, optionally create negative learning events
-      console.log(`🗑️ Submission ${submissionId} rejected. Not feeding learning algorithm.`);
-      // Rejected submissions don't feed the learning algorithm - they're considered invalid
+      // On REJECT, delete the submission immediately
+      console.log(`🗑️ Submission ${submissionId} rejected. Deleting submission and related records...`);
       
-      // --- Log Audit Event for Rejection ---
+      // --- Log Audit Event BEFORE deletion ---
       try {
         await logAuditEvent(
           submissionId,
@@ -440,10 +440,68 @@ export async function POST(request, { params }) {
       } catch (auditError) {
         console.warn('⚠️ Error logging audit event (non-fatal):', auditError);
       }
+      
+      // --- Delete submission and all related records ---
+      // Delete from submission mirror tables first (due to foreign key constraints)
+      await supabase
+        .from('submission_vulnerability_ofc_links')
+        .delete()
+        .eq('submission_id', submissionId);
+      
+      await supabase
+        .from('submission_ofc_sources')
+        .delete()
+        .eq('submission_id', submissionId);
+      
+      await supabase
+        .from('submission_options_for_consideration')
+        .delete()
+        .eq('submission_id', submissionId);
+      
+      await supabase
+        .from('submission_vulnerabilities')
+        .delete()
+        .eq('submission_id', submissionId);
+      
+      await supabase
+        .from('submission_sources')
+        .delete()
+        .eq('submission_id', submissionId);
+      
+      // Finally, delete the main submission
+      const { error: deleteError } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('id', submissionId);
+      
+      if (deleteError) {
+        console.error('❌ Error deleting rejected submission:', deleteError);
+        return NextResponse.json(
+          { 
+            error: 'Failed to delete rejected submission', 
+            details: deleteError.message 
+          },
+          { status: 500 }
+        );
+      }
+      
+      console.log('✅ Rejected submission deleted successfully');
+      
+      // Return success with deleted status
+      return NextResponse.json(
+        { 
+          success: true, 
+          id: submissionId, 
+          status: 'rejected',
+          message: 'Submission rejected and deleted successfully',
+          deleted: true
+        },
+        { status: 200 }
+      );
     }
 
     // -----------------------------------------------------------------
-    // 4️⃣ Respond to client
+    // 4️⃣ Respond to client (for approved submissions)
     // -----------------------------------------------------------------
     return NextResponse.json(
       { success: true, id: submissionId, status },

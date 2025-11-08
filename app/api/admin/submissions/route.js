@@ -78,6 +78,37 @@ export async function GET(request) {
     const url = new URL(request.url)
     const status = url.searchParams.get('status') || 'pending_review'
     const source = url.searchParams.get('source') // Optional source filter
+    const countOnly = url.searchParams.get('count_only') === 'true' // If true, just return count
+
+    // If count_only is requested, return just the count from database
+    if (countOnly) {
+      let countQuery = supabase
+        .from('submissions')
+        .select('*', { count: 'exact', head: true })
+      
+      if (status) {
+        countQuery = countQuery.eq('status', status)
+      }
+      
+      if (source) {
+        countQuery = countQuery.eq('source', source)
+      }
+      
+      const { count, error: countError } = await countQuery
+      
+      if (countError) {
+        console.error('[Admin Submissions API] Count query error:', countError)
+        return NextResponse.json({ 
+          error: countError.message || 'Failed to get count',
+          code: countError.code
+        }, { status: 500 })
+      }
+      
+      return NextResponse.json({
+        success: true,
+        count: count || 0
+      })
+    }
 
     // Fetch submissions with related vulnerabilities, OFCs, sources, and OFC-source links
     let query = supabase
@@ -110,11 +141,6 @@ export async function GET(request) {
           source_url,
           author_org,
           publication_year
-        ),
-        submission_ofc_sources (
-          id,
-          ofc_id,
-          source_id
         )
       `)
       .order('created_at', { ascending: false })
@@ -136,8 +162,32 @@ export async function GET(request) {
       console.error('[Admin Submissions API] Database error:', JSON.stringify(dbError, null, 2))
       console.error('[Admin Submissions API] Query status:', status)
       console.error('[Admin Submissions API] Query source:', source)
+      console.error('[Admin Submissions API] Error code:', dbError.code)
+      console.error('[Admin Submissions API] Error message:', dbError.message)
+      console.error('[Admin Submissions API] Error hint:', dbError.hint)
+      console.error('[Admin Submissions API] Error details:', dbError.details)
+      
+      // Check for common issues
+      if (dbError.code === '42P01') {
+        // Table doesn't exist
+        return NextResponse.json({ 
+          error: `Table not found: ${dbError.message}`,
+          code: dbError.code,
+          hint: 'One of the referenced tables may not exist. Check database schema.',
+          details: dbError.details
+        }, { status: 500 })
+      } else if (dbError.code === '42501') {
+        // Permission denied (RLS)
+        return NextResponse.json({ 
+          error: 'Permission denied. Check Row Level Security policies.',
+          code: dbError.code,
+          hint: dbError.hint || 'The service role key may not have proper permissions.',
+          details: dbError.details
+        }, { status: 500 })
+      }
+      
       return NextResponse.json({ 
-        error: dbError.message,
+        error: dbError.message || 'Database query failed',
         code: dbError.code,
         hint: dbError.hint,
         details: dbError.details
@@ -260,18 +310,13 @@ export async function GET(request) {
         // Ignore parse errors
       }
       
-      // Link OFCs to their sources using submission_ofc_sources junction table
-      const ofcSourceLinks = sub.submission_ofc_sources || []
+      // Link OFCs to their sources
+      // Note: submission_ofc_sources table may not exist, so we'll use OFC's direct source fields
       const sources = sub.submission_sources || []
       const ofcs = (sub.submission_options_for_consideration || []).map(ofc => {
-        // Find all source links for this OFC
-        const links = ofcSourceLinks.filter(link => link.ofc_id === ofc.id)
-        const ofcSources = links.map(link => {
-          return sources.find(s => s.id === link.source_id)
-        }).filter(Boolean) // Remove undefined entries
-        
-        // If no sources linked via junction table, check if OFC has source info directly
-        if (ofcSources.length === 0 && (ofc.source || ofc.source_title || ofc.source_url)) {
+        // Check if OFC has source info directly
+        const ofcSources = []
+        if (ofc.source || ofc.source_title || ofc.source_url) {
           // Create a source object from OFC's own source fields
           ofcSources.push({
             id: null,

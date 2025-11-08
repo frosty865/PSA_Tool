@@ -1,0 +1,119 @@
+{
+  "version": "1.0",
+  "purpose": "Rebalance parser to achieve ≥80% extraction confidence for physical-security documents",
+  "scope": "Rebuilds Phase2_Engine pattern logic and discipline bias",
+  "target_models": ["vofc-engine", "vofc-auditor"],
+  "date": "2025-11-08",
+  "instructions": {
+    "overweight_keywords": "Keywords and sentence structures tied to facility, personnel, and physical risk contexts",
+    "underweight_cyber": "Pure cyber lexicons unless mixed with physical terms",
+    "force_discipline_override": "Physical Security if any match score ≥0.6 from pattern list",
+    "ofc_extraction": "Look for mitigation verbs and prescriptive guidance"
+  },
+  "patterns": {
+    "facility_security": [
+      "facility (lacks|does not have|is missing|has inadequate) (security plan|security manager|access control|CCTV|surveillance)",
+      "(no|lack of) (visitor control|escort policy|entry screening|guard force)",
+      "unauthorized access|tailgating|propped doors|unsecured entry|defeated locks"
+    ],
+    "perimeter_protection": [
+      "(no|lack of|inadequate) (perimeter fence|barrier|bollard|standoff|gate control)",
+      "(perimeter|fencing|barrier system) (damaged|in disrepair|not continuous)",
+      "(open|unguarded|unsecured) (gate|entrance|perimeter section)"
+    ],
+    "lighting_visibility": [
+      "(inadequate|insufficient|nonfunctional|poor) (lighting|illumination)",
+      "lighting (coverage|uniformity) below standards",
+      "(dark areas|shadow zones|blind spots) near (entrances|parking|walkways)"
+    ],
+    "access_control": [
+      "(unauthorized|uncontrolled) (entry|access)",
+      "access control system (not implemented|not functional|outdated)",
+      "(missing|no) (key control|badge system|access log)",
+      "shared credentials|uncontrolled visitor access"
+    ],
+    "surveillance_monitoring": [
+      "(no|inadequate|nonfunctional) (camera|CCTV|VSS|video surveillance system)",
+      "cameras (do not record|do not cover|have blind spots|offline)",
+      "(no|poor) monitoring of security feeds"
+    ],
+    "intrusion_detection": [
+      "(no|failed|inadequate) (alarm|intrusion detection|motion sensor|duress system)",
+      "alarms (not monitored|disabled|nonfunctional)",
+      "duress button (missing|inoperative)"
+    ],
+    "security_force_management": [
+      "(no|insufficient) (security staff|guard force|security presence)",
+      "(guards|officers) (untrained|poorly trained|no SOP)",
+      "(no|missing) (post orders|command center|shift logs)"
+    ],
+    "emergency_preparedness": [
+      "(no|lack of) (emergency plan|evacuation route|mass notification system|drills)",
+      "(plan not coordinated|plan outdated|plan untested)",
+      "no coordination with (law enforcement|first responders)"
+    ],
+    "resilience_facility_design": [
+      "(no|insufficient) blast resistance|progressive collapse|redundancy",
+      "building design lacks (standoff distance|protective glazing|security zoning)",
+      "critical systems (unprotected|exposed|co-located with public areas)"
+    ],
+    "mitigation_cues": [
+      "install|implement|establish|develop|conduct|coordinate|train|upgrade|replace|enhance",
+      "develop a (plan|policy|procedure|program)",
+      "conduct (training|exercise|drill|inspection)",
+      "coordinate with (police|fire|emergency services)",
+      "establish liaison|create MOU|improve resilience",
+      "upgrade (lighting|fence|camera|alarm|access control)"
+    ]
+  },
+  "discipline_bias": {
+    "default": "Physical Security",
+    "override_if_keywords": [
+      "facility",
+      "building",
+      "perimeter",
+      "barrier",
+      "lock",
+      "camera",
+      "lighting",
+      "guard",
+      "access control",
+      "resilience",
+      "security plan",
+      "blast",
+      "first responder"
+    ]
+  },
+  "confidence_tuning": {
+    "base_weight": 0.4,
+    "match_weight_per_pattern": 0.05,
+    "min_confidence_for_accept": 0.8,
+    "force_accept_if_discipline_bias": true,
+    "log_all_matches_above": 0.6
+  },
+  "auditor_behavior": [
+    "reject_if category == Cyber AND text_score < 0.5",
+    "approve_if discipline == Physical Security AND confidence >= 0.8",
+    "append needs review tag for 0.6–0.8 confidence range"
+  ],
+  "output_mapping": {
+    "category": "Physical",
+    "sector_guess_priority": [
+      "Government Facilities",
+      "Healthcare",
+      "Education",
+      "Commercial Facilities",
+      "Water and Wastewater Systems"
+    ],
+    "subsector_auto_tag": true,
+    "learning_event_tag": "pattern_tuning_2025-11-08"
+  },
+  "document_triggers": [
+    "Physical Security",
+    "Security Assessment",
+    "Resilience",
+    "Facility",
+    "Design Manual"
+  ]
+}
+

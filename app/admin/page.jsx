@@ -112,20 +112,32 @@ export default function AdminOverviewPage() {
     return () => { isMounted = false; clearInterval(interval) }
   }, [])
 
-  // Fetch pending review count
+  // Fetch pending review count directly from database
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const res = await fetchWithAuth('/api/admin/submissions?status=pending_review', { cache: 'no-store' })
+        // Use count_only parameter to get accurate count from database
+        const res = await fetchWithAuth('/api/admin/submissions?status=pending_review&count_only=true', { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
-          // Get the count from the response - API returns { submissions: [...] }
-          const count = Array.isArray(data.submissions) ? data.submissions.length : 
-                       (Array.isArray(data.allSubmissions) ? data.allSubmissions.length : 0)
+          // Get the count directly from the database query
+          const count = data.count ?? 0
           setPendingReviewCount(count)
         } else {
           // If error, try to keep last known value or set to null
           console.error('Failed to fetch pending review count:', res.status)
+          // Fallback: try the old method
+          try {
+            const fallbackRes = await fetchWithAuth('/api/admin/submissions?status=pending_review', { cache: 'no-store' })
+            if (fallbackRes.ok) {
+              const fallbackData = await fallbackRes.json()
+              const count = Array.isArray(fallbackData.submissions) ? fallbackData.submissions.length : 
+                           (Array.isArray(fallbackData.allSubmissions) ? fallbackData.allSubmissions.length : 0)
+              setPendingReviewCount(count)
+            }
+          } catch (fallbackErr) {
+            console.error('Fallback count fetch also failed:', fallbackErr)
+          }
         }
       } catch (err) {
         console.error('Error fetching pending review count:', err)

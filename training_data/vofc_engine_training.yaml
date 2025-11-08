@@ -1,0 +1,18 @@
+# Training configuration for external fine-tuning frameworks
+# (Hugging Face Transformers, Unsloth, Axolotl, etc.)
+# Ollama's native 'create' command does not support this format
+
+model: llama3:instruct
+adapter: qlora
+datasets:
+  - path: training_data/
+    format: json
+train:
+  epochs: 2
+  lr: 1e-5
+  batch: 2
+output: D:\OllamaModels\vofc-engine-v2
+tags:
+  - vofc
+  - narrative_risk
+  - behavioral_analysis

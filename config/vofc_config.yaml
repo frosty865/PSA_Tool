@@ -1,0 +1,61 @@
+# VOFC Engine Configuration
+# This file configures the VOFC (Vulnerability and Options for Consideration) extraction engine
+
+VOFC_ENGINE_TOPICS:
+  # Enable narrative risk pattern detection
+  narrative_risk: true
+  
+  # Enable thematic expansion (look for related themes)
+  thematic_expansion: true
+  
+  # Target number of vulnerabilities to extract per document
+  target_vulnerabilities_per_doc: 10
+  
+  # Target number of OFCs per vulnerability
+  target_ofcs_per_vulnerability: 3
+
+# Document-specific prompt biases
+# These are applied when processing documents matching the pattern
+document_biases:
+  "USSS":
+    prompts:
+      - "Focus on systemic and behavioral vulnerabilities, not IT or cyber."
+      - "Look for narrative findings and recommended actions."
+      - "Emphasize threat assessment, leakage indicators, and behavioral patterns."
+  
+  "Averting":
+    prompts:
+      - "Focus on systemic and behavioral vulnerabilities, not IT or cyber."
+      - "Look for narrative findings and recommended actions."
+  
+  "NTAC":
+    prompts:
+      - "Focus on protective intelligence and threat assessment methodologies."
+      - "Look for behavioral indicators and information sharing patterns."
+  
+  "FBI":
+    prompts:
+      - "Focus on school safety and prevention strategies."
+      - "Emphasize behavioral threat assessment and intervention."
+
+# Global themes to emphasize in all documents
+themes: []
+
+# Model configuration
+model:
+  default: "vofc-engine:latest"
+  fallback: "llama3:instruct"
+  
+# Training configuration
+training:
+  # Path to training data directory
+  data_path: "C:/Tools/Ollama/training_data"
+  
+  # Output path for trained models
+  output_path: "D:/OllamaModels"
+  
+  # Training parameters
+  epochs: 2
+  learning_rate: 1e-5
+  batch_size: 2
+

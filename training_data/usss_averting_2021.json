@@ -1,0 +1,96 @@
+{
+  "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+  "processed_at": "2025-11-08T04:24:27.541187",
+  "vulnerabilities": [
+    {
+      "vulnerability": "Absence of formal threat-assessment programs or inconsistent team operation.",
+      "category": "Procedural",
+      "discipline": "Behavioral Threat Assessment",
+      "ofcs": [
+        "Establish multidisciplinary behavioral threat assessment teams.",
+        "Adopt standardized operating procedures aligned with REMS and USSS NTAC guidance."
+      ]
+    },
+    {
+      "vulnerability": "Leakage of intent or threats not acted upon by peers or staff.",
+      "category": "Awareness",
+      "discipline": "Reporting Systems",
+      "ofcs": [
+        "Implement anonymous reporting systems (Safe2Tell, Stop It).",
+        "Train staff and students to identify and report warning behaviors."
+      ]
+    },
+    {
+      "vulnerability": "Information silos between schools, law enforcement, and mental health providers.",
+      "category": "Coordination",
+      "discipline": "Information Sharing",
+      "ofcs": [
+        "Develop MOUs for information sharing within FERPA/HIPAA bounds.",
+        "Assign liaison officers to connect school, police, and behavioral health resources."
+      ]
+    },
+    {
+      "vulnerability": "Disciplinary removals without follow-up support or reintegration.",
+      "category": "Policy",
+      "discipline": "Discipline & Reintegration",
+      "ofcs": [
+        "Pair disciplinary actions with re-entry plans and monitoring.",
+        "Coordinate with counselors to maintain engagement post-incident."
+      ]
+    },
+    {
+      "vulnerability": "Concerning behaviors observed by multiple staff not linked together.",
+      "category": "Procedural",
+      "discipline": "Incident Reporting",
+      "ofcs": [
+        "Centralize behavior reports in a single digital system.",
+        "Ensure threat teams can review cross-staff observations in real time."
+      ]
+    },
+    {
+      "vulnerability": "Lack of accessible mental-health resources for at-risk students.",
+      "category": "Resilience",
+      "discipline": "Mental Health Integration",
+      "ofcs": [
+        "Expand partnerships with community mental-health providers.",
+        "Embed counselors and social workers in threat-assessment teams."
+      ]
+    },
+    {
+      "vulnerability": "No proactive monitoring of social-media indicators.",
+      "category": "Technology",
+      "discipline": "Social Media Awareness",
+      "ofcs": [
+        "Develop policies for monitoring public social-media threats.",
+        "Train staff on recognizing online indicators of targeted violence."
+      ]
+    },
+    {
+      "vulnerability": "Unsecured access to firearms in homes of subjects.",
+      "category": "Physical",
+      "discipline": "Firearm Access Control",
+      "ofcs": [
+        "Conduct firearm-safety and secure-storage awareness campaigns.",
+        "Work with law enforcement for temporary removal under risk-protection laws."
+      ]
+    },
+    {
+      "vulnerability": "Lack of structured after-action reviews following averted attacks.",
+      "category": "Programmatic",
+      "discipline": "Continuous Improvement",
+      "ofcs": [
+        "Create post-incident review processes to capture lessons learned.",
+        "Update threat-assessment protocols after every averted incident."
+      ]
+    },
+    {
+      "vulnerability": "Negative or exclusionary school climate fostering alienation.",
+      "category": "Cultural",
+      "discipline": "School Climate & Inclusion",
+      "ofcs": [
+        "Implement social-emotional learning and anti-bullying programs.",
+        "Promote inclusive activities and mentorship opportunities."
+      ]
+    }
+  ]
+}

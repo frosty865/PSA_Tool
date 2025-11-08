@@ -327,7 +327,7 @@ Remember: Return ONLY valid JSON, nothing else."""
         
         try:
             model_call_start = time.time()
-            result_text = run_model(model=model_name, prompt=prompt)
+            result_text = run_model(model=model_name, prompt=prompt, file_path=str(filepath))
             model_call_duration = time.time() - model_call_start
             
             if not result_text or not result_text.strip():
@@ -420,6 +420,13 @@ def phase2_engine(parser_output: Dict[str, Any], filepath: Path) -> Dict[str, An
         Dictionary with normalized, validated JSON
     """
     import threading
+    from services.physical_security_heuristics import (
+        should_apply_physical_security_heuristics,
+        get_physical_security_prompt_enhancement,
+        load_physical_security_patterns,
+        apply_physical_security_heuristics
+    )
+    
     model_name = "vofc-engine:latest"
     thread_id = threading.current_thread().ident
     thread_name = threading.current_thread().name
@@ -438,6 +445,52 @@ def phase2_engine(parser_output: Dict[str, Any], filepath: Path) -> Dict[str, An
     
     logging.info(f"   - Input records: {len(records)}")
     
+    # Check if physical security heuristics should be applied
+    document_title = parser_output.get("source_title", "") or filepath.stem
+    use_physical_security = should_apply_physical_security_heuristics(filepath, document_title)
+    
+    # Try pattern-based extraction first for physical security documents
+    pattern_based_records = []
+    if use_physical_security:
+        try:
+            from services.phase2_engine import run_phase2_engine as run_pattern_engine
+            logging.info("   🔒 Attempting pattern-based extraction for physical security document...")
+            
+            # Convert parser records to chunk format for pattern engine
+            chunks_for_patterns = []
+            for record in records:
+                chunk = {
+                    "text": record.get("vulnerability") or record.get("text") or "",
+                    "content": record.get("vulnerability") or record.get("text") or "",
+                    "chunk_id": record.get("chunk_id", ""),
+                    "page_ref": record.get("page_ref") or record.get("page_range", ""),
+                    "section": record.get("section") or record.get("citations", [""])[0] if record.get("citations") else ""
+                }
+                if chunk["text"]:
+                    chunks_for_patterns.append(chunk)
+            
+            if chunks_for_patterns:
+                pattern_based_records = run_pattern_engine(chunks_for_patterns, filepath)
+                if pattern_based_records:
+                    logging.info(f"   ✅ Pattern-based extraction found {len(pattern_based_records)} high-confidence records")
+                    # Merge with existing records, preferring pattern-based for physical security
+                    # Add pattern-based records that aren't duplicates
+                    existing_texts = {r.get("vulnerability", "").lower()[:100] for r in records}
+                    for pbr in pattern_based_records:
+                        pbr_text = pbr.get("vulnerability", "").lower()[:100]
+                        if pbr_text not in existing_texts:
+                            records.append(pbr)
+                            existing_texts.add(pbr_text)
+        except Exception as pattern_err:
+            logging.warning(f"   ⚠️  Pattern-based extraction failed: {pattern_err}, continuing with Ollama-based approach")
+    
+    if use_physical_security:
+        logging.info("   🔒 Physical Security heuristics enabled for Ollama model")
+        patterns = load_physical_security_patterns()
+        physical_prompt = get_physical_security_prompt_enhancement(patterns) if patterns else ""
+    else:
+        physical_prompt = ""
+    
     # Prepare input for engine (consolidate all records)
     input_json = json.dumps(records, indent=2)
     input_size = len(input_json)
@@ -451,6 +504,8 @@ Normalize and validate the following parser output:
 - Link OFCs to vulnerabilities
 - Apply confidence scores
 - Ensure citation consistency
+
+{physical_prompt}
 
 CRITICAL: Respond ONLY in valid JSON. No markdown, no explanations, no code blocks.
 
@@ -499,6 +554,11 @@ Return normalized, deduplicated records. If no valid data, return: []"""
         parsed = json.loads(json_text)
         engine_records = parsed if isinstance(parsed, list) else [parsed] if isinstance(parsed, dict) else []
         
+        # Apply physical security heuristics if enabled
+        if use_physical_security:
+            engine_records = apply_physical_security_heuristics(engine_records, filepath, document_title)
+            logging.info(f"   - Applied physical security heuristics: {len(engine_records)} records")
+        
         total_duration = time.time() - start_time
         logging.info(f"   [Phase 2] COMPLETE: {len(engine_records)} normalized records")
         logging.info(f"      - Input: {input_count} records")
@@ -540,6 +600,12 @@ def phase3_auditor(engine_output: Dict[str, Any], filepath: Path) -> Dict[str, A
         Dictionary with audited JSON + metadata (accepted/rejected/needs_review)
     """
     import threading
+    from services.physical_security_heuristics import (
+        should_apply_physical_security_heuristics,
+        get_physical_security_prompt_enhancement,
+        load_physical_security_patterns
+    )
+    
     model_name = "vofc-auditor:latest"
     thread_id = threading.current_thread().ident
     thread_name = threading.current_thread().name
@@ -558,10 +624,51 @@ def phase3_auditor(engine_output: Dict[str, Any], filepath: Path) -> Dict[str, A
     
     logging.info(f"   - Input records: {len(records)}")
     
-    # Prepare input for auditor
-    input_json = json.dumps(records, indent=2)
+    # Check if physical security heuristics should be applied
+    document_title = engine_output.get("source_title", "") or filepath.stem
+    use_physical_security = should_apply_physical_security_heuristics(filepath, document_title)
+    
+    # Apply pattern-based auditor first (confidence gates)
+    try:
+        from services.phase3_auditor import audit_records as pattern_audit
+        logging.info("   🔍 Applying pattern-based confidence gates...")
+        audit_results = pattern_audit(records, use_physical_security)
+        
+        accepted = audit_results.get("accepted", [])
+        needs_review = audit_results.get("needs_review", [])
+        rejected = audit_results.get("rejected", [])
+        summary = audit_results.get("summary", {})
+        
+        logging.info(f"   ✅ Pattern audit: {len(accepted)} accepted, {len(needs_review)} needs review, {len(rejected)} rejected")
+        
+        # Use accepted records for Ollama validation (optional enhancement)
+        records_for_ollama = accepted + needs_review  # Include needs_review for potential Ollama re-evaluation
+    except Exception as pattern_audit_err:
+        logging.warning(f"   ⚠️  Pattern-based audit failed: {pattern_audit_err}, using all records for Ollama")
+        records_for_ollama = records
+        accepted = []
+        needs_review = []
+        rejected = []
+        summary = {}
+    
+    if use_physical_security:
+        logging.info("   🔒 Physical Security heuristics enabled for Ollama auditor")
+        patterns = load_physical_security_patterns()
+        physical_prompt = get_physical_security_prompt_enhancement(patterns) if patterns else ""
+        
+        # Add auditor-specific instructions
+        auditor_behavior = patterns.get("auditor_behavior", []) if patterns else []
+        if auditor_behavior:
+            physical_prompt += "\n\nAUDITOR RULES FOR PHYSICAL SECURITY:\n"
+            for rule in auditor_behavior:
+                physical_prompt += f"- {rule}\n"
+    else:
+        physical_prompt = ""
+    
+    # Prepare input for Ollama auditor (use records that passed pattern audit)
+    input_json = json.dumps(records_for_ollama, indent=2)
     input_size = len(input_json)
-    logging.info(f"   - Input JSON size: {input_size} characters")
+    logging.info(f"   - Input JSON size: {input_size} characters (after pattern audit)")
     
     prompt = f"""You are a quality assurance auditor for security assessments.
 
@@ -570,6 +677,8 @@ Review and validate the following normalized records:
 - Identify missing categories or citations
 - Suggest corrections or merges
 - Mark records as: accepted, rejected, or needs_review
+
+{physical_prompt}
 
 CRITICAL: Respond ONLY in valid JSON. No markdown, no explanations, no code blocks.
 
@@ -612,14 +721,32 @@ Return audited records with status. If no valid data, return: {{"records": [], "
         
         if not result_text or not result_text.strip():
             logging.warning(f"   ⚠️  Phase 3: Empty response from auditor (duration: {model_call_duration:.2f}s)")
-            logging.warning("   - Marking all records as accepted (fallback)")
-            # Fallback: mark all as accepted
-            return {
-                "records": records,
-                "phase": "auditor",
-                "count": len(records),
-                "metadata": {"status": "accepted_all", "total": len(records), "accepted": len(records)}
-            }
+            # Fallback: use pattern-based audit results if available, otherwise accept all
+            if 'accepted' in locals() and accepted:
+                logging.warning("   - Using pattern-based audit results (fallback)")
+                merged_metadata = {
+                    "total_records": input_count,
+                    "accepted": len(accepted),
+                    "rejected": len(rejected),
+                    "needs_review": len(needs_review),
+                    "accepted_pct": round((len(accepted) / input_count) * 100, 1) if input_count else 0,
+                    "pattern_audit": summary,
+                    "ollama_audit": {"status": "failed", "error": "empty_response"}
+                }
+                return {
+                    "records": accepted + needs_review,  # Include needs_review in output
+                    "phase": "auditor",
+                    "count": len(accepted) + len(needs_review),
+                    "metadata": merged_metadata
+                }
+            else:
+                logging.warning("   - Marking all records as accepted (fallback)")
+                return {
+                    "records": records,
+                    "phase": "auditor",
+                    "count": len(records),
+                    "metadata": {"status": "accepted_all", "total": len(records), "accepted": len(records)}
+                }
         
         response_size = len(result_text)
         logging.info(f"   - ✅ Model response received (duration: {model_call_duration:.2f}s, size: {response_size} chars)")
@@ -636,57 +763,217 @@ Return audited records with status. If no valid data, return: {{"records": [], "
         
         # Handle both formats: direct array or object with records/metadata
         if isinstance(parsed, list):
-            auditor_records = parsed
-            metadata = {"status": "accepted_all", "total": len(auditor_records), "accepted": len(auditor_records)}
-            logging.info(f"   - Parsed list response: {len(auditor_records)} records")
+            ollama_auditor_records = parsed
+            ollama_metadata = {"status": "accepted_all", "total": len(ollama_auditor_records), "accepted": len(ollama_auditor_records)}
+            logging.info(f"   - Parsed list response: {len(ollama_auditor_records)} records")
         elif isinstance(parsed, dict):
-            auditor_records = parsed.get("records", records)
-            metadata = parsed.get("metadata", {"status": "accepted_all", "total": len(auditor_records)})
-            logging.info(f"   - Parsed dict response: {len(auditor_records)} records, metadata: {metadata}")
+            ollama_auditor_records = parsed.get("records", records_for_ollama)
+            ollama_metadata = parsed.get("metadata", {"status": "accepted_all", "total": len(ollama_auditor_records)})
+            logging.info(f"   - Parsed dict response: {len(ollama_auditor_records)} records, metadata: {ollama_metadata}")
         else:
-            auditor_records = records
-            metadata = {"status": "error", "total": len(records)}
+            ollama_auditor_records = records_for_ollama
+            ollama_metadata = {"status": "error", "total": len(records_for_ollama)}
             logging.warning(f"   - ⚠️  Unexpected response type: {type(parsed)}")
         
+        # Merge pattern-based audit results with Ollama results
+        # Prefer pattern-based accepted records, then Ollama accepted, then needs_review
+        final_records = []
+        final_accepted = len(accepted)  # Start with pattern-based accepted
+        final_rejected = len(rejected)  # Start with pattern-based rejected
+        final_needs_review = len(needs_review)  # Start with pattern-based needs_review
+        
+        # Add pattern-based accepted records
+        final_records.extend(accepted)
+        
+        # Add Ollama-accepted records that weren't already accepted
+        accepted_texts = {r.get("vulnerability", "").lower()[:100] for r in accepted}
+        for ollama_rec in ollama_auditor_records:
+            if ollama_rec.get("audit_status") == "accepted":
+                ollama_text = ollama_rec.get("vulnerability", "").lower()[:100]
+                if ollama_text not in accepted_texts:
+                    final_records.append(ollama_rec)
+                    final_accepted += 1
+                    accepted_texts.add(ollama_text)
+            elif ollama_rec.get("audit_status") == "needs_review":
+                # Only add if not already in accepted
+                ollama_text = ollama_rec.get("vulnerability", "").lower()[:100]
+                if ollama_text not in accepted_texts:
+                    final_records.append(ollama_rec)
+                    final_needs_review += 1
+        
+        # Add pattern-based needs_review records that weren't accepted by Ollama
+        needs_review_texts = {r.get("vulnerability", "").lower()[:100] for r in final_records}
+        for review_rec in needs_review:
+            review_text = review_rec.get("vulnerability", "").lower()[:100]
+            if review_text not in needs_review_texts:
+                final_records.append(review_rec)
+                needs_review_texts.add(review_text)
+        
+        # Merge metadata
+        merged_metadata = {
+            "total_records": input_count,
+            "accepted": final_accepted,
+            "rejected": final_rejected,
+            "needs_review": final_needs_review,
+            "accepted_pct": round((final_accepted / input_count) * 100, 1) if input_count else 0,
+            "pattern_audit": summary,
+            "ollama_audit": ollama_metadata
+        }
+        
         total_duration = time.time() - start_time
-        logging.info(f"   [Phase 3] COMPLETE: {len(auditor_records)} audited records")
+        logging.info(f"   [Phase 3] COMPLETE: {len(final_records)} final audited records")
         logging.info(f"      - Input: {input_count} records")
-        logging.info(f"      - Output: {len(auditor_records)} records")
-        if metadata:
-            accepted = metadata.get("accepted", 0)
-            rejected = metadata.get("rejected", 0)
-            needs_review = metadata.get("needs_review", 0)
-            logging.info(f"      - Audit status: {accepted} accepted, {rejected} rejected, {needs_review} needs_review")
+        logging.info(f"      - Output: {len(final_records)} records")
+        logging.info(f"      - Final audit status: {final_accepted} accepted ({merged_metadata['accepted_pct']}%), {final_rejected} rejected, {final_needs_review} needs_review")
         logging.info(f"      - Total duration: {total_duration:.2f}s")
         
-        return {"records": auditor_records, "phase": "auditor", "count": len(auditor_records), "metadata": metadata}
+        return {"records": final_records, "phase": "auditor", "count": len(final_records), "metadata": merged_metadata}
         
     except json.JSONDecodeError as je:
         total_duration = time.time() - start_time
         logging.error(f"   ❌ Phase 3: Failed to parse JSON from auditor: {je}")
         logging.error(f"      - Response preview: {result_text[:200] if 'result_text' in locals() else 'N/A'}...")
         logging.error(f"      - Duration: {total_duration:.2f}s")
-        logging.warning(f"   - Marking all records as accepted (fallback)")
-        # Fallback: mark all as accepted
-        return {
-            "records": records,
-            "phase": "auditor",
-            "count": len(records),
-            "metadata": {"status": "auditor_parse_failed", "total": len(records), "accepted": len(records), "error": str(je)}
-        }
+        # Fallback: use pattern-based audit results if available
+        if 'accepted' in locals() and accepted:
+            logging.warning(f"   - Using pattern-based audit results (fallback)")
+            merged_metadata = {
+                "total_records": input_count,
+                "accepted": len(accepted),
+                "rejected": len(rejected),
+                "needs_review": len(needs_review),
+                "accepted_pct": round((len(accepted) / input_count) * 100, 1) if input_count else 0,
+                "pattern_audit": summary,
+                "ollama_audit": {"status": "failed", "error": "json_parse_error"}
+            }
+            return {
+                "records": accepted + needs_review,
+                "phase": "auditor",
+                "count": len(accepted) + len(needs_review),
+                "metadata": merged_metadata
+            }
+        else:
+            logging.warning(f"   - Marking all records as accepted (fallback)")
+            return {
+                "records": records,
+                "phase": "auditor",
+                "count": len(records),
+                "metadata": {"status": "auditor_parse_failed", "total": len(records), "accepted": len(records), "error": str(je)}
+            }
     except Exception as e:
         total_duration = time.time() - start_time
         logging.error(f"   ❌ Phase 3: Auditor failed: {type(e).__name__}: {e}")
         logging.error(f"      - Duration: {total_duration:.2f}s")
         logging.error(f"      - Traceback: {traceback.format_exc()}")
-        logging.warning(f"   - Marking all records as accepted (fallback)")
-        # Fallback: mark all as accepted
-        return {
-            "records": records,
-            "phase": "auditor",
-            "count": len(records),
-            "metadata": {"status": "auditor_error", "total": len(records), "accepted": len(records)}
-        }
+        # Fallback: use pattern-based audit results if available
+        if 'accepted' in locals() and accepted:
+            logging.warning(f"   - Using pattern-based audit results (fallback)")
+            merged_metadata = {
+                "total_records": input_count,
+                "accepted": len(accepted),
+                "rejected": len(rejected),
+                "needs_review": len(needs_review),
+                "accepted_pct": round((len(accepted) / input_count) * 100, 1) if input_count else 0,
+                "pattern_audit": summary,
+                "ollama_audit": {"status": "failed", "error": str(e)}
+            }
+            return {
+                "records": accepted + needs_review,
+                "phase": "auditor",
+                "count": len(accepted) + len(needs_review),
+                "metadata": merged_metadata
+            }
+        else:
+            logging.warning(f"   - Marking all records as accepted (fallback)")
+            return {
+                "records": records,
+                "phase": "auditor",
+                "count": len(records),
+                "metadata": {"status": "auditor_error", "total": len(records), "accepted": len(records)}
+            }
+
+
+def _convert_matrix_survey_to_pipeline_format(parsed: Dict[str, Any], filepath: Path) -> Dict[str, Any]:
+    """
+    Convert matrix survey parser output to standard pipeline format.
+    
+    Args:
+        parsed: Matrix survey parser output
+        filepath: Path to source file
+        
+    Returns:
+        Dictionary in standard pipeline format with vulnerabilities and OFCs
+    """
+    records = []
+    
+    # Extract vulnerabilities and OFCs from matrix survey structure
+    for section in parsed.get("sections", []):
+        section_title = section.get("section_title", "General")
+        for vg in section.get("vulnerability_groups", []):
+            question = vg.get("question", "")
+            background = vg.get("background", "")
+            references = vg.get("references", [])
+            
+            for level in vg.get("levels", []):
+                severity = level.get("severity", "Medium")
+                vulnerability_text = level.get("vulnerability_text", "")
+                ofcs = level.get("ofcs", [])
+                
+                # Create vulnerability record
+                vuln_record = {
+                    "vulnerability": vulnerability_text or question,
+                    "severity_level": severity,
+                    "category": section_title,
+                    "page_ref": "1",  # Matrix surveys don't have page numbers
+                    "chunk_id": f"{filepath.stem}_matrix_{len(records)}",
+                    "options_for_consideration": ofcs,
+                    "background": background,
+                    "references": references if isinstance(references, list) else [references] if references else [],
+                    "audit_status": "accepted"
+                }
+                records.append(vuln_record)
+    
+    # Post-process records (same as normal pipeline)
+    postprocessed = postprocess_results(records)
+    
+    # Build final result structure matching pipeline format
+    result = {
+        "source_file": filepath.name,
+        "processed_at": datetime.now().isoformat(),
+        "handler": "matrix_survey_parser",
+        "parser_version": parsed.get("parser_version", "1.1.0"),
+        "document_type": parsed.get("document_type", "Matrix Survey"),
+        "vulnerabilities": [
+            {
+                "vulnerability": r.get("vulnerability", ""),
+                "discipline_id": r.get("discipline_id"),
+                "category": r.get("category"),
+                "sector_id": r.get("sector_id"),
+                "subsector_id": r.get("subsector_id"),
+                "page_ref": r.get("page_ref"),
+                "chunk_id": r.get("chunk_id"),
+                "severity_level": r.get("severity_level", "Medium"),
+                "audit_status": r.get("audit_status", "accepted")
+            }
+            for r in postprocessed
+        ],
+        "options_for_consideration": [
+            {
+                "option_text": ofc,
+                "vulnerability": r.get("vulnerability", ""),
+                "discipline_id": r.get("discipline_id"),
+                "sector_id": r.get("sector_id"),
+                "subsector_id": r.get("subsector_id"),
+                "audit_status": r.get("audit_status", "accepted")
+            }
+            for r in postprocessed
+            for ofc in r.get("options_for_consideration", [])
+        ],
+        "summary": f"Processed {filepath.name} via matrix survey parser: {len(postprocessed)} vulnerabilities, {sum(len(r.get('options_for_consideration', [])) for r in postprocessed)} OFCs",
+        "records": postprocessed  # Include full records for compatibility
+    }
+    
+    return result
 
 
 def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
@@ -749,6 +1036,25 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
             # Step 3: Normalize once (after concatenation, not per page)
             normalized = normalize_text(all_text)
             
+            # --- Invisible DHS-style matrix survey handler ---
+            try:
+                from services.processing.parse_matrix_survey import MatrixSurveyParser
+                if MatrixSurveyParser.detect(normalized):
+                    logging.info(f"[AUTO] Detected DHS-style matrix format: {filepath.name}")
+                    parsed = MatrixSurveyParser.parse(normalized, filepath.name)
+                    if not parsed.get("_matrix_parser_failed"):
+                        # Convert matrix survey format to standard pipeline format
+                        result = _convert_matrix_survey_to_pipeline_format(parsed, filepath)
+                        logging.info(f"✅ Matrix survey parser completed for {filepath.name}")
+                        return result
+                    else:
+                        logging.warning(f"[AUTO] Matrix parser declined ({parsed.get('reason')}). Falling back to model.")
+                else:
+                    logging.debug(f"[AUTO] Not a matrix survey: {filepath.name}")
+            except Exception as e:
+                logging.exception(f"[AUTO] Matrix parser exception for {filepath.name}: {e}")
+                # Continue to normal processing
+            
             # Step 4: Chunk once (not per page)
             # Reduced chunk size to 1500 to prevent timeout/token overflow
             chunks = chunk_text(normalized, max_chars=1500)
@@ -808,6 +1114,31 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
         else:
             # Fallback to standard preprocessing (for non-PDF or if PyMuPDF unavailable)
             logging.info(f"Using standard preprocessing for {filepath.name}...")
+            
+            # Extract and normalize text for matrix survey detection
+            from services.preprocess import extract_text, normalize_text as normalize_text_func
+            raw_text = extract_text(str(filepath))
+            normalized = normalize_text_func(raw_text)
+            
+            # --- Invisible DHS-style matrix survey handler ---
+            try:
+                from services.processing.parse_matrix_survey import MatrixSurveyParser
+                if MatrixSurveyParser.detect(normalized):
+                    logging.info(f"[AUTO] Detected DHS-style matrix format: {filepath.name}")
+                    parsed = MatrixSurveyParser.parse(normalized, filepath.name)
+                    if not parsed.get("_matrix_parser_failed"):
+                        # Convert matrix survey format to standard pipeline format
+                        result = _convert_matrix_survey_to_pipeline_format(parsed, filepath)
+                        logging.info(f"✅ Matrix survey parser completed for {filepath.name}")
+                        return result
+                    else:
+                        logging.warning(f"[AUTO] Matrix parser declined ({parsed.get('reason')}). Falling back to model.")
+                else:
+                    logging.debug(f"[AUTO] Not a matrix survey: {filepath.name}")
+            except Exception as e:
+                logging.exception(f"[AUTO] Matrix parser exception for {filepath.name}: {e}")
+                # Continue to normal processing
+            
             chunks = preprocess_document(str(filepath), max_chars=1500)
             
             if not chunks:
@@ -860,16 +1191,33 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
             parser_output = {"records": [], "phase": "parser", "count": 0, "error": str(phase1_err)}
             temp_outputs["phase1_parser"] = parser_output
         
-        # If Phase 1 failed or returned no records, try using vofc-engine directly as fallback
+        # If Phase 1 failed or returned no records, try pattern-based extraction first, then Ollama fallback
         if not parser_output.get("records"):
-            logging.warning(f"Phase 1 returned no records, trying fallback to vofc-engine:latest...")
-            try:
-                # Fallback: Use vofc-engine directly on chunks
-                model_name = "vofc-engine:latest"
-                all_chunk_text = "\n\n".join([chunk.get("content", "") or chunk.get("text", "") for chunk in chunks_for_parser])
-                # Limit chunk text to prevent overflow
-                limited_text = all_chunk_text[:5000]
-                fallback_prompt = f"""Extract vulnerabilities and options for consideration from this document.
+            # Check if this is a physical security document and try pattern-based extraction
+            from services.physical_security_heuristics import should_apply_physical_security_heuristics
+            use_physical_security = should_apply_physical_security_heuristics(filepath, filepath.stem)
+            
+            if use_physical_security:
+                try:
+                    from services.phase2_engine import run_phase2_engine as run_pattern_engine
+                    logging.warning(f"Phase 1 returned no records, trying pattern-based extraction for physical security document...")
+                    pattern_records = run_pattern_engine(chunks_for_parser, filepath)
+                    if pattern_records:
+                        parser_output = {"records": pattern_records, "phase": "parser_pattern_fallback", "count": len(pattern_records)}
+                        logging.info(f"Pattern-based extraction succeeded: {len(pattern_records)} records")
+                except Exception as pattern_err:
+                    logging.warning(f"Pattern-based extraction failed: {pattern_err}, trying Ollama fallback...")
+            
+            # If pattern-based didn't work or not a physical security doc, try Ollama fallback
+            if not parser_output.get("records"):
+                logging.warning(f"Trying fallback to vofc-engine:latest...")
+                try:
+                    # Fallback: Use vofc-engine directly on chunks
+                    model_name = "vofc-engine:latest"
+                    all_chunk_text = "\n\n".join([chunk.get("content", "") or chunk.get("text", "") for chunk in chunks_for_parser])
+                    # Limit chunk text to prevent overflow
+                    limited_text = all_chunk_text[:5000]
+                    fallback_prompt = f"""Extract vulnerabilities and options for consideration from this document.
 
 CRITICAL: Respond ONLY in valid JSON array format. No markdown, no explanations.
 
@@ -882,20 +1230,20 @@ Text:
 {limited_text}
 
 Return ONLY valid JSON array."""
-                
-                result_text = run_model(model=model_name, prompt=fallback_prompt)
-                if result_text and result_text.strip():
-                    json_text = result_text.strip()
-                    if json_text.startswith("```"):
-                        lines = json_text.split("\n")
-                        json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
-                    parsed = json.loads(json_text)
-                    fallback_records = parsed if isinstance(parsed, list) else [parsed] if isinstance(parsed, dict) else []
-                    if fallback_records:
-                        parser_output = {"records": fallback_records, "phase": "parser_fallback", "count": len(fallback_records)}
-                        logging.info(f"Fallback to {model_name} succeeded: {len(fallback_records)} records")
-            except Exception as fallback_err:
-                logging.error(f"Fallback to vofc-engine also failed: {fallback_err}")
+                    
+                    result_text = run_model(model=model_name, prompt=fallback_prompt, file_path=str(filepath))
+                    if result_text and result_text.strip():
+                        json_text = result_text.strip()
+                        if json_text.startswith("```"):
+                            lines = json_text.split("\n")
+                            json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
+                        parsed = json.loads(json_text)
+                        fallback_records = parsed if isinstance(parsed, list) else [parsed] if isinstance(parsed, dict) else []
+                        if fallback_records:
+                            parser_output = {"records": fallback_records, "phase": "parser_fallback", "count": len(fallback_records)}
+                            logging.info(f"Fallback to {model_name} succeeded: {len(fallback_records)} records")
+                except Exception as fallback_err:
+                    logging.error(f"Fallback to vofc-engine also failed: {fallback_err}")
         
         # Phase 2: Engine
         engine_output = None
@@ -1079,6 +1427,20 @@ def handle_successful_processing(filepath: Path, result: Dict[str, Any]) -> None
         try:
             from services.supabase_sync import sync_processed_result
             logging.info(f"📤 Syncing {review_path.name} to Supabase...")
+            logging.info(f"   Review file exists: {review_path.exists()}")
+            logging.info(f"   Review file size: {review_path.stat().st_size if review_path.exists() else 0} bytes")
+            
+            # Verify the JSON structure before syncing
+            try:
+                with open(review_path, "r", encoding="utf-8") as f:
+                    test_data = json.load(f)
+                    vuln_count = len(test_data.get("vulnerabilities", []))
+                    ofc_count = len(test_data.get("options_for_consideration", []))
+                    logging.info(f"   JSON structure check: {vuln_count} vulnerabilities, {ofc_count} OFCs")
+                    logging.info(f"   JSON keys: {list(test_data.keys())}")
+            except Exception as json_err:
+                logging.warning(f"   Warning: Could not verify JSON structure: {json_err}")
+            
             submission_id = sync_processed_result(str(review_path), submitter_email="system@psa.local")
             logging.info(f"✅ Created submission {submission_id} for review")
         except Exception as sync_err:
@@ -1087,6 +1449,26 @@ def handle_successful_processing(filepath: Path, result: Dict[str, Any]) -> None
             import traceback
             logging.error(f"   Traceback: {traceback.format_exc()}")
             # Don't fail the whole process if sync fails, but log the error clearly
+            # Also print to console for visibility
+            print(f"❌ SUPABASE SYNC FAILED for {filepath.name}: {sync_err}")
+            print(f"   Full traceback: {traceback.format_exc()}")
+        
+        # Clean up temp files from review/temp for this document
+        try:
+            temp_patterns = [
+                f"{filename}_phase1_parser.json",
+                f"{filename}_phase2_engine.json",
+                f"{filename}_phase3_auditor.json",
+                f"{filename}_error.json"
+            ]
+            for pattern in temp_patterns:
+                temp_file = REVIEW_TEMP_DIR / pattern
+                if temp_file.exists():
+                    temp_file.unlink()
+                    logging.info(f"🧹 Cleaned up temp file: {temp_file.name}")
+        except Exception as cleanup_err:
+            logging.warning(f"Failed to clean up temp files for {filename}: {cleanup_err}")
+            # Don't fail the whole process if cleanup fails
         
     except Exception as e:
         logging.error(f"Error handling successful processing for {filepath.name}: {e}")
@@ -1951,12 +2333,13 @@ def cleanup_review_temp_files() -> None:
         for temp_file in temp_files:
             # Extract base name (e.g., "document_phase3_auditor.json" -> "document")
             base_name = temp_file.stem
-            if "_phase1_parser" in base_name:
-                base_name = base_name.replace("_phase1_parser", "")
+            # Remove phase suffixes (order matters - check longer patterns first)
+            if "_phase3_auditor" in base_name:
+                base_name = base_name.replace("_phase3_auditor", "")
             elif "_phase2_engine" in base_name:
                 base_name = base_name.replace("_phase2_engine", "")
-            elif "_phase3_auditor" in base_name:
-                base_name = base_name.replace("_phase3_auditor", "")
+            elif "_phase1_parser" in base_name:
+                base_name = base_name.replace("_phase1_parser", "")
             elif "_error" in base_name:
                 base_name = base_name.replace("_error", "")
             
@@ -1968,11 +2351,18 @@ def cleanup_review_temp_files() -> None:
         reconstructed_count = 0
         
         for base_name, group_files in file_groups.items():
-            # Check if final output already exists
+            logging.info(f"Processing group: {base_name} ({len(group_files)} temp file(s))")
+            
+            # Check if final output already exists (try multiple naming patterns)
             final_processed = PROCESSED_DIR / f"{base_name}_vofc.json"
             final_review = REVIEW_DIR / f"{base_name}_vofc.json"
             
-            if final_processed.exists() or final_review.exists():
+            # Also check if base_name itself is the filename (without _vofc suffix)
+            final_processed_alt = PROCESSED_DIR / f"{base_name}.json"
+            final_review_alt = REVIEW_DIR / f"{base_name}.json"
+            
+            if (final_processed.exists() or final_review.exists() or 
+                final_processed_alt.exists() or final_review_alt.exists()):
                 # Final output exists, just clean up temp files
                 for temp_file in group_files:
                     try:
@@ -2061,11 +2451,49 @@ def cleanup_review_temp_files() -> None:
                                 reconstructed_count += 1
                             else:
                                 logging.warning(f"Could not post-process records from {phase3_file.name}")
+                                # Still try to clean up temp files even if reconstruction failed
+                                for temp_file in group_files:
+                                    try:
+                                        temp_file.unlink()
+                                        cleaned_count += 1
+                                        logging.info(f"🧹 Removed temp file (reconstruction failed): {temp_file.name}")
+                                    except Exception as e:
+                                        logging.warning(f"Failed to remove {temp_file.name}: {e}")
                         else:
-                            logging.warning(f"No records in {phase3_file.name}")
+                            logging.warning(f"No records in {phase3_file.name}, cleaning up temp files")
+                            # Clean up temp files if no records
+                            for temp_file in group_files:
+                                try:
+                                    temp_file.unlink()
+                                    cleaned_count += 1
+                                    logging.info(f"🧹 Removed temp file (no records): {temp_file.name}")
+                                except Exception as e:
+                                    logging.warning(f"Failed to remove {temp_file.name}: {e}")
                     except Exception as e:
                         logging.error(f"Error reconstructing from {phase3_file.name}: {e}")
                         logging.error(traceback.format_exc())
+                        # Try to clean up temp files even on error
+                        for temp_file in group_files:
+                            try:
+                                temp_file.unlink()
+                                cleaned_count += 1
+                                logging.info(f"🧹 Removed temp file (error occurred): {temp_file.name}")
+                            except Exception as cleanup_err:
+                                logging.warning(f"Failed to remove {temp_file.name}: {cleanup_err}")
+                else:
+                    # No phase3 file found, but temp files exist - log and optionally clean up
+                    logging.warning(f"No phase3_auditor.json found for {base_name}, but temp files exist:")
+                    for temp_file in group_files:
+                        logging.warning(f"  - {temp_file.name}")
+                    # Optionally clean up orphaned temp files (files without phase3)
+                    # Uncomment the following if you want to remove temp files without phase3:
+                    # for temp_file in group_files:
+                    #     try:
+                    #         temp_file.unlink()
+                    #         cleaned_count += 1
+                    #         logging.info(f"🧹 Removed orphaned temp file: {temp_file.name}")
+                    #     except Exception as e:
+                    #         logging.warning(f"Failed to remove {temp_file.name}: {e}")
         
         if cleaned_count > 0 or reconstructed_count > 0:
             logging.info(f"✅ Cleanup complete: {cleaned_count} temp files removed, {reconstructed_count} outputs reconstructed")

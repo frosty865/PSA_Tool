@@ -102,101 +102,319 @@ export default function LearningDashboard() {
 
   return (
     <RoleGate requiredRole="admin">
-      <div className="page-container">
-        <div className="content-wrapper">
-          {/* Header */}
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Learning Metrics Dashboard</h1>
-              <p className="text-gray-600 mt-2">
-                Real-time insights about model performance, analyst feedback, and system learning trends
-              </p>
-            </div>
-            <button
-              onClick={fetchLearningStats}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
+      <div style={{ padding: 'var(--spacing-lg)', maxWidth: '1600px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ 
+          marginBottom: 'var(--spacing-xl)', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 'var(--spacing-md)'
+        }}>
+          <div>
+            <h1 style={{ 
+              fontSize: 'var(--font-size-xxl)', 
+              fontWeight: 700, 
+              color: 'var(--cisa-blue)', 
+              margin: 0,
+              marginBottom: 'var(--spacing-xs)'
+            }}>
+              Learning Metrics Dashboard
+            </h1>
+            <p style={{ 
+              fontSize: 'var(--font-size-md)', 
+              color: 'var(--cisa-gray)',
+              margin: 0
+            }}>
+              Real-time insights about model performance, analyst feedback, and system learning trends
+            </p>
           </div>
+          <button
+            onClick={fetchLearningStats}
+            disabled={loading}
+            className="btn btn-primary"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--spacing-sm)',
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            <RefreshCw style={{ 
+              width: '16px', 
+              height: '16px',
+              animation: loading ? 'spin 1s linear infinite' : 'none'
+            }} />
+            Refresh
+          </button>
+        </div>
 
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              <p className="font-medium">Error loading metrics:</p>
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
+        {error && (
+          <div className="alert alert-warning" style={{ 
+            marginBottom: 'var(--spacing-lg)',
+            padding: 'var(--spacing-md)',
+            backgroundColor: '#fff3cd',
+            border: '1px solid var(--cisa-warning)',
+            borderRadius: 'var(--border-radius)'
+          }}>
+            <p style={{ fontWeight: 600, margin: 0, marginBottom: 'var(--spacing-xs)' }}>Error loading metrics:</p>
+            <p style={{ fontSize: 'var(--font-size-sm)', margin: 0 }}>{error}</p>
+          </div>
+        )}
 
-          {loading && stats.length === 0 ? (
-            <div className="flex items-center justify-center h-96">
-              <div className="text-center">
-                <Loader2 className="animate-spin w-8 h-8 mx-auto mb-4 text-blue-600" />
-                <p className="text-gray-600">Loading learning metrics...</p>
-              </div>
+        {loading && stats.length === 0 ? (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minHeight: '400px'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                border: '3px solid var(--cisa-gray-light)',
+                borderTop: '3px solid var(--cisa-blue)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto',
+                marginBottom: 'var(--spacing-md)'
+              }}></div>
+              <p style={{ color: 'var(--cisa-gray)', fontSize: 'var(--font-size-md)' }}>Loading learning metrics...</p>
             </div>
-          ) : (
+          </div>
+        ) : (
             <>
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-600">Total Feedback Events</h3>
-                    <Activity className="w-5 h-5 text-blue-600" />
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
+                gap: 'var(--spacing-lg)', 
+                marginBottom: 'var(--spacing-xl)'
+              }}>
+                <div className="card" style={{
+                  background: 'linear-gradient(135deg, var(--cisa-blue-lightest) 0%, rgba(0, 113, 188, 0.05) 100%)',
+                  border: '1px solid var(--cisa-blue-lighter)'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    marginBottom: 'var(--spacing-sm)'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 500, 
+                      color: 'var(--cisa-gray)',
+                      margin: 0
+                    }}>
+                      Total Feedback Events
+                    </h3>
+                    <Activity style={{ width: '20px', height: '20px', color: 'var(--cisa-blue)' }} />
                   </div>
-                  <p className="text-3xl font-bold text-gray-900">{totalEvents}</p>
-                  <p className="text-xs text-gray-500 mt-1">All time</p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xxl)', 
+                    fontWeight: 700, 
+                    color: 'var(--cisa-blue)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-xs)'
+                  }}>
+                    {totalEvents}
+                  </p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xs)', 
+                    color: 'var(--cisa-gray)',
+                    margin: 0
+                  }}>
+                    All time
+                  </p>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-600">Average Accept Rate</h3>
-                    <TrendingUp className="w-5 h-5 text-green-600" />
+                <div className="card" style={{
+                  background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%)',
+                  border: '1px solid rgba(40, 167, 69, 0.3)'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    marginBottom: 'var(--spacing-sm)'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 500, 
+                      color: 'var(--cisa-gray)',
+                      margin: 0
+                    }}>
+                      Average Accept Rate
+                    </h3>
+                    <TrendingUp style={{ width: '20px', height: '20px', color: 'var(--cisa-success)' }} />
                   </div>
-                  <p className="text-3xl font-bold text-gray-900">{avgAcceptRate}%</p>
-                  <p className="text-xs text-gray-500 mt-1">Rolling window</p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xxl)', 
+                    fontWeight: 700, 
+                    color: 'var(--cisa-success)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-xs)'
+                  }}>
+                    {avgAcceptRate}%
+                  </p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xs)', 
+                    color: 'var(--cisa-gray)',
+                    margin: 0
+                  }}>
+                    Rolling window
+                  </p>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-600">Accepted</h3>
-                    <Target className="w-5 h-5 text-green-600" />
+                <div className="card" style={{
+                  background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%)',
+                  border: '1px solid rgba(40, 167, 69, 0.3)'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    marginBottom: 'var(--spacing-sm)'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 500, 
+                      color: 'var(--cisa-gray)',
+                      margin: 0
+                    }}>
+                      Accepted
+                    </h3>
+                    <Target style={{ width: '20px', height: '20px', color: 'var(--cisa-success)' }} />
                   </div>
-                  <p className="text-3xl font-bold text-green-600">{totalAccepted}</p>
-                  <p className="text-xs text-gray-500 mt-1">Total approved</p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xxl)', 
+                    fontWeight: 700, 
+                    color: 'var(--cisa-success)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-xs)'
+                  }}>
+                    {totalAccepted}
+                  </p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xs)', 
+                    color: 'var(--cisa-gray)',
+                    margin: 0
+                  }}>
+                    Total approved
+                  </p>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-600">Rejected</h3>
-                    <Target className="w-5 h-5 text-red-600" />
+                <div className="card" style={{
+                  background: 'linear-gradient(135deg, rgba(216, 57, 51, 0.1) 0%, rgba(216, 57, 51, 0.05) 100%)',
+                  border: '1px solid rgba(216, 57, 51, 0.3)'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    marginBottom: 'var(--spacing-sm)'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      fontWeight: 500, 
+                      color: 'var(--cisa-gray)',
+                      margin: 0
+                    }}>
+                      Rejected
+                    </h3>
+                    <Target style={{ width: '20px', height: '20px', color: 'var(--cisa-red)' }} />
                   </div>
-                  <p className="text-3xl font-bold text-red-600">{totalRejected}</p>
-                  <p className="text-xs text-gray-500 mt-1">Total rejected</p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xxl)', 
+                    fontWeight: 700, 
+                    color: 'var(--cisa-red)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-xs)'
+                  }}>
+                    {totalRejected}
+                  </p>
+                  <p style={{ 
+                    fontSize: 'var(--font-size-xs)', 
+                    color: 'var(--cisa-gray)',
+                    margin: 0
+                  }}>
+                    Total rejected
+                  </p>
                 </div>
               </div>
 
               {/* Heuristics Card */}
               {heuristics && (
-                <div className="mb-6 bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Heuristic Thresholds</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                  <h3 style={{ 
+                    fontSize: 'var(--font-size-lg)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-black)', 
+                    marginBottom: 'var(--spacing-lg)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    Current Heuristic Thresholds
+                  </h3>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                    gap: 'var(--spacing-lg)'
+                  }}>
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Confidence Threshold</p>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)',
+                        margin: 0
+                      }}>
+                        Confidence Threshold
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-xl)', 
+                        fontWeight: 700, 
+                        color: 'var(--cisa-blue)',
+                        margin: 0
+                      }}>
                         {heuristics.confidence_threshold ? (heuristics.confidence_threshold * 100).toFixed(1) : 'N/A'}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">High Confidence Threshold</p>
-                      <p className="text-2xl font-bold text-purple-600">
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)',
+                        margin: 0
+                      }}>
+                        High Confidence Threshold
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-xl)', 
+                        fontWeight: 700, 
+                        color: '#6f42c1',
+                        margin: 0
+                      }}>
                         {heuristics.high_confidence_threshold ? (heuristics.high_confidence_threshold * 100).toFixed(1) : 'N/A'}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Last Updated</p>
-                      <p className="text-sm text-gray-900">
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-gray)', 
+                        marginBottom: 'var(--spacing-xs)',
+                        margin: 0
+                      }}>
+                        Last Updated
+                      </p>
+                      <p style={{ 
+                        fontSize: 'var(--font-size-sm)', 
+                        color: 'var(--cisa-black)',
+                        margin: 0
+                      }}>
                         {heuristics.last_updated ? formatTimestamp(heuristics.last_updated) : 'Never'}
                       </p>
                     </div>
@@ -205,10 +423,24 @@ export default function LearningDashboard() {
               )}
 
               {/* Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
+                gap: 'var(--spacing-xl)', 
+                marginBottom: 'var(--spacing-xl)'
+              }}>
                 {/* Accept/Reject/Edit Trend */}
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Accept / Reject / Edit Trend</h3>
+                <div className="card">
+                  <h3 style={{ 
+                    fontSize: 'var(--font-size-lg)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-black)', 
+                    marginBottom: 'var(--spacing-lg)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    Accept / Reject / Edit Trend
+                  </h3>
                   {chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={chartData}>
@@ -255,15 +487,30 @@ export default function LearningDashboard() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-300 flex items-center justify-center text-gray-500">
-                      <p>No data available yet. Learning statistics will appear here once feedback events are processed.</p>
+                    <div style={{ 
+                      minHeight: '300px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      color: 'var(--cisa-gray)'
+                    }}>
+                      <p style={{ margin: 0 }}>No data available yet. Learning statistics will appear here once feedback events are processed.</p>
                     </div>
                   )}
                 </div>
 
                 {/* Event Counts Over Time */}
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Counts Over Time</h3>
+                <div className="card">
+                  <h3 style={{ 
+                    fontSize: 'var(--font-size-lg)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-black)', 
+                    marginBottom: 'var(--spacing-lg)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    Event Counts Over Time
+                  </h3>
                   {chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={chartData}>
@@ -313,8 +560,14 @@ export default function LearningDashboard() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-300 flex items-center justify-center text-gray-500">
-                      <p>No data available yet.</p>
+                    <div style={{ 
+                      minHeight: '300px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      color: 'var(--cisa-gray)'
+                    }}>
+                      <p style={{ margin: 0 }}>No data available yet.</p>
                     </div>
                   )}
                 </div>
@@ -322,8 +575,17 @@ export default function LearningDashboard() {
 
               {/* Confidence Score Trend (if available) */}
               {chartData.some(d => d.average_confidence_score !== null) && (
-                <div className="mb-6 bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Average Confidence Score Trend</h3>
+                <div className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                  <h3 style={{ 
+                    fontSize: 'var(--font-size-lg)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-black)', 
+                    marginBottom: 'var(--spacing-lg)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    Average Confidence Score Trend
+                  </h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -354,43 +616,170 @@ export default function LearningDashboard() {
 
               {/* Recent Activity Summary */}
               {stats.length > 0 && (
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Learning Activity</h3>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                <div className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                  <h3 style={{ 
+                    fontSize: 'var(--font-size-lg)', 
+                    fontWeight: 600, 
+                    color: 'var(--cisa-black)', 
+                    marginBottom: 'var(--spacing-lg)',
+                    margin: 0,
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    Recent Learning Activity
+                  </h3>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ 
+                      width: '100%', 
+                      borderCollapse: 'collapse'
+                    }}>
+                      <thead style={{ backgroundColor: 'var(--cisa-gray-lighter)' }}>
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Window</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Events</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accepted</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rejected</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edited</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accept Rate</th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Timestamp
+                          </th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Window
+                          </th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Total Events
+                          </th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Accepted
+                          </th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Rejected
+                          </th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Edited
+                          </th>
+                          <th style={{ 
+                            padding: 'var(--spacing-sm) var(--spacing-md)', 
+                            textAlign: 'left', 
+                            fontSize: 'var(--font-size-xs)', 
+                            fontWeight: 600, 
+                            color: 'var(--cisa-gray)',
+                            textTransform: 'uppercase',
+                            borderBottom: '2px solid var(--cisa-gray-light)'
+                          }}>
+                            Accept Rate
+                          </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody>
                         {stats.slice(0, 10).map((stat, idx) => (
-                          <tr key={idx} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          <tr key={idx} style={{ 
+                            borderBottom: '1px solid var(--cisa-gray-light)',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--cisa-gray-lighter)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                          >
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-black)'
+                            }}>
                               {formatTimestamp(stat.timestamp)}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-gray)'
+                            }}>
                               {stat.window_minutes || 60} min
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-black)'
+                            }}>
                               {stat.total_events || 0}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-green-600 font-medium">
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-success)', 
+                              fontWeight: 600
+                            }}>
                               {stat.accepted || 0}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-red-600 font-medium">
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-red)', 
+                              fontWeight: 600
+                            }}>
                               {stat.rejected || 0}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-yellow-600 font-medium">
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-warning)', 
+                              fontWeight: 600
+                            }}>
                               {stat.edited || 0}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">
+                            <td style={{ 
+                              padding: 'var(--spacing-sm) var(--spacing-md)', 
+                              whiteSpace: 'nowrap', 
+                              fontSize: 'var(--font-size-sm)', 
+                              color: 'var(--cisa-black)', 
+                              fontWeight: 600
+                            }}>
                               {stat.accept_rate ? (stat.accept_rate * 100).toFixed(1) : '0.0'}%
                             </td>
                           </tr>
@@ -402,13 +791,17 @@ export default function LearningDashboard() {
               )}
 
               {/* Footer Info */}
-              <div className="mt-6 text-sm text-gray-500 text-center">
-                <p>Last refreshed: {lastRefresh ? lastRefresh.toLocaleString() : 'Never'}</p>
-                <p className="mt-1">Auto-refreshes every 60 seconds</p>
+              <div style={{ 
+                marginTop: 'var(--spacing-xl)', 
+                fontSize: 'var(--font-size-sm)', 
+                color: 'var(--cisa-gray)', 
+                textAlign: 'center'
+              }}>
+                <p style={{ margin: 0 }}>Last refreshed: {lastRefresh ? lastRefresh.toLocaleString() : 'Never'}</p>
+                <p style={{ margin: 'var(--spacing-xs) 0 0 0' }}>Auto-refreshes every 60 seconds</p>
               </div>
             </>
           )}
-        </div>
       </div>
     </RoleGate>
   )

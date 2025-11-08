@@ -46,13 +46,28 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     Returns:
         submission_id: UUID of the created submission
     """
+    logger.info(f"[SYNC] Starting sync for: {result_path}")
+    logger.info(f"[SYNC] Supabase URL: {SUPABASE_URL[:30]}..." if SUPABASE_URL else "[SYNC] Supabase URL: NOT SET")
+    logger.info(f"[SYNC] Supabase Key: {'SET' if SUPABASE_SERVICE_ROLE_KEY else 'NOT SET'}")
+    
+    # Verify Supabase client is available
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        error_msg = f"Supabase credentials not configured. URL: {'SET' if SUPABASE_URL else 'NOT SET'}, Key: {'SET' if SUPABASE_SERVICE_ROLE_KEY else 'NOT SET'}"
+        logger.error(f"[SYNC] {error_msg}")
+        raise ValueError(error_msg)
+    
     # Read the result file
     result_file = Path(result_path)
     if not result_file.exists():
-        raise FileNotFoundError(f"Result file not found: {result_path}")
+        error_msg = f"Result file not found: {result_path}"
+        logger.error(f"[SYNC] {error_msg}")
+        raise FileNotFoundError(error_msg)
     
+    logger.info(f"[SYNC] Reading result file: {result_file} ({result_file.stat().st_size} bytes)")
     with open(result_file, "r", encoding="utf-8") as f:
         data = json.load(f)
+    
+    logger.info(f"[SYNC] Loaded JSON data. Top-level keys: {list(data.keys())}")
     
     # Handle different result formats
     # If result is a string (from Ollama), try to parse it as JSON
@@ -86,92 +101,70 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     
     # Build submission data with only REQUIRED fields
     # Store optional fields in data JSONB to avoid schema mismatches
-    # Note: type must be 'vulnerability' or 'ofc' per check constraint
-    # Since we have both vulnerabilities and OFCs, use 'vulnerability' as the type
+    # Use 'document' type for auto-processed documents (after migration allows it)
+    # Extract document_name from data if available
+    document_name = data.get("document_name") or data.get("source_file") or None
+    
     submission_data = {
         "id": submission_id,
-        "type": "vulnerability",  # Must be 'vulnerability' or 'ofc' per check constraint
+        "type": "document",  # Use 'document' for auto-processed documents with multiple vulnerabilities/OFCs
         "status": "pending_review",
         "source": "psa_tool_auto",
         "data": data,  # Store FULL original data as JSON - nothing is removed or modified
     }
     
+    # Add document_name if available (after migration adds this column)
+    if document_name:
+        submission_data["document_name"] = document_name
+    
     # Add timestamps (these should always exist)
     submission_data["created_at"] = datetime.utcnow().isoformat()
     submission_data["updated_at"] = datetime.utcnow().isoformat()
     
-    # Try to add optional fields - if they fail, we'll retry without them
-    # Store metadata in data JSONB as fallback
-    metadata_to_store = {}
-    
-    if submitter_email:
-        metadata_to_store["submitter_email"] = submitter_email
-    
+    # Extract metadata for separate columns (more reliable for querying)
     parser_version = data.get("parser_version", "vofc-parser:latest")
     engine_version = data.get("engine_version", "vofc-engine:latest")
     auditor_version = data.get("auditor_version", "vofc-auditor:latest")
     
+    # Also store metadata in data JSONB for backup/redundancy
+    metadata_to_store = {}
+    if submitter_email:
+        metadata_to_store["submitter_email"] = submitter_email
     metadata_to_store["parser_version"] = parser_version
     metadata_to_store["engine_version"] = engine_version
     metadata_to_store["auditor_version"] = auditor_version
     
-    # Try inserting with optional fields first
+    # Merge metadata into data JSONB (for redundancy and full data preservation)
+    if "data" in submission_data and isinstance(submission_data["data"], dict):
+        submission_data["data"].update(metadata_to_store)
+    else:
+        submission_data["data"] = {**data, **metadata_to_store}
+    
+    # Insert with metadata columns (after migration adds them)
     try:
-        # Add optional fields to submission_data
-        test_data = submission_data.copy()
-        if submitter_email:
-            test_data["submitter_email"] = submitter_email
-        test_data["parser_version"] = parser_version
-        test_data["engine_version"] = engine_version
-        test_data["auditor_version"] = auditor_version
+        # Include metadata as separate columns for better querying/indexing
+        submission_data["submitter_email"] = submitter_email
+        submission_data["parser_version"] = parser_version
+        submission_data["engine_version"] = engine_version
+        submission_data["auditor_version"] = auditor_version
         
         # Remove None values
-        test_data = {k: v for k, v in test_data.items() if v is not None}
+        submission_data = {k: v for k, v in submission_data.items() if v is not None}
         
         logger.info(f"Inserting submission {submission_id} into Supabase...")
-        result = supabase.table("submissions").insert(test_data).execute()
+        logger.info(f"   Using fields: {list(submission_data.keys())}")
+        result = supabase.table("submissions").insert(submission_data).execute()
         logger.info(f"[OK] Successfully created submission {submission_id}")
         if not result.data:
             raise Exception("Insert returned no data - submission may not have been created")
     except Exception as e:
         error_msg = str(e)
-        error_str = str(e).lower()
-        # If error is about missing columns, retry with minimal fields
-        # Check for various error message formats
-        is_column_error = (
-            "column" in error_str and ("not found" in error_str or "could not find" in error_str) or
-            "pgrst204" in error_str or  # PostgREST error code for missing column
-            "could not find" in error_str and "column" in error_str
-        )
-        
-        if is_column_error:
-            logger.warning(f"Column error detected, retrying with minimal fields: {error_msg}")
-            # Store metadata in data JSONB instead
-            if "data" in submission_data and isinstance(submission_data["data"], dict):
-                submission_data["data"].update(metadata_to_store)
-            else:
-                submission_data["data"] = {**data, **metadata_to_store}
-            
-            # Retry with only required fields
-            minimal_data = {
-                "id": submission_id,
-                "type": "vulnerability",  # Must be 'vulnerability' or 'ofc' per check constraint
-                "status": "pending_review",
-                "source": "psa_tool_auto",
-                "data": submission_data["data"],
-                "created_at": submission_data["created_at"],
-                "updated_at": submission_data["updated_at"]
-            }
-            
-            logger.info(f"Retrying insert with minimal fields...")
-            result = supabase.table("submissions").insert(minimal_data).execute()
-            logger.info(f"[OK] Successfully created submission {submission_id} (with minimal fields)")
-            if not result.data:
-                raise Exception("Insert returned no data - submission may not have been created")
-        else:
-            logger.error(f"Failed to create submission record: {error_msg}")
-            logger.error(f"   Submission data keys: {list(submission_data.keys())}")
-            raise Exception(f"Failed to create submission record: {error_msg}")
+        logger.error(f"Failed to create submission record: {error_msg}")
+        logger.error(f"   Submission data keys: {list(submission_data.keys())}")
+        logger.error(f"   Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"   Traceback: {traceback.format_exc()}")
+        raise Exception(f"Failed to create submission record: {error_msg}")
     
     # 2. Extract and insert vulnerabilities into separate table
     # NOTE: We READ from data but do NOT modify it - data remains complete in the data column
@@ -179,6 +172,13 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     vulnerabilities = data.get("vulnerabilities", [])
     if not isinstance(vulnerabilities, list):
         vulnerabilities = []
+    
+    logger.info(f"[SYNC] Found {len(vulnerabilities)} vulnerabilities in result data")
+    if len(vulnerabilities) == 0:
+        logger.warning(f"[SYNC] No vulnerabilities found in data. Data keys: {list(data.keys())}")
+        # Check if data structure is different
+        if "final_records" in data:
+            logger.warning(f"[SYNC] Found 'final_records' key - result may need restructuring")
     
     vuln_count = 0
     vuln_id_map = {}  # Map: vulnerability_text -> vulnerability_id
@@ -234,6 +234,7 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
             "subsector": subsector,  # Store resolved name
             "page_ref": v.get("page_ref"),
             "chunk_id": v.get("chunk_id"),
+            "severity_level": v.get("severity_level"),  # Severity level (Very Low, Low, Medium, High, Very High)
             "audit_status": v.get("audit_status", "pending"),  # Track review status
             "source": v.get("source") or data.get("source_file") or None,
             "source_title": v.get("source_title") or data.get("source_file") or None,
@@ -266,6 +267,10 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     ofcs = data.get("ofcs") or data.get("options_for_consideration") or []
     if not isinstance(ofcs, list):
         ofcs = []
+    
+    logger.info(f"[SYNC] Found {len(ofcs)} OFCs in result data")
+    if len(ofcs) == 0:
+        logger.warning(f"[SYNC] No OFCs found in data. Checked keys: 'ofcs', 'options_for_consideration'")
     
     ofc_count = 0
     ofc_records = []  # Store OFC records with their vulnerability references for linking

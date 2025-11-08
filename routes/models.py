@@ -159,3 +159,15 @@ def get_system_events():
         # Return empty array on error to prevent frontend crashes
         return jsonify([])
 
+@models_bp.route("/api/models/performance", methods=["GET"])
+def model_performance_summary():
+    """Get model performance summary from Supabase view"""
+    try:
+        res = supabase.table("view_model_performance_summary").select("*").execute()
+        return jsonify(res.data)
+    except Exception as e:
+        import logging
+        logging.error(f"Error getting model performance summary: {e}")
+        # Return empty array on error to prevent frontend crashes
+        return jsonify([])
+

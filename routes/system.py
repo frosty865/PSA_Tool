@@ -18,6 +18,36 @@ system_bp = Blueprint('system', __name__)
 # Get Supabase client for lightweight routes
 supabase = get_supabase_client()
 
+def test_tunnel_service():
+    """
+    Check if VOFC Tunnel Windows service is running.
+    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    """
+    try:
+        # Use sc query to check service status (works on Windows)
+        result = subprocess.run(
+            ['sc', 'query', 'VOFC-Tunnel'],
+            capture_output=True,
+            text=True,
+            timeout=2
+        )
+        
+        if result.returncode == 0:
+            output = result.stdout
+            # Check if service is running
+            if 'RUNNING' in output:
+                return 'ok'
+            elif 'STOPPED' in output or 'STOP_PENDING' in output:
+                return 'offline'
+            else:
+                return 'unknown'
+        else:
+            # Service might not exist or access denied
+            return 'unknown'
+    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+        # sc command not available or timeout
+        return 'unknown'
+
 def test_model_manager():
     """
     Check if VOFC Model Manager Windows service is running.
@@ -128,20 +158,48 @@ def health():
     # Get tunnel URL (managed by NSSM service - Cloudflare tunnel)
     tunnel_url = os.getenv('TUNNEL_URL', 'https://flask.frostech.site')
     
-    # Check tunnel connectivity by attempting to reach the health endpoint through the tunnel
-    tunnel_status = "unknown"
+    # Check tunnel service status (similar to model manager check)
+    tunnel_status = test_tunnel_service()
+    
+    # Also try to verify connectivity through the tunnel (secondary check)
+    if tunnel_status == "ok":
+        try:
+            import requests
+            # Try to reach Flask through the tunnel (quick check with short timeout)
+            tunnel_health_url = f"{tunnel_url}/api/health"
+            tunnel_response = requests.get(tunnel_health_url, timeout=2)
+            if tunnel_response.status_code != 200:
+                # Service is running but tunnel may have connectivity issues
+                tunnel_status = "error"
+        except Exception:
+            # Connectivity check failed but service is running
+            pass  # Keep status as "ok" if service is running
+    
+    # Get Model Manager last run time and next run time
+    model_manager_info = {"status": components["model_manager"]}
     try:
-        import requests
-        # Try to reach Flask through the tunnel (quick check with short timeout)
-        tunnel_health_url = f"{tunnel_url}/api/health"
-        tunnel_response = requests.get(tunnel_health_url, timeout=3)
-        if tunnel_response.status_code == 200:
-            tunnel_status = "ok"
-        else:
-            tunnel_status = "error"
-    except Exception as e:
-        # Tunnel check failed - could be tunnel down or network issue
-        tunnel_status = "error"
+        log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "services", "model_manager.py")
+        # Try to read from the actual log file
+        log_path = r"C:\Tools\VOFC_Logs\model_manager.log"
+        if os.path.exists(log_path):
+            with open(log_path, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                # Look for last "Run Start" timestamp
+                for line in reversed(lines):
+                    if "=== VOFC Model Manager Run Start ===" in line:
+                        # Extract timestamp from log line
+                        try:
+                            # Format: "2025-11-08 09:52:44,745 | INFO | === VOFC Model Manager Run Start ==="
+                            timestamp_str = line.split(" | ")[0]
+                            last_run = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S,%f")
+                            next_run = last_run + timedelta(seconds=21600)  # 6 hours
+                            model_manager_info["last_run"] = last_run.isoformat()
+                            model_manager_info["next_run"] = next_run.isoformat()
+                            break
+                        except:
+                            pass
+    except Exception:
+        pass  # If we can't read the log, just return status
     
     # Return lightweight response with service metadata
     return jsonify({
@@ -150,6 +208,7 @@ def health():
         "supabase": components["supabase"],
         "tunnel": tunnel_status,  # Tunnel is externally managed by NSSM
         "model_manager": components["model_manager"],  # Model Manager service status
+        "model_manager_info": model_manager_info,  # Additional Model Manager info
         "service": "PSA Processing Server",
         "urls": {
             "flask": flask_url,

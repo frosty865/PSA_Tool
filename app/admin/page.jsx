@@ -11,6 +11,9 @@ export default function AdminOverviewPage() {
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
   const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking' })
+  const [modelManagerInfo, setModelManagerInfo] = useState(null)
+  const [countdown, setCountdown] = useState(null)
+  const [pendingReviewCount, setPendingReviewCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastRefresh, setLastRefresh] = useState(null)
@@ -33,6 +36,10 @@ export default function AdminOverviewPage() {
       
       if (json.components) {
         setSystem(json.components)
+        // Update Model Manager info if available
+        if (json.model_manager_info) {
+          setModelManagerInfo(json.model_manager_info)
+        }
       } else {
         setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
       }
@@ -77,6 +84,10 @@ export default function AdminOverviewPage() {
           hasEverSucceeded = true
           lastKnownGood = json.components
           setSystem(json.components)
+          // Update Model Manager info if available
+          if (json.model_manager_info) {
+            setModelManagerInfo(json.model_manager_info)
+          }
         } else {
           // Invalid format but keep last known state if we've succeeded before
           if (hasEverSucceeded) {
@@ -100,6 +111,67 @@ export default function AdminOverviewPage() {
     const interval = setInterval(healthCheckWithDebounce, 20000) // 20s interval
     return () => { isMounted = false; clearInterval(interval) }
   }, [])
+
+  // Fetch pending review count
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const res = await fetchWithAuth('/api/admin/submissions?status=pending_review', { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          // Get the count from the response - API returns { submissions: [...] }
+          const count = Array.isArray(data.submissions) ? data.submissions.length : 
+                       (Array.isArray(data.allSubmissions) ? data.allSubmissions.length : 0)
+          setPendingReviewCount(count)
+        } else {
+          // If error, try to keep last known value or set to null
+          console.error('Failed to fetch pending review count:', res.status)
+        }
+      } catch (err) {
+        console.error('Error fetching pending review count:', err)
+        // Don't set to null on error, keep last known value
+      }
+    }
+
+    fetchPendingCount()
+    const countInterval = setInterval(fetchPendingCount, 30000) // Refresh every 30s
+    return () => clearInterval(countInterval)
+  }, [])
+
+  // Countdown timer for Model Manager
+  useEffect(() => {
+    if (!modelManagerInfo?.next_run) {
+      setCountdown(null)
+      return
+    }
+
+    const updateCountdown = () => {
+      const now = new Date()
+      const nextRun = new Date(modelManagerInfo.next_run)
+      const diff = nextRun - now
+
+      if (diff <= 0) {
+        setCountdown('Due now')
+        return
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+      if (hours > 0) {
+        setCountdown(`${hours}h ${minutes}m`)
+      } else if (minutes > 0) {
+        setCountdown(`${minutes}m ${seconds}s`)
+      } else {
+        setCountdown(`${seconds}s`)
+      }
+    }
+
+    updateCountdown()
+    const countdownInterval = setInterval(updateCountdown, 1000)
+    return () => clearInterval(countdownInterval)
+  }, [modelManagerInfo])
 
   // Admin overview data fetcher
   const loadDashboardData = useCallback(async () => {
@@ -446,25 +518,41 @@ export default function AdminOverviewPage() {
                 </div>
                 <div style={{ 
                   display: 'flex',
-                  alignItems: 'center',
+                  flexDirection: 'column',
                   gap: 'var(--spacing-xs)',
                   marginTop: 'var(--spacing-xs)'
                 }}>
-                  <div style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    backgroundColor: colors.border,
-                    boxShadow: `0 0 6px ${colors.border}`,
-                    flexShrink: 0
-                  }}></div>
                   <div style={{ 
-                    fontSize: 'var(--font-size-sm)', 
-                    color: colors.text,
-                    fontWeight: 600
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-xs)'
                   }}>
-                    {statusLabel}
+                    <div style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      backgroundColor: colors.border,
+                      boxShadow: `0 0 6px ${colors.border}`,
+                      flexShrink: 0
+                    }}></div>
+                    <div style={{ 
+                      fontSize: 'var(--font-size-sm)', 
+                      color: colors.text,
+                      fontWeight: 600
+                    }}>
+                      {statusLabel}
+                    </div>
                   </div>
+                  {key === 'model_manager' && countdown && status === 'ok' && (
+                    <div style={{ 
+                      fontSize: 'var(--font-size-xs)', 
+                      color: 'var(--cisa-gray)',
+                      marginLeft: '18px',
+                      fontStyle: 'italic'
+                    }}>
+                      Next run: {countdown}
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -784,15 +872,36 @@ export default function AdminOverviewPage() {
               position: 'absolute',
               top: '8px',
               right: '8px',
-              fontSize: 'var(--font-size-xs)',
-              padding: '2px 8px',
-              borderRadius: 'var(--border-radius)',
-              backgroundColor: 'var(--cisa-blue)',
-              color: 'white',
-              fontWeight: 600,
-              pointerEvents: 'none',
+              display: 'flex',
+              gap: 'var(--spacing-xs)',
+              alignItems: 'center',
               zIndex: 2
-            }}>CORE</div>
+            }}>
+              <div style={{
+                fontSize: 'var(--font-size-xs)',
+                padding: '2px 8px',
+                borderRadius: 'var(--border-radius)',
+                backgroundColor: 'var(--cisa-blue)',
+                color: 'white',
+                fontWeight: 600,
+                pointerEvents: 'none'
+              }}>CORE</div>
+              {pendingReviewCount !== null && pendingReviewCount > 0 && (
+                <div style={{
+                  fontSize: 'var(--font-size-xs)',
+                  padding: '2px 8px',
+                  borderRadius: 'var(--border-radius)',
+                  backgroundColor: 'var(--cisa-red)',
+                  color: 'white',
+                  fontWeight: 600,
+                  pointerEvents: 'none',
+                  minWidth: '24px',
+                  textAlign: 'center'
+                }}>
+                  {pendingReviewCount}
+                </div>
+              )}
+            </div>
             <div style={{ 
               fontSize: 'var(--font-size-xxl)', 
               marginBottom: 'var(--spacing-sm)'

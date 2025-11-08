@@ -10,7 +10,7 @@ export default function AdminOverviewPage() {
   const router = useRouter()
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
-  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking' })
+  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking' })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastRefresh, setLastRefresh] = useState(null)
@@ -34,13 +34,13 @@ export default function AdminOverviewPage() {
       if (json.components) {
         setSystem(json.components)
       } else {
-        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' })
+        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
       }
     } catch (err) {
       console.error('[System Health] Manual refresh failed:', err)
       // On manual refresh, show error but don't change state if we have a previous good state
-      setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
-        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' }
+        setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
+        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' }
         : prev
       )
     }
@@ -49,7 +49,7 @@ export default function AdminOverviewPage() {
   useEffect(() => {
     let isMounted = true
     let hasEverSucceeded = false
-    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking' }
+    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking' }
     
     const healthCheckWithDebounce = async () => {
       if (!isMounted) return
@@ -66,7 +66,7 @@ export default function AdminOverviewPage() {
             console.warn(`[System Health] Temporary error ${res.status}, keeping last known state`)
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' })
+            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
           }
           return
         }
@@ -81,9 +81,9 @@ export default function AdminOverviewPage() {
           // Invalid format but keep last known state if we've succeeded before
           if (hasEverSucceeded) {
             setSystem(lastKnownGood)
-          } else {
-            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown' })
-          }
+        } else {
+          setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+        }
         }
       } catch (err) {
         // Network errors are temporary - keep last known good state if we've ever succeeded
@@ -91,7 +91,7 @@ export default function AdminOverviewPage() {
         if (hasEverSucceeded) {
           setSystem(lastKnownGood)
         } else {
-          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown' })
+          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
         }
       }
     }
@@ -209,6 +209,8 @@ export default function AdminOverviewPage() {
         return '🗄️'
       case 'tunnel':
         return '🌐'
+      case 'model_manager':
+        return '🧠'
       default:
         return '⚙️'
     }
@@ -392,12 +394,19 @@ export default function AdminOverviewPage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
           gap: 'var(--spacing-lg)'
         }}>
-          {['flask', 'ollama', 'supabase', 'tunnel'].map(key => {
+          {['flask', 'ollama', 'supabase', 'tunnel', 'model_manager'].map(key => {
             const status = system[key] || 'checking'
             const colors = getSystemStatusColor(status)
             const statusLabel = getSystemStatusLabel(status)
             const icon = getSystemIcon(key)
-            const displayName = key === 'tunnel' ? 'Cloudflare Tunnel' : `${key.charAt(0).toUpperCase() + key.slice(1)} Server`
+            let displayName
+            if (key === 'tunnel') {
+              displayName = 'Cloudflare Tunnel'
+            } else if (key === 'model_manager') {
+              displayName = 'Model Manager'
+            } else {
+              displayName = `${key.charAt(0).toUpperCase() + key.slice(1)} Server`
+            }
             
             return (
               <div 

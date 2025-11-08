@@ -9,6 +9,7 @@ from services.supabase_client import test_supabase, get_supabase_client
 import os
 import json
 import requests
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -16,6 +17,36 @@ system_bp = Blueprint('system', __name__)
 
 # Get Supabase client for lightweight routes
 supabase = get_supabase_client()
+
+def test_model_manager():
+    """
+    Check if VOFC Model Manager Windows service is running.
+    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    """
+    try:
+        # Use sc query to check service status (works on Windows)
+        result = subprocess.run(
+            ['sc', 'query', 'VOFC-ModelManager'],
+            capture_output=True,
+            text=True,
+            timeout=2
+        )
+        
+        if result.returncode == 0:
+            output = result.stdout
+            # Check if service is running
+            if 'RUNNING' in output:
+                return 'ok'
+            elif 'STOPPED' in output or 'STOP_PENDING' in output:
+                return 'offline'
+            else:
+                return 'unknown'
+        else:
+            # Service might not exist or access denied
+            return 'unknown'
+    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+        # sc command not available or timeout
+        return 'unknown'
 
 @system_bp.route('/')
 def index():
@@ -61,7 +92,8 @@ def health():
     components = {
         "flask": "ok",
         "ollama": "offline",
-        "supabase": test_supabase()
+        "supabase": test_supabase(),
+        "model_manager": test_model_manager()
     }
     
     # Check Ollama - use service function
@@ -92,6 +124,7 @@ def health():
         "ollama": components["ollama"],
         "supabase": components["supabase"],
         "tunnel": tunnel_status,  # Tunnel is externally managed by NSSM
+        "model_manager": components["model_manager"],  # Model Manager service status
         "service": "PSA Processing Server",
         "urls": {
             "flask": flask_url,
@@ -392,6 +425,84 @@ def system_control():
                 msg = "Review temp files cleanup completed"
             except Exception as e:
                 logging.error(f"Error in cleanup_review_temp: {e}")
+                msg = f"Cleanup error: {str(e)}"
+        
+        elif action == "cleanup_rejected_submissions":
+            try:
+                import traceback
+                from datetime import datetime, timedelta
+                
+                # Get optional parameters
+                request_data = request.get_json(silent=True) or {}
+                older_than_days = request_data.get('older_than_days')
+                dry_run = request_data.get('dry_run', False)
+                
+                logging.info(f"[Admin Control] cleanup_rejected_submissions: older_than_days={older_than_days}, dry_run={dry_run}")
+                
+                # Query rejected submissions
+                query = supabase.table('submissions').select('id, status, created_at, updated_at').eq('status', 'rejected')
+                
+                # Filter by date if specified
+                if older_than_days and isinstance(older_than_days, (int, float)) and older_than_days > 0:
+                    cutoff_date = datetime.utcnow() - timedelta(days=int(older_than_days))
+                    query = query.lte('updated_at', cutoff_date.isoformat())
+                
+                result = query.execute()
+                rejected_submissions = result.data if result.data else []
+                
+                if not rejected_submissions:
+                    msg = "No rejected submissions found"
+                    logging.info(f"[Admin Control] {msg}")
+                else:
+                    if dry_run:
+                        msg = f"DRY RUN: Found {len(rejected_submissions)} rejected submission(s) that would be deleted"
+                        logging.info(f"[Admin Control] {msg}")
+                    else:
+                        deleted_count = 0
+                        error_count = 0
+                        errors = []
+                        
+                        for submission in rejected_submissions:
+                            submission_id = submission['id']
+                            try:
+                                # Delete from related tables first (due to foreign key constraints)
+                                # Note: These deletes are idempotent - safe to run even if data doesn't exist
+                                
+                                # Delete submission_vulnerability_ofc_links
+                                supabase.table('submission_vulnerability_ofc_links').delete().eq('submission_id', submission_id).execute()
+                                
+                                # Delete submission_ofc_sources
+                                supabase.table('submission_ofc_sources').delete().eq('submission_id', submission_id).execute()
+                                
+                                # Delete submission_options_for_consideration
+                                supabase.table('submission_options_for_consideration').delete().eq('submission_id', submission_id).execute()
+                                
+                                # Delete submission_vulnerabilities
+                                supabase.table('submission_vulnerabilities').delete().eq('submission_id', submission_id).execute()
+                                
+                                # Delete submission_sources
+                                supabase.table('submission_sources').delete().eq('submission_id', submission_id).execute()
+                                
+                                # Finally, delete the main submission
+                                delete_result = supabase.table('submissions').delete().eq('id', submission_id).execute()
+                                
+                                deleted_count += 1
+                                logging.info(f"[Admin Control] Deleted rejected submission {submission_id}")
+                                
+                            except Exception as delete_err:
+                                error_count += 1
+                                errors.append(f"Submission {submission_id}: {str(delete_err)}")
+                                logging.error(f"[Admin Control] Failed to delete submission {submission_id}: {delete_err}")
+                        
+                        if error_count > 0:
+                            msg = f"Cleanup complete: {deleted_count} deleted, {error_count} errors. Errors: {'; '.join(errors[:5])}"
+                        else:
+                            msg = f"Cleanup complete: {deleted_count} rejected submission(s) deleted"
+                        logging.info(f"[Admin Control] {msg}")
+                        
+            except Exception as e:
+                logging.error(f"Error in cleanup_rejected_submissions: {e}")
+                logging.error(traceback.format_exc())
                 msg = f"Cleanup error: {str(e)}"
         
         elif action == "process_existing":

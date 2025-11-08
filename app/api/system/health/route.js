@@ -58,7 +58,8 @@ export async function GET(request) {
               flask: 'offline',
               ollama: 'unknown',
               supabase: 'unknown',
-              tunnel: 'unknown'
+              tunnel: 'unknown',
+              model_manager: 'unknown'
             },
             error: 'Flask server did not respond within 10 seconds',
             flaskUrl: FLASK_URL,
@@ -76,7 +77,8 @@ export async function GET(request) {
               flask: 'offline',
               ollama: 'unknown',
               supabase: 'unknown',
-              tunnel: 'unknown'
+              tunnel: 'unknown',
+              model_manager: 'unknown'
             },
             error: 'Connection refused - Flask service may not be accessible at this URL',
             flaskUrl: FLASK_URL,
@@ -95,7 +97,8 @@ export async function GET(request) {
               flask: 'offline',
               ollama: 'unknown',
               supabase: 'unknown',
-              tunnel: 'unknown'
+              tunnel: 'unknown',
+              model_manager: 'unknown'
             },
             error: 'Network error connecting to Flask service',
             flaskUrl: FLASK_URL,
@@ -151,15 +154,16 @@ export async function GET(request) {
     const data = await response.json();
     
     // Transform Flask response to match frontend expectations
-    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", ... }
-    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "..." }, ... }
+    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", model_manager: "ok", ... }
+    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "...", model_manager: "..." }, ... }
     const transformedData = {
       ...data,
       components: {
         flask: data.flask || data.components?.flask || 'unknown',
         ollama: data.ollama || data.components?.ollama || 'unknown',
         supabase: data.supabase || data.components?.supabase || 'unknown',
-        tunnel: data.tunnel || data.components?.tunnel || 'unknown'
+        tunnel: data.tunnel || data.components?.tunnel || 'unknown',
+        model_manager: data.model_manager || data.components?.model_manager || 'unknown'
       }
     };
     

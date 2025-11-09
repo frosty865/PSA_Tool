@@ -180,7 +180,7 @@ def postprocess_results(model_results):
             
             subsector_id = get_subsector_id(subsector_name) if subsector_name else None
             
-            # Build cleaned record
+            # Build cleaned record - preserve ALL fields from input
             cleaned_record = {
                 "vulnerability": vuln.strip(),
                 "options_for_consideration": ofcs,
@@ -194,9 +194,28 @@ def postprocess_results(model_results):
                 "source_file": r.get("source_file"),
             }
             
-            # Add any additional metadata
-            if r.get("recommendations"):
-                cleaned_record["recommendations"] = r.get("recommendations")
+            # Preserve all additional fields from input record
+            # These fields may come from Phase 2/3 and should be preserved
+            additional_fields = [
+                "discipline", "sector", "subsector",  # Resolved names
+                "confidence_score", "confidence",  # Confidence scores
+                "intent",  # Intent classification
+                "source_context",  # Source context
+                "description",  # Description
+                "recommendations",  # Recommendations
+                "severity_level",  # Severity level
+                "audit_status",  # Audit status
+                "review_reason",  # Review reason
+                "rejection_reason",  # Rejection reason
+                "audit_confidence_adjusted",  # Adjusted confidence
+                "audit_notes",  # Audit notes
+                "citations",  # Citations
+                "source_title", "source_url",  # Source metadata
+            ]
+            
+            for field in additional_fields:
+                if field in r and r[field] is not None:
+                    cleaned_record[field] = r[field]
             
             cleaned.append(cleaned_record)
             

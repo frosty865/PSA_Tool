@@ -111,6 +111,7 @@ export async function GET(request) {
     }
 
     // Fetch submissions with related vulnerabilities, OFCs, sources, and OFC-source links
+    // Use minimal select first to avoid column errors, then fetch related data separately if needed
     let query = supabase
       .from('submissions')
       .select(`
@@ -121,7 +122,6 @@ export async function GET(request) {
           discipline,
           sector,
           subsector,
-          audit_status,
           source,
           source_title
         ),
@@ -130,7 +130,6 @@ export async function GET(request) {
           option_text,
           discipline,
           confidence_score,
-          audit_status,
           source,
           source_title
         ),
@@ -166,6 +165,61 @@ export async function GET(request) {
       console.error('[Admin Submissions API] Error message:', dbError.message)
       console.error('[Admin Submissions API] Error hint:', dbError.hint)
       console.error('[Admin Submissions API] Error details:', dbError.details)
+      
+      // Check for column not found errors (42883 = undefined_column, 42703 = undefined_object)
+      if (dbError.code === '42883' || dbError.code === '42703' || dbError.message?.includes('column') || dbError.message?.includes('does not exist')) {
+        console.error('[Admin Submissions API] Column error detected - trying fallback query without nested selects')
+        
+        // Fallback: fetch submissions without nested relationships
+        let fallbackQuery = supabase
+          .from('submissions')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100)
+        
+        if (status) {
+          fallbackQuery = fallbackQuery.eq('status', status)
+        }
+        if (source) {
+          fallbackQuery = fallbackQuery.eq('source', source)
+        }
+        
+        const { data: fallbackData, error: fallbackError } = await fallbackQuery
+        
+        if (fallbackError) {
+          return NextResponse.json({ 
+            error: `Database query failed: ${fallbackError.message}`,
+            code: fallbackError.code,
+            hint: fallbackError.hint,
+            details: fallbackError.details,
+            original_error: dbError.message
+          }, { status: 500 })
+        }
+        
+        // Return submissions without nested data
+        return NextResponse.json({
+          success: true,
+          allSubmissions: (fallbackData || []).map(sub => ({
+            ...sub,
+            submission_vulnerabilities: [],
+            submission_options_for_consideration: [],
+            submission_sources: [],
+            vulnerability_count: 0,
+            ofc_count: 0,
+            source_count: 0
+          })),
+          submissions: (fallbackData || []).map(sub => ({
+            ...sub,
+            submission_vulnerabilities: [],
+            submission_options_for_consideration: [],
+            submission_sources: [],
+            vulnerability_count: 0,
+            ofc_count: 0,
+            source_count: 0
+          })),
+          warning: 'Some columns may not exist in database schema. Returning submissions without nested relationships.'
+        })
+      }
       
       // Check for common issues
       if (dbError.code === '42P01') {

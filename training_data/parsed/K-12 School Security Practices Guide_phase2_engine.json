@@ -1,0 +1,1123 @@
+{
+  "source_file": "K-12 School Security Practices Guide.pdf",
+  "processed_at": "2025-11-09T02:27:31.220720",
+  "phase2_engine_count": 52,
+  "records": [
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools consider installing CCTV cameras to enhance safety and security.",
+          "confidence": 0.2,
+          "confidence_score": 0.2
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_001",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 2,
+      "page_range": "2",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_002",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 2,
+      "page_range": "2",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_003",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have a visitor management system in place to ensure that all visitors are properly identified, screened, and tracked.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be installed in strategic locations to monitor activity within the facility.",
+          "confidence": 0.2,
+          "confidence_score": 0.2
+        },
+        {
+          "ofc": "Establish a perimeter security system.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have a secure perimeter to prevent unauthorized access.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Develop emergency response plans.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have a comprehensive emergency response plan in place to address various emergencies, including evacuation, lockdown, and shelter-in-place scenarios.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        },
+        {
+          "ofc": "Provide training for staff on security procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Staff should be trained on security procedures to ensure a safe environment for students and visitors.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        },
+        {
+          "ofc": "Implement a cybersecurity program.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have a comprehensive cybersecurity program in place to protect against digital threats.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        },
+        {
+          "ofc": "Develop policies for managing visitor access.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have policies in place to manage visitor access, including procedures for screening visitors and issuing badges or passes.",
+          "confidence": 0.03,
+          "confidence_score": 0.03
+        },
+        {
+          "ofc": "Implement a screening process for visitors.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have a screening process in place to ensure that all visitors are properly vetted before entering the building.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        },
+        {
+          "ofc": "Install ballistic-resistant glazing.",
+          "discipline": "Doors / Windows / Glazing",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should consider installing ballistic-resistant glazing to protect against potential threats.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 2,
+      "page_range": "2",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_004",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include implementing visitor screening procedures to enhance safety within schools.",
+          "confidence": 0.03,
+          "confidence_score": 0.03
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_005",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_006",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "Facilities benefit from the development of visitor management policies.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_007",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that facilities develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_008",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities develop and implement a formal visitor management policy.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_009",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop a visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should implement visitor screening procedures.",
+          "confidence": 0.03,
+          "confidence_score": 0.03
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_010",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Implement a visitor check-in system.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools implement a visitor check-in system to enhance security.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_011",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_012",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "vulnerability": "Inadequate emergency planning procedures.",
+          "ofc": "Develop and implement an emergency response plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is essential to have a comprehensive emergency response plan in place to ensure the safety of students, staff, and visitors during emergencies.",
+          "confidence": 0.2,
+          "confidence_score": 0.2
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_013",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities implement a visitor management system to track and control access of visitors, contractors, and other non-employees.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_014",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_015",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_016",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_017",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "vulnerability": "Absence of a comprehensive emergency response plan.",
+          "ofc": "Develop an all-hazards emergency response plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to have a comprehensive emergency response plan in place for all schools.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_018",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should have a visitor management system in place to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that the facility implement visitor screening procedures to enhance safety.",
+          "confidence": 0.03,
+          "confidence_score": 0.03
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_019",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_020",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_021",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_022",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_023",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure a secure and controlled environment for students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_024",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_025",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_026",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_027",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include developing a formal visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_028",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_029",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools implement a formal visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "vulnerability": "Lack of emergency evacuation plans for students with disabilities.",
+          "ofc": "Develop and communicate emergency evacuation plans for students with disabilities.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should develop and communicate emergency evacuation plans for students with disabilities.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_030",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "Best practices include developing visitor management policies to ensure the safety of students, staff, and visitors. (Source: National Association of School Resource Officers)",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_031",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities implement a visitor management system to control access and track visitors on campus.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_032",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_033",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools develop a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_034",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_035",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a visitor management system to control access, track visitors, and maintain security.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_036",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a visitor management system to control access and maintain security.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_037",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a formal visitor management policy to ensure the safety and security of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_038",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_039",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools implement a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "vulnerability": "Inadequate emergency evacuation procedures.",
+          "ofc": "Develop and document comprehensive emergency evacuation procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to have a well-defined emergency evacuation plan in place, including clear instructions for students, staff, and visitors.",
+          "confidence": 0.0,
+          "confidence_score": 0.0
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_040",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_041",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should establish a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_042",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_043",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_044",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_045",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_046",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_047",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop a visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school benefits from implementing a video surveillance system.",
+          "confidence": 0.2,
+          "confidence_score": 0.2
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_048",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_049",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": 0.23,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_050",
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy.",
+          "confidence": 0.23,
+          "confidence_score": 0.23
+        }
+      ],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_051",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.23,
+      "confidence_score": 0.23
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "K-12 School Security Practices Guide.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "K-12 School Security Practices Guide_chunk_052",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    }
+  ]
+}

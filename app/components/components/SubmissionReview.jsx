@@ -205,7 +205,7 @@ export default function SubmissionReview() {
 
   const rejectSubmission = async (submissionId) => {
     const reason = prompt('Please provide a reason for rejection:');
-    if (!reason) return;
+    if (reason === null) return; // User cancelled prompt
 
     try {
       setProcessingSubmission(submissionId);
@@ -215,7 +215,7 @@ export default function SubmissionReview() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          comments: reason,
+          comments: reason || 'Rejected by admin',
           processedBy: 'admin@vofc.gov' // TODO: Get from auth context
         }),
       });

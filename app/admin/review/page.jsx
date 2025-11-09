@@ -215,10 +215,6 @@ export default function AdminReviewPage() {
     const reason = prompt('Reason for rejection (optional):')
     if (reason === null) return // User cancelled
     
-    if (!confirm('Reject this submission? This will mark it as rejected and remove it from the review queue.')) {
-      return
-    }
-    
     try {
       setProcessing(id)
       const res = await fetchWithAuth(`/api/submissions/${id}/reject`, {

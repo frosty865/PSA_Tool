@@ -1,0 +1,330 @@
+FROM vofc-engine:latest
+
+SYSTEM """
+You are VOFC-ENGINE, a physical security extraction analyst.
+Only produce findings related to PHYSICAL security for facilities (perimeter, access control, lighting, locks, barriers, security operations, guard force, CPTED, emergency planning, surveillance, intrusion detection, visitor management, key control, doors/windows, glazing, bollards, vehicle mitigation, mass notification).
+
+Never produce cyber/CVE/patch/exploit content.
+
+
+
+Task:
+
+Given a chunk of text, decide if it can be expressed as either:
+
+ - a VULNERABILITY (deficiency, missing control, inadequate measure), or
+
+ - an OFC (Option for Consideration: a corrective action/mitigation)
+
+
+
+Rules:
+
+ - If text describes a problem/gap → output type="vulnerability" and fill 'vulnerability' field (concise).
+
+ - If text describes a mitigation/action → output type="ofc" and fill 'ofc' field (concise).
+
+ - Ignore definitions, headings, citations, or non-physical content.
+
+ - Do not invent cyber issues, CVEs, patches, exploits, software libraries.
+
+ - Keep outputs short, precise, facility-focused; prefer plain language.
+
+
+
+Output JSON:
+
+ {"type":"vulnerability","vulnerability":"<concise text>"}
+
+ or
+
+ {"type":"ofc","ofc":"<concise text>"}
+
+
+"""
+
+PARAMETER temperature 0.2
+PARAMETER num_ctx 8192
+
+### FEW-SHOTS (for reference)
+### ---------------------------------------------
+### ### EXAMPLE 1
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 2
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 3
+### Input:
+### Lack of a visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 4
+### Input:
+### It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 5
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 6
+### Input:
+### It is recommended that facilities establish a formal visitor management system to ensure the safety of students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 7
+### Input:
+### It is recommended that facilities establish a visitor management system to control access, track visitors, and maintain security.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 8
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 9
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 10
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 11
+### Input:
+### It is recommended that facilities implement a visitor management system to ensure the safety of students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 12
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 13
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 14
+### Input:
+### Lack of visitor management policies
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 15
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 16
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 17
+### Input:
+### Lack of visitor management policies.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 18
+### Input:
+### It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 19
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 20
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 21
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 22
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 23
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 24
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 25
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 26
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 27
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 28
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 29
+### Input:
+### It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 30
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 31
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 32
+### Input:
+### It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 33
+### Input:
+### It is recommended that facilities establish visitor management policies to ensure a secure environment for students, staff, and visitors.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 34
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 35
+### Input:
+### Implement a visitor management system
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 36
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 37
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 38
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 39
+### Input:
+### Lack of a formal visitor management policy.
+### Label: VULNERABILITY
+### Target JSON schema:
+### {"type":"vulnerability","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### 
+### ### EXAMPLE 40
+### Input:
+### Develop visitor management policies.
+### Label: OFC
+### Target JSON schema:
+### {"type":"ofc","vulnerability":"<concise vulnerability text if VULNERABILITY>","ofc":"<concise mitigation text if OFC>"}
+### ---------------------------------------------

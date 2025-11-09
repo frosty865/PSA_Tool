@@ -1,0 +1,21 @@
+{
+  "records": [
+    {
+      "vulnerability": "CVE-2022-1234",
+      "ofc": "OpenVAS-1234567890",
+      "discipline": "Cybersecurity",
+      "sector": "Finance",
+      "subsector": "Banking",
+      "sector_match_level": "exact",
+      "source_context": "Vulnerability Report",
+      "confidence": "High",
+      "follow_up": false
+    }
+  ],
+  "phase": "auditor",
+  "count": 1,
+  "metadata": {
+    "status": "accepted_all",
+    "total": 1
+  }
+}

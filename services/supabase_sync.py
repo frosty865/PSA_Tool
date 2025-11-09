@@ -169,7 +169,100 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     # 2. Extract and insert vulnerabilities into separate table
     # NOTE: We READ from data but do NOT modify it - data remains complete in the data column
     # Store vulnerability IDs mapped by vulnerability text for linking to OFCs
+    
+    # Handle different data formats:
+    # 1. Standard format: {"vulnerabilities": [...], "options_for_consideration": [...]}
+    # 2. Phase3 auditor format: {"accepted": [...], "needs_review": [...], "rejected": [...], "records": [...]}
+    # 3. Phase1 parser format: {"records": [{"vulnerabilities": [...], "vulnerability": "...", "ofc": "...", ...}]}
     vulnerabilities = data.get("vulnerabilities", [])
+    
+    # If phase1_parser format (has "records" array with nested structure)
+    if not vulnerabilities and "records" in data and isinstance(data.get("records"), list):
+        records = data.get("records", [])
+        logger.info(f"[SYNC] Detected Phase1 parser format, extracting from {len(records)} records")
+        
+        # Extract vulnerabilities from records
+        vulnerabilities = []
+        for record in records:
+            # Handle nested vulnerabilities array
+            if "vulnerabilities" in record and isinstance(record.get("vulnerabilities"), list):
+                for vuln_obj in record.get("vulnerabilities", []):
+                    vuln_text = vuln_obj.get("vulnerability", "") or vuln_obj.get("text", "")
+                    if vuln_text:
+                        vuln_entry = {
+                            "vulnerability": vuln_text,
+                            "discipline": vuln_obj.get("discipline"),
+                            "sector": vuln_obj.get("sector"),
+                            "subsector": vuln_obj.get("subsector"),
+                            "source_context": vuln_obj.get("source_context"),
+                            "confidence_score": vuln_obj.get("confidence") or vuln_obj.get("confidence_score"),
+                            "page_ref": record.get("source_page") or record.get("page_range"),
+                            "chunk_id": record.get("chunk_id"),
+                            "source_file": record.get("source_file"),
+                        }
+                        vulnerabilities.append(vuln_entry)
+            
+            # Handle direct vulnerability field
+            elif "vulnerability" in record and record.get("vulnerability"):
+                vuln_text = record.get("vulnerability", "")
+                if vuln_text:
+                    vuln_entry = {
+                        "vulnerability": vuln_text,
+                        "discipline": record.get("discipline"),
+                        "sector": record.get("sector"),
+                        "subsector": record.get("subsector"),
+                        "source_context": record.get("source_context"),
+                        "confidence_score": record.get("confidence") or record.get("confidence_score"),
+                        "page_ref": record.get("source_page") or record.get("page_range"),
+                        "chunk_id": record.get("chunk_id"),
+                        "source_file": record.get("source_file"),
+                    }
+                    vulnerabilities.append(vuln_entry)
+        
+        logger.info(f"[SYNC] Extracted {len(vulnerabilities)} vulnerabilities from Phase1 parser format")
+    
+    # If phase3_auditor format, extract from accepted + needs_review + records
+    elif not vulnerabilities and ("accepted" in data or "needs_review" in data or "records" in data):
+        logger.info(f"[SYNC] Detected Phase3 auditor format, extracting from accepted/needs_review/records")
+        accepted = data.get("accepted", [])
+        needs_review = data.get("needs_review", [])
+        records = data.get("records", [])
+        # Combine all records (accepted + needs_review + any in records)
+        all_records = accepted + needs_review
+        # Add records that aren't already in accepted/needs_review
+        record_texts = {r.get("vulnerability", "").lower()[:100] for r in all_records}
+        for rec in records:
+            rec_text = rec.get("vulnerability", "").lower()[:100]
+            if rec_text and rec_text not in record_texts:
+                all_records.append(rec)
+                record_texts.add(rec_text)
+        # Convert to vulnerabilities format
+        vulnerabilities = []
+        for rec in all_records:
+            vuln_text = rec.get("vulnerability", "") or rec.get("text", "")
+            if vuln_text:
+                vuln_obj = {
+                    "vulnerability": vuln_text,
+                    "discipline_id": rec.get("discipline_id"),
+                    "discipline": rec.get("discipline"),
+                    "category": rec.get("category"),
+                    "sector_id": rec.get("sector_id"),
+                    "sector": rec.get("sector"),
+                    "subsector_id": rec.get("subsector_id"),
+                    "subsector": rec.get("subsector"),
+                    "page_ref": rec.get("page_ref"),
+                    "chunk_id": rec.get("chunk_id"),
+                    "severity_level": rec.get("severity_level"),
+                    "confidence_score": rec.get("confidence_score"),
+                    "intent": rec.get("intent"),
+                    "source_context": rec.get("source_context"),
+                    "audit_status": rec.get("audit_status", "accepted" if rec in accepted else "needs_review" if rec in needs_review else "pending"),
+                    "review_reason": rec.get("review_reason"),
+                    "rejection_reason": rec.get("rejection_reason"),
+                }
+                vulnerabilities.append(vuln_obj)
+        logger.info(f"[SYNC] Converted Phase3 format: {len(accepted)} accepted + {len(needs_review)} needs_review = {len(vulnerabilities)} vulnerabilities")
+    
     if not isinstance(vulnerabilities, list):
         vulnerabilities = []
     
@@ -241,6 +334,16 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
             "source_url": v.get("source_url") or None,
             "parser_version": data.get("parser_version", "vofc-parser:latest"),
             "parsed_at": datetime.utcnow().isoformat(),
+            # Additional fields from Phase 2/3 (if present in data)
+            "confidence_score": v.get("confidence_score"),  # Confidence score from Phase 2/3
+            "intent": v.get("intent"),  # Intent classification from Phase 2
+            "source_context": v.get("source_context"),  # Source context if present
+            "description": v.get("description"),  # Description if present
+            "recommendations": json.dumps(v.get("recommendations")) if v.get("recommendations") else None,  # Recommendations as JSON
+            "review_reason": v.get("review_reason"),  # Review reason if present
+            "rejection_reason": v.get("rejection_reason"),  # Rejection reason if present
+            "audit_confidence_adjusted": v.get("audit_confidence_adjusted"),  # Adjusted confidence if present
+            "audit_notes": v.get("audit_notes"),  # Audit notes if present
         }
         
         # Remove None values to avoid database errors
@@ -265,6 +368,81 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     # NOTE: We READ from data but do NOT modify it - data remains complete in the data column
     # Store OFC IDs for linking to vulnerabilities
     ofcs = data.get("ofcs") or data.get("options_for_consideration") or []
+    
+    # If phase1_parser format (has "records" array with nested structure)
+    if len(ofcs) == 0 and "records" in data and isinstance(data.get("records"), list):
+        records = data.get("records", [])
+        logger.info(f"[SYNC] Extracting OFCs from Phase1 parser format")
+        
+        # Extract OFCs from records
+        ofcs = []
+        for record in records:
+            # Handle nested vulnerabilities array (OFCs are inside vulnerability objects)
+            if "vulnerabilities" in record and isinstance(record.get("vulnerabilities"), list):
+                for vuln_obj in record.get("vulnerabilities", []):
+                    ofc_text = vuln_obj.get("ofc") or vuln_obj.get("option_text")
+                    vuln_text = vuln_obj.get("vulnerability", "")
+                    if ofc_text:
+                        ofcs.append({
+                            "option_text": ofc_text if isinstance(ofc_text, str) else str(ofc_text),
+                            "vulnerability": vuln_text,
+                            "discipline": vuln_obj.get("discipline"),
+                            "sector": vuln_obj.get("sector"),
+                            "subsector": vuln_obj.get("subsector"),
+                            "confidence_score": vuln_obj.get("confidence") or vuln_obj.get("confidence_score"),
+                            "source_context": vuln_obj.get("source_context"),
+                            "page_ref": record.get("source_page") or record.get("page_range"),
+                            "chunk_id": record.get("chunk_id"),
+                            "source_file": record.get("source_file"),
+                        })
+            
+            # Handle direct ofc field
+            elif "ofc" in record and record.get("ofc"):
+                ofc_text = record.get("ofc", "")
+                vuln_text = record.get("vulnerability", "")
+                if ofc_text:
+                    ofcs.append({
+                        "option_text": ofc_text if isinstance(ofc_text, str) else str(ofc_text),
+                        "vulnerability": vuln_text,
+                        "discipline": record.get("discipline"),
+                        "sector": record.get("sector"),
+                        "subsector": record.get("subsector"),
+                        "confidence_score": record.get("confidence") or record.get("confidence_score"),
+                        "source_context": record.get("source_context"),
+                        "page_ref": record.get("source_page") or record.get("page_range"),
+                        "chunk_id": record.get("chunk_id"),
+                        "source_file": record.get("source_file"),
+                    })
+        
+        logger.info(f"[SYNC] Extracted {len(ofcs)} OFCs from Phase1 parser format")
+    
+    # If phase3_auditor format, extract OFCs from records (they have "ofc" field)
+    elif len(ofcs) == 0 and ("accepted" in data or "needs_review" in data or "records" in data):
+        logger.info(f"[SYNC] Extracting OFCs from Phase3 auditor format")
+        accepted = data.get("accepted", [])
+        needs_review = data.get("needs_review", [])
+        records = data.get("records", [])
+        all_records = accepted + needs_review + records
+        
+        # Extract OFCs from records
+        ofcs = []
+        for rec in all_records:
+            # Handle different OFC field names
+            ofc_text = rec.get("ofc") or rec.get("option_text") or rec.get("options_for_consideration")
+            if isinstance(ofc_text, list):
+                ofcs.extend([{"option_text": o, "vulnerability": rec.get("vulnerability", ""), **{k: v for k, v in rec.items() if k not in ["ofc", "option_text", "options_for_consideration"]}} for o in ofc_text])
+            elif ofc_text:
+                ofcs.append({
+                    "option_text": ofc_text if isinstance(ofc_text, str) else str(ofc_text),
+                    "vulnerability": rec.get("vulnerability", ""),
+                    "discipline_id": rec.get("discipline_id"),
+                    "discipline": rec.get("discipline"),
+                    "confidence_score": rec.get("confidence_score"),
+                    "intent": rec.get("intent"),
+                    "audit_status": rec.get("audit_status", "accepted" if rec in accepted else "needs_review" if rec in needs_review else "pending"),
+                })
+        logger.info(f"[SYNC] Extracted {len(ofcs)} OFCs from Phase3 format")
+    
     if not isinstance(ofcs, list):
         ofcs = []
     
@@ -312,6 +490,11 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
             "source_title": o.get("source_title") or data.get("source_file") or None,
             "source_url": o.get("source_url") or None,
             "citations": json.dumps(o.get("citations", [])) if o.get("citations") else None,
+            # Additional fields from Phase 2/3 (if present in data)
+            "intent": o.get("intent"),  # Intent classification from Phase 2
+            "source_context": o.get("source_context"),  # Source context if present
+            "review_reason": o.get("review_reason"),  # Review reason if present
+            "rejection_reason": o.get("rejection_reason"),  # Rejection reason if present
         }
         
         # Remove None values

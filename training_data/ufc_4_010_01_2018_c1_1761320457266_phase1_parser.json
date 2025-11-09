@@ -1,0 +1,2227 @@
+{
+  "records": [
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_001"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_002"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_003"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system for exterior areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should consider installing cameras to monitor the perimeter of the property.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_004"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement video surveillance systems for exterior areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities benefit from the installation of video cameras in exterior areas to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_005"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_006"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Provide training for school staff on visitor management procedures.",
+          "discipline": "Training & Exercises",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is advised to provide regular training for school staff on visitor management policies and procedures.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_007"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_008"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_009"
+    },
+    {
+      "vulnerability": "Lack of a visitor management policy",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The facility should develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_010"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the installation of cameras throughout the facility to monitor activity and deter crime.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_011"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_012"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop a visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school benefits from implementing a video surveillance system.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_013"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_014"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_015"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_016"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools implement a video surveillance system to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_017"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_018"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should establish a visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_019"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities develop formal visitor management policies to ensure a secure environment for students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Inadequate emergency planning procedures.",
+          "ofc": "Develop and implement comprehensive emergency plans.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is advised to establish a comprehensive emergency plan that includes evacuation procedures, lockdown protocols, shelter-in-place guidelines, and reunification strategies.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_020"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors. This system should include procedures for checking identification, issuing badges, and logging visitor information.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_021"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_022"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_023"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure a secure and orderly environment.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_024"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems in sensitive areas.",
+          "ofc": "Install video surveillance systems in sensitive areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include installing video surveillance systems in sensitive areas to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_025"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_026"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install security cameras in high-traffic areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "CCTV systems are effective tools for monitoring school grounds and deterring criminal activity.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_027"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_028"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_029"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_030"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_031"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management process to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of emergency evacuation plans.",
+          "ofc": "Develop an emergency evacuation plan.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is advised to have a comprehensive emergency evacuation plan in place for all schools.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_032"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_033"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_034"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Establish procedures for visitor screening.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish procedures for visitor screening to enhance safety measures.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_035"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement video surveillance systems at all entrances and high-traffic areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the installation of video surveillance systems to monitor entrances and high-traffic areas.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_036"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_037"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_038"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should have a visitor management system in place to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "CCTV cameras are an effective tool for deterring crime and monitoring school grounds.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Establish a lockdown procedure.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "In the event of an emergency, it is important to have a clear plan for securing the school and protecting students.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_039"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_040"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Visitors should be registered upon arrival, and their identification verified. A visitor management system can help manage this process.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Ensure that all exterior doors are equipped with functioning locks.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Doors should be locked at all times, except during authorized entry and exit.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install video surveillance cameras in high-traffic areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Cameras can help deter crime, aid in incident investigations, and provide evidence for prosecution.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement an intrusion detection system to alert staff of unauthorized entry.",
+          "discipline": "Intrusion Detection",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Alarm systems can provide early warning of potential threats, allowing for timely response.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install perimeter security measures such as fences or bollards to prevent unauthorized access.",
+          "discipline": "Perimeter Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Secure the property from intruders, vandals, or trespassers.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Ensure adequate site lighting to improve visibility and deter crime.",
+          "discipline": "Lighting",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Good lighting can help staff, students, and visitors feel safe and secure.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Develop an emergency plan to address various scenarios such as fires, active shooters, or natural disasters.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "An effective emergency response plan can save lives and minimize property damage.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Conduct regular training and exercises to prepare staff for emergencies.",
+          "discipline": "Training & Exercises",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Regular drills help ensure that staff are familiar with emergency procedures and can respond effectively in an emergency.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Establish a communication plan to notify staff, students, and parents during emergencies.",
+          "discipline": "Communications",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "A clear communication plan can help ensure that everyone is informed about the situation and knows what to do.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a threat assessment and reporting system to identify and address potential threats.",
+          "discipline": "Threat Assessment & Reporting",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "A threat assessment team can help identify students who may pose a risk to themselves or others, and develop interventions to address those risks.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Ensure that the school's network is secure and protected from cyber threats.",
+          "discipline": "Cyber/IT",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Schools store sensitive information such as student records, financial data, and personal identifiable information. It is important to protect this data from unauthorized access.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Develop policies and procedures for managing cybersecurity risks.",
+          "discipline": "Policy & Procedures",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Policies and procedures can help ensure that staff are aware of their responsibilities for protecting the school's network and data.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement screening measures such as metal detectors or bag checks at entry points.",
+          "discipline": "Screening & Entry",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Screening can help prevent weapons, contraband, or other dangerous items from entering the school.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install ballistic-resistant door frames to protect against gunfire.",
+          "discipline": "Facilities & Hardening",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Ballistic-resistant doors can help prevent gunfire from entering classrooms or other areas of the school.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_041"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of video surveillance cameras in critical areas.",
+          "ofc": "Install CCTV cameras in critical areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the installation of video surveillance cameras in critical areas such as entrances, hallways, and playgrounds.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_042"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Visitors should be required to sign in upon arrival, and their vehicles should be parked in designated areas. Visitor management policies should also include procedures for handling unauthorized visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_043"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_044"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to ensure proper identification and screening of visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_045"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_046"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_047"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management policy.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_048"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_049"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_050"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop a visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement a metal detector screening process at all entrances.",
+          "discipline": "Screening & Entry",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should consider implementing metal detectors at all entrances.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_051"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_052"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_053"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities establish a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of a lockdown procedure.",
+          "ofc": "Develop and implement a lockdown procedure.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the development of a lockdown procedure.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_054"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_055"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_056"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure proper identification, screening, and tracking of visitors. This can help maintain security and control access to sensitive areas.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_057"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_058"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_059"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_060"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_061"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_062"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_063"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "...",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_064"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 42,
+      "page_range": "42",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_065"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_066"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_067"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_068"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure proper identification, screening, and tracking of visitors. This can help maintain a secure environment.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_069"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools implement visitor screening procedures to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 47,
+      "page_range": "47",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_070"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_071"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_072"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_073"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_074"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "vulnerability": "Absence of a comprehensive emergency plan.",
+          "ofc": "Develop an all-hazards emergency plan for the school.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is essential to have a comprehensive emergency plan in place to respond effectively to various emergencies.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_075"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Ensure that schools have a visitor management system in place to control access to the facility.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_076"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_077"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_078"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras and VMS.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the installation of video surveillance systems.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 56,
+      "page_range": "56",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_079"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 56,
+      "page_range": "56",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_080"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_081"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_082"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_083"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_084"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_085"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the installation of video cameras to monitor school grounds and buildings.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_086"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety and security of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_087"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should have a formal visitor management policy.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install CCTV cameras in high-traffic areas for increased security.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Cameras are a beneficial addition to school security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 60,
+      "page_range": "60",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_088"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Visitors should be required to sign in upon arrival. A log of visitors should be maintained for security purposes.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install video surveillance cameras in high-traffic areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Cameras should be placed in hallways, entrances, and parking lots to monitor activity.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 60,
+      "page_range": "60",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_089"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies to control access and track visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_090"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish and implement a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_091"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_092"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_093"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_094"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_095"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_096"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_097"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 65,
+      "page_range": "65",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_098"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Security guidance for schools recommends the development of visitor management policies to ensure a secure environment.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 65,
+      "page_range": "65",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_099"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_100"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_101"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement metal detectors at entrances.",
+          "discipline": "Screening & Entry",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools consider implementing metal detectors to enhance security at entrances.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_102"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_103"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_104"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_105"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_106"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 70,
+      "page_range": "70",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_107"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors. This system should include procedures for verifying the identity of visitors, issuing badges or passes, and maintaining visitor logs.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 71,
+      "page_range": "71",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_108"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities implement a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of a documented emergency response plan.",
+          "ofc": "Develop and document an emergency response plan.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is advised to develop and document an emergency response plan.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 71,
+      "page_range": "71",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_109"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 72,
+      "page_range": "72",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_110"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include developing a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities implement visitor screening procedures.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 73,
+      "page_range": "73",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_111"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 74,
+      "page_range": "74",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_112"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 74,
+      "page_range": "74",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_113"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_114"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include implementing visitor screening procedures.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_115"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The facility should establish a visitor management system to ensure the safety of students, staff, and visitors. This system should include a sign-in/sign-out log, identification badges, and background checks for all visitors.",
+      "confidence": "High",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 76,
+      "page_range": "76",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_116"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 76,
+      "page_range": "76",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_117"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 76,
+      "page_range": "76",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_118"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_119"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should consider implementing a video surveillance system to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_120"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to track visitors and contractors on campus.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 78,
+      "page_range": "78",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_121"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 79,
+      "page_range": "79",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_122"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 80,
+      "page_range": "80",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_123"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools install CCTV cameras to monitor the premises for safety purposes.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 82,
+      "page_range": "82",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_124"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 83,
+      "page_range": "83",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_125"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 84,
+      "page_range": "84",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_126"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management policy.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 84,
+      "page_range": "84",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_127"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_128"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities develop a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_129"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 86,
+      "page_range": "86",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_130"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include developing visitor management policies.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 86,
+      "page_range": "86",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_131"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_132"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Inadequate perimeter security.",
+          "ofc": "Install fences, gates, or barriers around the facility's perimeter.",
+          "discipline": "Perimeter Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires that facilities have adequate perimeter security to prevent unauthorized access.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_133"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 88,
+      "page_range": "88",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_134"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Install CCTV cameras in high-traffic areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the installation of CCTV cameras in key locations to monitor activity and deter criminal behavior.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a lockdown procedure for emergency situations.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop and implement a lockdown procedure to protect students and staff in the event of an emergency.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Provide regular training for school staff on security procedures.",
+          "discipline": "Training & Exercises",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "To enhance safety, it is advised to provide regular training for school staff on security procedures and emergency response.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 88,
+      "page_range": "88",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_135"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 89,
+      "page_range": "89",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_136"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include developing a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of a documented emergency plan.",
+          "ofc": "Develop and document an emergency plan.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities have a documented emergency plan in place.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "ufc_4_010_01_2018_c1_1761320457266.pdf",
+      "source_page": 89,
+      "page_range": "89",
+      "chunk_id": "ufc_4_010_01_2018_c1_1761320457266_chunk_137"
+    }
+  ],
+  "phase": "parser",
+  "count": 137
+}

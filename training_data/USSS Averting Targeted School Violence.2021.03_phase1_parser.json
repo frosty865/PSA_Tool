@@ -1,0 +1,1904 @@
+{
+  "records": [
+    {
+      "vulnerabilities": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_001"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 2,
+      "page_range": "2",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_002"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_003"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_004"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_005"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_006"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_007"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a formal visitor management policy.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_008"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_009"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of emergency evacuation plans.",
+          "ofc": "Develop emergency evacuation plans.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is advised to have an emergency evacuation plan in place for all schools.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_010"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The facility should have a visitor management system in place to ensure the safety of students, staff, and visitors.",
+      "confidence": "High",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_011"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include developing a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires implementing visitor screening procedures.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_012"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The facility should establish visitor management policies to ensure that all visitors are properly screened, identified, and tracked.",
+      "confidence": "High",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_013"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to track visitors and contractors entering the premises.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_014"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_015"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_016"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_017"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of emergency evacuation procedures for students with disabilities.",
+          "ofc": "Develop emergency evacuation procedures for students with disabilities.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is advised to consider adopting emergency evacuation procedures tailored to the needs of students with disabilities.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_018"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_019"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_020"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include developing a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of a documented emergency plan.",
+          "ofc": "Develop and document an emergency plan.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities have a documented emergency plan.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_021"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_022"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a metal detector screening process for visitors.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should consider implementing a metal detector screening process for visitors to enhance security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_023"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_024"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_025"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_026"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_027"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure proper identification and screening of visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_028"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_029"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_030"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "High",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_031"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors. This system should include procedures for checking identification, monitoring visitor access, and maintaining visitor logs.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_032"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_033"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the implementation of visitor screening procedures to control access to school facilities.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_034"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_035"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement a visitor check-in system.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools implement a visitor check-in system to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Establish procedures for visitor identification.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish procedures for visitor identification to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_036"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should have a formal visitor management policy in place.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Ensure the installation of CCTV cameras at all entrances and exits.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities benefit from the installation of CCTV cameras at all entrances and exits.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_037"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_038"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement visitor management policies to control access and maintain a secure environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_039"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to control access and track visitors on campus.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_040"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_041"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to control access and track visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_042"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_043"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management policy.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_044"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_045"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_046"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_047"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities develop a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_048"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The facility should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "High",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_049"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_050"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and controlled environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_051"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_052"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop a visitor management policy to ensure that all visitors are properly screened, identified, and escorted.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement video surveillance systems at key locations.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should consider implementing video surveillance systems at key locations to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_053"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_054"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_055"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a formal visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_056"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_057"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_058"
+    },
+    {
+      "vulnerability": "Lack of a visitor management policy",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_059"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_060"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_061"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure and orderly environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_062"
+    },
+    {
+      "vulnerability": "Lack of a visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 30,
+      "page_range": "30",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_063"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should consider adopting a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_064"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure a secure and orderly environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_065"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors. Policies should include procedures for screening, identification, and tracking visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_066"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management system to ensure that all visitors are properly screened and identified before entering the building.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement video surveillance systems for exterior areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school benefits from installing cameras in exterior areas to monitor activity around the building.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Establish a perimeter security system.",
+          "discipline": "Perimeter Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that the school implement measures to secure the perimeter of the property, such as fencing or gates.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_067"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_068"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_069"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_070"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_071"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_072"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "disciplines": [],
+      "sectors": [],
+      "subsectors": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_073"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_074"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The facility should develop a visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Implement a visitor check-in system.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The facility benefits from implementing a visitor check-in system.",
+          "confidence": "Medium"
+        },
+        {
+          "ofc": "Establish procedures for visitor screening.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires establishing procedures for visitor screening.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_075"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Establish a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management policy.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should implement a video surveillance system to monitor the premises.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_076"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies",
+      "ofc": "Develop visitor management policies",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_077"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_078"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_079"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include implementing visitor screening procedures to maintain a secure environment.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_080"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_081"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_082"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of emergency evacuation plans.",
+          "ofc": "Develop emergency evacuation plans.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the development of a comprehensive emergency plan.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_083"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to track visitors, contractors, and volunteers.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_084"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should develop and implement a visitor management policy.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Ensure that video surveillance systems are installed in all high-traffic areas.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities benefit from the installation of video surveillance systems in all high-traffic areas.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_085"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_086"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The facility should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_087"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure proper identification, screening, and tracking of visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_088"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of visitor screening measures.",
+          "ofc": "Implement visitor screening procedures such as ID checks or bag searches.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the implementation of visitor screening measures to prevent unauthorized access.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_089"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_090"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 42,
+      "page_range": "42",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_091"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_092"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_093"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_094"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure a secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_095"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Ensure that schools have established visitor management policies to control access, track visitors, and maintain a safe environment. (Source: National Association of School Resource Officers)",
+      "confidence": "High",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_096"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_097"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_098"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a visitor management system to control access to the facility.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_099"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_100"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety and security of students, staff, and visitors.",
+          "confidence": "Medium"
+        },
+        {
+          "vulnerability": "Absence of a comprehensive emergency plan.",
+          "ofc": "Develop an all-hazards emergency plan.",
+          "discipline": "Emergency Planning",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the development of a comprehensive emergency plan that covers all potential hazards, including active shooter incidents.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 47,
+      "page_range": "47",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_101"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that facilities develop a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 47,
+      "page_range": "47",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_102"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_103"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "vulnerability": "Absence of visitor screening procedures.",
+          "ofc": "Implement visitor screening procedures.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Effective security requires the implementation of visitor screening procedures to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_104"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_105"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_106"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies to ensure a secure environment.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_107"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_108"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools develop a formal visitor management policy.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_109"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_110"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "Best practices include the development of visitor management policies.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_111"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "Best practices include developing visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_112"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_113"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_114"
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_115"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Develop a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The school should establish a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools consider adopting a video surveillance system to enhance safety and security.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_116"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "The school should consider adopting a formal visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_117"
+    },
+    {
+      "vulnerability": "Lack of visitor management policies",
+      "ofc": "Develop visitor management policies",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities develop visitor management policies.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_118"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_119"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities establish a visitor management system to control access and ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_120"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "ofc": "Establish a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The facility should establish a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "High"
+        },
+        {
+          "ofc": "Implement a video surveillance system.",
+          "discipline": "Video Surveillance Systems",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "The facility should implement a video surveillance system to monitor the premises for safety and security.",
+          "confidence": "High"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 60,
+      "page_range": "60",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_121"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools develop visitor management policies to ensure a safe and secure environment for students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 60,
+      "page_range": "60",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_122"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "Access Control",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that schools establish visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_123"
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_124"
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "General Security",
+          "sector": "Education Facilities",
+          "subsector": "Public and Private Schools",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": "Medium"
+        }
+      ],
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_125"
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "ofc": "Develop visitor management policies.",
+      "discipline": "General Security",
+      "sector": "Education Facilities",
+      "subsector": "Public and Private Schools",
+      "source_context": "It is recommended that facilities implement a visitor management system to ensure the safety of students, staff, and visitors.",
+      "confidence": "Medium",
+      "source_file": "USSS Averting Targeted School Violence.2021.03.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "USSS Averting Targeted School Violence.2021.03_chunk_126"
+    }
+  ],
+  "phase": "parser",
+  "count": 126
+}

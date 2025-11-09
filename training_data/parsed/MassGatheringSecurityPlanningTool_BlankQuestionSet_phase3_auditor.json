@@ -1,0 +1,21 @@
+{
+  "records": [
+    {
+      "vulnerability": "...",
+      "ofc": "...",
+      "discipline": "...",
+      "sector": "...",
+      "subsector": "...",
+      "sector_match_level": "exact | broad | fallback",
+      "source_context": "...",
+      "confidence": "High | Medium",
+      "follow_up": false
+    }
+  ],
+  "phase": "auditor",
+  "count": 1,
+  "metadata": {
+    "status": "accepted_all",
+    "total": 1
+  }
+}

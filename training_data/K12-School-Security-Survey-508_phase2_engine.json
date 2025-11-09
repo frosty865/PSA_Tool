@@ -1,0 +1,17 @@
+{
+  "records": [
+    {
+      "vulnerability": "Apache Log4j",
+      "ofc": "CVE-2021-30692",
+      "discipline": "Cybersecurity",
+      "sector": "Finance Sector",
+      "subsector": "Financial Services",
+      "sector_match_level": "exact",
+      "source_context": "Apache Log4j Vulnerability Report",
+      "confidence": "High",
+      "follow_up": false
+    }
+  ],
+  "phase": "engine",
+  "count": 1
+}

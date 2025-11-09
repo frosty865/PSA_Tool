@@ -106,6 +106,13 @@ def ensure_dirs():
 
 # Setup logging
 AUTOMATION_DIR.mkdir(parents=True, exist_ok=True)
+
+# Create VOFC_Logs directory for engine-specific logs
+VOFC_LOGS_DIR = Path(r"C:\Tools\VOFC_Logs")
+VOFC_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+ENGINE_LOG_FILE = VOFC_LOGS_DIR / "vofc_engine.log"
+
+# Configure root logger for auto processor
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
@@ -119,6 +126,13 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
 logging.getLogger().addHandler(console_handler)
+
+# Add dedicated engine log file handler
+engine_file_handler = logging.FileHandler(ENGINE_LOG_FILE, mode='a', encoding='utf-8')
+engine_file_handler.setLevel(logging.INFO)
+engine_file_handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+logging.getLogger().addHandler(engine_file_handler)
+logging.info(f"Engine logging initialized: {ENGINE_LOG_FILE}")
 
 # Log watchdog availability (after logging is set up)
 if not WATCHDOG_AVAILABLE:
@@ -249,7 +263,7 @@ def extract_text_with_pages(pdf_path: Path):
         return None
 
 # ============================================================================
-# 3-Phase Processing Pipeline
+# 2-Phase Processing Pipeline (Phase 1 Parser + Phase 2 Lite Taxonomy)
 # ============================================================================
 
 def phase1_parser(chunks: list, filepath: Path) -> Dict[str, Any]:
@@ -352,6 +366,18 @@ Remember: Return ONLY valid JSON, nothing else."""
             if isinstance(parsed, list):
                 records_found = len(parsed)
                 for record in parsed:
+                    # Normalize OFC field: convert "ofc" (string) to "options_for_consideration" (array)
+                    if "ofc" in record and "options_for_consideration" not in record:
+                        ofc_value = record.pop("ofc")
+                        if ofc_value:
+                            # Convert string to array format
+                            if isinstance(ofc_value, str):
+                                record["options_for_consideration"] = [ofc_value]
+                            elif isinstance(ofc_value, list):
+                                record["options_for_consideration"] = ofc_value
+                            else:
+                                record["options_for_consideration"] = [str(ofc_value)]
+                    
                     record["source_file"] = chunk_data.get("filename", filepath.name)
                     record["source_page"] = page_num
                     record["page_range"] = str(page_num)
@@ -360,6 +386,18 @@ Remember: Return ONLY valid JSON, nothing else."""
                 logging.info(f"      - ✅ Parsed {records_found} records from array response")
             elif isinstance(parsed, dict):
                 records_found = 1
+                # Normalize OFC field: convert "ofc" (string) to "options_for_consideration" (array)
+                if "ofc" in parsed and "options_for_consideration" not in parsed:
+                    ofc_value = parsed.pop("ofc")
+                    if ofc_value:
+                        # Convert string to array format
+                        if isinstance(ofc_value, str):
+                            parsed["options_for_consideration"] = [ofc_value]
+                        elif isinstance(ofc_value, list):
+                            parsed["options_for_consideration"] = ofc_value
+                        else:
+                            parsed["options_for_consideration"] = [str(ofc_value)]
+                
                 parsed["source_file"] = chunk_data.get("filename", filepath.name)
                 parsed["source_page"] = page_num
                 parsed["page_range"] = str(page_num)
@@ -406,491 +444,8 @@ Remember: Return ONLY valid JSON, nothing else."""
     return {"records": parser_results, "phase": "parser", "count": len(parser_results)}
 
 
-def phase2_engine(parser_output: Dict[str, Any], filepath: Path) -> Dict[str, Any]:
-    """
-    Phase 2: Normalization/Semantic Engine
-    Model: vofc-engine:latest
-    Purpose: Normalize, deduplicate, and validate parser output
-    
-    Args:
-        parser_output: Output from Phase 1
-        filepath: Path to source document
-        
-    Returns:
-        Dictionary with normalized, validated JSON
-    """
-    import threading
-    from services.physical_security_heuristics import (
-        should_apply_physical_security_heuristics,
-        get_physical_security_prompt_enhancement,
-        load_physical_security_patterns,
-        apply_physical_security_heuristics
-    )
-    
-    model_name = "vofc-engine:latest"
-    thread_id = threading.current_thread().ident
-    thread_name = threading.current_thread().name
-    
-    start_time = time.time()
-    input_count = parser_output.get("count", 0)
-    
-    logging.info(f"🧠 Phase 2: Running engine ({model_name}) on {input_count} parser records...")
-    logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
-    logging.info(f"   File: {filepath.name}")
-    
-    records = parser_output.get("records", [])
-    if not records:
-        logging.warning("   ⚠️  Phase 2: No records from parser, skipping")
-        return {"records": [], "phase": "engine", "count": 0}
-    
-    logging.info(f"   - Input records: {len(records)}")
-    
-    # Check if physical security heuristics should be applied
-    document_title = parser_output.get("source_title", "") or filepath.stem
-    use_physical_security = should_apply_physical_security_heuristics(filepath, document_title)
-    
-    # Try pattern-based extraction first for physical security documents
-    pattern_based_records = []
-    if use_physical_security:
-        try:
-            from services.phase2_engine import run_phase2_engine as run_pattern_engine
-            logging.info("   🔒 Attempting pattern-based extraction for physical security document...")
-            
-            # Convert parser records to chunk format for pattern engine
-            chunks_for_patterns = []
-            for record in records:
-                chunk = {
-                    "text": record.get("vulnerability") or record.get("text") or "",
-                    "content": record.get("vulnerability") or record.get("text") or "",
-                    "chunk_id": record.get("chunk_id", ""),
-                    "page_ref": record.get("page_ref") or record.get("page_range", ""),
-                    "section": record.get("section") or record.get("citations", [""])[0] if record.get("citations") else ""
-                }
-                if chunk["text"]:
-                    chunks_for_patterns.append(chunk)
-            
-            if chunks_for_patterns:
-                pattern_based_records = run_pattern_engine(chunks_for_patterns, filepath)
-                if pattern_based_records:
-                    logging.info(f"   ✅ Pattern-based extraction found {len(pattern_based_records)} high-confidence records")
-                    # Merge with existing records, preferring pattern-based for physical security
-                    # Add pattern-based records that aren't duplicates
-                    existing_texts = {r.get("vulnerability", "").lower()[:100] for r in records}
-                    for pbr in pattern_based_records:
-                        pbr_text = pbr.get("vulnerability", "").lower()[:100]
-                        if pbr_text not in existing_texts:
-                            records.append(pbr)
-                            existing_texts.add(pbr_text)
-        except Exception as pattern_err:
-            logging.warning(f"   ⚠️  Pattern-based extraction failed: {pattern_err}, continuing with Ollama-based approach")
-    
-    if use_physical_security:
-        logging.info("   🔒 Physical Security heuristics enabled for Ollama model")
-        patterns = load_physical_security_patterns()
-        physical_prompt = get_physical_security_prompt_enhancement(patterns) if patterns else ""
-    else:
-        physical_prompt = ""
-    
-    # Prepare input for engine (consolidate all records)
-    input_json = json.dumps(records, indent=2)
-    input_size = len(input_json)
-    logging.info(f"   - Input JSON size: {input_size} characters")
-    
-    prompt = f"""You are a normalization and validation engine for security assessments.
-
-Normalize and validate the following parser output:
-- Consolidate duplicate vulnerabilities
-- Standardize categories and classifications
-- Link OFCs to vulnerabilities
-- Apply confidence scores
-- Ensure citation consistency
-
-{physical_prompt}
-
-CRITICAL: Respond ONLY in valid JSON. No markdown, no explanations, no code blocks.
-
-Input (parser output):
-{input_json}
-
-Output format (array):
-[
-  {{
-    "category": "standardized category",
-    "vulnerability": "normalized vulnerability text",
-    "options_for_consideration": ["normalized OFC 1", "normalized OFC 2"],
-    "citations": ["Section X"],
-    "confidence_score": 0.95,
-    "source_file": "{filepath.name}",
-    "page_range": "X-Y"
-  }}
-]
-
-Return normalized, deduplicated records. If no valid data, return: []"""
-    
-    prompt_size = len(prompt)
-    logging.info(f"   - Prompt size: {prompt_size} characters")
-    logging.info(f"   - Calling model API...")
-    
-    try:
-        model_call_start = time.time()
-        result_text = run_model(model=model_name, prompt=prompt)
-        model_call_duration = time.time() - model_call_start
-        
-        if not result_text or not result_text.strip():
-            logging.warning(f"   ⚠️  Phase 2: Empty response from engine (duration: {model_call_duration:.2f}s)")
-            return {"records": [], "phase": "engine", "count": 0}
-        
-        response_size = len(result_text)
-        logging.info(f"   - ✅ Model response received (duration: {model_call_duration:.2f}s, size: {response_size} chars)")
-        logging.info(f"   - Parsing JSON response...")
-        
-        # Clean and parse JSON
-        json_text = result_text.strip()
-        if json_text.startswith("```"):
-            lines = json_text.split("\n")
-            json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
-            logging.info(f"   - Removed markdown code blocks from response")
-        
-        parsed = json.loads(json_text)
-        engine_records = parsed if isinstance(parsed, list) else [parsed] if isinstance(parsed, dict) else []
-        
-        # Apply physical security heuristics if enabled
-        if use_physical_security:
-            engine_records = apply_physical_security_heuristics(engine_records, filepath, document_title)
-            logging.info(f"   - Applied physical security heuristics: {len(engine_records)} records")
-        
-        total_duration = time.time() - start_time
-        logging.info(f"   [Phase 2] COMPLETE: {len(engine_records)} normalized records")
-        logging.info(f"      - Input: {input_count} records")
-        logging.info(f"      - Output: {len(engine_records)} records")
-        logging.info(f"      - Reduction: {input_count - len(engine_records)} records (deduplication)")
-        logging.info(f"      - Total duration: {total_duration:.2f}s")
-        
-        return {"records": engine_records, "phase": "engine", "count": len(engine_records)}
-        
-    except json.JSONDecodeError as je:
-        total_duration = time.time() - start_time
-        logging.error(f"   ❌ Phase 2: Failed to parse JSON from engine: {je}")
-        logging.error(f"      - Response preview: {result_text[:200] if 'result_text' in locals() else 'N/A'}...")
-        logging.error(f"      - Duration: {total_duration:.2f}s")
-        logging.warning(f"   - Using parser output as fallback (no normalization)")
-        # Fallback: return parser output as-is
-        return {"records": records, "phase": "engine", "count": len(records), "error": "engine_parse_failed"}
-    except Exception as e:
-        total_duration = time.time() - start_time
-        logging.error(f"   ❌ Phase 2: Engine failed: {type(e).__name__}: {e}")
-        logging.error(f"      - Duration: {total_duration:.2f}s")
-        logging.error(f"      - Traceback: {traceback.format_exc()}")
-        logging.warning(f"   - Using parser output as fallback (no normalization)")
-        # Fallback: return parser output as-is
-        return {"records": records, "phase": "engine", "count": len(records), "error": str(e)}
-
-
-def phase3_auditor(engine_output: Dict[str, Any], filepath: Path) -> Dict[str, Any]:
-    """
-    Phase 3: Validation/Audit
-    Model: vofc-auditor:latest
-    Purpose: Quality check and flag issues
-    
-    Args:
-        engine_output: Output from Phase 2
-        filepath: Path to source document
-        
-    Returns:
-        Dictionary with audited JSON + metadata (accepted/rejected/needs_review)
-    """
-    import threading
-    from services.physical_security_heuristics import (
-        should_apply_physical_security_heuristics,
-        get_physical_security_prompt_enhancement,
-        load_physical_security_patterns
-    )
-    
-    model_name = "vofc-auditor:latest"
-    thread_id = threading.current_thread().ident
-    thread_name = threading.current_thread().name
-    
-    start_time = time.time()
-    input_count = engine_output.get("count", 0)
-    
-    logging.info(f"🔍 Phase 3: Running auditor ({model_name}) on {input_count} engine records...")
-    logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
-    logging.info(f"   File: {filepath.name}")
-    
-    records = engine_output.get("records", [])
-    if not records:
-        logging.warning("   ⚠️  Phase 3: No records from engine, skipping")
-        return {"records": [], "phase": "auditor", "count": 0, "metadata": {"status": "empty"}}
-    
-    logging.info(f"   - Input records: {len(records)}")
-    
-    # Check if physical security heuristics should be applied
-    document_title = engine_output.get("source_title", "") or filepath.stem
-    use_physical_security = should_apply_physical_security_heuristics(filepath, document_title)
-    
-    # Apply pattern-based auditor first (confidence gates)
-    try:
-        from services.phase3_auditor import audit_records as pattern_audit
-        logging.info("   🔍 Applying pattern-based confidence gates...")
-        audit_results = pattern_audit(records, use_physical_security)
-        
-        accepted = audit_results.get("accepted", [])
-        needs_review = audit_results.get("needs_review", [])
-        rejected = audit_results.get("rejected", [])
-        summary = audit_results.get("summary", {})
-        
-        logging.info(f"   ✅ Pattern audit: {len(accepted)} accepted, {len(needs_review)} needs review, {len(rejected)} rejected")
-        
-        # Use accepted records for Ollama validation (optional enhancement)
-        records_for_ollama = accepted + needs_review  # Include needs_review for potential Ollama re-evaluation
-    except Exception as pattern_audit_err:
-        logging.warning(f"   ⚠️  Pattern-based audit failed: {pattern_audit_err}, using all records for Ollama")
-        records_for_ollama = records
-        accepted = []
-        needs_review = []
-        rejected = []
-        summary = {}
-    
-    if use_physical_security:
-        logging.info("   🔒 Physical Security heuristics enabled for Ollama auditor")
-        patterns = load_physical_security_patterns()
-        physical_prompt = get_physical_security_prompt_enhancement(patterns) if patterns else ""
-        
-        # Add auditor-specific instructions
-        auditor_behavior = patterns.get("auditor_behavior", []) if patterns else []
-        if auditor_behavior:
-            physical_prompt += "\n\nAUDITOR RULES FOR PHYSICAL SECURITY:\n"
-            for rule in auditor_behavior:
-                physical_prompt += f"- {rule}\n"
-    else:
-        physical_prompt = ""
-    
-    # Prepare input for Ollama auditor (use records that passed pattern audit)
-    input_json = json.dumps(records_for_ollama, indent=2)
-    input_size = len(input_json)
-    logging.info(f"   - Input JSON size: {input_size} characters (after pattern audit)")
-    
-    prompt = f"""You are a quality assurance auditor for security assessments.
-
-Review and validate the following normalized records:
-- Flag low-confidence mappings
-- Identify missing categories or citations
-- Suggest corrections or merges
-- Mark records as: accepted, rejected, or needs_review
-
-{physical_prompt}
-
-CRITICAL: Respond ONLY in valid JSON. No markdown, no explanations, no code blocks.
-
-Input (engine output):
-{input_json}
-
-Output format:
-{{
-  "records": [
-    {{
-      "category": "...",
-      "vulnerability": "...",
-      "options_for_consideration": [...],
-      "citations": [...],
-      "confidence_score": 0.95,
-      "audit_status": "accepted" | "rejected" | "needs_review",
-      "audit_notes": "optional notes",
-      "source_file": "{filepath.name}"
-    }}
-  ],
-  "metadata": {{
-    "total_records": 10,
-    "accepted": 8,
-    "rejected": 1,
-    "needs_review": 1,
-    "accuracy_score": 0.85
-  }}
-}}
-
-Return audited records with status. If no valid data, return: {{"records": [], "metadata": {{"status": "empty"}}}}"""
-    
-    prompt_size = len(prompt)
-    logging.info(f"   - Prompt size: {prompt_size} characters")
-    logging.info(f"   - Calling model API...")
-    
-    try:
-        model_call_start = time.time()
-        result_text = run_model(model=model_name, prompt=prompt)
-        model_call_duration = time.time() - model_call_start
-        
-        if not result_text or not result_text.strip():
-            logging.warning(f"   ⚠️  Phase 3: Empty response from auditor (duration: {model_call_duration:.2f}s)")
-            # Fallback: use pattern-based audit results if available, otherwise accept all
-            if 'accepted' in locals() and accepted:
-                logging.warning("   - Using pattern-based audit results (fallback)")
-                merged_metadata = {
-                    "total_records": input_count,
-                    "accepted": len(accepted),
-                    "rejected": len(rejected),
-                    "needs_review": len(needs_review),
-                    "accepted_pct": round((len(accepted) / input_count) * 100, 1) if input_count else 0,
-                    "pattern_audit": summary,
-                    "ollama_audit": {"status": "failed", "error": "empty_response"}
-                }
-                return {
-                    "records": accepted + needs_review,  # Include needs_review in output
-                    "phase": "auditor",
-                    "count": len(accepted) + len(needs_review),
-                    "metadata": merged_metadata
-                }
-            else:
-                logging.warning("   - Marking all records as accepted (fallback)")
-                return {
-                    "records": records,
-                    "phase": "auditor",
-                    "count": len(records),
-                    "metadata": {"status": "accepted_all", "total": len(records), "accepted": len(records)}
-                }
-        
-        response_size = len(result_text)
-        logging.info(f"   - ✅ Model response received (duration: {model_call_duration:.2f}s, size: {response_size} chars)")
-        logging.info(f"   - Parsing JSON response...")
-        
-        # Clean and parse JSON
-        json_text = result_text.strip()
-        if json_text.startswith("```"):
-            lines = json_text.split("\n")
-            json_text = "\n".join([l for l in lines if not l.strip().startswith("```")])
-            logging.info(f"   - Removed markdown code blocks from response")
-        
-        parsed = json.loads(json_text)
-        
-        # Handle both formats: direct array or object with records/metadata
-        if isinstance(parsed, list):
-            ollama_auditor_records = parsed
-            ollama_metadata = {"status": "accepted_all", "total": len(ollama_auditor_records), "accepted": len(ollama_auditor_records)}
-            logging.info(f"   - Parsed list response: {len(ollama_auditor_records)} records")
-        elif isinstance(parsed, dict):
-            ollama_auditor_records = parsed.get("records", records_for_ollama)
-            ollama_metadata = parsed.get("metadata", {"status": "accepted_all", "total": len(ollama_auditor_records)})
-            logging.info(f"   - Parsed dict response: {len(ollama_auditor_records)} records, metadata: {ollama_metadata}")
-        else:
-            ollama_auditor_records = records_for_ollama
-            ollama_metadata = {"status": "error", "total": len(records_for_ollama)}
-            logging.warning(f"   - ⚠️  Unexpected response type: {type(parsed)}")
-        
-        # Merge pattern-based audit results with Ollama results
-        # Prefer pattern-based accepted records, then Ollama accepted, then needs_review
-        final_records = []
-        final_accepted = len(accepted)  # Start with pattern-based accepted
-        final_rejected = len(rejected)  # Start with pattern-based rejected
-        final_needs_review = len(needs_review)  # Start with pattern-based needs_review
-        
-        # Add pattern-based accepted records
-        final_records.extend(accepted)
-        
-        # Add Ollama-accepted records that weren't already accepted
-        accepted_texts = {r.get("vulnerability", "").lower()[:100] for r in accepted}
-        for ollama_rec in ollama_auditor_records:
-            if ollama_rec.get("audit_status") == "accepted":
-                ollama_text = ollama_rec.get("vulnerability", "").lower()[:100]
-                if ollama_text not in accepted_texts:
-                    final_records.append(ollama_rec)
-                    final_accepted += 1
-                    accepted_texts.add(ollama_text)
-            elif ollama_rec.get("audit_status") == "needs_review":
-                # Only add if not already in accepted
-                ollama_text = ollama_rec.get("vulnerability", "").lower()[:100]
-                if ollama_text not in accepted_texts:
-                    final_records.append(ollama_rec)
-                    final_needs_review += 1
-        
-        # Add pattern-based needs_review records that weren't accepted by Ollama
-        needs_review_texts = {r.get("vulnerability", "").lower()[:100] for r in final_records}
-        for review_rec in needs_review:
-            review_text = review_rec.get("vulnerability", "").lower()[:100]
-            if review_text not in needs_review_texts:
-                final_records.append(review_rec)
-                needs_review_texts.add(review_text)
-        
-        # Merge metadata
-        merged_metadata = {
-            "total_records": input_count,
-            "accepted": final_accepted,
-            "rejected": final_rejected,
-            "needs_review": final_needs_review,
-            "accepted_pct": round((final_accepted / input_count) * 100, 1) if input_count else 0,
-            "pattern_audit": summary,
-            "ollama_audit": ollama_metadata
-        }
-        
-        total_duration = time.time() - start_time
-        logging.info(f"   [Phase 3] COMPLETE: {len(final_records)} final audited records")
-        logging.info(f"      - Input: {input_count} records")
-        logging.info(f"      - Output: {len(final_records)} records")
-        logging.info(f"      - Final audit status: {final_accepted} accepted ({merged_metadata['accepted_pct']}%), {final_rejected} rejected, {final_needs_review} needs_review")
-        logging.info(f"      - Total duration: {total_duration:.2f}s")
-        
-        return {"records": final_records, "phase": "auditor", "count": len(final_records), "metadata": merged_metadata}
-        
-    except json.JSONDecodeError as je:
-        total_duration = time.time() - start_time
-        logging.error(f"   ❌ Phase 3: Failed to parse JSON from auditor: {je}")
-        logging.error(f"      - Response preview: {result_text[:200] if 'result_text' in locals() else 'N/A'}...")
-        logging.error(f"      - Duration: {total_duration:.2f}s")
-        # Fallback: use pattern-based audit results if available
-        if 'accepted' in locals() and accepted:
-            logging.warning(f"   - Using pattern-based audit results (fallback)")
-            merged_metadata = {
-                "total_records": input_count,
-                "accepted": len(accepted),
-                "rejected": len(rejected),
-                "needs_review": len(needs_review),
-                "accepted_pct": round((len(accepted) / input_count) * 100, 1) if input_count else 0,
-                "pattern_audit": summary,
-                "ollama_audit": {"status": "failed", "error": "json_parse_error"}
-            }
-            return {
-                "records": accepted + needs_review,
-                "phase": "auditor",
-                "count": len(accepted) + len(needs_review),
-                "metadata": merged_metadata
-            }
-        else:
-            logging.warning(f"   - Marking all records as accepted (fallback)")
-            return {
-                "records": records,
-                "phase": "auditor",
-                "count": len(records),
-                "metadata": {"status": "auditor_parse_failed", "total": len(records), "accepted": len(records), "error": str(je)}
-            }
-    except Exception as e:
-        total_duration = time.time() - start_time
-        logging.error(f"   ❌ Phase 3: Auditor failed: {type(e).__name__}: {e}")
-        logging.error(f"      - Duration: {total_duration:.2f}s")
-        logging.error(f"      - Traceback: {traceback.format_exc()}")
-        # Fallback: use pattern-based audit results if available
-        if 'accepted' in locals() and accepted:
-            logging.warning(f"   - Using pattern-based audit results (fallback)")
-            merged_metadata = {
-                "total_records": input_count,
-                "accepted": len(accepted),
-                "rejected": len(rejected),
-                "needs_review": len(needs_review),
-                "accepted_pct": round((len(accepted) / input_count) * 100, 1) if input_count else 0,
-                "pattern_audit": summary,
-                "ollama_audit": {"status": "failed", "error": str(e)}
-            }
-            return {
-                "records": accepted + needs_review,
-                "phase": "auditor",
-                "count": len(accepted) + len(needs_review),
-                "metadata": merged_metadata
-            }
-        else:
-            logging.warning(f"   - Marking all records as accepted (fallback)")
-            return {
-                "records": records,
-                "phase": "auditor",
-                "count": len(records),
-                "metadata": {"status": "auditor_error", "total": len(records), "accepted": len(records)}
-            }
+# DELETED: Old Phase 2 engine function - replaced by Phase 2 Lite classifier (taxonomy assignment only)
+# DELETED: Old Phase 3 auditor function - Phase 3 is disabled, using Phase 2 Lite output directly
 
 
 def _convert_matrix_survey_to_pipeline_format(parsed: Dict[str, Any], filepath: Path) -> Dict[str, Any]:
@@ -978,10 +533,9 @@ def _convert_matrix_survey_to_pipeline_format(parsed: Dict[str, Any], filepath: 
 
 def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
     """
-    Process a single document file through the 3-phase pipeline:
+    Process a single document file through the 2-phase pipeline:
     1. Phase 1 - Parser (vofc-parser:latest): Extract raw vulnerabilities/OFCs
-    2. Phase 2 - Engine (vofc-engine:latest): Normalize and validate
-    3. Phase 3 - Auditor (vofc-auditor:latest): Quality check and flag issues
+    2. Phase 2 Lite - Taxonomy Classifier: Assign discipline, sector, subsector, confidence (no LLM)
     
     Args:
         filepath: Path to the document file
@@ -997,7 +551,7 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
         thread_name = threading.current_thread().name
         process_start_time = time.time()
         
-        logging.info(f"🚀 Starting 3-phase processing for {filepath.name}")
+        logging.info(f"🚀 Starting 2-phase processing for {filepath.name}")
         logging.info(f"   Thread: {thread_name} (ID: {thread_id})")
         logging.info(f"   File path: {filepath.resolve()}")
         logging.info(f"   File size: {filepath.stat().st_size if filepath.exists() else 0} bytes")
@@ -1166,12 +720,30 @@ def process_document_file(filepath: Path) -> Optional[Dict[str, Any]]:
         
         prep_duration = time.time() - process_start_time
         logging.info(f"   [Preparation] COMPLETE: {len(chunks_for_parser)} chunks prepared ({prep_duration:.2f}s)")
+        
+        # After text extraction and chunking
+        parsed_output = {
+            "source_file": filepath.name,
+            "processed_at": datetime.utcnow().isoformat(),
+            "phase1_parser_count": len(chunks_for_parser),
+            "chunks": [{"page": c.get("page", 1), "text": c.get("text") or c.get("content", "")} for c in chunks_for_parser]
+        }
+        
+        # Write to parsed folder before inference
+        parsed_dir = Path("C:/Users/frost/OneDrive/Desktop/Projects/PSA_Tool/training_data/parsed")
+        parsed_dir.mkdir(parents=True, exist_ok=True)
+        parsed_file = parsed_dir / f"{filepath.stem}_parsed.json"
+        with open(parsed_file, "w", encoding="utf-8") as f:
+            json.dump(parsed_output, f, indent=2)
+        
+        logging.info(f"[Phase1] Parsed text saved to {parsed_file}")
+        
         logging.info(f"   ========================================")
-        logging.info(f"   Starting 3-phase pipeline...")
+        logging.info(f"   Starting 2-phase pipeline (Phase 1 + Phase 2 Lite)...")
         logging.info(f"   ========================================")
         
         # ========================================================================
-        # 3-PHASE PIPELINE
+        # 2-PHASE PIPELINE (Phase 1 Parser + Phase 2 Lite Taxonomy)
         # ========================================================================
         
         # Phase 1: Parser
@@ -1245,67 +817,89 @@ Return ONLY valid JSON array."""
                 except Exception as fallback_err:
                     logging.error(f"Fallback to vofc-engine also failed: {fallback_err}")
         
-        # Phase 2: Engine
+        # Phase 2: Lite Classifier (Scoring + Taxonomy - No LLM)
         engine_output = None
         try:
             if parser_output and parser_output.get("records"):
-                engine_output = phase2_engine(parser_output, filepath)
+                from services.phase2_lite_classifier import classify_phase1_records
+                
+                logging.info(f"🔍 Phase 2 (Lite): Running deterministic scoring + taxonomy classification...")
+                phase1_records = parser_output.get("records", [])
+                
+                # Classify Phase 1 records (adds discipline, sector, subsector, confidence_score)
+                scored_records = classify_phase1_records(phase1_records)
+                
+                logging.info(f"   ✅ Classified {len(scored_records)} records with scoring and taxonomy")
+                
+                # Build engine output structure (compatible with existing pipeline)
+                engine_output = {
+                    "records": scored_records,
+                    "phase": "engine_lite",
+                    "count": len(scored_records),
+                    "source_file": filepath.name,
+                    "model_version": "phase2-lite-classifier:v1"
+                }
                 temp_outputs["phase2_engine"] = engine_output
                 
                 # Save Phase 2 output to temp directory
                 temp_file = REVIEW_TEMP_DIR / f"{filepath.stem}_phase2_engine.json"
                 with open(temp_file, "w", encoding="utf-8") as f:
                     json.dump(engine_output, f, indent=2, default=str)
-                logging.info(f"💾 Saved Phase 2 output to {temp_file}")
+                logging.info(f"💾 Saved Phase 2 (Lite) output to {temp_file}")
+                
+                # Verify file was written correctly
+                try:
+                    with open(temp_file, "r", encoding="utf-8") as verify_f:
+                        verify_data = json.load(verify_f)
+                        verify_count = len(verify_data.get("records", []))
+                        if verify_count != len(scored_records):
+                            logging.error(f"⚠️  Phase 2 file corruption detected: Expected {len(scored_records)} records, got {verify_count}")
+                            logging.error(f"   Rewriting Phase 2 file...")
+                            # Rewrite file
+                            with open(temp_file, "w", encoding="utf-8") as rewrite_f:
+                                json.dump(engine_output, rewrite_f, indent=2, default=str)
+                            logging.info(f"   ✅ Phase 2 file rewritten with {len(scored_records)} records")
+                        else:
+                            logging.info(f"   ✅ Verified Phase 2 file: {verify_count} records saved correctly")
+                except Exception as verify_err:
+                    logging.warning(f"   ⚠️  Could not verify Phase 2 file: {verify_err}")
+                
+                # Also save to parsed directory for continuity (matching Phase 1 pattern)
+                parsed_dir = Path("C:/Users/frost/OneDrive/Desktop/Projects/PSA_Tool/training_data/parsed")
+                parsed_dir.mkdir(parents=True, exist_ok=True)
+                phase2_file = parsed_dir / f"{filepath.stem}_phase2_engine.json"
+                phase2_output = {
+                    "source_file": filepath.name,
+                    "processed_at": datetime.utcnow().isoformat(),
+                    "phase2_engine_count": len(scored_records),
+                    "records": scored_records
+                }
+                with open(phase2_file, "w", encoding="utf-8") as f:
+                    json.dump(phase2_output, f, indent=2)
+                logging.info(f"💾 Saved Phase 2 (Lite) to {phase2_file}")
             else:
-                logging.warning("Skipping Phase 2 - no parser output")
+                logging.warning("Skipping Phase 2 (Lite) - no parser output")
                 engine_output = parser_output  # Use parser output as-is
         except Exception as phase2_err:
-            logging.error(f"Phase 2 (engine) failed: {phase2_err}")
+            logging.error(f"Phase 2 (Lite) failed: {phase2_err}")
+            import traceback
+            logging.error(f"   Traceback: {traceback.format_exc()}")
             logging.warning("Using Phase 1 output as fallback for Phase 2...")
-            engine_output = parser_output if parser_output else {"records": [], "phase": "engine", "count": 0, "error": str(phase2_err)}
+            engine_output = parser_output if parser_output else {"records": [], "phase": "engine_lite", "count": 0, "error": str(phase2_err)}
             temp_outputs["phase2_engine"] = engine_output
         
         if not engine_output or not engine_output.get("records"):
-            logging.warning(f"Phase 2 returned no records, using Phase 1 output")
-            engine_output = parser_output if parser_output else {"records": [], "phase": "engine", "count": 0}
+            logging.warning(f"Phase 2 (Lite) returned no records, using Phase 1 output")
+            engine_output = parser_output if parser_output else {"records": [], "phase": "engine_lite", "count": 0}
         
-        # Phase 3: Auditor
-        auditor_output = None
-        try:
-            if engine_output and engine_output.get("records"):
-                auditor_output = phase3_auditor(engine_output, filepath)
-                temp_outputs["phase3_auditor"] = auditor_output
-                
-                # Save Phase 3 output to temp directory for debugging (intermediate step)
-                # The final output will be saved to review/ via handle_successful_processing
-                temp_file = REVIEW_TEMP_DIR / f"{filepath.stem}_phase3_auditor.json"
-                with open(temp_file, "w", encoding="utf-8") as f:
-                    json.dump(auditor_output, f, indent=2, default=str)
-                logging.info(f"💾 Saved Phase 3 output to {temp_file}")
-            else:
-                logging.warning("Skipping Phase 3 - no engine output")
-                # Create minimal auditor output
-                auditor_output = {
-                    "records": [],
-                    "phase": "auditor",
-                    "count": 0,
-                    "metadata": {"status": "skipped", "reason": "no_engine_output"}
-                }
-        except Exception as phase3_err:
-            logging.error(f"Phase 3 (auditor) failed: {phase3_err}")
-            logging.warning("Using Phase 2 output as fallback for Phase 3...")
-            # Fallback: mark all as accepted
-            auditor_output = {
-                "records": engine_output.get("records", []) if engine_output else [],
-                "phase": "auditor",
-                "count": len(engine_output.get("records", [])) if engine_output else 0,
-                "metadata": {"status": "accepted_all_fallback", "total": len(engine_output.get("records", [])) if engine_output else 0, "accepted": len(engine_output.get("records", [])) if engine_output else 0, "error": str(phase3_err)}
-            }
-            temp_outputs["phase3_auditor"] = auditor_output
+        # Phase 3: DELETED - Using Phase 2 Lite output directly as final output
+        logging.info(f"⏭️  Phase 3 deleted - using Phase 2 Lite output directly as final output")
+        
+        # Use Phase 2 Lite output as final output (Phase 3 deleted)
+        final_output = engine_output if engine_output and engine_output.get("records") else {"records": [], "phase": "engine_lite", "count": 0}
         
         # Final post-processing (clean, deduplicate, resolve taxonomy)
-        final_records = auditor_output.get("records", []) if auditor_output else []
+        final_records = final_output.get("records", [])
         
         # If still no records after all phases, create a minimal result to prevent file from getting stuck
         if not final_records:
@@ -1324,48 +918,76 @@ Return ONLY valid JSON array."""
         logging.info(f"Post-processing {len(final_records)} final records...")
         postprocessed = postprocess_results(final_records)
         
-        if not postprocessed:
+        # Include all records from Phase 2 Lite (not just postprocessed) for complete data
+        all_phase2_records = final_records  # All records from Phase 2 Lite
+        
+        if not postprocessed and not all_phase2_records:
             raise ValueError(f"No valid records after post-processing for {filepath.name}")
         
         # Prepare final result structure
+        # Include both postprocessed (for structured output) and all_phase2_records (for complete data)
         result = {
             "source_file": filepath.name,
             "processed_at": datetime.now().isoformat(),
             "chunks_processed": len(chunks_for_parser),
             "phase1_parser_count": parser_output.get("count", 0),
             "phase2_engine_count": engine_output.get("count", 0),
-            "phase3_auditor_count": auditor_output.get("count", 0),
-            "final_records": len(postprocessed),
-            "audit_metadata": auditor_output.get("metadata", {}),
+            "final_records": len(postprocessed) if postprocessed else len(all_phase2_records),
+            # Include all Phase 2 Lite records for complete data (not just postprocessed)
+            "all_phase2_records": all_phase2_records,  # Complete Phase 2 Lite output
             "vulnerabilities": [
                 {
                     "vulnerability": r.get("vulnerability", ""),
                     "discipline_id": r.get("discipline_id"),
+                    "discipline": r.get("discipline"),  # Include resolved name
                     "category": r.get("category"),
                     "sector_id": r.get("sector_id"),
+                    "sector": r.get("sector"),  # Include resolved name
                     "subsector_id": r.get("subsector_id"),
+                    "subsector": r.get("subsector"),  # Include resolved name
                     "page_ref": r.get("page_ref"),
                     "chunk_id": r.get("chunk_id"),
-                    "audit_status": r.get("audit_status", "accepted")
+                    "source": r.get("source"),
+                    "source_file": r.get("source_file"),
+                    "severity_level": r.get("severity_level"),  # Include if present
+                    "confidence_score": r.get("confidence_score"),  # Include confidence from Phase 2/3
+                    "intent": r.get("intent"),  # Include intent classification from Phase 2
+                    "source_context": r.get("source_context"),  # Include source context if present
+                    "description": r.get("description"),  # Include description if present
+                    "recommendations": r.get("recommendations"),  # Include recommendations if present
+                    "audit_status": r.get("audit_status", "accepted"),
+                    "review_reason": r.get("review_reason"),  # Include review reason if present
+                    "rejection_reason": r.get("rejection_reason"),  # Include rejection reason if present
+                    "audit_confidence_adjusted": r.get("audit_confidence_adjusted"),  # Include adjusted confidence if present
+                    "audit_notes": r.get("audit_notes"),  # Include audit notes if present
                 }
                 for r in postprocessed
             ],
             "options_for_consideration": [
                 {
-                    "option_text": ofc,
+                    "option_text": ofc if isinstance(ofc, str) else ofc.get("text", "") if isinstance(ofc, dict) else str(ofc),
                     "vulnerability": r.get("vulnerability", ""),
                     "discipline_id": r.get("discipline_id"),
+                    "discipline": r.get("discipline"),  # Include resolved name
                     "sector_id": r.get("sector_id"),
+                    "sector": r.get("sector"),  # Include resolved name
                     "subsector_id": r.get("subsector_id"),
-                    "audit_status": r.get("audit_status", "accepted")
+                    "subsector": r.get("subsector"),  # Include resolved name
+                    "confidence_score": r.get("confidence_score"),  # Include confidence from Phase 2/3
+                    "intent": r.get("intent"),  # Include intent classification from Phase 2
+                    "source_context": r.get("source_context"),  # Include source context if present
+                    "citations": r.get("citations"),  # Include citations if present
+                    "audit_status": r.get("audit_status", "accepted"),
+                    "review_reason": r.get("review_reason"),  # Include review reason if present
+                    "rejection_reason": r.get("rejection_reason"),  # Include rejection reason if present
                 }
                 for r in postprocessed
-                for ofc in r.get("options_for_consideration", [])
+                for ofc in (r.get("options_for_consideration", []) if isinstance(r.get("options_for_consideration"), list) else [r.get("options_for_consideration")] if r.get("options_for_consideration") else [])
             ],
             "summary": f"Processed {filepath.name}: {len(postprocessed)} vulnerabilities, {sum(len(r.get('options_for_consideration', [])) for r in postprocessed)} OFCs"
         }
         
-        logging.info(f"✅ Successfully processed {filepath.name} through 3-phase pipeline")
+        logging.info(f"✅ Successfully processed {filepath.name} through 2-phase pipeline")
         return result
         
     except Exception as e:
@@ -1418,31 +1040,93 @@ def handle_successful_processing(filepath: Path, result: Dict[str, Any]) -> None
         shutil.move(str(filepath), str(library_path))
         logging.info(f"✅ File processing complete, moved to {LIBRARY_DIR}")
         
-        # Copy JSON output to review/ for admin validation
-        review_path = REVIEW_DIR / json_out.name
-        shutil.copy(str(json_out), str(review_path))
-        logging.info(f"Copied JSON to {review_path} for admin validation")
-        
-        # Sync to submissions table as pending_review
+        # Sync to submissions table as pending_review (from review/temp - prefer largest file)
+        # The larger files in review/temp (phase1_parser.json) contain the most complete data
         try:
             from services.supabase_sync import sync_processed_result
-            logging.info(f"📤 Syncing {review_path.name} to Supabase...")
-            logging.info(f"   Review file exists: {review_path.exists()}")
-            logging.info(f"   Review file size: {review_path.stat().st_size if review_path.exists() else 0} bytes")
+            
+            # Find the best JSON file in review/temp for this document
+            # Priority: phase2_engine.json (has taxonomy) > phase1_parser.json > phase3_auditor.json > _vofc.json
+            temp_files = list(REVIEW_TEMP_DIR.glob(f"{filename}_*.json"))
+            sync_file = None
+            largest_size = 0
+            
+            if temp_files:
+                # First, try to find phase2_engine.json (has enriched data with taxonomy)
+                phase2_file = REVIEW_TEMP_DIR / f"{filename}_phase2_engine.json"
+                if phase2_file.exists() and phase2_file in temp_files:
+                    sync_file = phase2_file
+                    largest_size = phase2_file.stat().st_size
+                    logging.info(f"📤 Using Phase 2 engine output (has taxonomy): {phase2_file.name}")
+                else:
+                    # Fallback: Find the largest file (usually phase1_parser.json)
+                    for temp_file in temp_files:
+                        try:
+                            size = temp_file.stat().st_size
+                            if size > largest_size:
+                                largest_size = size
+                                sync_file = temp_file
+                        except Exception:
+                            continue
+                
+                if sync_file:
+                    logging.info(f"📤 Syncing largest file from review/temp: {sync_file.name} ({largest_size} bytes)")
+                else:
+                    # Fallback to processed files
+                    phase3_file = PROCESSED_DIR / f"{filename}_phase3_auditor.json"
+                    sync_file = phase3_file if phase3_file.exists() else json_out
+                    logging.info(f"📤 Syncing from processed/: {sync_file.name}")
+            else:
+                # No temp files, use processed files
+                phase3_file = PROCESSED_DIR / f"{filename}_phase3_auditor.json"
+                sync_file = phase3_file if phase3_file.exists() else json_out
+                logging.info(f"📤 No temp files found, syncing from processed/: {sync_file.name}")
+            
+            logging.info(f"   Sync file exists: {sync_file.exists()}")
+            logging.info(f"   Sync file size: {sync_file.stat().st_size if sync_file.exists() else 0} bytes")
             
             # Verify the JSON structure before syncing
             try:
-                with open(review_path, "r", encoding="utf-8") as f:
+                with open(sync_file, "r", encoding="utf-8") as f:
                     test_data = json.load(f)
-                    vuln_count = len(test_data.get("vulnerabilities", []))
-                    ofc_count = len(test_data.get("options_for_consideration", []))
-                    logging.info(f"   JSON structure check: {vuln_count} vulnerabilities, {ofc_count} OFCs")
+                    # Handle different formats
+                    if "vulnerabilities" in test_data:
+                        vuln_count = len(test_data.get("vulnerabilities", []))
+                        ofc_count = len(test_data.get("options_for_consideration", []))
+                        logging.info(f"   JSON structure check: {vuln_count} vulnerabilities, {ofc_count} OFCs")
+                    elif "records" in test_data:
+                        records = test_data.get("records", [])
+                        accepted = test_data.get("accepted", [])
+                        needs_review = test_data.get("needs_review", [])
+                        logging.info(f"   Phase structure: {len(records)} records, {len(accepted) if accepted else 0} accepted, {len(needs_review) if needs_review else 0} needs_review")
                     logging.info(f"   JSON keys: {list(test_data.keys())}")
             except Exception as json_err:
                 logging.warning(f"   Warning: Could not verify JSON structure: {json_err}")
             
-            submission_id = sync_processed_result(str(review_path), submitter_email="system@psa.local")
-            logging.info(f"✅ Created submission {submission_id} for review")
+            # Determine sync method based on file type, not just size
+            # Phase 2 output always uses individual sync (has records array)
+            if sync_file.name.endswith("_phase2_engine.json"):
+                # Phase 2 output: Always use individual sync (has records array structure)
+                from services.supabase_sync_individual_v2 import sync_individual_records
+                submission_ids = sync_individual_records(str(sync_file), submitter_email="system@psa.local")
+                logging.info(f"✅ Created {len(submission_ids)} individual submissions from Phase 2 output")
+            elif sync_file.name.endswith("_phase1_parser.json"):
+                # Phase 1 output: Use individual sync (also has records array)
+                from services.supabase_sync_individual_v2 import sync_individual_records
+                submission_ids = sync_individual_records(str(sync_file), submitter_email="system@psa.local")
+                logging.info(f"✅ Created {len(submission_ids)} individual submissions from Phase 1 output")
+            else:
+                # Other formats: Check file size for sync method
+                file_size = sync_file.stat().st_size if sync_file.exists() else 0
+                if file_size >= 2048:  # 2KB or larger
+                    # Break down into individual submissions (one per record)
+                    from services.supabase_sync_individual_v2 import sync_individual_records
+                    submission_ids = sync_individual_records(str(sync_file), submitter_email="system@psa.local")
+                    logging.info(f"✅ Created {len(submission_ids)} individual submissions from large file")
+                else:
+                    # Small file - create single submission
+                    submission_id = sync_processed_result(str(sync_file), submitter_email="system@psa.local")
+                    logging.info(f"✅ Created submission {submission_id} for review")
         except Exception as sync_err:
             logging.error(f"❌ Failed to create submission for {filepath.name}: {sync_err}")
             logging.error(f"   Error type: {type(sync_err).__name__}")
@@ -1453,21 +1137,62 @@ def handle_successful_processing(filepath: Path, result: Dict[str, Any]) -> None
             print(f"❌ SUPABASE SYNC FAILED for {filepath.name}: {sync_err}")
             print(f"   Full traceback: {traceback.format_exc()}")
         
-        # Clean up temp files from review/temp for this document
+        # Clean up temp files: delete files under 2KB, keep larger ones
         try:
-            temp_patterns = [
-                f"{filename}_phase1_parser.json",
-                f"{filename}_phase2_engine.json",
-                f"{filename}_phase3_auditor.json",
-                f"{filename}_error.json"
-            ]
-            for pattern in temp_patterns:
-                temp_file = REVIEW_TEMP_DIR / pattern
-                if temp_file.exists():
-                    temp_file.unlink()
-                    logging.info(f"🧹 Cleaned up temp file: {temp_file.name}")
+            temp_files = list(REVIEW_TEMP_DIR.glob(f"{filename}_*.json"))
+            if temp_files:
+                # Find the largest file (should be phase1_parser.json with full parsed data)
+                largest_file = None
+                largest_size = 0
+                files_to_delete = []
+                
+                for temp_file in temp_files:
+                    try:
+                        size = temp_file.stat().st_size
+                        if size > largest_size:
+                            largest_size = size
+                            largest_file = temp_file
+                        
+                        # Mark files under 2KB for deletion
+                        if size < 2048:  # 2KB = 2048 bytes
+                            files_to_delete.append(temp_file)
+                    except Exception:
+                        continue
+                
+                # Delete small files
+                for small_file in files_to_delete:
+                    try:
+                        small_file.unlink()
+                        logging.info(f"🗑️  Deleted small file (<2KB): {small_file.name}")
+                    except Exception as del_err:
+                        logging.warning(f"Failed to delete {small_file.name}: {del_err}")
+                
+                # Copy the largest file to processed/ directory
+                if largest_file and largest_file.exists():
+                    processed_largest = PROCESSED_DIR / largest_file.name
+                    shutil.copy(str(largest_file), str(processed_largest))
+                    logging.info(f"📋 Copied largest temp file to processed/: {largest_file.name} ({largest_size} bytes) → {processed_largest.name}")
+            else:
+                logging.warning(f"No temp files found for {filename} to copy to processed/")
+        except Exception as copy_err:
+            logging.warning(f"Failed to process temp files: {copy_err}")
+        
+        # Copy JSON output to review/ for admin validation (after sync)
+        review_path = REVIEW_DIR / json_out.name
+        shutil.copy(str(json_out), str(review_path))
+        logging.info(f"Copied JSON to {review_path} for admin validation")
+        
+        # Note: We keep temp files in review/temp for syncing to database
+        # The larger files (phase1_parser.json) are used for database sync
+        # They will be cleaned up later by cleanup_review_temp_files() after sync is confirmed
+        # Only clean up error files immediately
+        try:
+            error_file = REVIEW_TEMP_DIR / f"{filename}_error.json"
+            if error_file.exists():
+                error_file.unlink()
+                logging.info(f"🧹 Cleaned up error file: {error_file.name}")
         except Exception as cleanup_err:
-            logging.warning(f"Failed to clean up temp files for {filename}: {cleanup_err}")
+            logging.warning(f"Failed to clean up error files for {filename}: {cleanup_err}")
             # Don't fail the whole process if cleanup fails
         
     except Exception as e:
@@ -2064,27 +1789,76 @@ def process_file(filepath: Path) -> Path:
 
 def sync_review_files_to_submissions() -> None:
     """
-    Sync review JSON files from review/ folder to Supabase submissions table as pending_review.
-    This makes files available for admin review in the dashboard.
+    Sync review JSON files from review/temp folder (preferring largest files) to Supabase submissions table as pending_review.
+    The larger files in review/temp (phase1_parser.json) contain the most complete data.
     Only creates submissions for files that don't already have a submission record.
     """
     try:
         from services.supabase_sync import sync_processed_result
         
-        review_files = list(REVIEW_DIR.glob("*.json"))
+        # Get all JSON files from review/temp (these have the complete parsed data)
+        temp_files = list(REVIEW_TEMP_DIR.glob("*.json")) if REVIEW_TEMP_DIR.exists() else []
         
-        if not review_files:
+        # Also check review/ folder as fallback
+        review_files = list(REVIEW_DIR.glob("*.json")) if REVIEW_DIR.exists() else []
+        
+        # Group files by document base name and select the largest file for each document
+        file_groups = {}
+        
+        # Process temp files first (these are usually larger and more complete)
+        for temp_file in temp_files:
+            # Extract base name (e.g., "K12-School-Security-Survey-508" from "K12-School-Security-Survey-508_phase1_parser.json")
+            base_name = temp_file.stem
+            # Remove phase suffixes to get document base name
+            for suffix in ["_phase1_parser", "_phase2_engine", "_phase3_auditor", "_error"]:
+                if base_name.endswith(suffix):
+                    base_name = base_name[:-len(suffix)]
+                    break
+            
+            if base_name not in file_groups:
+                file_groups[base_name] = []
+            
+            try:
+                size = temp_file.stat().st_size
+                file_groups[base_name].append((temp_file, size, "temp"))
+            except Exception:
+                continue
+        
+        # Process review files as fallback
+        for review_file in review_files:
+            base_name = review_file.stem.replace('_vofc', '').replace('_phase3_auditor', '')
+            
+            if base_name not in file_groups:
+                file_groups[base_name] = []
+            
+            try:
+                size = review_file.stat().st_size
+                file_groups[base_name].append((review_file, size, "review"))
+            except Exception:
+                continue
+        
+        # Select the largest file for each document
+        files_to_sync = []
+        for base_name, file_list in file_groups.items():
+            if file_list:
+                # Sort by size (descending) and take the largest
+                file_list.sort(key=lambda x: x[1], reverse=True)
+                largest_file, largest_size, source = file_list[0]
+                files_to_sync.append((largest_file, largest_size, base_name, source))
+        
+        if not files_to_sync:
+            logging.info("No files found in review/temp or review/ folders")
             return
         
-        logging.info(f"Checking {len(review_files)} review file(s) for submission sync...")
+        logging.info(f"Checking {len(files_to_sync)} file(s) for submission sync (selected largest files per document)...")
         
         synced_count = 0
         skipped_count = 0
         
-        for review_file in review_files:
+        for review_file, file_size, base_name, source in files_to_sync:
             try:
-                # Check if a submission already exists for this file
-                filename_stem = review_file.stem.replace('_vofc', '').replace('_phase3_auditor', '')
+                # Check if a submission already exists for this document
+                filename_stem = base_name
                 
                 # Check if submission already exists by checking source_file in data JSONB column
                 client = get_supabase_client()
@@ -2107,14 +1881,12 @@ def sync_review_files_to_submissions() -> None:
                             submission_exists = True
                             break
                 
-                result = type('obj', (object,), {'data': [] if not submission_exists else [{'id': 'found'}]})()
-                
-                if result.data and len(result.data) > 0:
-                    logging.debug(f"⏭️  Skipping {review_file.name} - submission already exists")
+                if submission_exists:
+                    logging.debug(f"⏭️  Skipping {review_file.name} ({file_size} bytes from {source}/) - submission already exists")
                     skipped_count += 1
                     continue
                 
-                logging.info(f"📤 Creating submission for review file: {review_file.name}")
+                logging.info(f"📤 Creating submission for {review_file.name} ({file_size} bytes from {source}/)")
                 
                 # Sync to submissions table as pending_review
                 try:
@@ -2396,7 +2168,7 @@ def cleanup_review_temp_files() -> None:
                                 result = {
                                     "source_file": base_name,
                                     "processed_at": datetime.now().isoformat(),
-                                    "phase3_auditor_count": len(records),
+                                    "phase2_engine_count": len(records),
                                     "final_records": len(postprocessed),
                                     "reconstructed": True,
                                     "vulnerabilities": [

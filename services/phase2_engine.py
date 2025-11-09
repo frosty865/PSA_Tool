@@ -54,6 +54,45 @@ def load_patterns() -> Dict[str, Any]:
 # Load patterns at module level
 patterns_cfg = load_patterns()
 
+# ----------------------------------------------------------------
+# Intent Evaluation Layer
+# ----------------------------------------------------------------
+
+def evaluate_chunk_intent(text: str) -> str:
+    """
+    Determine if a text chunk can be turned into a vulnerability or OFC.
+    
+    Returns: "vulnerability", "ofc", "both", or "neither"
+    """
+    lower = text.lower()
+    
+    # Core lexical cues for deficiencies (vulnerabilities)
+    vuln_signals = [
+        "lacks", "does not have", "is missing", "insufficient", "inadequate",
+        "not equipped", "no ", "without", "unsecured", "unauthorized",
+        "outdated", "obsolete", "not functional", "nonfunctional",
+        "failed to", "failure to", "not installed", "not implemented"
+    ]
+    
+    # Core lexical cues for mitigations (Options for Consideration)
+    ofc_signals = [
+        "install", "implement", "establish", "develop", "conduct", "train",
+        "enhance", "upgrade", "replace", "coordinate", "integrate", "improve",
+        "create", "adopt", "deploy", "build", "reinforce"
+    ]
+    
+    is_vuln = any(re.search(rf"\b{re.escape(word)}\b", lower) for word in vuln_signals)
+    is_ofc = any(re.search(rf"\b{re.escape(word)}\b", lower) for word in ofc_signals)
+    
+    if is_vuln and not is_ofc:
+        return "vulnerability"
+    elif is_ofc and not is_vuln:
+        return "ofc"
+    elif is_vuln and is_ofc:
+        return "both"
+    else:
+        return "neither"
+
 def evaluate_confidence(text: str, pattern_dict: Dict[str, Any]) -> Tuple[float, List[str]]:
     """Compute weighted confidence score and matched categories."""
     if not patterns_cfg:
@@ -87,11 +126,21 @@ def evaluate_confidence(text: str, pattern_dict: Dict[str, Any]) -> Tuple[float,
     
     return min(round(total_weight, 3), 1.0), matched_tags
 
-def detect_physical_security_vulns(text: str, source_file: str = "") -> Dict[str, Any]:
-    """Detect vulnerabilities and OFCs within text chunk using loaded patterns."""
+def detect_physical_security_vulns(text: str, source_file: str = "") -> Optional[Dict[str, Any]]:
+    """
+    Detect vulnerabilities and OFCs within text chunk.
+    Only continues if evaluate_chunk_intent() says it's actionable.
+    """
     if not patterns_cfg:
         return None
     
+    # Step 1: Ask if this chunk is conceptually useful (Intent Evaluation Gate)
+    intent = evaluate_chunk_intent(text)
+    if intent == "neither":
+        log_warn(f"[Phase2] Skipping chunk — no actionable content: {text[:80]!r}")
+        return None
+    
+    # Step 2: Run pattern confidence scoring as before
     pattern_groups = patterns_cfg.get("patterns", {})
     confidence, tags = evaluate_confidence(text, pattern_groups)
     
@@ -130,8 +179,10 @@ def detect_physical_security_vulns(text: str, source_file: str = "") -> Dict[str
             except re.error:
                 continue
     
+    # Step 3: Annotate output with intent
     result = {
         "vulnerability": text.strip()[:600],  # Limit vulnerability text
+        "intent": intent,  # Add intent annotation
         "confidence_score": confidence,
         "discipline": discipline,
         "category": category,
@@ -146,31 +197,44 @@ def detect_physical_security_vulns(text: str, source_file: str = "") -> Dict[str
     return result if confidence >= min_accept else None
 
 def process_chunks(chunks: List[Dict[str, Any]], source_file: str = "") -> List[Dict[str, Any]]:
-    """Main loop to process document chunks."""
+    """
+    Main loop to process document chunks.
+    Iterate through document chunks and apply intent gate.
+    """
     if not patterns_cfg:
         log_warn("[Phase2] Patterns not loaded, skipping pattern-based extraction")
         return []
     
     results = []
+    skipped_count = 0
+    
     for chunk in chunks:
         # Extract text from chunk (handle different formats)
         text = chunk.get("text") or chunk.get("content") or chunk.get("vulnerability") or ""
         if not text or len(text.strip()) < 20:
             continue
         
-        result = detect_physical_security_vulns(text, source_file)
-        if result and result.get("confidence_score", 0) >= 0.8:
+        # Intent gate is applied inside detect_physical_security_vulns()
+        analysis = detect_physical_security_vulns(text, source_file)
+        if not analysis:
+            skipped_count += 1
+            continue
+        
+        # Only include high-confidence findings
+        if analysis.get("confidence_score", 0) >= 0.8:
             # Add chunk metadata if available
             if "chunk_id" in chunk:
-                result["chunk_id"] = chunk["chunk_id"]
+                analysis["chunk_id"] = chunk["chunk_id"]
             if "page_ref" in chunk:
-                result["page_range"] = chunk["page_ref"]
+                analysis["page_range"] = chunk["page_ref"]
             if "section" in chunk:
-                result["citations"] = [chunk["section"]]
+                analysis["citations"] = [chunk["section"]]
             
-            results.append(result)
+            results.append(analysis)
     
-    log_info(f"[Phase2] Extracted {len(results)} potential physical-security findings via pattern matching.")
+    log_info(f"[Phase2] Extracted {len(results)} actionable findings.")
+    if skipped_count > 0:
+        log_info(f"[Phase2] Skipped {skipped_count} chunks with no actionable content.")
     return results
 
 # Integration Hook for VOFC Engine

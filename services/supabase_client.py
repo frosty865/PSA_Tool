@@ -4,6 +4,7 @@ Handles all Supabase database operations
 """
 
 import os
+import logging
 import requests
 from datetime import datetime
 
@@ -93,13 +94,14 @@ def query_supabase(table, filters=None, limit=None):
     except Exception as e:
         raise Exception(f"Supabase query failed: {str(e)}")
 
-def get_discipline_record(name=None, all=False):
+def get_discipline_record(name=None, all=False, fuzzy=False):
     """
     Get discipline record(s) from Supabase.
     
     Args:
         name: Discipline name to search for (case-insensitive)
         all: If True, return all active disciplines
+        fuzzy: If True, use first word only for matching (more flexible)
     
     Returns:
         Single discipline record dict, list of records, or None
@@ -115,21 +117,61 @@ def get_discipline_record(name=None, all=False):
         if not name:
             return None
         
-        # Search for discipline by name (case-insensitive)
-        result = client.table("disciplines").select("id, name, category, is_active").ilike("name", name).eq("is_active", True).maybe_single().execute()
-        return result.data if result.data else None
+        # Try exact match first (case-insensitive)
+        try:
+            result = client.table("disciplines").select("id, name, category, is_active").ilike("name", name).eq("is_active", True).maybe_single().execute()
+            if result.data:
+                return result.data
+        except Exception:
+            pass
+        
+        # Try contains match (full name) - PostgREST uses * for wildcards
+        try:
+            pattern = f"*{name}*"
+            result = client.table("disciplines").select("id, name, category, is_active").ilike("name", pattern).eq("is_active", True).maybe_single().execute()
+            if result.data:
+                return result.data
+        except Exception:
+            pass
+        
+        # If fuzzy=True, try first word only
+        if fuzzy and name:
+            first_word = name.split()[0] if name.split() else name
+            try:
+                pattern = f"*{first_word}*"
+                result = client.table("disciplines").select("id, name, category, is_active").ilike("name", pattern).eq("is_active", True).maybe_single().execute()
+                if result.data:
+                    return result.data
+            except Exception:
+                pass
+        
+        # Last resort: get all and find best match
+        try:
+            all_discs = client.table("disciplines").select("id, name, category, is_active").eq("is_active", True).execute()
+            if all_discs.data:
+                name_lower = name.lower()
+                for disc in all_discs.data:
+                    disc_name = disc.get("name", "").lower()
+                    # Check if name is contained in discipline name or vice versa
+                    if name_lower in disc_name or disc_name in name_lower:
+                        return disc
+        except Exception:
+            pass
+        
+        return None
         
     except Exception as e:
         logging.error(f"Failed to get discipline record: {str(e)}")
         return None if not all else []
 
 
-def get_sector_id(name):
+def get_sector_id(name, fuzzy=False):
     """
     Get sector ID by name from Supabase.
     
     Args:
         name: Sector name to search for (case-insensitive)
+        fuzzy: If True, use first word only for matching (more flexible)
     
     Returns:
         Sector ID (UUID) or None if not found
@@ -140,15 +182,42 @@ def get_sector_id(name):
     try:
         client = get_supabase_client()
         
-        # Try sector_name first, then name field
-        result = client.table("sectors").select("id").ilike("sector_name", name).maybe_single().execute()
-        if result.data:
-            return result.data.get('id')
+        # Try exact match first (case-insensitive)
+        try:
+            result = client.table("sectors").select("id").ilike("sector_name", name).maybe_single().execute()
+            if result.data:
+                return result.data.get('id')
+        except Exception:
+            pass
+        
+        # Try contains match (full name) - PostgREST uses * for wildcards
+        try:
+            pattern = f"*{name}*"
+            result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
+            if result.data:
+                return result.data.get('id')
+        except Exception:
+            pass
+        
+        # If fuzzy=True, try first word only
+        if fuzzy and name:
+            first_word = name.split()[0] if name.split() else name
+            try:
+                pattern = f"*{first_word}*"
+                result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
+                if result.data:
+                    return result.data.get('id')
+            except Exception:
+                pass
         
         # Fallback to name field
-        result = client.table("sectors").select("id").ilike("name", name).maybe_single().execute()
-        if result.data:
-            return result.data.get('id')
+        try:
+            pattern = f"*{name}*"
+            result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
+            if result.data:
+                return result.data.get('id')
+        except Exception:
+            pass
         
         logging.warning(f"Sector not found: {name}")
         return None
@@ -158,12 +227,13 @@ def get_sector_id(name):
         return None
 
 
-def get_subsector_id(name):
+def get_subsector_id(name, fuzzy=False):
     """
     Get subsector ID by name from Supabase.
     
     Args:
         name: Subsector name to search for (case-insensitive)
+        fuzzy: If True, use first word only for matching (more flexible)
     
     Returns:
         Subsector ID (UUID) or None if not found
@@ -173,10 +243,34 @@ def get_subsector_id(name):
     
     try:
         client = get_supabase_client()
-        result = client.table("subsectors").select("id").ilike("name", name).maybe_single().execute()
         
-        if result.data:
-            return result.data.get('id')
+        # Try exact match first (case-insensitive)
+        try:
+            result = client.table("subsectors").select("id").ilike("name", name).maybe_single().execute()
+            if result.data:
+                return result.data.get('id')
+        except Exception:
+            pass
+        
+        # Try contains match (full name) - PostgREST uses * for wildcards
+        try:
+            pattern = f"*{name}*"
+            result = client.table("subsectors").select("id").ilike("name", pattern).maybe_single().execute()
+            if result.data:
+                return result.data.get('id')
+        except Exception:
+            pass
+        
+        # If fuzzy=True, try first word only
+        if fuzzy and name:
+            first_word = name.split()[0] if name.split() else name
+            try:
+                pattern = f"*{first_word}*"
+                result = client.table("subsectors").select("id").ilike("name", pattern).maybe_single().execute()
+                if result.data:
+                    return result.data.get('id')
+            except Exception:
+                pass
         
         logging.warning(f"Subsector not found: {name}")
         return None

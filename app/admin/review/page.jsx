@@ -243,6 +243,80 @@ export default function AdminReviewPage() {
     }
   }
 
+  async function updateVulnerability(vulnId, updates) {
+    try {
+      const res = await fetchWithAuth(`/api/submissions/${selected.id}/vulnerabilities/${vulnId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Failed to update' }))
+        throw new Error(errorData.error || 'Failed to update vulnerability')
+      }
+      
+      // Reload submission to get updated data
+      await loadSubmissions()
+      // Re-select the submission to show updated data
+      const updated = submissions.find(s => s.id === selected.id)
+      if (updated) {
+        // Reload the selected submission with fresh data
+        const res = await fetchWithAuth(`/api/admin/submissions?status=pending_review`, { 
+          cache: 'no-store' 
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const subs = data.allSubmissions || data.submissions || []
+          const freshSub = subs.find(s => s.id === selected.id)
+          if (freshSub) setSelected(freshSub)
+        }
+      }
+      
+      setEditingVuln(null)
+      setEditValues({})
+      alert('✅ Vulnerability updated successfully')
+    } catch (err) {
+      console.error('Error updating vulnerability:', err)
+      alert('❌ Error updating vulnerability: ' + err.message)
+    }
+  }
+
+  async function updateOFC(ofcId, updates) {
+    try {
+      const res = await fetchWithAuth(`/api/submissions/${selected.id}/ofcs/${ofcId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Failed to update' }))
+        throw new Error(errorData.error || 'Failed to update OFC')
+      }
+      
+      // Reload submission to get updated data
+      await loadSubmissions()
+      // Re-select the submission to show updated data
+      const res2 = await fetchWithAuth(`/api/admin/submissions?status=pending_review`, { 
+        cache: 'no-store' 
+      })
+      if (res2.ok) {
+        const data = await res2.json()
+        const subs = data.allSubmissions || data.submissions || []
+        const freshSub = subs.find(s => s.id === selected.id)
+        if (freshSub) setSelected(freshSub)
+      }
+      
+      setEditingOfc(null)
+      setEditValues({})
+      alert('✅ OFC updated successfully')
+    } catch (err) {
+      console.error('Error updating OFC:', err)
+      alert('❌ Error updating OFC: ' + err.message)
+    }
+  }
+
   // Extract summary from data JSONB
   function getSummary(submission) {
     try {
@@ -541,46 +615,196 @@ export default function AdminReviewPage() {
                           marginBottom: 'var(--spacing-sm)',
                           backgroundColor: 'var(--cisa-gray-lighter)',
                           borderRadius: 'var(--border-radius)',
-                          border: '1px solid var(--cisa-gray-light)'
+                          border: '1px solid var(--cisa-gray-light)',
+                          position: 'relative'
                         }}>
-                          <p style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
-                            {v.vulnerability}
-                          </p>
-                          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
-                            {v.discipline && (
-                              <span style={{
-                                fontSize: 'var(--font-size-xs)',
-                                backgroundColor: '#cfe2ff',
-                                color: '#084298',
-                                padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                borderRadius: 'var(--border-radius)'
-                              }}>
-                                {v.discipline}
-                              </span>
-                            )}
-                            {v.sector && (
-                              <span style={{
-                                fontSize: 'var(--font-size-xs)',
-                                backgroundColor: '#d1e7dd',
-                                color: '#0f5132',
-                                padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                borderRadius: 'var(--border-radius)'
-                              }}>
-                                {v.sector}
-                              </span>
-                            )}
-                            {v.subsector && (
-                              <span style={{
-                                fontSize: 'var(--font-size-xs)',
-                                backgroundColor: '#fff3cd',
-                                color: '#856404',
-                                padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                borderRadius: 'var(--border-radius)'
-                              }}>
-                                {v.subsector}
-                              </span>
-                            )}
-                          </div>
+                          {editingVuln === v.id ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+                              <div>
+                                <label style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)', display: 'block', marginBottom: 'var(--spacing-xs)' }}>
+                                  Vulnerability Name:
+                                </label>
+                                <textarea
+                                  value={editValues.vulnerability_name || v.vulnerability_name || v.vulnerability || ''}
+                                  onChange={(e) => setEditValues({...editValues, vulnerability_name: e.target.value})}
+                                  style={{
+                                    width: '100%',
+                                    padding: 'var(--spacing-xs)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    fontSize: 'var(--font-size-sm)',
+                                    minHeight: '60px',
+                                    fontFamily: 'inherit'
+                                  }}
+                                />
+                              </div>
+                              {v.description !== undefined && (
+                                <div>
+                                  <label style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)', display: 'block', marginBottom: 'var(--spacing-xs)' }}>
+                                    Description:
+                                  </label>
+                                  <textarea
+                                    value={editValues.description !== undefined ? editValues.description : (v.description || '')}
+                                    onChange={(e) => setEditValues({...editValues, description: e.target.value})}
+                                    style={{
+                                      width: '100%',
+                                      padding: 'var(--spacing-xs)',
+                                      border: '1px solid var(--cisa-gray-light)',
+                                      borderRadius: 'var(--border-radius)',
+                                      fontSize: 'var(--font-size-sm)',
+                                      minHeight: '80px',
+                                      fontFamily: 'inherit'
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+                                <input
+                                  type="text"
+                                  placeholder="Discipline"
+                                  value={editValues.discipline !== undefined ? editValues.discipline : (v.discipline || '')}
+                                  onChange={(e) => setEditValues({...editValues, discipline: e.target.value})}
+                                  style={{
+                                    flex: 1,
+                                    padding: 'var(--spacing-xs)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Sector"
+                                  value={editValues.sector !== undefined ? editValues.sector : (v.sector || '')}
+                                  onChange={(e) => setEditValues({...editValues, sector: e.target.value})}
+                                  style={{
+                                    flex: 1,
+                                    padding: 'var(--spacing-xs)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                />
+                              </div>
+                              <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+                                <button
+                                  onClick={() => {
+                                    setEditingVuln(null)
+                                    setEditValues({})
+                                  }}
+                                  style={{
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    background: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => updateVulnerability(v.id, editValues)}
+                                  style={{
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    border: 'none',
+                                    borderRadius: 'var(--border-radius)',
+                                    background: 'var(--cisa-blue)',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-xs)' }}>
+                                <p style={{ color: 'var(--cisa-gray)', margin: 0, flex: 1 }}>
+                                  {v.vulnerability_name || v.vulnerability}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setEditingVuln(v.id)
+                                    setEditValues({
+                                      vulnerability_name: v.vulnerability_name || v.vulnerability || '',
+                                      description: v.description || '',
+                                      discipline: v.discipline || '',
+                                      sector: v.sector || '',
+                                      subsector: v.subsector || '',
+                                      severity_level: v.severity_level || ''
+                                    })
+                                  }}
+                                  style={{
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    background: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: 'var(--font-size-xs)',
+                                    marginLeft: 'var(--spacing-sm)'
+                                  }}
+                                  title="Edit vulnerability"
+                                >
+                                  ✏️ Edit
+                                </button>
+                              </div>
+                              {v.description && (
+                                <p style={{ color: 'var(--cisa-gray-light)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--spacing-xs)', marginBottom: 'var(--spacing-xs)' }}>
+                                  {v.description}
+                                </p>
+                              )}
+                              <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                                {v.discipline && (
+                                  <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    backgroundColor: '#cfe2ff',
+                                    color: '#084298',
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    borderRadius: 'var(--border-radius)'
+                                  }}>
+                                    {v.discipline}
+                                  </span>
+                                )}
+                                {v.sector && (
+                                  <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    backgroundColor: '#d1e7dd',
+                                    color: '#0f5132',
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    borderRadius: 'var(--border-radius)'
+                                  }}>
+                                    {v.sector}
+                                  </span>
+                                )}
+                                {v.subsector && (
+                                  <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    backgroundColor: '#fff3cd',
+                                    color: '#856404',
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    borderRadius: 'var(--border-radius)'
+                                  }}>
+                                    {v.subsector}
+                                  </span>
+                                )}
+                                {v.severity_level && (
+                                  <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    backgroundColor: '#f8d7da',
+                                    color: '#721c24',
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    borderRadius: 'var(--border-radius)'
+                                  }}>
+                                    {v.severity_level}
+                                  </span>
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -599,60 +823,173 @@ export default function AdminReviewPage() {
                           marginBottom: 'var(--spacing-sm)',
                           backgroundColor: 'var(--cisa-gray-lighter)',
                           borderRadius: 'var(--border-radius)',
-                          border: '1px solid var(--cisa-gray-light)'
+                          border: '1px solid var(--cisa-gray-light)',
+                          position: 'relative'
                         }}>
-                          <p style={{ color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-xs)' }}>
-                            {ofc.option_text}
-                          </p>
-                          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
-                            {ofc.discipline && (
-                              <span style={{
-                                fontSize: 'var(--font-size-xs)',
-                                backgroundColor: '#cfe2ff',
-                                color: '#084298',
-                                padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                borderRadius: 'var(--border-radius)'
-                              }}>
-                                {ofc.discipline}
-                              </span>
-                            )}
-                            {ofc.confidence_score && (
-                              <span style={{
-                                fontSize: 'var(--font-size-xs)',
-                                backgroundColor: '#f8d7da',
-                                color: '#721c24',
-                                padding: 'var(--spacing-xs) var(--spacing-sm)',
-                                borderRadius: 'var(--border-radius)'
-                              }}>
-                                Confidence: {(ofc.confidence_score * 100).toFixed(0)}%
-                              </span>
-                            )}
-                          </div>
-                          {ofc.sources && Array.isArray(ofc.sources) && ofc.sources.length > 0 && (
-                            <div style={{ marginTop: 'var(--spacing-xs)' }}>
-                              <strong style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)' }}>Sources:</strong>
-                              <div style={{ marginTop: 'var(--spacing-xs)' }}>
-                                {ofc.sources.map((source, idx) => (
-                                  <div key={idx} style={{
-                                    fontSize: 'var(--font-size-xs)',
-                                    color: 'var(--cisa-gray-light)',
-                                    marginBottom: 'var(--spacing-xs)'
-                                  }}>
-                                    {source.source_title || source.source_text || 'Source'}
-                                    {source.source_url && (
-                                      <a 
-                                        href={source.source_url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        style={{ marginLeft: 'var(--spacing-xs)', color: 'var(--cisa-blue)' }}
-                                      >
-                                        (link)
-                                      </a>
-                                    )}
-                                  </div>
-                                ))}
+                          {editingOfc === ofc.id ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+                              <div>
+                                <label style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)', display: 'block', marginBottom: 'var(--spacing-xs)' }}>
+                                  Option Text:
+                                </label>
+                                <textarea
+                                  value={editValues.option_text !== undefined ? editValues.option_text : (ofc.option_text || '')}
+                                  onChange={(e) => setEditValues({...editValues, option_text: e.target.value})}
+                                  style={{
+                                    width: '100%',
+                                    padding: 'var(--spacing-xs)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    fontSize: 'var(--font-size-sm)',
+                                    minHeight: '80px',
+                                    fontFamily: 'inherit'
+                                  }}
+                                />
+                              </div>
+                              <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+                                <input
+                                  type="text"
+                                  placeholder="Discipline"
+                                  value={editValues.discipline !== undefined ? editValues.discipline : (ofc.discipline || '')}
+                                  onChange={(e) => setEditValues({...editValues, discipline: e.target.value})}
+                                  style={{
+                                    flex: 1,
+                                    padding: 'var(--spacing-xs)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Sector"
+                                  value={editValues.sector !== undefined ? editValues.sector : (ofc.sector || '')}
+                                  onChange={(e) => setEditValues({...editValues, sector: e.target.value})}
+                                  style={{
+                                    flex: 1,
+                                    padding: 'var(--spacing-xs)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                />
+                              </div>
+                              <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+                                <button
+                                  onClick={() => {
+                                    setEditingOfc(null)
+                                    setEditValues({})
+                                  }}
+                                  style={{
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    background: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => updateOFC(ofc.id, editValues)}
+                                  style={{
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    border: 'none',
+                                    borderRadius: 'var(--border-radius)',
+                                    background: 'var(--cisa-blue)',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: 'var(--font-size-sm)'
+                                  }}
+                                >
+                                  Save
+                                </button>
                               </div>
                             </div>
+                          ) : (
+                            <>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-xs)' }}>
+                                <p style={{ color: 'var(--cisa-gray)', margin: 0, flex: 1 }}>
+                                  {ofc.option_text}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setEditingOfc(ofc.id)
+                                    setEditValues({
+                                      option_text: ofc.option_text || '',
+                                      discipline: ofc.discipline || '',
+                                      sector: ofc.sector || '',
+                                      subsector: ofc.subsector || '',
+                                      confidence_score: ofc.confidence_score || 0
+                                    })
+                                  }}
+                                  style={{
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    border: '1px solid var(--cisa-gray-light)',
+                                    borderRadius: 'var(--border-radius)',
+                                    background: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: 'var(--font-size-xs)',
+                                    marginLeft: 'var(--spacing-sm)'
+                                  }}
+                                  title="Edit OFC"
+                                >
+                                  ✏️ Edit
+                                </button>
+                              </div>
+                              <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
+                                {ofc.discipline && (
+                                  <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    backgroundColor: '#cfe2ff',
+                                    color: '#084298',
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    borderRadius: 'var(--border-radius)'
+                                  }}>
+                                    {ofc.discipline}
+                                  </span>
+                                )}
+                                {ofc.confidence_score && (
+                                  <span style={{
+                                    fontSize: 'var(--font-size-xs)',
+                                    backgroundColor: '#f8d7da',
+                                    color: '#721c24',
+                                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                                    borderRadius: 'var(--border-radius)'
+                                  }}>
+                                    Confidence: {(ofc.confidence_score * 100).toFixed(0)}%
+                                  </span>
+                                )}
+                              </div>
+                              {ofc.sources && Array.isArray(ofc.sources) && ofc.sources.length > 0 && (
+                                <div style={{ marginTop: 'var(--spacing-xs)' }}>
+                                  <strong style={{ fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)' }}>Sources:</strong>
+                                  <div style={{ marginTop: 'var(--spacing-xs)' }}>
+                                    {ofc.sources.map((source, idx) => (
+                                      <div key={idx} style={{
+                                        fontSize: 'var(--font-size-xs)',
+                                        color: 'var(--cisa-gray-light)',
+                                        marginBottom: 'var(--spacing-xs)'
+                                      }}>
+                                        {source.source_title || source.source_text || 'Source'}
+                                        {source.source_url && (
+                                          <a 
+                                            href={source.source_url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            style={{ marginLeft: 'var(--spacing-xs)', color: 'var(--cisa-blue)' }}
+                                          >
+                                            (link)
+                                          </a>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       ))}

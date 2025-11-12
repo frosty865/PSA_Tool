@@ -3,41 +3,22 @@
 
 $ErrorActionPreference = "Stop"
 
-# Configuration
+# Configuration - Server deployment paths
 $SERVICE_NAME = "VOFC-AutoRetrain"
-$SCRIPT_PATH = "C:\Tools\auto_retrain_job.py"
+$SCRIPT_PATH = "C:\Tools\py_scripts\auto_retrain\auto_retrain_job.py"
 $PROJECT_ROOT = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
-# Detect Python executable (prefer venv)
-$PYTHON_EXE = $null
-$VENV_PYTHON = Join-Path $PROJECT_ROOT "venv\Scripts\python.exe"
-if (Test-Path $VENV_PYTHON) {
-    $PYTHON_EXE = $VENV_PYTHON
-    Write-Host "Using virtual environment Python: $PYTHON_EXE" -ForegroundColor Green
-} else {
-    # Try to find Python in common locations
-    $PYTHON_PATHS = @(
-        "C:\Program Files\Python311\python.exe",
-        "C:\Program Files\Python312\python.exe",
-        "C:\Python311\python.exe",
-        "C:\Python312\python.exe",
-        "python.exe"  # System PATH
-    )
-    
-    foreach ($path in $PYTHON_PATHS) {
-        if (Test-Path $path) {
-            $PYTHON_EXE = $path
-            Write-Host "Using Python: $PYTHON_EXE" -ForegroundColor Yellow
-            break
-        }
-    }
-    
-    if (-not $PYTHON_EXE) {
-        Write-Host "ERROR: Python executable not found!" -ForegroundColor Red
-        Write-Host "Please install Python or create a virtual environment." -ForegroundColor Red
+# Server Python path
+$PYTHON_EXE = "C:\Tools\python\python.exe"
+if (-not (Test-Path $PYTHON_EXE)) {
+    $PYTHON_EXE = "C:\Tools\python.exe"
+    if (-not (Test-Path $PYTHON_EXE)) {
+        Write-Host "ERROR: Python not found at C:\Tools\python\" -ForegroundColor Red
+        Write-Host "Please install Python at C:\Tools\python\" -ForegroundColor Red
         exit 1
     }
 }
+Write-Host "Using Python: $PYTHON_EXE" -ForegroundColor Green
 
 # Verify script exists
 if (-not (Test-Path $SCRIPT_PATH)) {
@@ -80,8 +61,12 @@ nssm install $SERVICE_NAME $PYTHON_EXE "$SCRIPT_PATH"
 # Configure service
 Write-Host "Configuring service parameters..." -ForegroundColor Green
 
-# Set working directory (use project root for training_data access)
-nssm set $SERVICE_NAME AppDirectory $PROJECT_ROOT
+# Set working directory (use script directory)
+$WORKING_DIR = "C:\Tools\py_scripts\auto_retrain"
+if (-not (Test-Path $WORKING_DIR)) {
+    New-Item -ItemType Directory -Path $WORKING_DIR -Force | Out-Null
+}
+nssm set $SERVICE_NAME AppDirectory $WORKING_DIR
 
 # Set output files
 $LOG_DIR = "C:\Tools\VOFC_Logs"

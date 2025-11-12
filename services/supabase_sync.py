@@ -16,13 +16,40 @@ except ImportError:
     raise ImportError("supabase-py package not installed. Install with: pip install supabase")
 
 # Get Supabase credentials from environment
+# Don't raise error at import time - check when functions are called
 SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "").rstrip('/')
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
-    raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+supabase: Client = None
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+def _ensure_supabase_client():
+    """Ensure Supabase client is initialized, loading env vars if needed."""
+    global supabase, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+    
+    # Try loading .env file if credentials not set
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        try:
+            from dotenv import load_dotenv
+            # Try to load .env from project root
+            project_root = Path(__file__).parent.parent
+            env_file = project_root / ".env"
+            if env_file.exists():
+                load_dotenv(env_file, override=False)
+                # Re-read after loading
+                SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "").rstrip('/')
+                SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        except ImportError:
+            pass  # python-dotenv not installed
+        except Exception as e:
+            logger.warning(f"Failed to load .env file: {e}")
+    
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+    
+    if supabase is None:
+        supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    
+    return supabase
 
 # Add logging
 import logging
@@ -46,6 +73,9 @@ def sync_processed_result(result_path: str, submitter_email: str = "system@psa.l
     Returns:
         submission_id: UUID of the created submission
     """
+    # Ensure client is initialized
+    _ensure_supabase_client()
+    
     logger.info(f"[SYNC] Starting sync for: {result_path}")
     logger.info(f"[SYNC] Supabase URL: {SUPABASE_URL[:30]}..." if SUPABASE_URL else "[SYNC] Supabase URL: NOT SET")
     logger.info(f"[SYNC] Supabase Key: {'SET' if SUPABASE_SERVICE_ROLE_KEY else 'NOT SET'}")

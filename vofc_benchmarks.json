@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "description": "Benchmark checklist for VOFC Engine performance and quality validation",
+    "last_updated": "2025-11-09"
+  },
+  "tiers": {
+    "functional_reliability": {
+      "goal": "System extracts valid JSON outputs consistently",
+      "benchmarks": [
+        { "metric": "json_validity", "target": 0.95, "unit": "valid_ratio", "status": "pending" },
+        { "metric": "extraction_density", "target": 30, "unit": "vulnerabilities_per_10_pages", "status": "pending" },
+        { "metric": "reproducibility", "target": 0.95, "unit": "stability_ratio", "status": "pending" },
+        { "metric": "error_isolation", "target": 0, "unit": "unhandled_exceptions", "status": "pending" }
+      ]
+    },
+    "extraction_quality": {
+      "goal": "Model outputs are accurate, complete, and well-linked",
+      "benchmarks": [
+        { "metric": "precision", "target": 0.8, "unit": "percent_correct", "status": "pending" },
+        { "metric": "recall", "target": 0.7, "unit": "percent_detected", "status": "pending" },
+        { "metric": "ofc_linking", "target": 1.5, "unit": "avg_ofc_per_vulnerability", "status": "pending" },
+        { "metric": "categorical_accuracy", "target": 0.8, "unit": "taxonomy_accuracy", "status": "pending" }
+      ]
+    },
+    "coverage_breadth": {
+      "goal": "All relevant document types processed correctly",
+      "benchmarks": [
+        { "metric": "fema_ufc_pdfs", "target": 0.9, "unit": "success_ratio", "status": "pending" },
+        { "metric": "safe_matrices", "target": 0.8, "unit": "row_conversion_ratio", "status": "pending" },
+        { "metric": "narrative_reports", "target": 0.7, "unit": "extraction_ratio", "status": "pending" },
+        { "metric": "scanned_pdfs", "target": 0.95, "unit": "ocr_text_ratio", "status": "pending" },
+        { "metric": "docx_txt_files", "target": 1.0, "unit": "success_ratio", "status": "pending" }
+      ]
+    },
+    "performance_efficiency": {
+      "goal": "Processing is fast, stable, and resource-efficient",
+      "benchmarks": [
+        { "metric": "processing_speed", "target": 1, "unit": "minutes_per_25_pages", "status": "pending" },
+        { "metric": "memory_usage", "target": 8, "unit": "GB_VRAM", "status": "pending" },
+        { "metric": "runtime_stability", "target": 0.95, "unit": "stability_ratio", "status": "pending" }
+      ]
+    },
+    "demo_readiness": {
+      "goal": "Outputs are polished, traceable, and review-ready",
+      "benchmarks": [
+        { "metric": "report_coherence", "target": 1.0, "unit": "valid_outputs", "status": "pending" },
+        { "metric": "traceability", "target": 1.0, "unit": "records_with_page_ref", "status": "pending" },
+        { "metric": "deduplication", "target": 0.95, "unit": "unique_ratio", "status": "pending" },
+        { "metric": "presentation_quality", "target": 1.0, "unit": "export_pass", "status": "pending" }
+      ]
+    }
+  },
+  "scoring": {
+    "method": "Each metric scored 0–1; tier passes if average >= 0.8; full system passes if 4 of 5 tiers >= 0.8.",
+    "auto_update": false
+  }
+}
+

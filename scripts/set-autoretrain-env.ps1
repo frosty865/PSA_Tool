@@ -68,10 +68,39 @@ if ($envVars.Count -eq 0) {
     exit 1
 }
 
-# Build environment string (NSSM expects newline-separated KEY=VALUE pairs)
-$envString = $envVars -join "`n"
+# Get existing environment variables to preserve them
+Write-Host "Checking for existing environment variables..." -ForegroundColor Yellow
+$currentEnvRaw = nssm get $SERVICE_NAME AppEnvironmentExtra 2>&1
+$existingVars = @{}
 
-Write-Host "`nSetting $($envVars.Count) environment variables for service: $SERVICE_NAME" -ForegroundColor Green
+if ($currentEnvRaw -notmatch "not exist" -and $currentEnvRaw -ne "") {
+    # Parse existing environment variables
+    # NSSM returns them as newline-separated KEY=VALUE pairs
+    $currentEnvRaw -split "`n" | ForEach-Object {
+        if ($_ -match '^([^=]+)=(.*)$') {
+            $key = $matches[1]
+            $value = $matches[2]
+            $existingVars[$key] = $value
+        }
+    }
+    if ($existingVars.Count -gt 0) {
+        Write-Host "  Found $($existingVars.Count) existing variable(s), will preserve them" -ForegroundColor Gray
+    }
+}
+
+# Merge new variables with existing ones (new values override existing)
+foreach ($var in $envVars) {
+    if ($var -match '^([^=]+)=(.*)$') {
+        $key = $matches[1]
+        $value = $matches[2]
+        $existingVars[$key] = $value
+    }
+}
+
+# Build environment string (NSSM expects newline-separated KEY=VALUE pairs)
+$envString = ($existingVars.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join "`n"
+
+Write-Host "`nSetting $($existingVars.Count) environment variables for service: $SERVICE_NAME" -ForegroundColor Green
 
 # Set environment variables in NSSM
 nssm set $SERVICE_NAME AppEnvironmentExtra $envString

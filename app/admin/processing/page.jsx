@@ -47,8 +47,12 @@ export default function ProcessingMonitorPage() {
         
         setError(null)
       } catch (err) {
+        // Don't show timeout errors - silently handle
         console.error('Error fetching progress:', err)
-        setError(err.message)
+        // Only show non-timeout errors
+        if (!err.message.includes('timeout') && !err.message.includes('aborted')) {
+          setError(err.message)
+        }
       } finally {
         setLoading(false)
       }
@@ -279,7 +283,10 @@ export default function ProcessingMonitorPage() {
       }, 2000) // Increased delay for actions that may take time
     } catch (err) {
       console.error('[Control Action] Error:', err)
-      alert(`❌ Error: ${err.message}`)
+      // Don't show timeout errors to user
+      if (!err.message.toLowerCase().includes('timeout') && !err.message.toLowerCase().includes('aborted')) {
+        alert(`❌ Error: ${err.message}`)
+      }
     } finally {
       setControlLoading(false)
     }

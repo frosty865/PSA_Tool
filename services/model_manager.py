@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # CONFIGURATION
 # -------------------------------
 
-MODEL_NAME = "vofc-engine"
+MODEL_NAME = "vofc-unified"
 OLLAMA_PATH = r"C:\Tools\Ollama"  # adjust if different
 TRAINING_PATH = r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data"
 TRAINING_CONFIG = os.path.join(TRAINING_PATH, "vofc_engine_training.yaml")
@@ -141,12 +141,25 @@ def get_recent_learning_events(days: int = 7):
 def trigger_retrain(current_version: str, reason: str):
     """Run Ollama retraining process."""
     try:
-        # Extract version number and increment
-        version_str = current_version.replace("v", "").replace(":", "")
+        # Handle version string - could be "latest", "v2", "vofc-unified:latest", etc.
+        version_str = current_version
+        
+        # If it contains a colon, extract the part after the colon
+        if ":" in version_str:
+            version_str = version_str.split(":")[-1]
+        
+        # Remove "v" prefix if present
+        version_str = version_str.replace("v", "").strip()
+        
+        # Try to extract version number
         try:
-            version_number = int(version_str) + 1
+            if version_str.lower() == "latest" or version_str == "":
+                # If current is "latest", create v2
+                version_number = 2
+            else:
+                version_number = int(version_str) + 1
         except ValueError:
-            # If version is "latest" or invalid, start at v2
+            # If version is invalid, start at v2
             version_number = 2
         
         new_version = f"v{version_number}"

@@ -1,0 +1,89 @@
+{
+  "extracted_at": "2025-11-11T13:52:41.330000+00:00",
+  "vulnerabilities": {
+    "total": 106,
+    "with_descriptions": 0,
+    "disciplines": {
+      "Resilience Management - Business Continuity": 6,
+      "Electronic Security Systems - CCTV": 7,
+      "Security Management": 24,
+      "Information Sharing": 11,
+      "Facility Information": 1,
+      "Security Force": 17,
+      "Entry Controls": 16,
+      "First Preventers-Responders": 6,
+      "Resilience Management - Emergency Action Plan": 6,
+      "Barriers": 3,
+      "Perimeter Security": 3,
+      "Building Envelope": 2,
+      "Illumination": 3,
+      "Electronic Security Systems - IDS": 1
+    },
+    "avg_length": 137.03773584905662,
+    "top_opening_phrases": {
+      "the facility does not have": 22,
+      "the security force does not": 11,
+      "the facility does not exchange": 10,
+      "the facility has limited or": 6,
+      "the facility does not train": 4,
+      "although background checks are conducted": 3,
+      "background checks are not conducted": 3,
+      "the facility does not use": 3,
+      "the facility does not exercise": 3,
+      "the facility has not coordinated": 2,
+      "the facility does not conduct": 2,
+      "although the facility conducts background": 2,
+      "there is a lack of": 1,
+      "facility personnel are not aware": 1,
+      "the main entrance into the": 1,
+      "the primary law enforcement agency": 1,
+      "cctv coverage of the facility's": 1,
+      "the facility has not tested,": 1,
+      "the facility lacks key control": 1,
+      "cctv coverage of areas of": 1
+    },
+    "top_structure_patterns": {}
+  },
+  "ofcs": {
+    "total": 286,
+    "disciplines": {
+      "Resilience Management - Business Continuity": 6,
+      "Security Management": 97,
+      "Perimeter Security": 6,
+      "Building Envelope": 2,
+      "Electronic Security Systems - CCTV": 8,
+      "Security Force": 38,
+      "Illumination": 3,
+      "Barriers": 16,
+      "Entry Controls": 67,
+      "Electronic Security Systems - IDS": 1,
+      "First Preventers-Responders": 11,
+      "Information Sharing": 19,
+      "Resilience Management - Emergency Action Plan": 11,
+      "Facility Information": 1
+    },
+    "avg_length": 188.73776223776224,
+    "top_action_verbs": {
+      "ensure": 32,
+      "provide": 26,
+      "establish": 24,
+      "conduct": 23,
+      "develop": 21,
+      "implement": 20,
+      "install": 19,
+      "train": 16,
+      "enhance": 16,
+      "maintain": 7,
+      "design": 6,
+      "coordinate": 5,
+      "improve": 4,
+      "create": 3,
+      "reinforce": 1
+    },
+    "top_structure_patterns": {
+      "Declarative: [Subject] should [action]": 226,
+      "Imperative: [Action] [Object]": 60
+    }
+  },
+  "training_examples": 106
+}

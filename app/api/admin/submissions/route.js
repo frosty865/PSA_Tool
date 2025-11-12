@@ -112,6 +112,7 @@ export async function GET(request) {
 
     // Fetch submissions with related vulnerabilities, OFCs, sources, and OFC-source links
     // Use minimal select first to avoid column errors, then fetch related data separately if needed
+    // Start with a simple query to test connection
     let query = supabase
       .from('submissions')
       .select(`
@@ -121,25 +122,19 @@ export async function GET(request) {
           vulnerability,
           discipline,
           sector,
-          subsector,
-          source,
-          source_title
+          subsector
         ),
         submission_options_for_consideration (
           id,
           option_text,
           discipline,
-          confidence_score,
-          source,
-          source_title
+          confidence_score
         ),
         submission_sources (
           id,
           source_text,
           source_title,
-          source_url,
-          author_org,
-          publication_year
+          source_url
         )
       `)
       .order('created_at', { ascending: false })

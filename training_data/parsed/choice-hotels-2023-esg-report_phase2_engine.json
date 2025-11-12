@@ -1,0 +1,2520 @@
+{
+  "source_file": "choice-hotels-2023-esg-report.pdf",
+  "processed_at": "2025-11-11T00:31:56.797767",
+  "phase2_engine_count": 118,
+  "records": [
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_001",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_002",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_003",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_004",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance cameras in critical areas.",
+          "ofc": "Install CCTV cameras in key locations such as entrances, hallways, and playgrounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of video surveillance cameras in critical areas to monitor activities and deter crime.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_005",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_006",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_007",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_008",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be registered, screened, and issued a badge. A visitor management policy should be developed to ensure consistent procedures.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_009",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Implement physical barriers to secure the facility's perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider installing fencing or other physical barriers around school grounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_010",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_011",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_012",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_013",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Consider adopting a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security.",
+          "ofc": "Install fencing or barriers around the property.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Implement physical barriers, such as fences or walls, to prevent unauthorized access to school grounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient emergency planning.",
+          "ofc": "Develop and regularly update an emergency operations plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is essential to have a comprehensive emergency operations plan in place that outlines procedures for responding to various emergencies.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_014",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install CCTV cameras with sufficient field-of-view.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have adequate video surveillance coverage to monitor all entrances, exits, and high-traffic areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_015",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_016",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_017",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_018",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_019",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_020",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_021",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_022",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_023",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_024",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_025",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_026",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_027",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_028",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_029",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_030",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_031",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management system.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to control access, ensure safety, and maintain accountability.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive video surveillance coverage throughout the school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Best practices include implementing a complete CCTV system to monitor all areas of the school grounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_032",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_033",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be screened, logged in, and issued a badge. A formal policy for visitor management is essential.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be strategically placed to cover all building entrances, hallways, and common areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Alarm systems can help deter unauthorized entry and notify authorities in case of a breach.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_034",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that visitors are properly screened, registered, and escorted while on campus. Visitor management policies should include procedures for handling unescorted visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage of all exterior and high-traffic interior areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Install cameras in strategic locations to monitor the perimeter, entrances, exits, parking lots, and high-traffic areas such as hallways and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors to alert security personnel of unauthorized entry.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Implement intrusion detection systems, such as motion sensors or glass break detectors, to alert security personnel of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_035",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be screened prior to entry. A formal visitor management policy should be developed and implemented.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be installed in common areas, hallways, and exterior entrances to provide increased visibility.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_036",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_037",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_038",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors. The policy should outline procedures for screening, identification, and monitoring visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of video surveillance systems to monitor school grounds, hallways, and classrooms. The cameras should be strategically placed to provide clear images and cover blind spots.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection.",
+          "ofc": "Implement motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the use of intrusion detection systems, such as motion sensors or glass break detectors, to alert staff when unauthorized entry occurs.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_039",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_040",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_041",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_042",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_043",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_044",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras and improve camera placement to cover all critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of video surveillance systems to monitor school grounds for increased safety.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_045",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 30,
+      "page_range": "30",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_046",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 30,
+      "page_range": "30",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_047",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a formal visitor management policy that includes procedures for checking identification, issuing visitor badges, and monitoring visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure sufficient CCTV cameras are installed to cover all high-traffic areas and critical infrastructure.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have CCTV cameras installed in all hallways, classrooms, and outdoor areas to monitor activity.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors to alert staff of unauthorized entry.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider installing intrusion detection systems to alert staff of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 30,
+      "page_range": "30",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_048",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_049",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_050",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_051",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a formal visitor management policy in place to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should have a comprehensive video surveillance system to monitor all areas of the campus, including classrooms, hallways, and outdoor spaces.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors in critical areas.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have intrusion detection systems, such as motion sensors and glass break detectors, to alert staff of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Install fencing, gates, and barriers around the campus perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should have secure perimeter fencing, gates, and barriers to prevent unauthorized access and protect students and staff.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate site lighting.",
+          "ofc": "Install adequate outdoor lighting for improved visibility.",
+          "discipline": "Lighting",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have adequate outdoor lighting to improve visibility and deter potential threats.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of a comprehensive emergency plan.",
+          "ofc": "Develop and implement an all-hazards emergency operations plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a comprehensive emergency operations plan that includes procedures for evacuation, lockdown, shelter-in-place, and reunification.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient training and exercises.",
+          "ofc": "Provide regular staff training and conduct emergency drills.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should provide regular staff training on emergency procedures and conduct emergency drills to ensure readiness.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate communication systems.",
+          "ofc": "Install a reliable radio, PA, or intercom system for internal and external communication.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a reliable communication system to facilitate internal and external communication during emergencies.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate threat assessment and reporting procedures.",
+          "ofc": "Develop and implement a threat assessment and reporting policy.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a threat assessment and reporting policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate cybersecurity measures.",
+          "ofc": "Implement strong password policies, multi-factor authentication, and regular patching.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have robust cybersecurity measures in place to protect sensitive data and prevent unauthorized access.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of formal policies and procedures.",
+          "ofc": "Develop and implement a comprehensive set of security policies and procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a comprehensive set of security policies and procedures to ensure the safety of students, staff, and visitors.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate visitor screening procedures.",
+          "ofc": "Implement formal visitor screening procedures at all entry points.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have formal visitor screening procedures in place to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate facilities hardening measures.",
+          "ofc": "Install ballistic-resistant door frames, glazing, and safe rooms as needed.",
+          "discipline": "Doors / Windows / Glazing",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have ballistic-resistant door frames, glazing, and safe rooms in critical areas to protect students and staff during emergencies.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_052",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_053",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_054",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_055",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_056",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_057",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_058",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_059",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_060",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_061",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_062",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies to ensure that all visitors are properly screened, identified, and escorted while on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Ensure adequate CCTV camera placement and coverage throughout the school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should ensure that all areas of the campus are covered by CCTV cameras to improve safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Implement fencing, gates, or barriers around school grounds to prevent unauthorized access.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should implement perimeter security measures such as fencing, gates, or barriers to prevent unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of emergency evacuation procedures.",
+          "ofc": "Develop and regularly practice emergency evacuation plans for students and staff.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and regularly practice emergency evacuation procedures to ensure the safety of students and staff in case of an emergency.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate training for staff on security protocols.",
+          "ofc": "Provide regular training and exercises for school staff on security protocols.",
+          "discipline": "Physical Security (General)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should provide regular training and exercises for school staff to ensure they are prepared to respond effectively in case of an emergency.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient communication systems for emergencies.",
+          "ofc": "Install and maintain a reliable public address system and emergency notification system.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should install and maintain a reliable public address system and emergency notification system to ensure effective communication during emergencies.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of threat assessment and reporting procedures.",
+          "ofc": "Implement threat assessment and reporting protocols for students, staff, and visitors.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should implement threat assessment and reporting procedures to ensure that potential threats are identified and addressed promptly.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate cybersecurity measures for IT infrastructure.",
+          "ofc": "Implement strong password policies, multi-factor authentication, and regular patching of systems.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should implement strong cybersecurity measures to protect its IT infrastructure from unauthorized access and data breaches.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of written policies and procedures.",
+          "ofc": "Develop, document, and distribute security policies and procedures for school operations.",
+          "discipline": "Physical Security (General)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should develop, document, and distribute security policies and procedures to ensure consistency in the implementation of security measures.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate screening and entry procedures for visitors.",
+          "ofc": "Implement visitor screening and entry procedures to control access to school grounds.",
+          "discipline": "Physical Security (General)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should implement visitor screening and entry procedures to ensure that only authorized individuals are allowed access to the school grounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of facilities hardening measures.",
+          "ofc": "Implement ballistic-resistant glazing, door frames, and safe rooms to protect against active shooter incidents.",
+          "discipline": "Doors / Windows / Glazing",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should implement ballistic-resistant glazing, door frames, and safe rooms to protect against active shooter incidents.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_063",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_064",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_065",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_066",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of a comprehensive emergency response plan.",
+          "ofc": "Develop, document, and regularly update an all-hazards emergency operations plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is essential to have a comprehensive emergency response plan in place for schools to effectively respond to various emergencies.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_067",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 42,
+      "page_range": "42",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_068",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_069",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_070",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_071",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Install fencing or barriers around the property and secure gates.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider implementing perimeter security measures such as fencing, gates, or barriers to prevent unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_072",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_073",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_074",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 47,
+      "page_range": "47",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_075",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of cameras in key areas such as entrances, hallways, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Implement motion sensors and glass break detectors to enhance perimeter security.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to deploy intrusion detection systems, such as motion sensors and glass break detectors, to improve security around the facility.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 47,
+      "page_range": "47",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_076",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include providing adequate video surveillance coverage to monitor all entrances, exits, and high-traffic areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors in sensitive areas.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of intrusion detection systems to alert staff of unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_077",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_078",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_079",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure proper placement and functionality of CCTV cameras throughout the school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "It is recommended that schools install video surveillance systems to monitor their premises for safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_080",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_081",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that all schools have a formal visitor management policy in place to control access to the school campus. This policy should include procedures for screening visitors, issuing visitor badges, and maintaining accurate records of visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of video surveillance coverage.",
+          "ofc": "Install CCTV cameras in key areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools install video surveillance systems to monitor activity on campus. Cameras should be placed in areas such as entrances, hallways, and parking lots.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_082",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_083",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Ensure adequate CCTV camera placement and coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include installing video surveillance systems to monitor high-traffic areas, entrances, exits, and outdoor spaces.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_084",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider developing a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_085",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_086",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_087",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_088",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_089",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be required to sign in upon arrival, and visitors who do not have an appointment or are not accompanied by a student should be escorted at all times. Visitor management policies should include procedures for handling unauthorized visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the facility, including all entrances, exits, and high-traffic areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "CCTV cameras should be strategically placed to cover all entrances, exits, and high-traffic areas. The system should have the capability to record footage for a minimum of 30 days.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors in vulnerable areas, such as entrances, exits, and windows.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Intrusion detection systems should be installed in vulnerable areas to alert security personnel of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_090",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement a visitor management policy to ensure that all visitors are properly screened, identified, and escorted while on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Install fencing or barriers around the school property and monitor access points.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should install fencing or barriers around the school property to prevent unauthorized entry, and monitor access points to ensure the safety of students and staff.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient emergency planning procedures.",
+          "ofc": "Develop and implement an emergency response plan that includes evacuation, lockdown, and reunification protocols.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement an emergency response plan that includes procedures for evacuation, lockdown, and reunification in case of an emergency.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of visitor screening measures.",
+          "ofc": "Implement a visitor screening process that includes checking identification and conducting bag checks.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should implement a visitor screening process to ensure that all visitors are properly identified and screened before being allowed on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 56,
+      "page_range": "56",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_091",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 56,
+      "page_range": "56",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_092",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_093",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_094",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement a visitor management policy that includes procedures for screening visitors, issuing badges or other identification, and maintaining a log of all visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_095",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_096",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_097",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_098",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_099",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security.",
+          "ofc": "Install fencing or barriers around the property perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to install fencing or barriers around the property perimeter to prevent unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient emergency planning.",
+          "ofc": "Develop an emergency operations plan (EOP) and conduct regular drills.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the development of an emergency operations plan (EOP) and conducting regular drills to ensure a quick and efficient response in case of emergencies.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_100",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_101",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_102",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management process to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across all critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of cameras in strategic locations to monitor entry points, hallways, and classrooms.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_103",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policies.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Implement a visitor management system to ensure the safety of students, staff, and visitors. This includes developing and implementing policies for visitor check-in, identification, and screening.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of an emergency evacuation plan.",
+          "ofc": "Develop and implement an emergency evacuation plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "In the event of an emergency, it is essential to have a well-developed and practiced evacuation plan in place. This includes identifying safe routes, assembly points, and procedures for students, staff, and visitors.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Implement physical barriers and surveillance systems to secure the facility's perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Enhance perimeter security by installing fences, gates, or other physical barriers to prevent unauthorized access. Additionally, consider implementing video surveillance systems for monitoring the facility's exterior.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of emergency lighting.",
+          "ofc": "Install emergency lighting throughout the facility.",
+          "discipline": "Lighting",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "In case of power outages, it is crucial to have emergency lighting installed throughout the facility to ensure visibility and safety.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 65,
+      "page_range": "65",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_104",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate camera coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include installing cameras in high-traffic areas, such as hallways, entrances, and exits.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_105",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_106",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage across all school facilities.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the installation of sufficient video surveillance cameras throughout school facilities to monitor activity and deter criminal behavior.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_107",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_108",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_109",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_110",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_111",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_112",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_113",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_114",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_115",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 70,
+      "page_range": "70",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_116",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be required to sign in upon arrival, and visitors who are not expected should be escorted by a staff member.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be placed in strategic locations, such as entrances, hallways, and classrooms.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Consider installing intrusion detection systems to alert staff of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security.",
+          "ofc": "Improve site perimeter security with fencing, gates, or barriers.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that the facility is securely fenced and that gates are locked when not in use.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate lighting levels.",
+          "ofc": "Improve site lighting to enhance visibility.",
+          "discipline": "Lighting",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that all areas of the facility are well lit, particularly outdoor spaces.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of emergency planning.",
+          "ofc": "Develop an emergency response plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should have a comprehensive emergency response plan in place, including evacuation procedures, lockdown protocols, and reunification strategies.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate training for staff.",
+          "ofc": "Provide regular security training to staff.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Staff should receive regular training on emergency procedures, including lockdowns and evacuations.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate communication systems.",
+          "ofc": "Install a reliable PA system or mass notification system.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should have an effective communication system in place to quickly alert staff and students of emergencies.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of threat assessment procedures.",
+          "ofc": "Develop a threat assessment plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should have a threat assessment plan in place to identify, assess, and manage potential threats.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate cybersecurity measures.",
+          "ofc": "Implement strong password policies, multi-factor authentication, and regular patching.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should implement strong cybersecurity measures to protect sensitive data and prevent unauthorized access.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of written policies and procedures.",
+          "ofc": "Develop and document security policies and procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should have written policies and procedures in place to guide staff on security matters.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate screening of visitors.",
+          "ofc": "Implement visitor screening procedures, such as bag checks or metal detectors.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should implement visitor screening procedures to ensure the safety of students and staff.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate facilities hardening.",
+          "ofc": "Install ballistic film or reinforce door frames for increased security.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should consider hardening facilities to improve security, such as installing ballistic film or reinforcing door frames.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 70,
+      "page_range": "70",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_117",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "choice-hotels-2023-esg-report.pdf",
+      "source_page": 70,
+      "page_range": "70",
+      "chunk_id": "choice-hotels-2023-esg-report_chunk_118",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    }
+  ]
+}

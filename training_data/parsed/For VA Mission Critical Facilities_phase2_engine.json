@@ -1,0 +1,3508 @@
+{
+  "source_file": "For VA Mission Critical Facilities.pdf",
+  "processed_at": "2025-11-09T17:02:45.086326",
+  "phase2_engine_count": 195,
+  "records": [
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_001",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management system.",
+          "ofc": "Implement a visitor management system.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools implement a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage across campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires that schools have adequate video surveillance coverage to monitor activities on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_002",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-risk areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include installing additional CCTV cameras in high-risk areas such as entrances, parking lots, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_003",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_004",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_005",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_006",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Ensure adequate CCTV camera placement.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Weak perimeter security.",
+          "ofc": "Upgrade fencing or install barriers.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate site lighting.",
+          "ofc": "Improve exterior illumination.",
+          "discipline": "Lighting",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of a comprehensive emergency plan.",
+          "ofc": "Develop an emergency operations plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate training for staff.",
+          "ofc": "Provide regular security training to staff.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Insufficient communication systems.",
+          "ofc": "Install a reliable PA system or radios.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate threat assessment procedures.",
+          "ofc": "Establish a threat assessment team or process.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Weak cybersecurity posture.",
+          "ofc": "Implement strong password policies, MFA, and patch management.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of formal policies or procedures.",
+          "ofc": "Develop security policies and standard operating procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate visitor screening.",
+          "ofc": "Implement formal visitor management procedures.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Weak facilities hardening.",
+          "ofc": "Upgrade building materials or install ballistic protection.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_007",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_008",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_009",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_010",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_011",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_012",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 11,
+      "page_range": "11",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_013",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of an emergency evacuation plan.",
+          "ofc": "Develop an emergency evacuation plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to develop an emergency evacuation plan for schools in the event of a crisis or emergency.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_014",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_015",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_016",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_017",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_018",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that facilities establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-traffic areas and blind spots.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires adequate video surveillance coverage to monitor all areas of the facility, including hallways, classrooms, and outdoor spaces.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_019",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_020",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_021",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_022",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_023",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_024",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_025",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_026",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_027",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_028",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 19,
+      "page_range": "19",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_029",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_030",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the school campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the installation of cameras in strategic locations to monitor activity on school grounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 20,
+      "page_range": "20",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_031",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems for monitoring school grounds.",
+          "ofc": "Install CCTV cameras throughout school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the installation of video surveillance systems to monitor school grounds and deter criminal activity.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_032",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure that all visitors are properly screened, identified, and escorted while on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras in blind spots and high-risk areas to improve overall visibility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools consider installing additional cameras in blind spots and high-risk areas to enhance security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient emergency planning for lockdown scenarios.",
+          "ofc": "Develop, document, and regularly practice lockdown procedures.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires schools to have a well-developed emergency plan that includes procedures for lockdown situations.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_033",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_034",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_035",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of a comprehensive emergency response plan.",
+          "ofc": "Develop an all-hazards emergency response plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should develop an all-hazards emergency response plan to ensure a coordinated, effective response to emergencies.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools ensure adequate video surveillance coverage to support incident response and deter criminal activity.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_036",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors. The policy should include procedures for screening visitors, issuing identification badges, and maintaining visitor logs.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider the installation of additional cameras in high-risk areas such as entrances, parking lots, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_037",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_038",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_039",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_040",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_041",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_042",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_043",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_044",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_045",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include ensuring that all exterior entrances, parking lots, and playgrounds are covered by video surveillance cameras.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate intrusion detection systems.",
+          "ofc": "Implement intrusion detection systems.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of motion sensors, glass break detectors, or other intrusion detection systems.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 30,
+      "page_range": "30",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_046",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install CCTV cameras in all critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should install CCTV cameras in all critical areas to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should install motion sensors or glass break detectors to alert staff of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_047",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies that include procedures for screening visitors, issuing identification badges, and maintaining a log of all visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should ensure that all areas of the campus are covered by video surveillance cameras, including parking lots, entrances, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors in strategic locations.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider installing intrusion detection systems to alert staff of unauthorized entry or activity.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_048",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_049",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors. The policy should include procedures for screening visitors, issuing badges or passes, and maintaining visitor logs.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of security cameras in strategic locations throughout school facilities to monitor activity, deter criminal behavior, and aid in incident investigations.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection measures.",
+          "ofc": "Implement motion sensors or glass break detectors for early warning of unauthorized entry.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the use of intrusion detection systems such as motion sensors or glass break detectors to alert authorities of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_050",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_051",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_052",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system installation and monitoring.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider installing a comprehensive video surveillance system that covers all critical areas of the school.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_053",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies, including procedures for screening visitors, issuing identification badges, and maintaining a log of all visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include installing cameras in high-traffic areas, such as entrances, hallways, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_054",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_055",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_056",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish and maintain a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of CCTV coverage in critical areas.",
+          "ofc": "Install CCTV cameras in all critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of CCTV cameras in all critical areas, such as entrances, hallways, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_057",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_058",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_059",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 38,
+      "page_range": "38",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_060",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_061",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_062",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_063",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_064",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 42,
+      "page_range": "42",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_065",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "Best practices include developing visitor management policies to ensure the safety of students, staff, and visitors.",
+      "confidence": 1.0,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_066",
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_067",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_068",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_069",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_070",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_071",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_072",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 47,
+      "page_range": "47",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_073",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_074",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_075",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_076",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_077",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras in areas with poor visibility or high foot traffic.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of video surveillance to monitor school grounds and improve safety. It is advised to ensure that cameras are strategically placed in areas with poor visibility or high foot traffic.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_078",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_079",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_080",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_081",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_082",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_083",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_084",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_085",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_086",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras throughout the school premises.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "It is recommended that schools install video surveillance systems to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_087",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 56,
+      "page_range": "56",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_088",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_089",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_090",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_091",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_092",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_093",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_094",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "...",
+      "confidence": 1.0,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 60,
+      "page_range": "60",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_095",
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 60,
+      "page_range": "60",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_096",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the implementation of a comprehensive video surveillance system to monitor school grounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install and maintain intrusion detection sensors throughout the building perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to deploy motion detectors, glass break sensors, or other intrusion detection devices to alert security personnel of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_097",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_098",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_099",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_100",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_101",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_102",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_103",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_104",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 65,
+      "page_range": "65",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_105",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-risk areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Schools should consider implementing additional CCTV cameras in high-risk areas such as entrances, exits, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 65,
+      "page_range": "65",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_106",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_107",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras for monitoring.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider installing video surveillance systems to improve safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_108",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_109",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_110",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_111",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_112",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_113",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_114",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 70,
+      "page_range": "70",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_115",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+      "confidence": 1.0,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 70,
+      "page_range": "70",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_116",
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 71,
+      "page_range": "71",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_117",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 71,
+      "page_range": "71",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_118",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 72,
+      "page_range": "72",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_119",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 73,
+      "page_range": "73",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_120",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 73,
+      "page_range": "73",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_121",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 74,
+      "page_range": "74",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_122",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 74,
+      "page_range": "74",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_123",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 74,
+      "page_range": "74",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_124",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_125",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_126",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras in blind spots and high-risk areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of video surveillance systems to monitor school grounds and improve safety.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 76,
+      "page_range": "76",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_127",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_128",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_129",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 78,
+      "page_range": "78",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_130",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 78,
+      "page_range": "78",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_131",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 79,
+      "page_range": "79",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_132",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 80,
+      "page_range": "80",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_133",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 80,
+      "page_range": "80",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_134",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 81,
+      "page_range": "81",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_135",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 81,
+      "page_range": "81",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_136",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 82,
+      "page_range": "82",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_137",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 82,
+      "page_range": "82",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_138",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be strategically placed throughout the school to provide adequate surveillance coverage.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of a lockdown procedure.",
+          "ofc": "Develop and implement an emergency lockdown plan.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a lockdown procedure in the event of an active shooter or other emergency.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 82,
+      "page_range": "82",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_139",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety and security of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across all school facilities.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires that schools have adequate video surveillance systems in place to monitor activities throughout the campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 83,
+      "page_range": "83",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_140",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 83,
+      "page_range": "83",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_141",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 84,
+      "page_range": "84",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_142",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 84,
+      "page_range": "84",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_143",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_144",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_145",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 86,
+      "page_range": "86",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_146",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should ensure that all areas of the campus are covered by video surveillance cameras.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_147",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_148",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 88,
+      "page_range": "88",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_149",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include ensuring that all critical areas are covered by video surveillance systems.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 88,
+      "page_range": "88",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_150",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a visitor management system in place to ensure the safety of students, staff, and visitors. This includes tracking all visitors, issuing badges or IDs, and maintaining a log of their presence.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 89,
+      "page_range": "89",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_151",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 89,
+      "page_range": "89",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_152",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 90,
+      "page_range": "90",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_153",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 90,
+      "page_range": "90",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_154",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 91,
+      "page_range": "91",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_155",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 91,
+      "page_range": "91",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_156",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include having cameras covering all high-traffic areas, including entrances, hallways, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the use of intrusion detection systems, such as motion sensors and glass break detectors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 92,
+      "page_range": "92",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_157",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-traffic areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be placed strategically throughout the school to monitor activity and deter crime.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate emergency evacuation procedures.",
+          "ofc": "Develop and practice comprehensive emergency evacuation plans.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is essential to have well-rehearsed emergency evacuation procedures in place.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 92,
+      "page_range": "92",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_158",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 93,
+      "page_range": "93",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_159",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 93,
+      "page_range": "93",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_160",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 94,
+      "page_range": "94",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_161",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 94,
+      "page_range": "94",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_162",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policy.",
+          "ofc": "Develop a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-risk areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of CCTV cameras to monitor school grounds for increased safety.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 95,
+      "page_range": "95",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_163",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 96,
+      "page_range": "96",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_164",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 96,
+      "page_range": "96",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_165",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 97,
+      "page_range": "97",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_166",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 97,
+      "page_range": "97",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_167",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 97,
+      "page_range": "97",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_168",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 98,
+      "page_range": "98",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_169",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 98,
+      "page_range": "98",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_170",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 99,
+      "page_range": "99",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_171",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop and implement a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive video surveillance coverage throughout the school campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires comprehensive video surveillance coverage throughout the school campus to monitor activities and deter criminal behavior.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 99,
+      "page_range": "99",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_172",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 100,
+      "page_range": "100",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_173",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 100,
+      "page_range": "100",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_174",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 101,
+      "page_range": "101",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_175",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors. Policies should include procedures for screening, identification, and supervision.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires adequate video surveillance coverage to monitor all critical areas of a school. Cameras should be strategically placed to provide clear views of entrances, exits, hallways, playgrounds, and parking lots.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors in vulnerable areas.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider implementing intrusion detection systems such as motion sensors and glass break detectors in areas prone to unauthorized entry, like rooftops or storage rooms.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 101,
+      "page_range": "101",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_176",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 102,
+      "page_range": "102",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_177",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure that all visitors are properly screened, identified, and escorted while on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across the entire school grounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "It is recommended that schools benefit from a comprehensive CCTV system to monitor all areas of the campus, including classrooms, hallways, playgrounds, and parking lots.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 102,
+      "page_range": "102",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_178",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal policies for managing visitors, including procedures for checking identification and screening for potential threats. Effective visitor management can help ensure the safety of students, staff, and other individuals on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across all critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to install video surveillance systems in strategic locations, such as entrances, hallways, and parking lots. This can help deter crime and aid in the investigation of incidents.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection measures.",
+          "ofc": "Install motion sensors and glass break detectors to enhance perimeter security.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of intrusion detection systems, such as motion sensors and glass break detectors, to alert security personnel of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 103,
+      "page_range": "103",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_179",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage across all campus areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should consider implementing a video surveillance system to monitor all exterior and interior spaces.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 103,
+      "page_range": "103",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_180",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 104,
+      "page_range": "104",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_181",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Ensure adequate CCTV camera placement.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of cameras in all high-traffic areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 104,
+      "page_range": "104",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_182",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 105,
+      "page_range": "105",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_183",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "The school should establish a formal visitor management policy.",
+      "confidence": 1.0,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 105,
+      "page_range": "105",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_184",
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 106,
+      "page_range": "106",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_185",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across all school facilities.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "It is advised to consider the installation of a video surveillance system that covers all areas of the school, including classrooms, hallways, and outdoor spaces.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 106,
+      "page_range": "106",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_186",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 106,
+      "page_range": "106",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_187",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider installing additional cameras in areas with limited visibility to improve security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 107,
+      "page_range": "107",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_188",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 107,
+      "page_range": "107",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_189",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 108,
+      "page_range": "108",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_190",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 108,
+      "page_range": "108",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_191",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 109,
+      "page_range": "109",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_192",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 109,
+      "page_range": "109",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_193",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 113,
+      "page_range": "113",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_194",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of CCTV coverage in critical areas.",
+          "ofc": "Install CCTV cameras in critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to install CCTV cameras in hallways, entrances, and parking lots.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "For VA Mission Critical Facilities.pdf",
+      "source_page": 116,
+      "page_range": "116",
+      "chunk_id": "For VA Mission Critical Facilities_chunk_195",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    }
+  ]
+}

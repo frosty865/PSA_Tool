@@ -1,0 +1,6 @@
+pandas
+PyMuPDF
+requests
+supabase
+python-dotenv
+

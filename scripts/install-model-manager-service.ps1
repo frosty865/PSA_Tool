@@ -19,11 +19,11 @@ if (-not $isAdmin) {
 Write-Host "✅ Running as Administrator" -ForegroundColor Green
 Write-Host ""
 
-# Configuration
+# Configuration - Server deployment paths
 $serviceName = "VOFC-ModelManager"
 $pythonPath = "C:\Tools\python\python.exe"
-$scriptPath = "C:\Tools\ModelManager\model_manager.py"
-$workingDir = "C:\Tools\ModelManager"
+$scriptPath = "C:\Tools\py_scripts\model_manager\model_manager.py"
+$workingDir = "C:\Tools\py_scripts\model_manager"
 
 # Check if service already exists
 $existingStatus = nssm status $serviceName 2>&1

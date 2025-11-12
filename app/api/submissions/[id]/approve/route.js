@@ -260,6 +260,23 @@ export async function POST(request, { params }) {
 
         // --- Move to Production Tables: Options for Consideration ---
         const ofcVulnLinks = []; // Store OFC-to-vulnerability links to create after insertion
+        const submissionToProductionOfcMap = new Map(); // Maps submission OFC IDs to production OFC IDs
+        const ofcTextToProductionIdMap = new Map(); // Maps OFC text to production ID (fallback mapping)
+        
+        // First, fetch submission OFCs to get their database IDs
+        let submissionOfcs = [];
+        try {
+          const { data: submissionOfcsData } = await supabase
+            .from('submission_options_for_consideration')
+            .select('*')
+            .eq('submission_id', submissionId);
+          
+          if (submissionOfcsData) {
+            submissionOfcs = submissionOfcsData;
+          }
+        } catch (ofcFetchError) {
+          console.warn('⚠️ Could not fetch submission OFCs:', ofcFetchError);
+        }
         
         if (parsed.ofcs && parsed.ofcs.length > 0) {
           // Insert OFCs into production table
@@ -303,6 +320,22 @@ export async function POST(request, { params }) {
               ofc_key: ofcKey,
               linked_vuln_key: linkedVulnKey
             });
+            
+            // Map OFC text to production ID (for fallback matching)
+            ofcTextToProductionIdMap.set(ofcText.toLowerCase().trim(), insertedOfc.id);
+            
+            // Try to map submission OFC ID to production OFC ID
+            // Match by text since submission OFC IDs might not match parsed data IDs
+            const matchingSubmissionOfc = submissionOfcs.find(so => 
+              (so.option_text || '').toLowerCase().trim() === ofcText.toLowerCase().trim()
+            );
+            
+            if (matchingSubmissionOfc?.id) {
+              submissionToProductionOfcMap.set(matchingSubmissionOfc.id, insertedOfc.id);
+            } else if (o.id) {
+              // Fallback: use parsed data ID if available
+              submissionToProductionOfcMap.set(o.id, insertedOfc.id);
+            }
           }
           
           console.log(`✅ Inserted ${productionOfcIds.length} OFCs into production table`);
@@ -341,23 +374,162 @@ export async function POST(request, { params }) {
           }
         }
 
-        // --- Sources (optional) ---
-        if (parsed.sources && parsed.sources.length > 0) {
-          const sourcePayload = parsed.sources.map(s => ({
-            submission_id: submissionId,
-            source_title: s.title || s.source_title || '',
-            source_url: s.url || s.source_url || '',
-            organization: s.organization || ''
-          }));
-
-          const { error: srcErr } = await supabase
+        // --- Sources: Promote to production and create OFC-source links ---
+        const productionSourceIds = [];
+        const submissionToProductionSourceMap = new Map(); // Maps submission source IDs to production source IDs
+        
+        // First, get submission sources (from submission_sources table or parsed data)
+        let submissionSources = [];
+        try {
+          const { data: submissionSourcesData } = await supabase
             .from('submission_sources')
-            .insert(sourcePayload);
-
-          if (srcErr) {
-            console.error('Error inserting sources:', srcErr);
-            throw srcErr;
+            .select('*')
+            .eq('submission_id', submissionId);
+          
+          if (submissionSourcesData && submissionSourcesData.length > 0) {
+            submissionSources = submissionSourcesData;
+          } else if (parsed.sources && parsed.sources.length > 0) {
+            // Fallback to parsed sources if submission_sources table is empty
+            submissionSources = parsed.sources;
           }
+        } catch (sourceFetchError) {
+          console.warn('⚠️ Could not fetch submission sources:', sourceFetchError);
+          // Continue - sources are optional
+        }
+        
+        // Promote sources to production sources table
+        if (submissionSources.length > 0) {
+          for (const s of submissionSources) {
+            const productionSource = {
+              source_title: s.source_title || s.title || s.source_text || '',
+              source_url: s.source_url || s.url || null,
+              author_org: s.author_org || s.organization || null,
+              publication_year: s.publication_year || s.year || null,
+              citation: s.source_text || s.citation || s.source_title || null,
+              content_restriction: s.content_restriction || 'public'
+            };
+            
+            // Only insert if we have at least a title
+            if (productionSource.source_title) {
+              const { data: insertedSource, error: srcErr } = await supabase
+                .from('sources')
+                .insert(productionSource)
+                .select('id')
+                .single();
+              
+              if (srcErr) {
+                // Try to find existing source instead of failing
+                const { data: existingSource } = await supabase
+                  .from('sources')
+                  .select('id')
+                  .eq('source_title', productionSource.source_title)
+                  .maybeSingle();
+                
+                if (existingSource?.id) {
+                  productionSourceIds.push(existingSource.id);
+                  // Map submission source ID to production source ID
+                  if (s.id) {
+                    submissionToProductionSourceMap.set(s.id, existingSource.id);
+                  }
+                  console.log(`✅ Using existing source: ${productionSource.source_title}`);
+                } else {
+                  console.warn('⚠️ Could not insert or find source:', srcErr);
+                }
+              } else if (insertedSource?.id) {
+                productionSourceIds.push(insertedSource.id);
+                // Map submission source ID to production source ID
+                if (s.id) {
+                  submissionToProductionSourceMap.set(s.id, insertedSource.id);
+                }
+                console.log(`✅ Promoted source to production: ${productionSource.source_title}`);
+              }
+            }
+          }
+        }
+        
+        // Create OFC-source links in production ofc_sources table
+        if (productionSourceIds.length > 0 && productionOfcIds.length > 0) {
+          // Get submission OFC-source links to map to production
+          let submissionOfcSourceLinks = [];
+          try {
+            const { data: submissionLinks } = await supabase
+              .from('submission_ofc_sources')
+              .select('*')
+              .eq('submission_id', submissionId);
+            
+            if (submissionLinks) {
+              submissionOfcSourceLinks = submissionLinks;
+            }
+          } catch (linkFetchError) {
+            console.warn('⚠️ Could not fetch submission OFC-source links:', linkFetchError);
+          }
+          
+          // Create production OFC-source links
+          // Map submission OFC-source links to production IDs
+          const ofcSourceLinkPromises = [];
+          const createdLinks = new Set(); // Track created links to avoid duplicates
+          
+          if (submissionOfcSourceLinks.length > 0 && submissionToProductionOfcMap.size > 0) {
+            // Use submission links to map to production IDs
+            for (const link of submissionOfcSourceLinks) {
+              const submissionOfcId = link.ofc_id;
+              const submissionSourceId = link.source_id;
+              
+              // Map submission OFC ID to production OFC ID
+              const productionOfcId = submissionToProductionOfcMap.get(submissionOfcId);
+              
+              // Map submission source ID to production source ID
+              const productionSourceId = submissionToProductionSourceMap.get(submissionSourceId);
+              
+              if (productionOfcId && productionSourceId) {
+                const linkKey = `${productionOfcId}-${productionSourceId}`;
+                if (!createdLinks.has(linkKey)) {
+                  createdLinks.add(linkKey);
+                  ofcSourceLinkPromises.push(
+                    supabase
+                      .from('ofc_sources')
+                      .insert({
+                        ofc_id: productionOfcId,
+                        source_id: productionSourceId
+                      })
+                      .then(({ error }) => {
+                        if (error && !error.message.includes('duplicate') && !error.message.includes('unique')) {
+                          console.warn('⚠️ Error creating OFC-source link:', error);
+                        }
+                      })
+                  );
+                }
+              }
+            }
+          }
+          
+          // If no submission links or mapping failed, link all OFCs to first source as fallback
+          if (ofcSourceLinkPromises.length === 0 && productionSourceIds.length > 0) {
+            for (const ofcId of productionOfcIds) {
+              // Link to first source
+              const sourceId = productionSourceIds[0];
+              const linkKey = `${ofcId}-${sourceId}`;
+              if (!createdLinks.has(linkKey)) {
+                createdLinks.add(linkKey);
+                ofcSourceLinkPromises.push(
+                  supabase
+                    .from('ofc_sources')
+                    .insert({
+                      ofc_id: ofcId,
+                      source_id: sourceId
+                    })
+                    .then(({ error }) => {
+                      if (error && !error.message.includes('duplicate') && !error.message.includes('unique')) {
+                        console.warn('⚠️ Error creating OFC-source link:', error);
+                      }
+                    })
+                );
+              }
+            }
+          }
+          
+          await Promise.all(ofcSourceLinkPromises);
+          console.log(`✅ Created ${ofcSourceLinkPromises.length} OFC-source links in production`);
         }
 
         console.log(`✅ Submission ${submissionId} promoted successfully.`);

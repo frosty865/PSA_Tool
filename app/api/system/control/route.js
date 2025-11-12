@@ -18,10 +18,8 @@ export async function POST(request) {
       );
     }
 
-    // Add timeout to prevent hanging requests
-    // Increased to 60 seconds for long-running operations like processing files
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+    // No timeout - disable timeout messaging for long-running operations
+    // Requests will wait as long as needed without showing timeout errors
 
     console.log(`[Control Proxy] Attempting to connect to Flask at: ${FLASK_URL}`);
 
@@ -33,23 +31,24 @@ export async function POST(request) {
           'Accept': 'application/json',
         },
         body: JSON.stringify({ action }),
-        signal: controller.signal,
         cache: 'no-store',
       });
-
-      clearTimeout(timeoutId);
       
       console.log(`[Control Proxy] Response status: ${response.status} from ${FLASK_URL}`);
 
-      // Handle 502 Bad Gateway - tunnel/server unavailable
-      if (response.status === 502 || response.status === 503) {
+      // Handle 502/503/530 Gateway errors - tunnel/server unavailable
+      if (response.status === 502 || response.status === 503 || response.status === 530) {
         console.error(`[Control Proxy] Gateway error ${response.status} from ${FLASK_URL}`);
         
-        // 502/503 typically means tunnel is up but Flask isn't responding, OR tunnel is misconfigured
+        // 502/503/530 typically means tunnel is up but Flask isn't responding, OR tunnel is misconfigured
+        // 530 is Cloudflare-specific: "Origin is unreachable" or "Connection timed out"
         let errorMessage = `Gateway error (${response.status}) - `;
         let hint = '';
         
-        if (FLASK_URL.includes('flask.frostech.site') || FLASK_URL.includes('https://')) {
+        if (response.status === 530) {
+          errorMessage += 'Origin server unreachable (Cloudflare timeout).';
+          hint = 'Cloudflare cannot reach the Flask server. This usually means: 1) Tunnel service is down or not running (nssm status "VOFC-Tunnel"), 2) Flask service is not running (nssm status "VOFC-Flask"), 3) Tunnel configuration is incorrect, 4) Network connectivity issue between tunnel and Flask';
+        } else if (FLASK_URL.includes('flask.frostech.site') || FLASK_URL.includes('https://')) {
           errorMessage += 'Tunnel is responding but Flask may not be accessible through it.';
           hint = 'Flask is running locally but tunnel cannot reach it. Check: 1) Tunnel service is running (nssm status "VOFC-Tunnel"), 2) Tunnel config points to localhost:8080, 3) Flask is listening on port 8080';
         } else {
@@ -145,21 +144,7 @@ export async function POST(request) {
 
       return NextResponse.json(data);
     } catch (fetchError) {
-      clearTimeout(timeoutId);
-      
-      // Handle timeout
-      if (fetchError.name === 'AbortError') {
-        console.error('[Control Proxy] Request timeout:', FLASK_URL);
-        return NextResponse.json(
-          { 
-            status: 'error', 
-            message: 'Request timeout - Flask server may be slow or unavailable. Check tunnel status.',
-            flaskUrl: FLASK_URL,
-            action
-          },
-          { status: 200 } // Return 200 so frontend can handle gracefully
-        );
-      }
+      // Timeout messaging disabled - handle other errors only
 
       // Handle connection errors
       let errorMessage = fetchError.message || 'Failed to connect to Flask server';

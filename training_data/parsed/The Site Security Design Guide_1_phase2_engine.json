@@ -1,0 +1,4503 @@
+{
+  "source_file": "The Site Security Design Guide_1.pdf",
+  "processed_at": "2025-11-11T18:53:55.880755",
+  "phase2_engine_count": 246,
+  "records": [
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "The Site Security Design Guide_1_chunk_001",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "The Site Security Design Guide_1_chunk_002",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of video surveillance coverage in critical areas.",
+          "ofc": "Install CCTV cameras in critical areas such as entrances, hallways, and playgrounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of CCTV cameras in critical areas such as entrances, hallways, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Implement physical barriers (e.g., fencing or bollards) around the school property to prevent unauthorized access.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "To enhance safety, it is advised to implement physical barriers (e.g., fencing or bollards) around the school property to prevent unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "The Site Security Design Guide_1_chunk_003",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a visitor management policy to ensure the safety of students, staff, and visitors. The policy should include procedures for checking identification, issuing badges, and maintaining visitor logs.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include installing cameras in all high-traffic areas, such as hallways, entrances, and playgrounds. This will help deter crime and aid in investigations.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors to enhance perimeter security.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the implementation of intrusion detection systems, such as motion sensors and glass break detectors, to alert staff in case of an unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "The Site Security Design Guide_1_chunk_004",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "The Site Security Design Guide_1_chunk_005",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "The Site Security Design Guide_1_chunk_006",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 9,
+      "page_range": "9",
+      "chunk_id": "The Site Security Design Guide_1_chunk_007",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "The Site Security Design Guide_1_chunk_008",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a visitor management system to ensure that all visitors are properly screened, identified, and tracked.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage in the school's parking lot.",
+          "ofc": "Install cameras in the parking lot to monitor activity.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should consider installing cameras in the parking lot to enhance safety and deter criminal activity.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "The Site Security Design Guide_1_chunk_009",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "The Site Security Design Guide_1_chunk_010",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "The Site Security Design Guide_1_chunk_011",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "The Site Security Design Guide_1_chunk_012",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be managed through a formalized process.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 13,
+      "page_range": "13",
+      "chunk_id": "The Site Security Design Guide_1_chunk_013",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "The Site Security Design Guide_1_chunk_014",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "The Site Security Design Guide_1_chunk_015",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 15,
+      "page_range": "15",
+      "chunk_id": "The Site Security Design Guide_1_chunk_016",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "The Site Security Design Guide_1_chunk_017",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "The Site Security Design Guide_1_chunk_018",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "The Site Security Design Guide_1_chunk_019",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "The Site Security Design Guide_1_chunk_020",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "The Site Security Design Guide_1_chunk_021",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 17,
+      "page_range": "17",
+      "chunk_id": "The Site Security Design Guide_1_chunk_022",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "The Site Security Design Guide_1_chunk_023",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "The Site Security Design Guide_1_chunk_024",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "The Site Security Design Guide_1_chunk_025",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "The Site Security Design Guide_1_chunk_026",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 22,
+      "page_range": "22",
+      "chunk_id": "The Site Security Design Guide_1_chunk_027",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "The Site Security Design Guide_1_chunk_028",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "The Site Security Design Guide_1_chunk_029",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 24,
+      "page_range": "24",
+      "chunk_id": "The Site Security Design Guide_1_chunk_030",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 25,
+      "page_range": "25",
+      "chunk_id": "The Site Security Design Guide_1_chunk_031",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "The Site Security Design Guide_1_chunk_032",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "The Site Security Design Guide_1_chunk_033",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "The Site Security Design Guide_1_chunk_034",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "The Site Security Design Guide_1_chunk_035",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerability": "Lack of a formal visitor management policy.",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "source_context": "It is recommended that facilities establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+      "confidence": 1.0,
+      "options_for_consideration": [
+        "Develop visitor management policies."
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "The Site Security Design Guide_1_chunk_036",
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "The Site Security Design Guide_1_chunk_037",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "The Site Security Design Guide_1_chunk_038",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "The Site Security Design Guide_1_chunk_039",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop a formal visitor management policy to ensure the safety of students, staff, and visitors. The policy should include procedures for screening visitors, issuing badges or identification, and maintaining a log of all visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include ensuring comprehensive video surveillance coverage throughout the facility to enhance safety and security. Cameras should be strategically placed in high-traffic areas, including entrances, exits, hallways, and classrooms.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 29,
+      "page_range": "29",
+      "chunk_id": "The Site Security Design Guide_1_chunk_040",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a formal visitor management system in place to ensure the safety of students, staff, and visitors. This system should include procedures for screening visitors, issuing badges or passes, and maintaining a log of all visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras to cover blind spots in the school's CCTV system.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should have a comprehensive video surveillance system to monitor all areas of the campus, including hallways, playgrounds, and parking lots. This will help deter crime and aid in investigations.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 30,
+      "page_range": "30",
+      "chunk_id": "The Site Security Design Guide_1_chunk_041",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "The Site Security Design Guide_1_chunk_042",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "The Site Security Design Guide_1_chunk_043",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "The Site Security Design Guide_1_chunk_044",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "The Site Security Design Guide_1_chunk_045",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout facilities.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of CCTV cameras in strategic locations throughout facilities.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 33,
+      "page_range": "33",
+      "chunk_id": "The Site Security Design Guide_1_chunk_046",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "The Site Security Design Guide_1_chunk_047",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires adequate video surveillance coverage to monitor activity within and around the facility.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "The Site Security Design Guide_1_chunk_048",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "The Site Security Design Guide_1_chunk_049",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "The Site Security Design Guide_1_chunk_050",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 36,
+      "page_range": "36",
+      "chunk_id": "The Site Security Design Guide_1_chunk_051",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage across campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Best practices include ensuring comprehensive video surveillance coverage to enhance safety and security on school campuses.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient perimeter security measures.",
+          "ofc": "Implement fencing, gates, or barriers around the campus perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires implementing appropriate perimeter security measures to protect students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "The Site Security Design Guide_1_chunk_052",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "The Site Security Design Guide_1_chunk_053",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "The Site Security Design Guide_1_chunk_054",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 37,
+      "page_range": "37",
+      "chunk_id": "The Site Security Design Guide_1_chunk_055",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "The Site Security Design Guide_1_chunk_056",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 39,
+      "page_range": "39",
+      "chunk_id": "The Site Security Design Guide_1_chunk_057",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-traffic areas and blind spots.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of CCTV cameras in strategic locations to enhance school security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "The Site Security Design Guide_1_chunk_058",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "The Site Security Design Guide_1_chunk_059",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 40,
+      "page_range": "40",
+      "chunk_id": "The Site Security Design Guide_1_chunk_060",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "The Site Security Design Guide_1_chunk_061",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 41,
+      "page_range": "41",
+      "chunk_id": "The Site Security Design Guide_1_chunk_062",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 42,
+      "page_range": "42",
+      "chunk_id": "The Site Security Design Guide_1_chunk_063",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 42,
+      "page_range": "42",
+      "chunk_id": "The Site Security Design Guide_1_chunk_064",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "The Site Security Design Guide_1_chunk_065",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 43,
+      "page_range": "43",
+      "chunk_id": "The Site Security Design Guide_1_chunk_066",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "The Site Security Design Guide_1_chunk_067",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a formal visitor management system in place. This includes a sign-in/sign-out process, identification of visitors, and issuance of visitor badges.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should have a comprehensive video surveillance system that covers all exterior areas, parking lots, entrances, and hallways.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors in critical areas.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have intrusion detection systems, such as motion sensors and glass break detectors, installed in critical areas like server rooms and administrative offices.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 44,
+      "page_range": "44",
+      "chunk_id": "The Site Security Design Guide_1_chunk_068",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "The Site Security Design Guide_1_chunk_069",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 45,
+      "page_range": "45",
+      "chunk_id": "The Site Security Design Guide_1_chunk_070",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "The Site Security Design Guide_1_chunk_071",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "The Site Security Design Guide_1_chunk_072",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 46,
+      "page_range": "46",
+      "chunk_id": "The Site Security Design Guide_1_chunk_073",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "The Site Security Design Guide_1_chunk_074",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "The Site Security Design Guide_1_chunk_075",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 48,
+      "page_range": "48",
+      "chunk_id": "The Site Security Design Guide_1_chunk_076",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "The Site Security Design Guide_1_chunk_077",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 49,
+      "page_range": "49",
+      "chunk_id": "The Site Security Design Guide_1_chunk_078",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "The Site Security Design Guide_1_chunk_079",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 50,
+      "page_range": "50",
+      "chunk_id": "The Site Security Design Guide_1_chunk_080",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "The Site Security Design Guide_1_chunk_081",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage across all critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of a comprehensive video surveillance system to monitor all critical areas of the school.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection measures.",
+          "ofc": "Implement motion sensors and alarms in sensitive areas.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider the deployment of intrusion detection systems, such as motion sensors and alarms, in sensitive areas of the school.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 51,
+      "page_range": "51",
+      "chunk_id": "The Site Security Design Guide_1_chunk_082",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "The Site Security Design Guide_1_chunk_083",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 52,
+      "page_range": "52",
+      "chunk_id": "The Site Security Design Guide_1_chunk_084",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "The Site Security Design Guide_1_chunk_085",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors. Policies should include procedures for screening visitors, issuing badges or passes, and maintaining a log of all visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of video surveillance coverage in critical areas.",
+          "ofc": "Install CCTV cameras to monitor critical areas such as entrances, hallways, and playgrounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of CCTV cameras in critical areas to monitor for suspicious activity, deter crime, and aid in investigations.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate emergency planning procedures.",
+          "ofc": "Develop and regularly update an all-hazards emergency operations plan (EOP) that includes evacuation, lockdown, and shelter-in-place procedures.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is essential to have a comprehensive emergency operations plan (EOP) that outlines procedures for responding to various emergencies, including natural disasters, active shooter situations, and fires.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient training and exercises for staff.",
+          "ofc": "Provide regular training and exercises for staff on emergency procedures, lockdown drills, and active shooter response.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Regular training and exercises help staff to be prepared for emergencies, respond effectively, and keep students safe.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 53,
+      "page_range": "53",
+      "chunk_id": "The Site Security Design Guide_1_chunk_086",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "The Site Security Design Guide_1_chunk_087",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system installation and monitoring.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of video surveillance systems to monitor school grounds and buildings.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "The Site Security Design Guide_1_chunk_088",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The facility should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 54,
+      "page_range": "54",
+      "chunk_id": "The Site Security Design Guide_1_chunk_089",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "The Site Security Design Guide_1_chunk_090",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 55,
+      "page_range": "55",
+      "chunk_id": "The Site Security Design Guide_1_chunk_091",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 56,
+      "page_range": "56",
+      "chunk_id": "The Site Security Design Guide_1_chunk_092",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "The Site Security Design Guide_1_chunk_093",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "The Site Security Design Guide_1_chunk_094",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 57,
+      "page_range": "57",
+      "chunk_id": "The Site Security Design Guide_1_chunk_095",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "The Site Security Design Guide_1_chunk_096",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "The Site Security Design Guide_1_chunk_097",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 58,
+      "page_range": "58",
+      "chunk_id": "The Site Security Design Guide_1_chunk_098",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 59,
+      "page_range": "59",
+      "chunk_id": "The Site Security Design Guide_1_chunk_099",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "The Site Security Design Guide_1_chunk_100",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "The Site Security Design Guide_1_chunk_101",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 61,
+      "page_range": "61",
+      "chunk_id": "The Site Security Design Guide_1_chunk_102",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 62,
+      "page_range": "62",
+      "chunk_id": "The Site Security Design Guide_1_chunk_103",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policies.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Facilities should establish a formal visitor management system to ensure that all visitors are properly screened, identified, and escorted.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Install fencing or barriers around the facility's perimeter.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Facilities should have adequate physical security measures in place, including fencing or barriers around the perimeter to deter unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of emergency evacuation plans.",
+          "ofc": "Develop and implement emergency evacuation plans for all facilities.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is essential to have a well-developed emergency response plan in place, including evacuation procedures for all facilities.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "The Site Security Design Guide_1_chunk_104",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 63,
+      "page_range": "63",
+      "chunk_id": "The Site Security Design Guide_1_chunk_105",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras in high-risk areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider installing additional CCTV cameras in high-risk areas such as entrances, hallways, and playgrounds.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "The Site Security Design Guide_1_chunk_106",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "The Site Security Design Guide_1_chunk_107",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 64,
+      "page_range": "64",
+      "chunk_id": "The Site Security Design Guide_1_chunk_108",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "The Site Security Design Guide_1_chunk_109",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "The Site Security Design Guide_1_chunk_110",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 66,
+      "page_range": "66",
+      "chunk_id": "The Site Security Design Guide_1_chunk_111",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "The Site Security Design Guide_1_chunk_112",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure sufficient CCTV camera coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Weak perimeter security.",
+          "ofc": "Upgrade fencing, gates, or barriers.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate site lighting.",
+          "ofc": "Improve exterior illumination.",
+          "discipline": "Lighting",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of emergency planning.",
+          "ofc": "Develop an emergency response plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient training for staff.",
+          "ofc": "Provide regular security training to staff.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate communication systems.",
+          "ofc": "Upgrade radio or PA systems.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate threat assessment procedures.",
+          "ofc": "Implement a behavioral threat assessment program.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of cybersecurity policies.",
+          "ofc": "Develop a cybersecurity policy.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate policy documentation.",
+          "ofc": "Document security policies and procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Weak entry screening procedures.",
+          "ofc": "Implement visitor screening protocols.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate facilities hardening.",
+          "ofc": "Upgrade building security features.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 67,
+      "page_range": "67",
+      "chunk_id": "The Site Security Design Guide_1_chunk_113",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 68,
+      "page_range": "68",
+      "chunk_id": "The Site Security Design Guide_1_chunk_114",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 69,
+      "page_range": "69",
+      "chunk_id": "The Site Security Design Guide_1_chunk_115",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 72,
+      "page_range": "72",
+      "chunk_id": "The Site Security Design Guide_1_chunk_116",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 72,
+      "page_range": "72",
+      "chunk_id": "The Site Security Design Guide_1_chunk_117",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 73,
+      "page_range": "73",
+      "chunk_id": "The Site Security Design Guide_1_chunk_118",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 73,
+      "page_range": "73",
+      "chunk_id": "The Site Security Design Guide_1_chunk_119",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a comprehensive visitor management policy that includes procedures for checking visitor identification, issuing visitor badges, and monitoring visitors in the building.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should install cameras in all high-traffic areas, including hallways, classrooms, and the main office.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Install motion sensors and glass break detectors to enhance intrusion detection capabilities.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider installing motion sensors and glass break detectors in areas where unauthorized entry is a concern.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 73,
+      "page_range": "73",
+      "chunk_id": "The Site Security Design Guide_1_chunk_120",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "The Site Security Design Guide_1_chunk_121",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "The Site Security Design Guide_1_chunk_122",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 75,
+      "page_range": "75",
+      "chunk_id": "The Site Security Design Guide_1_chunk_123",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 76,
+      "page_range": "76",
+      "chunk_id": "The Site Security Design Guide_1_chunk_124",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "The Site Security Design Guide_1_chunk_125",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "The Site Security Design Guide_1_chunk_126",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 77,
+      "page_range": "77",
+      "chunk_id": "The Site Security Design Guide_1_chunk_127",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy. This policy should outline procedures for verifying the identity of visitors, issuing visitor badges, and tracking their movements within the school.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security.",
+          "ofc": "Install fencing or barriers around the property.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to consider implementing physical barriers, such as fences or gates, around the perimeter of school properties to enhance security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Install additional cameras and monitoring equipment.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires adequate video surveillance coverage throughout the school. Consider installing additional cameras and monitoring equipment to ensure all areas are under constant observation.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 78,
+      "page_range": "78",
+      "chunk_id": "The Site Security Design Guide_1_chunk_128",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 78,
+      "page_range": "78",
+      "chunk_id": "The Site Security Design Guide_1_chunk_129",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 79,
+      "page_range": "79",
+      "chunk_id": "The Site Security Design Guide_1_chunk_130",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 79,
+      "page_range": "79",
+      "chunk_id": "The Site Security Design Guide_1_chunk_131",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 79,
+      "page_range": "79",
+      "chunk_id": "The Site Security Design Guide_1_chunk_132",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 80,
+      "page_range": "80",
+      "chunk_id": "The Site Security Design Guide_1_chunk_133",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 80,
+      "page_range": "80",
+      "chunk_id": "The Site Security Design Guide_1_chunk_134",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 81,
+      "page_range": "81",
+      "chunk_id": "The Site Security Design Guide_1_chunk_135",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 81,
+      "page_range": "81",
+      "chunk_id": "The Site Security Design Guide_1_chunk_136",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 81,
+      "page_range": "81",
+      "chunk_id": "The Site Security Design Guide_1_chunk_137",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 82,
+      "page_range": "82",
+      "chunk_id": "The Site Security Design Guide_1_chunk_138",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 82,
+      "page_range": "82",
+      "chunk_id": "The Site Security Design Guide_1_chunk_139",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 83,
+      "page_range": "83",
+      "chunk_id": "The Site Security Design Guide_1_chunk_140",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 83,
+      "page_range": "83",
+      "chunk_id": "The Site Security Design Guide_1_chunk_141",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 84,
+      "page_range": "84",
+      "chunk_id": "The Site Security Design Guide_1_chunk_142",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 84,
+      "page_range": "84",
+      "chunk_id": "The Site Security Design Guide_1_chunk_143",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "The Site Security Design Guide_1_chunk_144",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras and a Video Management System (VMS).",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of CCTV cameras.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "The Site Security Design Guide_1_chunk_145",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 85,
+      "page_range": "85",
+      "chunk_id": "The Site Security Design Guide_1_chunk_146",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 86,
+      "page_range": "86",
+      "chunk_id": "The Site Security Design Guide_1_chunk_147",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that a formal visitor management policy is developed and implemented to control access to the school campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras to cover blind spots.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that video surveillance systems are installed in all areas of the school campus, including parking lots, playgrounds, and hallways.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors to alert staff in case of an intrusion.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Implement motion sensors or glass break detectors to enhance the security of school facilities.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 86,
+      "page_range": "86",
+      "chunk_id": "The Site Security Design Guide_1_chunk_148",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "The Site Security Design Guide_1_chunk_149",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "The Site Security Design Guide_1_chunk_150",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a formal visitor management policy in place to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage across the campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Cameras should be strategically placed throughout the school to monitor all high-traffic areas, entrances, and exits.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Implement fencing, gates, or barriers around the property to restrict unauthorized access.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have adequate perimeter security measures in place, such as fencing or gates, to prevent unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "The Site Security Design Guide_1_chunk_151",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 87,
+      "page_range": "87",
+      "chunk_id": "The Site Security Design Guide_1_chunk_152",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 88,
+      "page_range": "88",
+      "chunk_id": "The Site Security Design Guide_1_chunk_153",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 89,
+      "page_range": "89",
+      "chunk_id": "The Site Security Design Guide_1_chunk_154",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 89,
+      "page_range": "89",
+      "chunk_id": "The Site Security Design Guide_1_chunk_155",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 91,
+      "page_range": "91",
+      "chunk_id": "The Site Security Design Guide_1_chunk_156",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors. Policies should include procedures for screening, identification, and tracking.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage across the campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Best practices include implementing a video surveillance system to monitor and record activities on school grounds. Cameras should be strategically placed to cover all entrances, exits, and high-traffic areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 91,
+      "page_range": "91",
+      "chunk_id": "The Site Security Design Guide_1_chunk_157",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 91,
+      "page_range": "91",
+      "chunk_id": "The Site Security Design Guide_1_chunk_158",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 92,
+      "page_range": "92",
+      "chunk_id": "The Site Security Design Guide_1_chunk_159",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 93,
+      "page_range": "93",
+      "chunk_id": "The Site Security Design Guide_1_chunk_160",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 93,
+      "page_range": "93",
+      "chunk_id": "The Site Security Design Guide_1_chunk_161",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 94,
+      "page_range": "94",
+      "chunk_id": "The Site Security Design Guide_1_chunk_162",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement a comprehensive visitor management policy that includes screening procedures, identification requirements, and visitor tracking.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate coverage of all critical areas with CCTV cameras.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be strategically placed to cover all critical areas, including entrances, exits, and high-traffic zones.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 95,
+      "page_range": "95",
+      "chunk_id": "The Site Security Design Guide_1_chunk_163",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 96,
+      "page_range": "96",
+      "chunk_id": "The Site Security Design Guide_1_chunk_164",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 97,
+      "page_range": "97",
+      "chunk_id": "The Site Security Design Guide_1_chunk_165",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 97,
+      "page_range": "97",
+      "chunk_id": "The Site Security Design Guide_1_chunk_166",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 97,
+      "page_range": "97",
+      "chunk_id": "The Site Security Design Guide_1_chunk_167",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety and security of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include ensuring that all critical areas are covered by video surveillance systems.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection measures.",
+          "ofc": "Install motion sensors, glass break detectors, and perimeter alarms to enhance security.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the implementation of intrusion detection measures such as motion sensors, glass break detectors, and perimeter alarms.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 98,
+      "page_range": "98",
+      "chunk_id": "The Site Security Design Guide_1_chunk_168",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 98,
+      "page_range": "98",
+      "chunk_id": "The Site Security Design Guide_1_chunk_169",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 99,
+      "page_range": "99",
+      "chunk_id": "The Site Security Design Guide_1_chunk_170",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 99,
+      "page_range": "99",
+      "chunk_id": "The Site Security Design Guide_1_chunk_171",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure that all critical areas are covered by CCTV cameras.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be strategically placed to monitor all entrances, exits, and high-traffic areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate emergency planning procedures.",
+          "ofc": "Develop and implement an emergency response plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools have a comprehensive emergency response plan in place to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 100,
+      "page_range": "100",
+      "chunk_id": "The Site Security Design Guide_1_chunk_172",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 100,
+      "page_range": "100",
+      "chunk_id": "The Site Security Design Guide_1_chunk_173",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 101,
+      "page_range": "101",
+      "chunk_id": "The Site Security Design Guide_1_chunk_174",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage throughout the school campus.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the installation of CCTV cameras in strategic locations throughout the school campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 101,
+      "page_range": "101",
+      "chunk_id": "The Site Security Design Guide_1_chunk_175",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety and security of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of CCTV cameras in strategic locations throughout school facilities to monitor activity and deter criminal behavior.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient intrusion detection systems.",
+          "ofc": "Implement intrusion detection systems.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised to deploy motion sensors, glass break detectors, or other intrusion detection devices to alert security personnel of unauthorized entry.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 102,
+      "page_range": "102",
+      "chunk_id": "The Site Security Design Guide_1_chunk_176",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 102,
+      "page_range": "102",
+      "chunk_id": "The Site Security Design Guide_1_chunk_177",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 103,
+      "page_range": "103",
+      "chunk_id": "The Site Security Design Guide_1_chunk_178",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of CCTV cameras in critical areas.",
+          "ofc": "Install CCTV cameras in critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of CCTV cameras in critical areas such as entrances, hallways, and playgrounds to enhance safety.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Improve perimeter security through fencing, gates, or barriers.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the implementation of adequate perimeter security measures to protect facilities from unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 103,
+      "page_range": "103",
+      "chunk_id": "The Site Security Design Guide_1_chunk_179",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 103,
+      "page_range": "103",
+      "chunk_id": "The Site Security Design Guide_1_chunk_180",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 105,
+      "page_range": "105",
+      "chunk_id": "The Site Security Design Guide_1_chunk_181",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a visitor management system to track visitors, contractors, volunteers, and vendors entering the school campus. This can help ensure the safety of students and staff.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 106,
+      "page_range": "106",
+      "chunk_id": "The Site Security Design Guide_1_chunk_182",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Ensure adequate CCTV camera placement throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires that schools provide adequate video surveillance coverage to monitor all areas of the facility.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 107,
+      "page_range": "107",
+      "chunk_id": "The Site Security Design Guide_1_chunk_183",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 107,
+      "page_range": "107",
+      "chunk_id": "The Site Security Design Guide_1_chunk_184",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 108,
+      "page_range": "108",
+      "chunk_id": "The Site Security Design Guide_1_chunk_185",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 109,
+      "page_range": "109",
+      "chunk_id": "The Site Security Design Guide_1_chunk_186",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras to monitor all high-traffic areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the use of video surveillance systems to monitor school grounds for security purposes.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 109,
+      "page_range": "109",
+      "chunk_id": "The Site Security Design Guide_1_chunk_187",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 109,
+      "page_range": "109",
+      "chunk_id": "The Site Security Design Guide_1_chunk_188",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras throughout the school premises.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the installation of CCTV cameras throughout the school premises.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 110,
+      "page_range": "110",
+      "chunk_id": "The Site Security Design Guide_1_chunk_189",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 110,
+      "page_range": "110",
+      "chunk_id": "The Site Security Design Guide_1_chunk_190",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 111,
+      "page_range": "111",
+      "chunk_id": "The Site Security Design Guide_1_chunk_191",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras to cover blind spots.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of an intrusion detection system.",
+          "ofc": "Install motion sensors or glass break detectors.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient perimeter security measures.",
+          "ofc": "Install fencing, gates, or barriers to secure the property.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate site lighting.",
+          "ofc": "Install additional exterior lighting to improve visibility.",
+          "discipline": "Lighting",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Lack of an emergency plan.",
+          "ofc": "Develop and implement an emergency response plan.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate training for staff.",
+          "ofc": "Provide regular security training to school personnel.",
+          "discipline": "Physical Security (General)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient communication systems.",
+          "ofc": "Install a reliable radio or PA system for emergency communications.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate threat assessment procedures.",
+          "ofc": "Implement a behavioral threat assessment program.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Outdated cybersecurity practices.",
+          "ofc": "Ensure regular patching, password management, and endpoint protection.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of documented policies and procedures.",
+          "ofc": "Develop and document security policies and standard operating procedures.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Inadequate visitor screening.",
+          "ofc": "Implement a formal visitor management policy with screening procedures.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Weaknesses in facilities hardening.",
+          "ofc": "Upgrade door frames, glazing, or ballistic protection as needed.",
+          "discipline": "Doors / Windows / Glazing",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "...",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 112,
+      "page_range": "112",
+      "chunk_id": "The Site Security Design Guide_1_chunk_192",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 112,
+      "page_range": "112",
+      "chunk_id": "The Site Security Design Guide_1_chunk_193",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 113,
+      "page_range": "113",
+      "chunk_id": "The Site Security Design Guide_1_chunk_194",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 113,
+      "page_range": "113",
+      "chunk_id": "The Site Security Design Guide_1_chunk_195",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be screened, registered, and issued a badge upon entry. Visitor management systems provide an effective means of tracking visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 114,
+      "page_range": "114",
+      "chunk_id": "The Site Security Design Guide_1_chunk_196",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 115,
+      "page_range": "115",
+      "chunk_id": "The Site Security Design Guide_1_chunk_197",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management system to ensure that all visitors are properly screened, identified, and tracked.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance.",
+          "ofc": "Install CCTV cameras in strategic locations throughout the school.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "It is recommended that schools consider implementing video surveillance systems to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 116,
+      "page_range": "116",
+      "chunk_id": "The Site Security Design Guide_1_chunk_198",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 116,
+      "page_range": "116",
+      "chunk_id": "The Site Security Design Guide_1_chunk_199",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of visitor management policies.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that visitors are managed in accordance with established policies and procedures. Policies should include requirements for visitor identification, screening, and badge issuance.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional cameras to ensure comprehensive coverage of all exterior and high-risk interior areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Consider the installation of additional cameras to ensure comprehensive coverage of all exterior and high-risk interior areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 117,
+      "page_range": "117",
+      "chunk_id": "The Site Security Design Guide_1_chunk_200",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a visitor management system to ensure that all visitors are properly screened, identified, and escorted.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance cameras in common areas.",
+          "ofc": "Install CCTV cameras in common areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools consider installing video surveillance cameras in common areas to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 118,
+      "page_range": "118",
+      "chunk_id": "The Site Security Design Guide_1_chunk_201",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance system.",
+          "ofc": "Install CCTV cameras for monitoring.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of video surveillance systems to monitor school grounds and deter criminal activity.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 119,
+      "page_range": "119",
+      "chunk_id": "The Site Security Design Guide_1_chunk_202",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should have a formal visitor management policy in place to ensure the safety of all students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras throughout the school premises.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "The school should consider installing video surveillance systems to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 120,
+      "page_range": "120",
+      "chunk_id": "The Site Security Design Guide_1_chunk_203",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 120,
+      "page_range": "120",
+      "chunk_id": "The Site Security Design Guide_1_chunk_204",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure adequate video surveillance coverage.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of CCTV cameras in strategic locations to monitor activities within school premises.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 121,
+      "page_range": "121",
+      "chunk_id": "The Site Security Design Guide_1_chunk_205",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of formal visitor management policies.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish formal visitor management policies to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Upgrade CCTV system to provide comprehensive coverage of all school premises.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "K-12 Education",
+          "subsector": "K-12 Schools",
+          "source_context": "Effective security requires the installation of CCTV cameras throughout the school premises to monitor activities and deter criminal behavior.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 121,
+      "page_range": "121",
+      "chunk_id": "The Site Security Design Guide_1_chunk_206",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 122,
+      "page_range": "122",
+      "chunk_id": "The Site Security Design Guide_1_chunk_207",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 123,
+      "page_range": "123",
+      "chunk_id": "The Site Security Design Guide_1_chunk_208",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 124,
+      "page_range": "124",
+      "chunk_id": "The Site Security Design Guide_1_chunk_209",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop and implement a visitor management policy to ensure that all visitors are screened, identified, and escorted while on campus.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of CCTV cameras in critical areas.",
+          "ofc": "Install CCTV cameras in key locations such as entrances, hallways, and playgrounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider installing CCTV cameras in key locations such as entrances, hallways, and playgrounds to improve safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 124,
+      "page_range": "124",
+      "chunk_id": "The Site Security Design Guide_1_chunk_210",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 125,
+      "page_range": "125",
+      "chunk_id": "The Site Security Design Guide_1_chunk_211",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 126,
+      "page_range": "126",
+      "chunk_id": "The Site Security Design Guide_1_chunk_212",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 127,
+      "page_range": "127",
+      "chunk_id": "The Site Security Design Guide_1_chunk_213",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that all visitors are registered, screened, and issued a visitor badge. Visitor management policies should be developed.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security measures.",
+          "ofc": "Install fencing or barriers around the property.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Consider implementing perimeter security measures such as fencing, gates, or barriers to prevent unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 128,
+      "page_range": "128",
+      "chunk_id": "The Site Security Design Guide_1_chunk_214",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Implement a visitor management system to ensure all visitors are properly screened, registered, and issued a badge.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage of critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Install cameras in all classrooms, hallways, and outdoor areas to monitor activities.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 128,
+      "page_range": "128",
+      "chunk_id": "The Site Security Design Guide_1_chunk_215",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance coverage in critical areas.",
+          "ofc": "Install CCTV cameras in high-risk locations such as entrances, hallways, and playgrounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools install CCTV cameras in critical areas to enhance safety.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 129,
+      "page_range": "129",
+      "chunk_id": "The Site Security Design Guide_1_chunk_216",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 129,
+      "page_range": "129",
+      "chunk_id": "The Site Security Design Guide_1_chunk_217",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 130,
+      "page_range": "130",
+      "chunk_id": "The Site Security Design Guide_1_chunk_218",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management system to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage in common areas.",
+          "ofc": "Ensure video surveillance cameras are installed in all common areas such as hallways, cafeterias, and playgrounds.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Best practices include the installation of video surveillance cameras in all common areas to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate emergency evacuation procedures for students with disabilities.",
+          "ofc": "Develop and implement specialized emergency evacuation plans for students with disabilities.",
+          "discipline": "Unknown",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is important to ensure that all students, including those with disabilities, are able to safely evacuate the building in an emergency.",
+          "confidence": 0.3,
+          "confidence_score": 0.3
+        },
+        {
+          "vulnerability": "Lack of regular security drills and exercises.",
+          "ofc": "Conduct regular security drills and exercises to test emergency preparedness.",
+          "discipline": "Emergency Planning / MNS",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Regular security drills and exercises help ensure that staff and students are prepared to respond effectively in an emergency.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 131,
+      "page_range": "131",
+      "chunk_id": "The Site Security Design Guide_1_chunk_219",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 132,
+      "page_range": "132",
+      "chunk_id": "The Site Security Design Guide_1_chunk_220",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 133,
+      "page_range": "133",
+      "chunk_id": "The Site Security Design Guide_1_chunk_221",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 133,
+      "page_range": "133",
+      "chunk_id": "The Site Security Design Guide_1_chunk_222",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 134,
+      "page_range": "134",
+      "chunk_id": "The Site Security Design Guide_1_chunk_223",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 135,
+      "page_range": "135",
+      "chunk_id": "The Site Security Design Guide_1_chunk_224",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should develop visitor management policies to ensure a secure and orderly environment. Policies may include requirements for identification, screening, and badges.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 136,
+      "page_range": "136",
+      "chunk_id": "The Site Security Design Guide_1_chunk_225",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools develop and implement a visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras in strategic locations.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The installation of CCTV cameras can enhance the safety and security of school facilities.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 136,
+      "page_range": "136",
+      "chunk_id": "The Site Security Design Guide_1_chunk_226",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 137,
+      "page_range": "137",
+      "chunk_id": "The Site Security Design Guide_1_chunk_227",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 137,
+      "page_range": "137",
+      "chunk_id": "The Site Security Design Guide_1_chunk_228",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 139,
+      "page_range": "139",
+      "chunk_id": "The Site Security Design Guide_1_chunk_229",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 139,
+      "page_range": "139",
+      "chunk_id": "The Site Security Design Guide_1_chunk_230",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 140,
+      "page_range": "140",
+      "chunk_id": "The Site Security Design Guide_1_chunk_231",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 141,
+      "page_range": "141",
+      "chunk_id": "The Site Security Design Guide_1_chunk_232",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be required to sign in upon arrival. Visitor management systems can help track visitors and provide a record of their presence.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate perimeter security.",
+          "ofc": "Install fencing, gates, or barriers around the facility.",
+          "discipline": "Perimeter / Barriers",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The perimeter of the school should be secured to prevent unauthorized access. This can include fencing, gates, or barriers.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Insufficient video surveillance coverage.",
+          "ofc": "Install cameras and a video management system (VMS) for monitoring.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be installed in strategic locations to monitor the facility. A video management system (VMS) can help manage and store footage.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 142,
+      "page_range": "142",
+      "chunk_id": "The Site Security Design Guide_1_chunk_233",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management process to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of video surveillance systems.",
+          "ofc": "Install CCTV cameras throughout the facility for monitoring purposes.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Effective security requires the installation of video surveillance systems to monitor activity within and around school facilities.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 143,
+      "page_range": "143",
+      "chunk_id": "The Site Security Design Guide_1_chunk_234",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Visitors should be managed through a formalized system that includes screening, identification, and tracking.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV coverage of critical areas.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Cameras should be strategically placed to cover all entrances, exits, hallways, and other critical areas.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Absence of intrusion detection systems.",
+          "ofc": "Install motion sensors or glass break detectors in sensitive areas.",
+          "discipline": "Intrusion Detection",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Sensitive areas should be protected by intrusion detection systems to alert security personnel of unauthorized access.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 144,
+      "page_range": "144",
+      "chunk_id": "The Site Security Design Guide_1_chunk_235",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 144,
+      "page_range": "144",
+      "chunk_id": "The Site Security Design Guide_1_chunk_236",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 145,
+      "page_range": "145",
+      "chunk_id": "The Site Security Design Guide_1_chunk_237",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 146,
+      "page_range": "146",
+      "chunk_id": "The Site Security Design Guide_1_chunk_238",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 147,
+      "page_range": "147",
+      "chunk_id": "The Site Security Design Guide_1_chunk_239",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 148,
+      "page_range": "148",
+      "chunk_id": "The Site Security Design Guide_1_chunk_240",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 149,
+      "page_range": "149",
+      "chunk_id": "The Site Security Design Guide_1_chunk_241",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 149,
+      "page_range": "149",
+      "chunk_id": "The Site Security Design Guide_1_chunk_242",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 150,
+      "page_range": "150",
+      "chunk_id": "The Site Security Design Guide_1_chunk_243",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 152,
+      "page_range": "152",
+      "chunk_id": "The Site Security Design Guide_1_chunk_244",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 152,
+      "page_range": "152",
+      "chunk_id": "The Site Security Design Guide_1_chunk_245",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "The Site Security Design Guide_1.pdf",
+      "source_page": 153,
+      "page_range": "153",
+      "chunk_id": "The Site Security Design Guide_1_chunk_246",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    }
+  ]
+}

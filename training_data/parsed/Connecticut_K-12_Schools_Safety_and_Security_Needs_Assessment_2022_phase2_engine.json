@@ -1,0 +1,348 @@
+{
+  "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+  "processed_at": "2025-11-11T03:16:36.485893",
+  "phase2_engine_count": 23,
+  "records": [
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that facilities establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Install additional CCTV cameras to cover blind spots and improve overall visibility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is advised that schools consider installing additional CCTV cameras to cover blind spots and improve overall visibility.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 1,
+      "page_range": "1",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_001",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 3,
+      "page_range": "3",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_002",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 4,
+      "page_range": "4",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_003",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 5,
+      "page_range": "5",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_004",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 6,
+      "page_range": "6",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_005",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_006",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 7,
+      "page_range": "7",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_007",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "Ensure that schools have a formal visitor management policy in place to control access to the building. (Source: [Link])",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 8,
+      "page_range": "8",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_008",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 10,
+      "page_range": "10",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_009",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 12,
+      "page_range": "12",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_010",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 14,
+      "page_range": "14",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_011",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 16,
+      "page_range": "16",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_012",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "ofcs": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 18,
+      "page_range": "18",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_013",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 21,
+      "page_range": "21",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_014",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 23,
+      "page_range": "23",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_015",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_016",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop and implement a comprehensive visitor management policy.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        },
+        {
+          "vulnerability": "Inadequate video surveillance coverage.",
+          "ofc": "Ensure comprehensive CCTV system coverage throughout the facility.",
+          "discipline": "Video Surveillance (VSS)",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "The school should consider implementing a comprehensive video surveillance system to enhance safety and security.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 26,
+      "page_range": "26",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_017",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [
+        {
+          "vulnerability": "Lack of a formal visitor management policy.",
+          "ofc": "Develop visitor management policies.",
+          "discipline": "Access Control",
+          "sector": "General",
+          "subsector": "General",
+          "source_context": "It is recommended that schools establish a formal visitor management policy to ensure the safety of students, staff, and visitors.",
+          "confidence": 1.0,
+          "confidence_score": 1.0
+        }
+      ],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 27,
+      "page_range": "27",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_018",
+      "discipline": "Access Control",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 1.0,
+      "confidence_score": 1.0
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 28,
+      "page_range": "28",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_019",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 31,
+      "page_range": "31",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_020",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 32,
+      "page_range": "32",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_021",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 34,
+      "page_range": "34",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_022",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    },
+    {
+      "vulnerabilities": [],
+      "source_file": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022.pdf",
+      "source_page": 35,
+      "page_range": "35",
+      "chunk_id": "Connecticut_K-12_Schools_Safety_and_Security_Needs_Assessment_2022_chunk_023",
+      "discipline": "Unknown",
+      "sector": "General",
+      "subsector": "General",
+      "confidence": 0.5,
+      "confidence_score": 0.5
+    }
+  ]
+}

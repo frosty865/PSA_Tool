@@ -270,7 +270,7 @@ def version():
 
 @system_bp.route('/api/system/progress')
 def progress():
-    """Get progress from Ollama automation progress.json file"""
+    """Get processing progress and watcher status."""
     try:
         import os
         from pathlib import Path
@@ -279,19 +279,35 @@ def progress():
         base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
         progress_file = base_dir / "automation" / "progress.json"
         
-        with open(progress_file, "r", encoding="utf-8") as f:
-            return jsonify(json.load(f))
-    except FileNotFoundError:
-        return jsonify({
-            "status": "unknown", 
-            "message": "progress.json not found",
-            "timestamp": datetime.now().isoformat(),
-            "incoming": 0,
-            "processed": 0,
-            "library": 0,
-            "errors": 0,
-            "review": 0
-        }), 200  # Return 200 with default values instead of 404
+        # Get progress data
+        progress_data = {}
+        try:
+            with open(progress_file, "r", encoding="utf-8") as f:
+                progress_data = json.load(f)
+        except FileNotFoundError:
+            progress_data = {
+                "status": "unknown", 
+                "message": "progress.json not found",
+                "incoming": 0,
+                "processed": 0,
+                "library": 0,
+                "errors": 0,
+                "review": 0
+            }
+        
+        # Get watcher status from new module
+        try:
+            from services.folder_watcher import get_watcher_status
+            progress_data["watcher_status"] = get_watcher_status()
+        except Exception as e:
+            logging.warning(f"Could not get watcher status: {e}")
+            progress_data["watcher_status"] = "unknown"
+        
+        # Ensure timestamp exists
+        if "timestamp" not in progress_data:
+            progress_data["timestamp"] = datetime.now().isoformat()
+        
+        return jsonify(progress_data)
     except Exception as e:
         import logging
         logging.error(f"Error reading progress.json: {e}")
@@ -303,7 +319,8 @@ def progress():
             "processed": 0,
             "library": 0,
             "errors": 0,
-            "review": 0
+            "review": 0,
+            "watcher_status": "unknown"
         }), 200
 
 @system_bp.route('/api/system/logstream', methods=['GET', 'OPTIONS'])
@@ -467,10 +484,9 @@ def system_control():
         
         elif action == "start_watcher":
             try:
-                from ollama_auto_processor import start_folder_watcher
+                from services.folder_watcher import start_folder_watcher
                 # Start watcher in background thread
-                watcher_thread = threading.Thread(target=start_folder_watcher, daemon=True)
-                watcher_thread.start()
+                start_folder_watcher()
                 msg = "Watcher started"
             except Exception as e:
                 logging.error(f"Error starting watcher: {e}")
@@ -478,12 +494,9 @@ def system_control():
         
         elif action == "stop_watcher":
             try:
-                # Flag file to halt watcher loop gracefully
-                stop_file = AUTOMATION_DIR / "watcher.stop"
-                stop_file.parent.mkdir(parents=True, exist_ok=True)
-                with open(stop_file, "w") as f:
-                    f.write("1")
-                msg = "Watcher stop signal written"
+                from services.folder_watcher import stop_folder_watcher
+                stop_folder_watcher()
+                msg = "Watcher stopped"
             except Exception as e:
                 logging.error(f"Error stopping watcher: {e}")
                 msg = f"Stop watcher error: {str(e)}"
@@ -591,41 +604,53 @@ def system_control():
         
         elif action == "process_existing":
             try:
-                from ollama_auto_processor import get_incoming_files, process_file
                 import traceback
+                from pathlib import Path
+                
+                # Check if VOFC-Processor service is running
+                try:
+                    import subprocess
+                    result = subprocess.run(
+                        ['nssm', 'status', 'VOFC-Processor'],
+                        capture_output=True,
+                        text=True,
+                        timeout=2
+                    )
+                    if result.returncode == 0 and 'SERVICE_RUNNING' in result.stdout:
+                        service_status = "running"
+                    else:
+                        service_status = "not running"
+                except:
+                    service_status = "unknown"
                 
                 INCOMING_DIR = BASE_DIR / "incoming"
                 logging.info(f"[Admin Control] process_existing: Checking {INCOMING_DIR}")
                 
-                existing_files = get_incoming_files()
-                logging.info(f"[Admin Control] Found {len(existing_files)} file(s) to process")
-                
-                if not existing_files:
-                    msg = "No files found in incoming/ directory"
-                    logging.info(f"[Admin Control] {msg}")
+                # Count files in incoming directory
+                if INCOMING_DIR.exists():
+                    existing_files = list(INCOMING_DIR.glob("*.pdf"))
+                    file_count = len(existing_files)
+                    logging.info(f"[Admin Control] Found {file_count} PDF file(s) in incoming/")
                 else:
-                    processed = 0
-                    failed = 0
-                    for filepath in existing_files:
-                        try:
-                            logging.info(f"[Admin Control] Processing {filepath.name}...")
-                            process_file(filepath)
-                            processed += 1
-                            logging.info(f"[Admin Control] Successfully processed {filepath.name}")
-                        except Exception as e:
-                            failed += 1
-                            error_msg = f"Error processing {filepath.name}: {e}"
-                            logging.error(f"[Admin Control] {error_msg}")
-                            logging.error(f"[Admin Control] Traceback: {traceback.format_exc()}")
-                    
-                    msg = f"Processed {processed} file(s), {failed} failed from incoming/"
-                    logging.info(f"[Admin Control] {msg}")
+                    file_count = 0
+                    logging.warning(f"[Admin Control] Incoming directory not found: {INCOMING_DIR}")
+                
+                if service_status == "running":
+                    if file_count > 0:
+                        msg = f"VOFC-Processor service is running and will automatically process {file_count} file(s) in incoming/ directory. Processing happens continuously every 30 seconds."
+                    else:
+                        msg = "VOFC-Processor service is running. No files found in incoming/ directory. Files will be processed automatically when added."
+                else:
+                    msg = f"VOFC-Processor service is {service_status}. Please start the service to process files. Files found: {file_count}"
+                    logging.warning(f"[Admin Control] {msg}")
+                
+                logging.info(f"[Admin Control] {msg}")
             except Exception as e:
                 import traceback
-                error_msg = f"Error processing existing files: {e}"
+                error_msg = f"Error checking processing status: {e}"
                 logging.error(f"[Admin Control] {error_msg}")
                 logging.error(f"[Admin Control] Traceback: {traceback.format_exc()}")
-                msg = f"Process existing error: {str(e)}"
+                msg = f"Process existing check error: {str(e)}"
         
         else:
             msg = f"Unknown action: {action}"

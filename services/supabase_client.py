@@ -573,9 +573,21 @@ def check_review_approval(filename):
         filename: Name of the review file (without extension, may include _vofc suffix)
         
     Returns:
-        True if approved, False otherwise
+        True if approved, False otherwise (returns False if credentials not configured)
     """
+    # Get logger at function start (before any try blocks)
+    # Use module-level logging import, not local import
+    logger = logging.getLogger(__name__)
+    
     try:
+        # Check if credentials are available before attempting connection
+        supabase_url = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL', '').rstrip('/')
+        supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+        
+        if not supabase_url or not supabase_key:
+            logger.debug(f"Supabase credentials not configured, skipping approval check for {filename}")
+            return False
+        
         client = get_supabase_client()
         
         # Clean filename for matching (remove _vofc suffix if present)

@@ -358,20 +358,55 @@ def run_model_on_chunks(chunks, model="psa-engine:latest", file_path=""):
                 "filename": chunk.get('source_file', chunk.get('filename', 'unknown'))
             }
             
-            base_prompt = f"""Document: {chunk_meta['filename']}
+            # Load heuristics for design guidance mode
+            heuristics_path = Path(r"C:\Tools\Ollama\Data\automation\heuristics_design_guidance.json")
+            heuristics = {}
+            if heuristics_path.exists():
+                try:
+                    import json as json_module
+                    with open(heuristics_path, "r", encoding="utf-8") as f:
+                        heuristics = json_module.load(f)
+                except Exception as e:
+                    logger.debug(f"Could not load heuristics: {e}")
+            
+            # Build prompt based on heuristics or default
+            if heuristics.get("mode") == "security_guidance":
+                base_prompt = f"""You are a structured extraction engine for *design and planning guidance* documents.
+
+Identify every paragraph that indicates a **security concern, weakness, or risk** (vulnerability)
+AND every sentence that offers **advice, recommendation, or mitigation** (option for consideration).
+
+Return a JSON array. Each item must include:
+{{
+  "category": "<Design Process / Perimeter / Access Control / Operations / Community Integration / Sustainability>",
+  "vulnerability": "<risk, failure, or issue>",
+  "options_for_consideration": ["<recommendation>", "<secondary recommendation>"],
+  "citations": ["Page {chunk_meta.get('page_range', 'unknown')}"],
+  "confidence_score": 0.7
+}}
+
+Guidance verbs such as *should, recommend, consider, integrate, promote* are treated as mitigation.
+Warning verbs such as *risk, hazard, conflict, inadequate, failure* are treated as vulnerabilities.
+Do NOT summarize; output one record per discrete issue or recommendation pair.
+
+Document: {chunk_meta['filename']}
+
+Text:
+{chunk_content}"""
+            else:
+                # Default prompt (backward compatible)
+                base_prompt = f"""Document: {chunk_meta['filename']}
 Section: pages {chunk_meta['page_range']}
 Extract vulnerabilities and mitigations from this section.
 
 CRITICAL: Respond ONLY in valid JSON. No markdown, no explanations, no code blocks.
 
 Required JSON structure (array format):
-
 [{{"vulnerability":"...","option_for_consideration":"...","confidence_score":<float>,"page_range":"{chunk_meta['page_range']}","source_file":"{chunk_meta['filename']}"}}]
 
 If you have no data, return: []
 
 Text:
-
 {chunk_content}
 
 Remember: Return ONLY valid JSON, nothing else."""

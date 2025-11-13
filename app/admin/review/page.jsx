@@ -26,18 +26,30 @@ export default function AdminReviewPage() {
   useEffect(() => {
     // RoleGate ensures user is authenticated before rendering
     // So we can directly load submissions
-    loadSubmissions()
+    let isMounted = true
+    let pollInterval = null
+    
+    const loadSubmissionsSafe = async () => {
+      if (!isMounted) return
+      await loadSubmissions()
+    }
+    
+    loadSubmissionsSafe()
     
     // Note: Auto-sync removed - now handled by VOFC-Processor service
     
     // Set up polling - RoleGate ensures user is authenticated
-    const pollInterval = setInterval(() => {
-      loadSubmissions()
+    pollInterval = setInterval(() => {
+      if (isMounted) {
+        loadSubmissionsSafe()
+      }
     }, 30000) // Refresh every 30s
     
     return () => {
+      isMounted = false
       if (pollInterval) clearInterval(pollInterval)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Poll progress.json every 10 seconds

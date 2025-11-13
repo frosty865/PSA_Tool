@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from './lib/auth';
 import { fetchVulnerabilities, fetchSectors, fetchSubsectorsBySector } from './lib/fetchVOFC';
+import '@/styles/cisa.css';
 
 export default function VOFCViewer() {
   const router = useRouter();
@@ -588,11 +589,7 @@ function VulnerabilityCard({ vulnerability, currentUser }) {
 
 // OFC Card Component
 function OFCCard({ ofc }) {
-  // Debug logging
-  if (ofc.sources) {
-    console.log(`[OFCCard] OFC ${ofc.id} sources:`, ofc.sources);
-  }
-  
+  // Removed excessive debug logging - sources are handled silently
   return (
     <div className="card">
       <div>

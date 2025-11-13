@@ -27,9 +27,9 @@ export default function RootLayout({ children }) {
         <link rel="shortcut icon" href="/images/cisa-logo.png" type="image/png" />
       </head>
       <body className="antialiased">
-        <div className="min-h-screen" style={{backgroundColor: 'var(--cisa-gray-lighter)'}}>
+        <div style={{minHeight: '100vh', backgroundColor: 'var(--cisa-gray-lighter)'}}>
           <Navigation />
-          <main className="w-full py-8">
+          <main style={{width: '100%', paddingTop: 'var(--spacing-xl)', paddingBottom: 'var(--spacing-xl)'}}>
             {children}
           </main>
           <AdvancedReturnToTop />

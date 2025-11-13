@@ -13,9 +13,26 @@ export default function AuditLogPage() {
   const [clearing, setClearing] = useState(false)
 
   useEffect(() => {
-    loadAuditLogs()
-    const interval = setInterval(loadAuditLogs, 60000) // Refresh every minute
-    return () => clearInterval(interval)
+    let isMounted = true
+    let interval = null
+    
+    const loadAuditLogsSafe = async () => {
+      if (!isMounted) return
+      await loadAuditLogs()
+    }
+    
+    loadAuditLogsSafe()
+    interval = setInterval(() => {
+      if (isMounted) {
+        loadAuditLogsSafe()
+      }
+    }, 60000) // Refresh every minute
+    
+    return () => {
+      isMounted = false
+      if (interval) clearInterval(interval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter])
 
   async function loadAuditLogs() {

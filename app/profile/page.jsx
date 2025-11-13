@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getUserProfile } from '../lib/auth';
 import { supabase } from '@/app/lib/supabase-client.js';
+import '@/styles/cisa.css';
 
 export default function UserProfile() {
     const [user, setUser] = useState(null);

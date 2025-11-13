@@ -289,8 +289,6 @@ export async function fetchVulnerabilities() {
       // Don't return early - continue with empty ofcSources
     }
 
-    console.log(`[fetchVulnerabilities] Found ${ofcSources?.length || 0} OFC-Source links`);
-
     // Get all sources
     const { data: sources, error: sourceError } = await supabase
       .from('sources')
@@ -302,10 +300,11 @@ export async function fetchVulnerabilities() {
       // Don't return early - continue with empty sources array
     }
 
-    console.log(`[fetchVulnerabilities] Found ${sources?.length || 0} sources`);
-
-
     // Build the complete data structure
+    let ofcsWithSourcesCount = 0;
+    let ofcsWithoutSourcesCount = 0;
+    let ofcsWithDirectSourcesCount = 0;
+    
     const vulnerabilitiesWithOFCs = vulnerabilities.map(vuln => {
       const vulnLinks = links.filter(link => link.vulnerability_id === vuln.id);
       
@@ -330,16 +329,11 @@ export async function fetchVulnerabilities() {
             author_org: null,
             publication_year: null
           }];
-          console.log(`[fetchVulnerabilities] OFC ${ofc.id} using direct source fields (no junction table link)`);
-        }
-        
-        // Debug logging
-        if (ofcSourceLinks.length > 0) {
-          console.log(`[fetchVulnerabilities] OFC ${ofc.id} has ${ofcSourceLinks.length} source links, found ${ofcSourcesData.length} sources`);
+          ofcsWithDirectSourcesCount++;
         } else if (ofcSourcesData.length > 0) {
-          console.log(`[fetchVulnerabilities] OFC ${ofc.id} using direct source fields`);
+          ofcsWithSourcesCount++;
         } else {
-          console.log(`[fetchVulnerabilities] OFC ${ofc.id} has no source links and no direct source fields`);
+          ofcsWithoutSourcesCount++;
         }
         
         return {
@@ -353,6 +347,11 @@ export async function fetchVulnerabilities() {
         ofcs: ofcsWithSources
       };
     });
+
+    // Log summary instead of per-OFC logging
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[fetchVulnerabilities] Summary: ${ofcsWithSourcesCount} OFCs with source links, ${ofcsWithDirectSourcesCount} OFCs with direct source fields, ${ofcsWithoutSourcesCount} OFCs without sources`);
+    }
 
     return vulnerabilitiesWithOFCs || [];
   } catch (error) {

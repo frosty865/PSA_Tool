@@ -46,7 +46,7 @@ export default function AdminOverviewPage() {
     } catch (err) {
       console.error('[System Health] Manual refresh failed:', err)
       // On manual refresh, show error but don't change state if we have a previous good state
-        setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
+      setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
         ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' }
         : prev
       )
@@ -140,40 +140,50 @@ export default function AdminOverviewPage() {
 
   // Fetch pending review count directly from database
   useEffect(() => {
+    let isMounted = true
+    let countInterval = null
+    
     const fetchPendingCount = async () => {
+      if (!isMounted) return
       try {
         // Use count_only parameter to get accurate count from database
         const res = await fetchWithAuth('/api/admin/submissions?status=pending_review&count_only=true', { cache: 'no-store' })
-        if (res.ok) {
+        if (res.ok && isMounted) {
           const data = await res.json()
           // Get the count directly from the database query
           const count = data.count ?? 0
           setPendingReviewCount(count)
-        } else {
+        } else if (isMounted) {
           // If error, try to keep last known value or set to null
-          console.error('Failed to fetch pending review count:', res.status)
           // Fallback: try the old method
           try {
             const fallbackRes = await fetchWithAuth('/api/admin/submissions?status=pending_review', { cache: 'no-store' })
-            if (fallbackRes.ok) {
+            if (fallbackRes.ok && isMounted) {
               const fallbackData = await fallbackRes.json()
               const count = Array.isArray(fallbackData.submissions) ? fallbackData.submissions.length : 
                            (Array.isArray(fallbackData.allSubmissions) ? fallbackData.allSubmissions.length : 0)
               setPendingReviewCount(count)
             }
           } catch (fallbackErr) {
-            console.error('Fallback count fetch also failed:', fallbackErr)
+            // Silently handle fallback errors
           }
         }
       } catch (err) {
-        console.error('Error fetching pending review count:', err)
         // Don't set to null on error, keep last known value
       }
     }
 
     fetchPendingCount()
-    const countInterval = setInterval(fetchPendingCount, 30000) // Refresh every 30s
-    return () => clearInterval(countInterval)
+    countInterval = setInterval(() => {
+      if (isMounted) {
+        fetchPendingCount()
+      }
+    }, 30000) // Refresh every 30s
+    
+    return () => {
+      isMounted = false
+      if (countInterval) clearInterval(countInterval)
+    }
   }, [])
 
   // Countdown timer for Model Manager
@@ -183,19 +193,26 @@ export default function AdminOverviewPage() {
       return
     }
 
+    let isMounted = true
+    let countdownInterval = null
+
     const updateCountdown = () => {
+      if (!isMounted) return
+      
       const now = new Date()
       const nextRun = new Date(modelManagerInfo.next_run)
       const diff = nextRun - now
 
       if (diff <= 0) {
-        setCountdown('Due now')
+        if (isMounted) setCountdown('Due now')
         return
       }
 
       const hours = Math.floor(diff / (1000 * 60 * 60))
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+      if (!isMounted) return
 
       if (hours > 0) {
         setCountdown(`${hours}h ${minutes}m`)
@@ -207,8 +224,16 @@ export default function AdminOverviewPage() {
     }
 
     updateCountdown()
-    const countdownInterval = setInterval(updateCountdown, 1000)
-    return () => clearInterval(countdownInterval)
+    countdownInterval = setInterval(() => {
+      if (isMounted) {
+        updateCountdown()
+      }
+    }, 1000)
+    
+    return () => {
+      isMounted = false
+      if (countdownInterval) clearInterval(countdownInterval)
+    }
   }, [modelManagerInfo])
 
   // Admin overview data fetcher

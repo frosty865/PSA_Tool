@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase-client.js';
+import '@/styles/cisa.css';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -89,16 +90,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: 'var(--cisa-gray-lighter)'}}>
-      <div className="max-w-md w-full">
+    <div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--cisa-gray-lighter)'}}>
+      <div style={{maxWidth: '448px', width: '100%'}}>
         <div className="card">
           <div className="card-header">
-            <h1 className="card-title text-center">VOFC Viewer</h1>
-            <p className="text-center text-secondary">Sign in to access the system</p>
+            <h1 className="card-title" style={{textAlign: 'center'}}>VOFC Viewer</h1>
+            <p style={{textAlign: 'center', color: 'var(--cisa-gray)'}}>Sign in to access the system</p>
           </div>
           
           <div className="card-body">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)'}}>
               <div className="form-group">
                 <label className="form-label">Email or Username</label>
                 <input
@@ -110,7 +111,7 @@ export default function Login() {
                   placeholder="Enter your email or username"
                   autoComplete="username email"
                 />
-                <small className="text-secondary" style={{display: 'block', marginTop: '4px', fontSize: '0.85rem'}}>
+                <small style={{display: 'block', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-xs)', color: 'var(--cisa-gray)'}}>
                   If username, will use username@vofc.gov
                 </small>
               </div>
@@ -131,13 +132,14 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn btn-primary w-full"
+                className="btn btn-primary"
+                style={{width: '100%'}}
               >
                 {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
               </button>
             </form>
             
-            <div className="text-center mt-4">
+            <div style={{textAlign: 'center', marginTop: 'var(--spacing-md)'}}>
               <button
                 type="button"
                 onClick={() => setIsSignUp(!isSignUp)}

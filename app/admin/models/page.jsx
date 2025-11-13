@@ -115,10 +115,26 @@ export default function ModelAnalytics() {
     if (!lastRefresh) {
       setLastRefresh(new Date())
     }
-    fetchData()
+    
+    let isMounted = true
+    const fetchDataSafe = async () => {
+      if (!isMounted) return
+      await fetchData()
+    }
+    
+    fetchDataSafe()
     // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchData, 60000)
-    return () => clearInterval(interval)
+    const interval = setInterval(() => {
+      if (isMounted) {
+        fetchDataSafe()
+      }
+    }, 60000)
+    
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Format timestamp for display (EST/EDT)
@@ -179,7 +195,7 @@ export default function ModelAnalytics() {
             </div>
             <button
               onClick={async () => {
-                console.log('[Model Analytics] Manual refresh triggered')
+                // Manual refresh triggered
                 await fetchData()
               }}
               disabled={loading}

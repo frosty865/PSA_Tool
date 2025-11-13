@@ -28,51 +28,7 @@ export default function AdminReviewPage() {
     // So we can directly load submissions
     loadSubmissions()
     
-    // Auto-sync review files to submissions if there are files but no submissions
-    const autoSync = async () => {
-      try {
-        const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
-        if (progressRes.ok) {
-          const progressData = await progressRes.json()
-          // If there are review files, check if we need to sync
-          if (progressData.review > 0) {
-            // Try to sync after a short delay to let submissions load first
-            setTimeout(async () => {
-              const subsRes = await fetchWithAuth('/api/admin/submissions?status=pending_review', { 
-                cache: 'no-store' 
-              })
-              if (subsRes.ok) {
-                const subsData = await subsRes.json()
-                const subs = subsData.allSubmissions || subsData.submissions || []
-                // If there are review files but no submissions, auto-sync
-                if (subs.length === 0 && progressData.review > 0) {
-                  console.log('Auto-syncing review files to submissions...')
-                  try {
-                    const syncRes = await fetch('/api/system/control', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      credentials: 'include',
-                      body: JSON.stringify({ action: 'sync_review_to_submissions' })
-                    })
-                    if (syncRes.ok) {
-                      console.log('Auto-sync completed')
-                      // Reload submissions after sync
-                      setTimeout(loadSubmissions, 2000)
-                    }
-                  } catch (syncErr) {
-                    console.error('Auto-sync error:', syncErr)
-                  }
-                }
-              }
-            }, 2000)
-          }
-        }
-      } catch (err) {
-        console.error('Error in auto-sync check:', err)
-      }
-    }
-    
-    autoSync()
+    // Note: Auto-sync removed - now handled by VOFC-Processor service
     
     // Set up polling - RoleGate ensures user is authenticated
     const pollInterval = setInterval(() => {
@@ -142,10 +98,7 @@ export default function AdminReviewPage() {
         }
       }, 1000)
       
-      // Reload submissions if syncing
-      if (action === 'sync_review_to_submissions') {
-        setTimeout(loadSubmissions, 1000)
-      }
+      // Note: Sync actions removed - now handled by VOFC-Processor service
     } catch (err) {
       console.error('Error in control action:', err)
       alert(`❌ Error: ${err.message}`)
@@ -390,26 +343,6 @@ export default function AdminReviewPage() {
             <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', margin: 0 }}>
               System Status
             </h2>
-            <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-              <button
-                onClick={() => controlAction('sync_review_to_submissions')}
-                disabled={controlLoading}
-                className="btn btn-sm btn-primary"
-                style={{ opacity: controlLoading ? 0.6 : 1 }}
-                title="Sync review files to submissions table"
-              >
-                📤 Sync to Submissions
-              </button>
-              <button
-                onClick={() => controlAction('sync_review')}
-                disabled={controlLoading}
-                className="btn btn-sm btn-info"
-                style={{ opacity: controlLoading ? 0.6 : 1 }}
-                title="Sync approved files to production"
-              >
-                🔄 Sync Approved
-              </button>
-            </div>
           </div>
           
           {progress ? (
@@ -514,7 +447,7 @@ export default function AdminReviewPage() {
                 </div>
                 
                 <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--cisa-gray)', marginBottom: 'var(--spacing-sm)' }}>
-                  {new Date(sub.created_at).toLocaleDateString()} at {new Date(sub.created_at).toLocaleTimeString()}
+                  {new Date(sub.created_at).toLocaleDateString('en-US', { timeZone: 'America/New_York' })} at {new Date(sub.created_at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
                 </p>
                 
                 <div style={{ display: 'flex', gap: 'var(--spacing-md)', fontSize: 'var(--font-size-sm)' }}>
@@ -592,7 +525,7 @@ export default function AdminReviewPage() {
                 <div>
                   <strong style={{ color: 'var(--cisa-gray)' }}>Submitted:</strong>{' '}
                   <span style={{ color: 'var(--cisa-gray-light)' }}>
-                    {new Date(selected.created_at).toLocaleString()}
+                    {new Date(selected.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
                   </span>
                 </div>
 

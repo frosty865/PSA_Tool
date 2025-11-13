@@ -63,7 +63,7 @@ export default function LearningDashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  // Format timestamp for display
+  // Format timestamp for display (EST/EDT)
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return ''
     try {
@@ -72,7 +72,9 @@ export default function LearningDashboard() {
         month: 'short', 
         day: 'numeric', 
         hour: '2-digit', 
-        minute: '2-digit' 
+        minute: '2-digit',
+        timeZone: 'America/New_York',
+        timeZoneName: 'short'
       })
     } catch {
       return timestamp

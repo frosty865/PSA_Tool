@@ -487,7 +487,7 @@ export default function AdminOverviewPage() {
             opacity: 0.7,
             margin: 'var(--spacing-xs) 0 0 0'
           }}>
-            Started: {new Date(progress.timestamp).toLocaleTimeString()}
+            Started: {new Date(progress.timestamp).toLocaleTimeString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
           </p>
         </div>
       )}
@@ -778,7 +778,7 @@ export default function AdminOverviewPage() {
                   paddingBottom: 'var(--spacing-md)',
                   borderBottom: '1px solid var(--cisa-gray-light)'
                 }}>
-                  Last updated: {new Date(s.updated_at).toLocaleString()}
+                  Last updated: {new Date(s.updated_at).toLocaleString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
                 </div>
                 <div style={{ 
                   display: 'grid', 
@@ -1307,7 +1307,7 @@ export default function AdminOverviewPage() {
                     )}
                     {r.created_at && (
                       <span style={{ marginLeft: 'auto' }}>
-                        {new Date(r.created_at).toLocaleString()}
+                        {new Date(r.created_at).toLocaleString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
                       </span>
                     )}
                   </div>

@@ -121,7 +121,7 @@ export default function ModelAnalytics() {
     return () => clearInterval(interval)
   }, [])
 
-  // Format timestamp for display
+  // Format timestamp for display (EST/EDT)
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return ''
     try {
@@ -130,7 +130,9 @@ export default function ModelAnalytics() {
         month: 'short', 
         day: 'numeric', 
         hour: '2-digit', 
-        minute: '2-digit' 
+        minute: '2-digit',
+        timeZone: 'America/New_York',
+        timeZoneName: 'short'
       })
     } catch {
       return timestamp

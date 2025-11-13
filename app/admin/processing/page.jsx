@@ -92,10 +92,10 @@ export default function ProcessingMonitorPage() {
     return () => clearInterval(timer)
   }, [])
 
-  // Live log stream (Server-Sent Events with polling fallback)
+  // Live log stream (using reliable polling method)
   useEffect(() => {
     let pollInterval = null
-    let evtSource = null
+    let lastKnownLines = new Set() // Track seen lines to avoid duplicates
     
     // Initial load of recent logs
     const loadInitialLogs = async () => {
@@ -103,8 +103,14 @@ export default function ProcessingMonitorPage() {
         const res = await fetch('/api/system/logs?tail=50', { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
-          if (data.lines && data.lines.length > 0) {
-            setLogLines(data.lines)
+          if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
+            // Filter out empty lines and create hash set
+            const validLines = data.lines.filter(line => line && line.trim())
+            setLogLines(validLines)
+            // Track initial lines
+            validLines.forEach(line => {
+              if (line) lastKnownLines.add(line.substring(0, 100)) // Use first 100 chars as hash
+            })
           }
         }
       } catch (err) {
@@ -112,114 +118,72 @@ export default function ProcessingMonitorPage() {
       }
     }
 
-    // Setup SSE connection to Flask
-    const setupSSE = () => {
-      try {
-        // Detect Flask URL based on current hostname
-        const isProduction = typeof window !== 'undefined' && 
-                           window.location.hostname !== 'localhost' && 
-                           window.location.hostname !== '127.0.0.1'
-        const flaskUrl = isProduction 
-          ? 'https://flask.frostech.site'
-          : 'http://10.0.0.213:8080'
-        
-        const streamUrl = `${flaskUrl}/api/system/logstream`
-        
-        console.log('[SSE] Attempting to connect to:', streamUrl)
-        
-        evtSource = new EventSource(streamUrl)
-        eventSourceRef.current = evtSource
-
-        evtSource.onopen = () => {
-          console.log('[SSE] Connection opened successfully')
-        }
-
-        evtSource.onmessage = (e) => {
-          if (e.data) {
-            setLogLines((prev) => {
-              const newLines = [...prev, e.data]
-              // Keep only last 100 lines to prevent memory issues
-              return newLines.slice(-100)
-            })
-          }
-        }
-
-        evtSource.onerror = (err) => {
-          console.warn('[SSE] Connection error, falling back to polling:', {
-            readyState: evtSource?.readyState,
-            url: streamUrl,
-            error: err
-          })
-          // Close SSE and fall back to polling
-          if (evtSource) {
-            evtSource.close()
-          }
-          setupPolling()
-        }
-      } catch (error) {
-        console.warn('[SSE] Setup failed, using polling:', error)
-        setupPolling()
-      }
-    }
-
-    // Fallback polling method
+    // Polling method - more reliable than SSE through Next.js
     const setupPolling = () => {
-      let lastLineHash = null
       pollInterval = setInterval(async () => {
         try {
-          const res = await fetch('/api/system/logs?tail=20', { cache: 'no-store' })
+          const res = await fetch('/api/system/logs?tail=50', { cache: 'no-store' })
           if (res.ok) {
             const data = await res.json()
-            if (data.lines && data.lines.length > 0) {
+            if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
               setLogLines((prev) => {
-                // Find where we left off by comparing with last known line
-                const currentLastLine = data.lines[data.lines.length - 1]
-                const currentLastHash = currentLastLine ? currentLastLine.substring(0, 50) : null
+                // Filter out empty lines
+                const validLines = data.lines.filter(line => line && line.trim())
                 
-                // If this is the same as last time, no new lines
-                if (currentLastHash === lastLineHash && prev.length > 0) {
-                  return prev
-                }
-                
-                // Update hash
-                lastLineHash = currentLastHash
-                
-                // Find the index of the last line we already have
-                let startIndex = 0
-                if (prev.length > 0) {
-                  const lastKnownLine = prev[prev.length - 1]
-                  const lastKnownIndex = data.lines.lastIndexOf(lastKnownLine)
-                  if (lastKnownIndex >= 0) {
-                    startIndex = lastKnownIndex + 1
+                // Find new lines by comparing with what we've seen
+                const newLines = validLines.filter(line => {
+                  const hash = line.substring(0, 100)
+                  if (!lastKnownLines.has(hash)) {
+                    lastKnownLines.add(hash)
+                    return true
                   }
+                  return false
+                })
+                
+                // If we have new lines, add them
+                if (newLines.length > 0) {
+                  const combined = [...prev, ...newLines]
+                  // Keep only last 200 lines to prevent memory issues
+                  const trimmed = combined.slice(-200)
+                  
+                  // Also trim the hash set to prevent memory growth
+                  if (lastKnownLines.size > 500) {
+                    // Rebuild hash set from current lines
+                    lastKnownLines.clear()
+                    trimmed.forEach(line => {
+                      if (line) lastKnownLines.add(line.substring(0, 100))
+                    })
+                  }
+                  
+                  return trimmed
                 }
                 
-                // Add only new lines
-                const newLines = data.lines.slice(startIndex)
-                const combined = [...prev, ...newLines]
-                return combined.slice(-100)  // Keep last 100 lines
+                // No new lines, return previous state
+                return prev
               })
             }
           }
         } catch (err) {
-          console.error('Error polling logs:', err)
+          // Silently handle errors - don't spam console
+          if (!err.message?.includes('aborted') && !err.message?.includes('timeout')) {
+            console.error('Error polling logs:', err)
+          }
         }
-      }, 2000)  // Poll more frequently (every 2 seconds)
+      }, 1500)  // Poll every 1.5 seconds for near real-time updates
     }
 
-    // Load initial logs and setup streaming
+    // Load initial logs and start polling
     loadInitialLogs()
-    setupSSE()
+    // Small delay before starting polling to let initial load complete
+    setTimeout(setupPolling, 500)
 
     return () => {
-      if (evtSource) {
-        evtSource.close()
-      }
       if (pollInterval) {
         clearInterval(pollInterval)
       }
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
+        eventSourceRef.current = null
       }
     }
   }, [])
@@ -441,7 +405,7 @@ export default function ProcessingMonitorPage() {
           
           {progress?.timestamp && (
             <div style={{ marginTop: 'var(--spacing-md)', fontSize: 'var(--font-size-sm)', color: 'var(--cisa-gray)' }}>
-              Last updated: {new Date(progress.timestamp).toLocaleString()}
+              Last updated: {new Date(progress.timestamp).toLocaleString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
             </div>
           )}
         </div>
@@ -514,44 +478,6 @@ export default function ProcessingMonitorPage() {
               }}
             >
               📋 Review Submissions
-            </button>
-            <button
-              onClick={() => controlAction('process_existing')}
-              disabled={controlLoading}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#00a651',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--border-radius)',
-                cursor: controlLoading ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                fontSize: 'var(--font-size-base)',
-                opacity: controlLoading ? 0.6 : 1
-              }}
-            >
-              {controlLoading ? '⏳ Processing...' : '⚡ Process Existing Files'}
-            </button>
-            <button
-              onClick={() => {
-                if (confirm('Clear all files from the errors folder?')) {
-                  controlAction('clear_errors')
-                }
-              }}
-              disabled={controlLoading}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--border-radius)',
-                cursor: controlLoading ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                fontSize: 'var(--font-size-base)',
-                opacity: controlLoading ? 0.6 : 1
-              }}
-            >
-              🗑️ Clear Errors
             </button>
           </div>
         </div>

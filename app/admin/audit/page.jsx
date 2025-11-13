@@ -331,7 +331,7 @@ export default function AuditLogPage() {
                         fontSize: 'var(--font-size-sm)', 
                         color: 'var(--cisa-gray)'
                       }}>
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(log.timestamp).toLocaleString('en-US', { timeZone: 'America/New_York', timeZoneName: 'short' })}
                       </span>
                     </div>
                   </div>

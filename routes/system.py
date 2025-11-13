@@ -10,8 +10,29 @@ import os
 import json
 import requests
 import subprocess
+import logging
 from datetime import datetime
 from pathlib import Path
+
+# EST/EDT timezone handling
+try:
+    from zoneinfo import ZoneInfo
+    EST = ZoneInfo("America/New_York")
+except ImportError:
+    # Fallback for Python < 3.9
+    try:
+        import pytz
+        EST = pytz.timezone("America/New_York")
+    except ImportError:
+        EST = None
+
+def now_est():
+    """Get current time in EST/EDT."""
+    if EST:
+        return datetime.now(EST)
+    else:
+        # Fallback to local time if timezone libraries not available
+        return datetime.now()
 
 system_bp = Blueprint('system', __name__)
 
@@ -262,7 +283,7 @@ def health():
             "ollama": ollama_base,
             "tunnel": tunnel_url  # Public tunnel URL
         },
-        "timestamp": datetime.now().isoformat()
+        "timestamp": now_est().isoformat()
     }), 200
 
 @system_bp.route('/api/health', methods=['GET', 'OPTIONS'])
@@ -352,7 +373,11 @@ def progress():
                 text=True,
                 timeout=5
             )
-            service_running = 'RUNNING' in result.stdout
+            # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
+            service_running = 'RUNNING' in result.stdout.upper() and 'STOPPED' not in result.stdout.upper()
+            # Also check for state code 4 (RUNNING)
+            if not service_running:
+                service_running = 'STATE' in result.stdout and ': 4' in result.stdout
             
             # Check log file for recent heartbeat (within last 60 seconds)
             watcher_active = False
@@ -364,27 +389,42 @@ def progress():
                     log_dir = Path(r"C:\Tools\VOFC\Data\logs")
                 
                 if log_dir.exists():
-                    log_file = log_dir / f"vofc_processor_{datetime.now().strftime('%Y%m%d')}.log"
+                    log_file = log_dir / f"vofc_processor_{now_est().strftime('%Y%m%d')}.log"
                     if log_file.exists():
                         # Read last few lines to check for heartbeat
                         with open(log_file, 'r', encoding='utf-8') as f:
                             lines = f.readlines()
-                            # Check last 20 lines for heartbeat
-                            for line in reversed(lines[-20:]):
+                            # Check last 50 lines for heartbeat (more lines to catch recent heartbeats)
+                            for line in reversed(lines[-50:]):
                                 if 'Watcher heartbeat' in line or 'still monitoring' in line:
                                     # Extract timestamp from log line
                                     try:
-                                        # Log format: "2025-11-13 10:18:19,996 | INFO | ..."
+                                        # Log format: "2025-11-13 10:18:19 | INFO | ..." (no milliseconds in local time format)
                                         if '|' in line:
                                             timestamp_str = line.split('|')[0].strip()
-                                            log_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
-                                            now = datetime.now()
+                                            # Try parsing with and without milliseconds
+                                            try:
+                                                log_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+                                            except ValueError:
+                                                # Try with milliseconds
+                                                try:
+                                                    log_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S,%f')
+                                                except ValueError:
+                                                    # Try with microseconds
+                                                    log_time = datetime.strptime(timestamp_str.split(',')[0], '%Y-%m-%d %H:%M:%S')
+                                            # Convert log_time to EST for comparison (assuming log is in EST)
+                                            # If log_time is naive, assume it's EST
+                                            if log_time.tzinfo is None:
+                                                log_time = log_time.replace(tzinfo=EST) if EST else log_time
+                                            now = now_est()
                                             diff_seconds = (now - log_time).total_seconds()
-                                            # If heartbeat is within last 60 seconds, watcher is active
-                                            if diff_seconds < 60:
+                                            # If heartbeat is within last 90 seconds, watcher is active (30s interval + buffer)
+                                            if diff_seconds < 90:
                                                 watcher_active = True
+                                                logging.debug(f"Found recent watcher heartbeat: {timestamp_str} ({diff_seconds:.1f}s ago)")
                                                 break
-                                    except:
+                                    except Exception as parse_err:
+                                        logging.debug(f"Could not parse timestamp from log line: {line[:100]} - {parse_err}")
                                         pass
             except Exception as log_error:
                 logging.debug(f"Could not check log file for watcher status: {log_error}")
@@ -393,7 +433,15 @@ def progress():
             if service_running and watcher_active:
                 progress_data["watcher_status"] = "running"
             elif service_running:
-                progress_data["watcher_status"] = "unknown"  # Service running but no recent heartbeat
+                # Service is running but no recent heartbeat - check if log file exists and is readable
+                log_file = log_dir / f"vofc_processor_{now_est().strftime('%Y%m%d')}.log"
+                if log_file.exists():
+                    # Log file exists but no heartbeat found - might be starting up or log format issue
+                    progress_data["watcher_status"] = "unknown"
+                    logging.debug(f"Service running but no recent heartbeat found in {log_file}")
+                else:
+                    # Log file doesn't exist yet - service might be starting
+                    progress_data["watcher_status"] = "unknown"
             else:
                 progress_data["watcher_status"] = "stopped"
         except Exception as e:
@@ -402,7 +450,7 @@ def progress():
         
         # Ensure timestamp exists
         if "timestamp" not in progress_data:
-            progress_data["timestamp"] = datetime.now().isoformat()
+            progress_data["timestamp"] = now_est().isoformat()
         
         return jsonify(progress_data)
     except Exception as e:
@@ -411,7 +459,7 @@ def progress():
         return jsonify({
             "status": "error",
             "message": str(e),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": now_est().isoformat(),
             "incoming": 0,
             "processed": 0,
             "library": 0,
@@ -449,7 +497,7 @@ def log_stream():
                 base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
         
         logs_dir = base_dir / "logs"
-        today = datetime.now().strftime("%Y%m%d")
+        today = now_est().strftime("%Y%m%d")
         log_file = logs_dir / f"vofc_processor_{today}.log"
         
         # Fallback to most recent log file if today's doesn't exist
@@ -552,7 +600,7 @@ def get_logs():
                 base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
         
         logs_dir = base_dir / "logs"
-        today = datetime.now().strftime("%Y%m%d")
+        today = now_est().strftime("%Y%m%d")
         log_file = logs_dir / f"vofc_processor_{today}.log"
         
         # Fallback to most recent log file if today's doesn't exist

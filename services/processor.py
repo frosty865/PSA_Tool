@@ -4,7 +4,6 @@ Handles file processing, document parsing, and library operations
 """
 
 import os
-import pandas as pd
 from pathlib import Path
 
 # Import parser modules
@@ -28,8 +27,7 @@ DATA_DIR = BASE_DIR
 INCOMING_DIR = BASE_DIR / 'incoming'
 PROCESSED_DIR = BASE_DIR / 'processed'
 ERRORS_DIR = BASE_DIR / 'errors'
-LIBRARY_XLSX = BASE_DIR / 'VOFC_Library.xlsx'
-LIBRARY_PDF = BASE_DIR / 'SAFE_VOFC_Library.pdf'
+LIBRARY_PDF = BASE_DIR / 'SAFE_VOFC_Library.pdf'  # Optional reference PDF
 
 # Ensure directories exist
 for dir_path in [INCOMING_DIR, PROCESSED_DIR, ERRORS_DIR]:
@@ -149,33 +147,46 @@ def process_document(file_path, document_type='pdf'):
     return process_file(file_path)
 
 def search_library(query):
-    """Search the VOFC library"""
+    """Search the VOFC library using Supabase"""
     try:
-        if not LIBRARY_XLSX.exists():
-            raise FileNotFoundError("VOFC_Library.xlsx not found")
+        from services.supabase_client import get_supabase_client
+        supabase = get_supabase_client()
         
-        # Load library and search
-        df = pd.read_excel(LIBRARY_XLSX)
-        # Add search logic here
+        # Search vulnerabilities and OFCs in Supabase
+        # This is a simple text search - can be enhanced with full-text search
+        vuln_res = supabase.table('vulnerabilities').select('*').ilike('vulnerability', f'%{query}%').limit(50).execute()
+        ofc_res = supabase.table('options_for_consideration').select('*').ilike('option_text', f'%{query}%').limit(50).execute()
+        
+        results = []
+        if vuln_res.data:
+            results.extend([{'type': 'vulnerability', 'data': v} for v in vuln_res.data])
+        if ofc_res.data:
+            results.extend([{'type': 'ofc', 'data': o} for o in ofc_res.data])
         
         return {
             "query": query,
-            "results": []
+            "results": results
         }
     except Exception as e:
         raise Exception(f"Failed to search library: {str(e)}")
 
 def get_library_entry(entry_id):
-    """Get a specific library entry"""
+    """Get a specific library entry from Supabase"""
     try:
-        if not LIBRARY_XLSX.exists():
-            raise FileNotFoundError("VOFC_Library.xlsx not found")
+        from services.supabase_client import get_supabase_client
+        supabase = get_supabase_client()
         
-        # Load library and get entry
-        df = pd.read_excel(LIBRARY_XLSX)
-        # Add lookup logic here
+        # Try to find in vulnerabilities first
+        vuln_res = supabase.table('vulnerabilities').select('*').eq('id', entry_id).execute()
+        if vuln_res.data and len(vuln_res.data) > 0:
+            return {"id": entry_id, "type": "vulnerability", "data": vuln_res.data[0]}
         
-        return {"id": entry_id, "data": {}}
+        # Try OFCs
+        ofc_res = supabase.table('options_for_consideration').select('*').eq('id', entry_id).execute()
+        if ofc_res.data and len(ofc_res.data) > 0:
+            return {"id": entry_id, "type": "ofc", "data": ofc_res.data[0]}
+        
+        return {"id": entry_id, "data": None}
     except Exception as e:
         raise Exception(f"Failed to get library entry: {str(e)}")
 
@@ -184,7 +195,7 @@ def write_file_to_folder(filename, content, folder='processed'):
     try:
         folder_map = {
             'processed': PROCESSED_DIR,
-            'library': LIBRARY_XLSX.parent,  # Use data/ directory
+            'library': BASE_DIR / 'library',  # Use library subdirectory
             'errors': ERRORS_DIR,
             'incoming': INCOMING_DIR
         }

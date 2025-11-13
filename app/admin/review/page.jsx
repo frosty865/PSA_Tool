@@ -14,6 +14,7 @@ export default function AdminReviewPage() {
   
   // Editing state
   const [editingVuln, setEditingVuln] = useState(null)
+  const [editingOfc, setEditingOfc] = useState(null)
   const [editValues, setEditValues] = useState({})
   
   // System monitoring state

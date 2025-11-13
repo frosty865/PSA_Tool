@@ -363,9 +363,9 @@ def progress():
                 "review": 0
             }
         
-        # Get watcher status by checking VOFC-Processor service and log file
+        # Get watcher status by checking VOFC-Processor service
+        # SIMPLIFIED: If service is running, watcher is running (it's a continuous process)
         try:
-            # Check if VOFC-Processor service is running
             import subprocess
             result = subprocess.run(
                 ['sc', 'query', 'VOFC-Processor'],
@@ -373,77 +373,39 @@ def progress():
                 text=True,
                 timeout=5
             )
-            # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
-            service_running = 'RUNNING' in result.stdout.upper() and 'STOPPED' not in result.stdout.upper()
-            # Also check for state code 4 (RUNNING)
-            if not service_running:
-                service_running = 'STATE' in result.stdout and ': 4' in result.stdout
             
-            # Check log file for recent heartbeat (within last 60 seconds)
-            watcher_active = False
-            try:
-                from pathlib import Path
-                from datetime import datetime
-                log_dir = Path(r"C:\Tools\Ollama\Data\logs")
-                if not log_dir.exists():
-                    log_dir = Path(r"C:\Tools\VOFC\Data\logs")
-                
-                if log_dir.exists():
-                    log_file = log_dir / f"vofc_processor_{now_est().strftime('%Y%m%d')}.log"
-                    if log_file.exists():
-                        # Read last few lines to check for heartbeat
-                        with open(log_file, 'r', encoding='utf-8') as f:
-                            lines = f.readlines()
-                            # Check last 50 lines for heartbeat (more lines to catch recent heartbeats)
-                            for line in reversed(lines[-50:]):
-                                if 'Watcher heartbeat' in line or 'still monitoring' in line:
-                                    # Extract timestamp from log line
-                                    try:
-                                        # Log format: "2025-11-13 10:18:19 | INFO | ..." (no milliseconds in local time format)
-                                        if '|' in line:
-                                            timestamp_str = line.split('|')[0].strip()
-                                            # Try parsing with and without milliseconds
-                                            try:
-                                                log_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
-                                            except ValueError:
-                                                # Try with milliseconds
-                                                try:
-                                                    log_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S,%f')
-                                                except ValueError:
-                                                    # Try with microseconds
-                                                    log_time = datetime.strptime(timestamp_str.split(',')[0], '%Y-%m-%d %H:%M:%S')
-                                            # Convert log_time to EST for comparison (assuming log is in EST)
-                                            # If log_time is naive, assume it's EST
-                                            if log_time.tzinfo is None:
-                                                log_time = log_time.replace(tzinfo=EST) if EST else log_time
-                                            now = now_est()
-                                            diff_seconds = (now - log_time).total_seconds()
-                                            # If heartbeat is within last 90 seconds, watcher is active (30s interval + buffer)
-                                            if diff_seconds < 90:
-                                                watcher_active = True
-                                                logging.debug(f"Found recent watcher heartbeat: {timestamp_str} ({diff_seconds:.1f}s ago)")
-                                                break
-                                    except Exception as parse_err:
-                                        logging.debug(f"Could not parse timestamp from log line: {line[:100]} - {parse_err}")
-                                        pass
-            except Exception as log_error:
-                logging.debug(f"Could not check log file for watcher status: {log_error}")
+            # Check for RUNNING state
+            # Windows service states: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING
+            service_running = False
+            if result.returncode == 0:
+                output_upper = result.stdout.upper()
+                # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
+                if 'RUNNING' in output_upper and 'STOPPED' not in output_upper:
+                    service_running = True
+                # Also check for state code 4 (RUNNING)
+                elif 'STATE' in output_upper and ': 4' in output_upper:
+                    service_running = True
             
-            # Determine status: running if service is running AND recent heartbeat found
-            if service_running and watcher_active:
+            # SIMPLIFIED LOGIC: If service is running, watcher is running (continuous process)
+            # The service runs continuously and processes files automatically
+            if service_running:
                 progress_data["watcher_status"] = "running"
-            elif service_running:
-                # Service is running but no recent heartbeat - check if log file exists and is readable
-                log_file = log_dir / f"vofc_processor_{now_est().strftime('%Y%m%d')}.log"
-                if log_file.exists():
-                    # Log file exists but no heartbeat found - might be starting up or log format issue
-                    progress_data["watcher_status"] = "unknown"
-                    logging.debug(f"Service running but no recent heartbeat found in {log_file}")
-                else:
-                    # Log file doesn't exist yet - service might be starting
-                    progress_data["watcher_status"] = "unknown"
             else:
-                progress_data["watcher_status"] = "stopped"
+                # Service is not running - check if it exists at all
+                if result.returncode != 0 or 'does not exist' in result.stdout or 'does not exist' in result.stderr:
+                    # Service doesn't exist or can't be queried
+                    progress_data["watcher_status"] = "unknown"
+                else:
+                    # Service exists but is stopped
+                    progress_data["watcher_status"] = "stopped"
+                    
+        except subprocess.TimeoutExpired:
+            logging.warning("Timeout checking VOFC-Processor service status")
+            progress_data["watcher_status"] = "unknown"
+        except FileNotFoundError:
+            # sc.exe not found (not Windows or PATH issue)
+            logging.warning("sc.exe not found - cannot check service status")
+            progress_data["watcher_status"] = "unknown"
         except Exception as e:
             logging.warning(f"Could not get watcher status: {e}")
             progress_data["watcher_status"] = "unknown"
@@ -470,7 +432,7 @@ def progress():
 
 @system_bp.route('/api/system/logstream', methods=['GET', 'OPTIONS'])
 def log_stream():
-    """Server-Sent Events streaming of live VOFC Processor log."""
+    """Server-Sent Events streaming of live VOFC Processor log - NEW VERSION with strict filtering."""
     from flask import Response
     import time
     
@@ -484,7 +446,7 @@ def log_stream():
     def stream():
         import os
         from pathlib import Path
-        from datetime import datetime
+        from datetime import datetime, timedelta
         
         # Use VOFC Processor log file
         base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
@@ -499,6 +461,11 @@ def log_stream():
         logs_dir = base_dir / "logs"
         today = now_est().strftime("%Y%m%d")
         log_file = logs_dir / f"vofc_processor_{today}.log"
+        
+        # STRICT FILTERING: Only show logs from last 1 hour (much stricter than 24 hours)
+        # Also track session start time - only show logs from after connection started
+        session_start_time = now_est()
+        cutoff_time = session_start_time - timedelta(hours=1)  # Last 1 hour only
         
         # Always use today's log file - don't fallback to old files
         if not log_file.exists():
@@ -518,25 +485,56 @@ def log_stream():
             response.headers["Access-Control-Allow-Origin"] = "*"
             return response
         
-        try:
-            # First, send last 50 lines from today for context
-            today_date_str = now_est().strftime("%Y-%m-%d")
-            if log_file.exists():
-                with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
-                    lines = f.readlines()
-                    # Filter to only today's lines and send last 50
-                    today_lines = [line.strip() for line in lines if line.strip() and line.strip().startswith(today_date_str)]
-                    for line in today_lines[-50:]:
-                        if line:
-                            yield f"data: {line}\n\n"
+        def parse_log_timestamp(line):
+            """Parse timestamp from log line. Returns None if parsing fails."""
+            try:
+                # Log format: "2025-11-12 12:38:35 | INFO | ..."
+                if '|' in line:
+                    timestamp_str = line.split('|')[0].strip()
+                    # Try parsing the timestamp
+                    log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                    # Convert to EST if needed
+                    if EST:
+                        log_time = EST.localize(log_time) if log_time.tzinfo is None else log_time.astimezone(EST)
+                    return log_time
+            except (ValueError, IndexError):
+                pass
+            return None
+        
+        def is_recent_log(line, strict_cutoff=None):
+            """Check if log line is recent. Uses strict cutoff if provided, otherwise uses session start."""
+            if not line or not line.strip():
+                return False
             
-            # Then stream new lines - tail the file in real-time
+            # Must start with today's date (no yesterday's date allowed for strict filtering)
+            today_date_str = now_est().strftime("%Y-%m-%d")
+            if not line.strip().startswith(today_date_str):
+                return False
+            
+            # Parse timestamp and verify it's within cutoff window
+            log_time = parse_log_timestamp(line)
+            if log_time:
+                # Use strict cutoff (1 hour) or session start, whichever is more recent
+                effective_cutoff = strict_cutoff if strict_cutoff else cutoff_time
+                # Also ensure log is not from before session started
+                session_cutoff = session_start_time - timedelta(seconds=5)  # Allow 5 second buffer
+                return log_time >= effective_cutoff and log_time >= session_cutoff
+            else:
+                # If we can't parse timestamp, reject it (strict mode)
+                return False
+        
+        try:
+            # Get current file position - start from end of file (only new logs)
+            # Don't send old logs on initial connection
             last_position = 0
             if log_file.exists():
                 with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
                     f.seek(0, 2)  # Seek to end
                     last_position = f.tell()
+                    # Send a marker that we're starting fresh
+                    yield f"data: [INFO] Live log stream started at {session_start_time.strftime('%Y-%m-%d %H:%M:%S')} - showing logs from now on\n\n"
             
+            # Stream new lines only - tail the file in real-time
             while True:
                 try:
                     # Check if file still exists and hasn't been rotated
@@ -547,6 +545,9 @@ def log_stream():
                             if log_files:
                                 log_file = log_files[0]
                                 last_position = 0  # Reset position for new file
+                                # Update cutoff time for new day
+                                session_start_time = now_est()
+                                cutoff_time = session_start_time - timedelta(hours=1)
                     
                     if log_file.exists():
                         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
@@ -554,12 +555,11 @@ def log_stream():
                             new_lines = f.readlines()
                             
                             if new_lines:
-                                # Filter to only today's lines
-                                today_date_str = now_est().strftime("%Y-%m-%d")
+                                # Filter to only recent lines (last 1 hour AND after session start)
                                 for line in new_lines:
                                     cleaned = line.strip()
-                                    # Only send lines from today
-                                    if cleaned and cleaned.startswith(today_date_str):
+                                    # Only send recent lines (strict filtering)
+                                    if is_recent_log(cleaned):
                                         yield f"data: {cleaned}\n\n"
                                 
                                 # Update position
@@ -599,11 +599,11 @@ def log_stream():
 
 @system_bp.route('/api/system/logs')
 def get_logs():
-    """Get recent log lines from VOFC Processor (for polling fallback)."""
+    """Get recent log lines from VOFC Processor (for polling fallback) - NEW VERSION with strict filtering."""
     try:
         import os
         from pathlib import Path
-        from datetime import datetime
+        from datetime import datetime, timedelta
         
         # Use VOFC Processor log file
         base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
@@ -626,24 +626,59 @@ def get_logs():
         
         tail = request.args.get('tail', 50, type=int)
         
-        # Read lines and filter to only show today's logs
+        # STRICT FILTERING: Only show logs from last 1 hour (much stricter)
+        cutoff_time = now_est() - timedelta(hours=1)
         today_date_str = now_est().strftime("%Y-%m-%d")
+        
+        def parse_log_timestamp(line):
+            """Parse timestamp from log line. Returns None if parsing fails."""
+            try:
+                # Log format: "2025-11-12 12:38:35 | INFO | ..."
+                if '|' in line:
+                    timestamp_str = line.split('|')[0].strip()
+                    # Try parsing the timestamp
+                    log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                    # Convert to EST if needed
+                    if EST:
+                        log_time = EST.localize(log_time) if log_time.tzinfo is None else log_time.astimezone(EST)
+                    return log_time
+            except (ValueError, IndexError):
+                pass
+            return None
+        
+        def is_recent_log(line):
+            """Check if log line is from the last 1 hour - STRICT MODE."""
+            if not line or not line.strip():
+                return False
+            
+            line_stripped = line.strip()
+            
+            # Must start with today's date only (no yesterday allowed)
+            if not line_stripped.startswith(today_date_str):
+                return False
+            
+            # Parse timestamp and verify it's within last 1 hour
+            log_time = parse_log_timestamp(line_stripped)
+            if log_time:
+                return log_time >= cutoff_time
+            else:
+                # If we can't parse timestamp, reject it (strict mode)
+                return False
+        
+        # Read lines and filter to only show recent logs (last 1 hour only)
         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
-            # Filter to only lines from today (check timestamp in log line)
-            today_lines = []
+            # Filter to only recent lines
+            recent_lines = []
             for line in lines:
                 line_stripped = line.strip()
-                if not line_stripped:
-                    continue
-                # Check if line starts with today's date (log format: "2025-11-13 10:35:19 | ...")
-                if line_stripped.startswith(today_date_str):
-                    today_lines.append(line_stripped)
+                if is_recent_log(line_stripped):
+                    recent_lines.append(line_stripped)
             
-            # Return last N lines from today
-            recent_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
+            # Return last N lines
+            result_lines = recent_lines[-tail:] if len(recent_lines) > tail else recent_lines
         
-        return jsonify({"lines": recent_lines}), 200
+        return jsonify({"lines": result_lines}), 200
     except Exception as e:
         import logging
         logging.error(f"Error reading logs: {e}")

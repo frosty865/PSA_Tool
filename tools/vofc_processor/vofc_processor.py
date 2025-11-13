@@ -375,11 +375,14 @@ def run_service_loop():
                 
                 # Keep service running
                 try:
+                    last_heartbeat = time.time()
                     while True:
                         time.sleep(1)
-                        # Log heartbeat every 5 minutes to confirm watcher is alive
-                        if int(time.time()) % 300 == 0:
-                            logger.debug("Watcher heartbeat - still monitoring...")
+                        # Log heartbeat every 30 seconds to confirm watcher is alive
+                        current_time = time.time()
+                        if current_time - last_heartbeat >= 30:
+                            logger.info("Watcher heartbeat - still monitoring...")
+                            last_heartbeat = current_time
                 except KeyboardInterrupt:
                     logger.info("Service interrupted by user")
                     observer.stop()

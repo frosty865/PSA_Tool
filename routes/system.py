@@ -325,7 +325,7 @@ def progress():
 
 @system_bp.route('/api/system/logstream', methods=['GET', 'OPTIONS'])
 def log_stream():
-    """Server-Sent Events streaming of live processor log."""
+    """Server-Sent Events streaming of live VOFC Processor log."""
     from flask import Response
     import time
     
@@ -339,10 +339,22 @@ def log_stream():
     def stream():
         import os
         from pathlib import Path
+        from datetime import datetime
         
-        # Use same path as auto-processor
-        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
-        log_file = base_dir / "automation" / "vofc_auto_processor.log"
+        # Use VOFC Processor log file
+        base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
+        if not base_dir.exists():
+            base_dir = Path(r"C:\Tools\VOFC\Data")
+        
+        logs_dir = base_dir / "logs"
+        today = datetime.now().strftime("%Y%m%d")
+        log_file = logs_dir / f"vofc_processor_{today}.log"
+        
+        # Fallback to most recent log file if today's doesn't exist
+        if not log_file.exists() and logs_dir.exists():
+            log_files = sorted(logs_dir.glob("vofc_processor_*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if log_files:
+                log_file = log_files[0]
         
         try:
             # First, send last 50 lines for context
@@ -387,18 +399,31 @@ def log_stream():
 
 @system_bp.route('/api/system/logs')
 def get_logs():
-    """Get recent log lines (for polling fallback)."""
+    """Get recent log lines from VOFC Processor (for polling fallback)."""
     try:
         import os
         from pathlib import Path
+        from datetime import datetime
         
-        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
-        log_file = base_dir / "automation" / "vofc_auto_processor.log"
+        # Use VOFC Processor log file
+        base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
+        if not base_dir.exists():
+            base_dir = Path(r"C:\Tools\VOFC\Data")
+        
+        logs_dir = base_dir / "logs"
+        today = datetime.now().strftime("%Y%m%d")
+        log_file = logs_dir / f"vofc_processor_{today}.log"
+        
+        # Fallback to most recent log file if today's doesn't exist
+        if not log_file.exists() and logs_dir.exists():
+            log_files = sorted(logs_dir.glob("vofc_processor_*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if log_files:
+                log_file = log_files[0]
         
         tail = request.args.get('tail', 50, type=int)
         
         if not log_file.exists():
-            return jsonify({"lines": [], "error": "Log file not found"}), 200
+            return jsonify({"lines": [], "error": f"Log file not found: {log_file}"}), 200
         
         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
@@ -432,52 +457,45 @@ def system_control():
         
         if action == "sync_review":
             try:
-                from ollama_auto_processor import sync_review_to_supabase
-                sync_review_to_supabase()
-                msg = "Review sync triggered (approved files to production)"
+                # Note: sync_review functionality moved to VOFC-Processor service
+                msg = "Review sync is handled by VOFC-Processor service. Use the service logs to monitor sync status."
+                logging.warning(f"[Admin Control] sync_review: {msg}")
             except Exception as e:
                 logging.error(f"Error in sync_review: {e}")
                 msg = f"Sync error: {str(e)}"
         
         elif action == "sync_review_to_submissions":
             try:
-                from ollama_auto_processor import sync_review_files_to_submissions
-                sync_review_files_to_submissions()
-                msg = "Review files synced to submissions table"
+                # Note: sync_review_to_submissions functionality moved to VOFC-Processor service
+                msg = "Review files sync is handled by VOFC-Processor service."
+                logging.warning(f"[Admin Control] sync_review_to_submissions: {msg}")
             except Exception as e:
                 logging.error(f"Error in sync_review_to_submissions: {e}")
                 msg = f"Sync error: {str(e)}"
         
         elif action == "clear_processed_tracking":
             try:
-                from ollama_auto_processor import processed_files, processed_file_hashes
-                count_before = len(processed_files)
-                processed_files.clear()
-                processed_file_hashes.clear()
-                msg = f"Cleared in-memory tracking ({count_before} entries removed)"
+                # Note: Processed tracking is no longer used - VOFC-Processor handles deduplication
+                msg = "Processed file tracking is deprecated. VOFC-Processor uses Supabase for deduplication."
+                logging.info(f"[Admin Control] clear_processed_tracking: {msg}")
             except Exception as e:
                 logging.error(f"Error clearing processed tracking: {e}")
                 msg = f"Clear error: {str(e)}"
         
         elif action == "enable_processed_tracking":
             try:
-                from ollama_auto_processor import ENABLE_PROCESSED_TRACKING
-                import ollama_auto_processor
-                ollama_auto_processor.ENABLE_PROCESSED_TRACKING = True
-                msg = "Processed file tracking ENABLED"
+                # Note: Processed tracking is no longer used
+                msg = "Processed file tracking is deprecated. VOFC-Processor uses Supabase for deduplication."
+                logging.info(f"[Admin Control] enable_processed_tracking: {msg}")
             except Exception as e:
                 logging.error(f"Error enabling processed tracking: {e}")
                 msg = f"Enable error: {str(e)}"
         
         elif action == "disable_processed_tracking":
             try:
-                from ollama_auto_processor import ENABLE_PROCESSED_TRACKING
-                import ollama_auto_processor
-                ollama_auto_processor.ENABLE_PROCESSED_TRACKING = False
-                # Also clear existing tracking
-                ollama_auto_processor.processed_files.clear()
-                ollama_auto_processor.processed_file_hashes.clear()
-                msg = "Processed file tracking DISABLED and cleared"
+                # Note: Processed tracking is no longer used
+                msg = "Processed file tracking is deprecated. VOFC-Processor uses Supabase for deduplication."
+                logging.info(f"[Admin Control] disable_processed_tracking: {msg}")
             except Exception as e:
                 logging.error(f"Error disabling processed tracking: {e}")
                 msg = f"Disable error: {str(e)}"
@@ -517,9 +535,19 @@ def system_control():
         
         elif action == "cleanup_review_temp":
             try:
-                from ollama_auto_processor import cleanup_review_temp_files
-                cleanup_review_temp_files()
-                msg = "Review temp files cleanup completed"
+                # Cleanup review temp files manually
+                review_temp_dir = BASE_DIR / "review" / "temp"
+                if review_temp_dir.exists():
+                    cleared = 0
+                    for f in review_temp_dir.glob("*.*"):
+                        try:
+                            f.unlink(missing_ok=True)
+                            cleared += 1
+                        except Exception:
+                            pass
+                    msg = f"Review temp files cleanup completed ({cleared} files removed)"
+                else:
+                    msg = "Review temp directory not found"
             except Exception as e:
                 logging.error(f"Error in cleanup_review_temp: {e}")
                 msg = f"Cleanup error: {str(e)}"

@@ -46,8 +46,8 @@ if ($LASTEXITCODE -eq 0) {
 }
 # Server deployment paths - all services run from C:\Tools
 $PythonPath = "C:\Tools\python\python.exe"
-$ScriptPath = "C:\Tools\py_scripts\vofc_processor\vofc_processor.py"
-$TargetDir = "C:\Tools\py_scripts\vofc_processor"
+$ScriptPath = "C:\Tools\vofc_processor\vofc_processor.py"
+$TargetDir = "C:\Tools\vofc_processor"
 
 # Check Python path - try multiple locations
 if (-not (Test-Path $PythonPath)) {

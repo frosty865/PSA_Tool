@@ -380,24 +380,41 @@ def progress():
             if result.returncode == 0:
                 output_upper = result.stdout.upper()
                 # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
-                if 'RUNNING' in output_upper and 'STOPPED' not in output_upper:
+                # Use explicit check: RUNNING must be present and STOPPED must NOT be present
+                has_running = 'RUNNING' in output_upper
+                has_stopped = 'STOPPED' in output_upper
+                has_state_4 = 'STATE' in output_upper and ': 4' in output_upper
+                
+                # Primary check: RUNNING keyword present and STOPPED not present
+                if has_running and not has_stopped:
                     service_running = True
-                # Also check for state code 4 (RUNNING)
-                elif 'STATE' in output_upper and ': 4' in output_upper:
+                    logging.info(f"Service check: RUNNING found, STOPPED not found - service is running")
+                # Fallback check: State code 4 (RUNNING) - this should also work
+                elif has_state_4:
                     service_running = True
+                    logging.info(f"Service check: State code 4 found - service is running")
+                else:
+                    # Log for debugging
+                    logging.warning(f"Service check failed: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
+                    logging.debug(f"Service output (first 200 chars): {result.stdout[:200]}")
+            else:
+                logging.warning(f"Service query returned non-zero exit code: {result.returncode}, stderr: {result.stderr}")
             
             # SIMPLIFIED LOGIC: If service is running, watcher is running (continuous process)
             # The service runs continuously and processes files automatically
             if service_running:
                 progress_data["watcher_status"] = "running"
+                logging.debug("Watcher status set to: running")
             else:
                 # Service is not running - check if it exists at all
-                if result.returncode != 0 or 'does not exist' in result.stdout or 'does not exist' in result.stderr:
+                if result.returncode != 0 or 'does not exist' in result.stdout.lower() or 'does not exist' in result.stderr.lower():
                     # Service doesn't exist or can't be queried
                     progress_data["watcher_status"] = "unknown"
+                    logging.debug("Watcher status set to: unknown (service not found)")
                 else:
                     # Service exists but is stopped
                     progress_data["watcher_status"] = "stopped"
+                    logging.debug("Watcher status set to: stopped (service exists but not running)")
                     
         except subprocess.TimeoutExpired:
             logging.warning("Timeout checking VOFC-Processor service status")
@@ -407,7 +424,7 @@ def progress():
             logging.warning("sc.exe not found - cannot check service status")
             progress_data["watcher_status"] = "unknown"
         except Exception as e:
-            logging.warning(f"Could not get watcher status: {e}")
+            logging.warning(f"Could not get watcher status: {e}", exc_info=True)
             progress_data["watcher_status"] = "unknown"
         
         # Ensure timestamp exists

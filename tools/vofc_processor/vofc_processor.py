@@ -376,13 +376,25 @@ def run_service_loop():
                 # Keep service running
                 try:
                     last_heartbeat = time.time()
+                    last_existing_check = time.time()
+                    existing_check_interval = 300  # Check for existing files every 5 minutes
                     while True:
                         time.sleep(1)
-                        # Log heartbeat every 30 seconds to confirm watcher is alive
                         current_time = time.time()
+                        
+                        # Log heartbeat every 30 seconds to confirm watcher is alive
                         if current_time - last_heartbeat >= 30:
                             logger.info("Watcher heartbeat - still monitoring...")
                             last_heartbeat = current_time
+                        
+                        # Periodically check for existing files that weren't processed
+                        if current_time - last_existing_check >= existing_check_interval:
+                            logger.info("Checking for unprocessed files in incoming directory...")
+                            try:
+                                process_all_pdfs()
+                            except Exception as e:
+                                logger.error(f"Error processing existing files: {e}", exc_info=True)
+                            last_existing_check = current_time
                 except KeyboardInterrupt:
                     logger.info("Service interrupted by user")
                     observer.stop()

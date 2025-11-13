@@ -500,22 +500,35 @@ def log_stream():
         today = now_est().strftime("%Y%m%d")
         log_file = logs_dir / f"vofc_processor_{today}.log"
         
-        # Fallback to most recent log file if today's doesn't exist
-        if not log_file.exists() and logs_dir.exists():
-            log_files = sorted(logs_dir.glob("vofc_processor_*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
-            if log_files:
-                log_file = log_files[0]
+        # Always use today's log file - don't fallback to old files
+        if not log_file.exists():
+            # If today's log doesn't exist, return empty stream
+            def empty_stream():
+                yield f"data: [INFO] Today's log file not found: {log_file}. The watcher may not have started yet.\n\n"
+                import time
+                while True:
+                    time.sleep(5)
+                    # Check again if file was created
+                    if log_file.exists():
+                        break
+            response = Response(empty_stream(), mimetype="text/event-stream")
+            response.headers["Cache-Control"] = "no-cache"
+            response.headers["Connection"] = "keep-alive"
+            response.headers["X-Accel-Buffering"] = "no"
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            return response
         
         try:
-            # First, send last 50 lines for context
+            # First, send last 50 lines from today for context
+            today_date_str = now_est().strftime("%Y-%m-%d")
             if log_file.exists():
                 with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
                     lines = f.readlines()
-                    # Send last 50 lines
-                    for line in lines[-50:]:
-                        cleaned = line.strip()
-                        if cleaned:
-                            yield f"data: {cleaned}\n\n"
+                    # Filter to only today's lines and send last 50
+                    today_lines = [line.strip() for line in lines if line.strip() and line.strip().startswith(today_date_str)]
+                    for line in today_lines[-50:]:
+                        if line:
+                            yield f"data: {line}\n\n"
             
             # Then stream new lines - tail the file in real-time
             last_position = 0
@@ -541,9 +554,12 @@ def log_stream():
                             new_lines = f.readlines()
                             
                             if new_lines:
+                                # Filter to only today's lines
+                                today_date_str = now_est().strftime("%Y-%m-%d")
                                 for line in new_lines:
                                     cleaned = line.strip()
-                                    if cleaned:
+                                    # Only send lines from today
+                                    if cleaned and cleaned.startswith(today_date_str):
                                         yield f"data: {cleaned}\n\n"
                                 
                                 # Update position
@@ -603,20 +619,29 @@ def get_logs():
         today = now_est().strftime("%Y%m%d")
         log_file = logs_dir / f"vofc_processor_{today}.log"
         
-        # Fallback to most recent log file if today's doesn't exist
-        if not log_file.exists() and logs_dir.exists():
-            log_files = sorted(logs_dir.glob("vofc_processor_*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
-            if log_files:
-                log_file = log_files[0]
+        # Always prefer today's log file - don't fallback to old files
+        if not log_file.exists():
+            # Return empty if today's log doesn't exist yet
+            return jsonify({"lines": [], "error": f"Today's log file not found: {log_file}. The watcher may not have started yet."}), 200
         
         tail = request.args.get('tail', 50, type=int)
         
-        if not log_file.exists():
-            return jsonify({"lines": [], "error": f"Log file not found: {log_file}"}), 200
-        
+        # Read lines and filter to only show today's logs
+        today_date_str = now_est().strftime("%Y-%m-%d")
         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
-            recent_lines = [line.strip() for line in lines[-tail:] if line.strip()]
+            # Filter to only lines from today (check timestamp in log line)
+            today_lines = []
+            for line in lines:
+                line_stripped = line.strip()
+                if not line_stripped:
+                    continue
+                # Check if line starts with today's date (log format: "2025-11-13 10:35:19 | ...")
+                if line_stripped.startswith(today_date_str):
+                    today_lines.append(line_stripped)
+            
+            # Return last N lines from today
+            recent_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
         
         return jsonify({"lines": recent_lines}), 200
     except Exception as e:

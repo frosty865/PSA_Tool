@@ -12,6 +12,10 @@ export default function AdminReviewPage() {
   const [error, setError] = useState(null)
   const [processing, setProcessing] = useState(null)
   
+  // Editing state
+  const [editingVuln, setEditingVuln] = useState(null)
+  const [editValues, setEditValues] = useState({})
+  
   // System monitoring state
   const [progress, setProgress] = useState(null)
   const [logs, setLogs] = useState([])

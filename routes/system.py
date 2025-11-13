@@ -33,37 +33,58 @@ def test_tunnel_service():
                 ['sc', 'query', service_name],
                 capture_output=True,
                 text=True,
-                timeout=2
+                timeout=3
             )
             
             if result.returncode == 0:
                 output = result.stdout
-                # Check if service is running
-                if 'RUNNING' in output:
+                output_upper = output.upper()
+                
+                # Parse STATE line: "STATE : 4 RUNNING" or "STATE : 1 STOPPED"
+                if 'STATE' in output_upper:
+                    # Find the STATE line
+                    for line in output.split('\n'):
+                        if 'STATE' in line.upper():
+                            # Extract state code and status
+                            parts = line.split()
+                            # Look for state code (number after STATE :)
+                            for i, part in enumerate(parts):
+                                if part.upper() == 'STATE' and i + 2 < len(parts):
+                                    state_code = parts[i + 2]
+                                    state_text = ' '.join(parts[i + 3:]) if i + 3 < len(parts) else ''
+                                    
+                                    if state_code == '4' or 'RUNNING' in state_text.upper():
+                                        return 'ok'
+                                    elif state_code == '1' or 'STOPPED' in state_text.upper():
+                                        return 'offline'
+                                    elif state_code == '7' or 'PAUSED' in state_text.upper():
+                                        return 'offline'
+                                    break
+                
+                # Fallback: check text in output
+                if 'RUNNING' in output_upper:
                     return 'ok'
-                elif 'STOPPED' in output or 'STOP_PENDING' in output:
+                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
                     return 'offline'
-                elif 'PAUSED' in output or 'PAUSE_PENDING' in output:
+                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
                     return 'offline'
                 else:
-                    # Service exists but in unknown state
                     continue  # Try next service name
             # If service not found, try next name
         except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
-            # Continue to next service name
+            logging.debug(f"Error checking tunnel service {service_name}: {e}")
             continue
     
     # If all service names failed, check if tunnel is accessible via URL
     try:
-        import requests
         tunnel_url = os.getenv("TUNNEL_URL", "https://flask.frostech.site")
         response = requests.get(f"{tunnel_url}/api/system/health", timeout=3)
         if response.status_code == 200:
             return 'ok'
         else:
             return 'offline'
-    except:
-        pass
+    except Exception as e:
+        logging.debug(f"Tunnel URL check failed: {e}")
     
     # Service might not exist or access denied
     return 'unknown'
@@ -71,7 +92,7 @@ def test_tunnel_service():
 def test_model_manager():
     """
     Check if VOFC Model Manager Windows service is running.
-    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    Returns 'online' if running, 'paused' if paused, 'offline' if stopped, 'unknown' if check fails.
     """
     # Try multiple possible service names
     service_names = ['VOFC-ModelManager', 'VOFC-Model-Manager', 'ModelManager']
@@ -83,47 +104,46 @@ def test_model_manager():
                 ['sc', 'query', service_name],
                 capture_output=True,
                 text=True,
-                timeout=2
+                timeout=3
             )
             
             if result.returncode == 0:
                 output = result.stdout
-                # Check if service is running
-                if 'RUNNING' in output:
-                    return 'ok'
-                elif 'PAUSED' in output or 'PAUSE_PENDING' in output:
-                    # Service is paused - try to resume it automatically
-                    try:
-                        resume_result = subprocess.run(
-                            ['nssm', 'resume', service_name],
-                            capture_output=True,
-                            text=True,
-                            timeout=2
-                        )
-                        if resume_result.returncode == 0:
-                            # Give it a moment, then check again
-                            import time
-                            time.sleep(1)
-                            # Re-check status
-                            recheck = subprocess.run(
-                                ['sc', 'query', service_name],
-                                capture_output=True,
-                                text=True,
-                                timeout=2
-                            )
-                            if 'RUNNING' in recheck.stdout:
-                                return 'ok'
-                    except:
-                        pass  # If resume fails, continue to return 'offline'
-                    return 'offline'  # Paused services are treated as offline
-                elif 'STOPPED' in output or 'STOP_PENDING' in output:
+                output_upper = output.upper()
+                
+                # Parse STATE line: "STATE : 4 RUNNING" or "STATE : 1 STOPPED" or "STATE : 7 PAUSED"
+                if 'STATE' in output_upper:
+                    # Find the STATE line
+                    for line in output.split('\n'):
+                        if 'STATE' in line.upper():
+                            # Extract state code and status
+                            parts = line.split()
+                            # Look for state code (number after STATE :)
+                            for i, part in enumerate(parts):
+                                if part.upper() == 'STATE' and i + 2 < len(parts):
+                                    state_code = parts[i + 2]
+                                    state_text = ' '.join(parts[i + 3:]) if i + 3 < len(parts) else ''
+                                    
+                                    if state_code == '4' or 'RUNNING' in state_text.upper():
+                                        return 'online'
+                                    elif state_code == '7' or 'PAUSED' in state_text.upper():
+                                        return 'paused'
+                                    elif state_code == '1' or 'STOPPED' in state_text.upper():
+                                        return 'offline'
+                                    break
+                
+                # Fallback: check text in output
+                if 'RUNNING' in output_upper:
+                    return 'online'
+                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
+                    return 'paused'
+                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
                     return 'offline'
                 else:
-                    # Service exists but in unknown state
                     continue  # Try next service name
             # If service not found, try next name
         except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
-            # Continue to next service name
+            logging.debug(f"Error checking model manager service {service_name}: {e}")
             continue
     
     # Service might not exist or access denied
@@ -322,10 +342,60 @@ def progress():
                 "review": 0
             }
         
-        # Get watcher status from new module
+        # Get watcher status by checking VOFC-Processor service and log file
         try:
-            from services.folder_watcher import get_watcher_status
-            progress_data["watcher_status"] = get_watcher_status()
+            # Check if VOFC-Processor service is running
+            import subprocess
+            result = subprocess.run(
+                ['sc', 'query', 'VOFC-Processor'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            service_running = 'RUNNING' in result.stdout
+            
+            # Check log file for recent heartbeat (within last 60 seconds)
+            watcher_active = False
+            try:
+                from pathlib import Path
+                from datetime import datetime
+                log_dir = Path(r"C:\Tools\Ollama\Data\logs")
+                if not log_dir.exists():
+                    log_dir = Path(r"C:\Tools\VOFC\Data\logs")
+                
+                if log_dir.exists():
+                    log_file = log_dir / f"vofc_processor_{datetime.now().strftime('%Y%m%d')}.log"
+                    if log_file.exists():
+                        # Read last few lines to check for heartbeat
+                        with open(log_file, 'r', encoding='utf-8') as f:
+                            lines = f.readlines()
+                            # Check last 20 lines for heartbeat
+                            for line in reversed(lines[-20:]):
+                                if 'Watcher heartbeat' in line or 'still monitoring' in line:
+                                    # Extract timestamp from log line
+                                    try:
+                                        # Log format: "2025-11-13 10:18:19,996 | INFO | ..."
+                                        if '|' in line:
+                                            timestamp_str = line.split('|')[0].strip()
+                                            log_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+                                            now = datetime.now()
+                                            diff_seconds = (now - log_time).total_seconds()
+                                            # If heartbeat is within last 60 seconds, watcher is active
+                                            if diff_seconds < 60:
+                                                watcher_active = True
+                                                break
+                                    except:
+                                        pass
+            except Exception as log_error:
+                logging.debug(f"Could not check log file for watcher status: {log_error}")
+            
+            # Determine status: running if service is running AND recent heartbeat found
+            if service_running and watcher_active:
+                progress_data["watcher_status"] = "running"
+            elif service_running:
+                progress_data["watcher_status"] = "unknown"  # Service running but no recent heartbeat
+            else:
+                progress_data["watcher_status"] = "stopped"
         except Exception as e:
             logging.warning(f"Could not get watcher status: {e}")
             progress_data["watcher_status"] = "unknown"

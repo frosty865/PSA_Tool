@@ -253,12 +253,14 @@ export default function AdminOverviewPage() {
       case 'active':
       case 'running':
         return { bg: '#e6f6ea', border: '#00a651', text: '#007a3d' }
+      case 'paused':
+        return { bg: '#fff9e6', border: '#ffc107', text: '#856404' }
       case 'offline':
       case 'error':
         return { bg: '#fdecea', border: '#c00', text: '#a00' }
       case 'checking':
       case 'unknown':
-        return { bg: '#fff9e6', border: '#ffc107', text: '#856404' }
+        return { bg: '#f5f5f5', border: '#9ca3af', text: '#6b7280' }
       default:
         return { bg: '#f5f5f5', border: '#ccc', text: '#666' }
     }
@@ -271,6 +273,8 @@ export default function AdminOverviewPage() {
       case 'active':
       case 'running':
         return 'Online'
+      case 'paused':
+        return 'Paused'
       case 'offline':
       case 'error':
         return 'Offline'

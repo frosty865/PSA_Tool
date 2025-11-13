@@ -53,6 +53,28 @@ export default function AdminOverviewPage() {
     }
   }, [])
 
+  // Global error handler to suppress browser extension errors
+  useEffect(() => {
+    const handleError = (event) => {
+      if (event.error && event.error.message && event.error.message.includes('message channel')) {
+        event.preventDefault() // Suppress browser extension errors
+        return false
+      }
+    }
+    const handleRejection = (event) => {
+      if (event.reason && event.reason.message && event.reason.message.includes('message channel')) {
+        event.preventDefault() // Suppress browser extension errors
+        return false
+      }
+    }
+    window.addEventListener('error', handleError)
+    window.addEventListener('unhandledrejection', handleRejection)
+    return () => {
+      window.removeEventListener('error', handleError)
+      window.removeEventListener('unhandledrejection', handleRejection)
+    }
+  }, [])
+
   useEffect(() => {
     let isMounted = true
     let hasEverSucceeded = false
@@ -98,6 +120,10 @@ export default function AdminOverviewPage() {
         }
       } catch (err) {
         // Network errors are temporary - keep last known good state if we've ever succeeded
+        // Ignore browser extension errors (message channel errors)
+        if (err.message && err.message.includes('message channel')) {
+          return // Silently ignore browser extension errors
+        }
         console.warn('[System Health] Temporary network error, keeping last known state:', err.message)
         if (hasEverSucceeded) {
           setSystem(lastKnownGood)

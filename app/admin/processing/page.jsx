@@ -17,6 +17,28 @@ export default function ProcessingMonitorPage() {
   const logEndRef = useRef(null)
   const eventSourceRef = useRef(null)
 
+  // Global error handler to suppress browser extension errors
+  useEffect(() => {
+    const handleError = (event) => {
+      if (event.error && event.error.message && event.error.message.includes('message channel')) {
+        event.preventDefault() // Suppress browser extension errors
+        return false
+      }
+    }
+    const handleRejection = (event) => {
+      if (event.reason && event.reason.message && event.reason.message.includes('message channel')) {
+        event.preventDefault() // Suppress browser extension errors
+        return false
+      }
+    }
+    window.addEventListener('error', handleError)
+    window.addEventListener('unhandledrejection', handleRejection)
+    return () => {
+      window.removeEventListener('error', handleError)
+      window.removeEventListener('unhandledrejection', handleRejection)
+    }
+  }, [])
+
   // Poll progress.json every 10 seconds
   useEffect(() => {
     const fetchProgress = async () => {
@@ -49,7 +71,11 @@ export default function ProcessingMonitorPage() {
         
         setError(null)
       } catch (err) {
-        // Don't show timeout errors - silently handle
+        // Don't show timeout errors or browser extension errors - silently handle
+        // Ignore browser extension message channel errors
+        if (err.message && err.message.includes('message channel')) {
+          return // Silently ignore browser extension errors
+        }
         console.error('Error fetching progress:', err)
         // Only show non-timeout errors
         if (!err.message.includes('timeout') && !err.message.includes('aborted')) {

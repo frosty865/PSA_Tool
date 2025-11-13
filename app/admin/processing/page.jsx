@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../../lib/fetchWithAuth'
 import RoleGate from '@/components/RoleGate'
 import '@/styles/cisa.css'
 
 export default function ProcessingMonitorPage() {
+  const router = useRouter()
   const [progress, setProgress] = useState(null)
   const [logLines, setLogLines] = useState([])
   const [loading, setLoading] = useState(true)
@@ -136,25 +138,47 @@ export default function ProcessingMonitorPage() {
 
     // Fallback polling method
     const setupPolling = () => {
+      let lastLineHash = null
       pollInterval = setInterval(async () => {
         try {
-          const res = await fetch('/api/system/logs?tail=10', { cache: 'no-store' })
+          const res = await fetch('/api/system/logs?tail=20', { cache: 'no-store' })
           if (res.ok) {
             const data = await res.json()
             if (data.lines && data.lines.length > 0) {
               setLogLines((prev) => {
-                // Only add new lines that aren't already in the list
-                const existingLastLine = prev[prev.length - 1]
-                const newLines = data.lines.filter((line) => line !== existingLastLine)
+                // Find where we left off by comparing with last known line
+                const currentLastLine = data.lines[data.lines.length - 1]
+                const currentLastHash = currentLastLine ? currentLastLine.substring(0, 50) : null
+                
+                // If this is the same as last time, no new lines
+                if (currentLastHash === lastLineHash && prev.length > 0) {
+                  return prev
+                }
+                
+                // Update hash
+                lastLineHash = currentLastHash
+                
+                // Find the index of the last line we already have
+                let startIndex = 0
+                if (prev.length > 0) {
+                  const lastKnownLine = prev[prev.length - 1]
+                  const lastKnownIndex = data.lines.lastIndexOf(lastKnownLine)
+                  if (lastKnownIndex >= 0) {
+                    startIndex = lastKnownIndex + 1
+                  }
+                }
+                
+                // Add only new lines
+                const newLines = data.lines.slice(startIndex)
                 const combined = [...prev, ...newLines]
-                return combined.slice(-100)
+                return combined.slice(-100)  // Keep last 100 lines
               })
             }
           }
         } catch (err) {
           console.error('Error polling logs:', err)
         }
-      }, 5000)
+      }, 2000)  // Poll more frequently (every 2 seconds)
     }
 
     // Load initial logs and setup streaming
@@ -451,19 +475,7 @@ export default function ProcessingMonitorPage() {
           </h2>
           <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
             <button
-              onClick={async () => {
-                try {
-                  const res = await fetch('/api/system/progress', { cache: 'no-store' })
-                  if (res.ok) {
-                    const data = await res.json()
-                    setProgress(data)
-                    alert('✅ Status refreshed')
-                  }
-                } catch (err) {
-                  console.error('Error refreshing:', err)
-                  alert(`❌ Error refreshing: ${err.message}`)
-                }
-              }}
+              onClick={() => router.push('/admin/review')}
               style={{
                 padding: 'var(--spacing-sm) var(--spacing-md)',
                 backgroundColor: 'var(--cisa-blue)',
@@ -475,22 +487,7 @@ export default function ProcessingMonitorPage() {
                 fontSize: 'var(--font-size-base)'
               }}
             >
-              🔄 Refresh Status
-            </button>
-            <button
-              onClick={() => setLogLines([])}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                backgroundColor: 'var(--cisa-gray)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--border-radius)',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: 'var(--font-size-base)'
-              }}
-            >
-              🗑️ Clear Logs
+              📋 Review Submissions
             </button>
             <button
               onClick={() => controlAction('process_existing')}
@@ -508,57 +505,6 @@ export default function ProcessingMonitorPage() {
               }}
             >
               {controlLoading ? '⏳ Processing...' : '⚡ Process Existing Files'}
-            </button>
-            <button
-              onClick={() => controlAction('sync_review')}
-              disabled={controlLoading}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#17a2b8',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--border-radius)',
-                cursor: controlLoading ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                fontSize: 'var(--font-size-base)',
-                opacity: controlLoading ? 0.6 : 1
-              }}
-            >
-              🔄 Sync Review
-            </button>
-            <button
-              onClick={() => controlAction('start_watcher')}
-              disabled={controlLoading}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#00a651',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--border-radius)',
-                cursor: controlLoading ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                fontSize: 'var(--font-size-base)',
-                opacity: controlLoading ? 0.6 : 1
-              }}
-            >
-              ▶️ Start Watcher
-            </button>
-            <button
-              onClick={() => controlAction('stop_watcher')}
-              disabled={controlLoading}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                backgroundColor: controlLoading ? 'var(--cisa-gray)' : '#ffc107',
-                color: '#000',
-                border: 'none',
-                borderRadius: 'var(--border-radius)',
-                cursor: controlLoading ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                fontSize: 'var(--font-size-base)',
-                opacity: controlLoading ? 0.6 : 1
-              }}
-            >
-              ⏹️ Stop Watcher
             </button>
             <button
               onClick={() => {

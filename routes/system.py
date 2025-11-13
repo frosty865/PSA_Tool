@@ -23,85 +23,111 @@ def test_tunnel_service():
     Check if VOFC Tunnel Windows service is running.
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
     """
+    # Try multiple possible service names
+    service_names = ['VOFC-Tunnel', 'VOFC-Tunnel-Service', 'Cloudflare-Tunnel']
+    
+    for service_name in service_names:
+        try:
+            # Use sc query to check service status (works on Windows)
+            result = subprocess.run(
+                ['sc', 'query', service_name],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            
+            if result.returncode == 0:
+                output = result.stdout
+                # Check if service is running
+                if 'RUNNING' in output:
+                    return 'ok'
+                elif 'STOPPED' in output or 'STOP_PENDING' in output:
+                    return 'offline'
+                elif 'PAUSED' in output or 'PAUSE_PENDING' in output:
+                    return 'offline'
+                else:
+                    # Service exists but in unknown state
+                    continue  # Try next service name
+            # If service not found, try next name
+        except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+            # Continue to next service name
+            continue
+    
+    # If all service names failed, check if tunnel is accessible via URL
     try:
-        # Use sc query to check service status (works on Windows)
-        result = subprocess.run(
-            ['sc', 'query', 'VOFC-Tunnel'],
-            capture_output=True,
-            text=True,
-            timeout=2
-        )
-        
-        if result.returncode == 0:
-            output = result.stdout
-            # Check if service is running
-            if 'RUNNING' in output:
-                return 'ok'
-            elif 'STOPPED' in output or 'STOP_PENDING' in output:
-                return 'offline'
-            else:
-                return 'unknown'
+        import requests
+        tunnel_url = os.getenv("TUNNEL_URL", "https://flask.frostech.site")
+        response = requests.get(f"{tunnel_url}/api/system/health", timeout=3)
+        if response.status_code == 200:
+            return 'ok'
         else:
-            # Service might not exist or access denied
-            return 'unknown'
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-        # sc command not available or timeout
-        return 'unknown'
+            return 'offline'
+    except:
+        pass
+    
+    # Service might not exist or access denied
+    return 'unknown'
 
 def test_model_manager():
     """
     Check if VOFC Model Manager Windows service is running.
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
     """
-    try:
-        # Use sc query to check service status (works on Windows)
-        result = subprocess.run(
-            ['sc', 'query', 'VOFC-ModelManager'],
-            capture_output=True,
-            text=True,
-            timeout=2
-        )
-        
-        if result.returncode == 0:
-            output = result.stdout
-            # Check if service is running
-            if 'RUNNING' in output:
-                return 'ok'
-            elif 'PAUSED' in output or 'PAUSE_PENDING' in output:
-                # Service is paused - try to resume it automatically
-                try:
-                    resume_result = subprocess.run(
-                        ['nssm', 'resume', 'VOFC-ModelManager'],
-                        capture_output=True,
-                        text=True,
-                        timeout=2
-                    )
-                    if resume_result.returncode == 0:
-                        # Give it a moment, then check again
-                        import time
-                        time.sleep(1)
-                        # Re-check status
-                        recheck = subprocess.run(
-                            ['sc', 'query', 'VOFC-ModelManager'],
+    # Try multiple possible service names
+    service_names = ['VOFC-ModelManager', 'VOFC-Model-Manager', 'ModelManager']
+    
+    for service_name in service_names:
+        try:
+            # Use sc query to check service status (works on Windows)
+            result = subprocess.run(
+                ['sc', 'query', service_name],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            
+            if result.returncode == 0:
+                output = result.stdout
+                # Check if service is running
+                if 'RUNNING' in output:
+                    return 'ok'
+                elif 'PAUSED' in output or 'PAUSE_PENDING' in output:
+                    # Service is paused - try to resume it automatically
+                    try:
+                        resume_result = subprocess.run(
+                            ['nssm', 'resume', service_name],
                             capture_output=True,
                             text=True,
                             timeout=2
                         )
-                        if 'RUNNING' in recheck.stdout:
-                            return 'ok'
-                except:
-                    pass  # If resume fails, continue to return 'offline'
-                return 'offline'  # Paused services are treated as offline
-            elif 'STOPPED' in output or 'STOP_PENDING' in output:
-                return 'offline'
-            else:
-                return 'unknown'
-        else:
-            # Service might not exist or access denied
-            return 'unknown'
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-        # sc command not available or timeout
-        return 'unknown'
+                        if resume_result.returncode == 0:
+                            # Give it a moment, then check again
+                            import time
+                            time.sleep(1)
+                            # Re-check status
+                            recheck = subprocess.run(
+                                ['sc', 'query', service_name],
+                                capture_output=True,
+                                text=True,
+                                timeout=2
+                            )
+                            if 'RUNNING' in recheck.stdout:
+                                return 'ok'
+                    except:
+                        pass  # If resume fails, continue to return 'offline'
+                    return 'offline'  # Paused services are treated as offline
+                elif 'STOPPED' in output or 'STOP_PENDING' in output:
+                    return 'offline'
+                else:
+                    # Service exists but in unknown state
+                    continue  # Try next service name
+            # If service not found, try next name
+        except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+            # Continue to next service name
+            continue
+    
+    # Service might not exist or access denied
+    return 'unknown'
 
 @system_bp.route('/')
 def index():
@@ -373,21 +399,55 @@ def log_stream():
                         if cleaned:
                             yield f"data: {cleaned}\n\n"
             
-            # Then stream new lines
-            with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
-                # Start at end of file for new lines only
-                f.seek(0, 2)
-                
-                while True:
-                    line = f.readline()
-                    if line:
-                        # Clean and send line
-                        cleaned = line.strip()
-                        if cleaned:
-                            yield f"data: {cleaned}\n\n"
+            # Then stream new lines - tail the file in real-time
+            last_position = 0
+            if log_file.exists():
+                with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+                    f.seek(0, 2)  # Seek to end
+                    last_position = f.tell()
+            
+            while True:
+                try:
+                    # Check if file still exists and hasn't been rotated
+                    if not log_file.exists():
+                        # File might have been rotated, find the latest one
+                        if logs_dir.exists():
+                            log_files = sorted(logs_dir.glob("vofc_processor_*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
+                            if log_files:
+                                log_file = log_files[0]
+                                last_position = 0  # Reset position for new file
+                    
+                    if log_file.exists():
+                        with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+                            f.seek(last_position)
+                            new_lines = f.readlines()
+                            
+                            if new_lines:
+                                for line in new_lines:
+                                    cleaned = line.strip()
+                                    if cleaned:
+                                        yield f"data: {cleaned}\n\n"
+                                
+                                # Update position
+                                last_position = f.tell()
+                            else:
+                                # No new lines, wait a bit
+                                time.sleep(0.5)  # Check more frequently
                     else:
-                        # No new line, wait a bit
-                        time.sleep(1)
+                        # File doesn't exist, wait longer
+                        time.sleep(2)
+                        
+                except (IOError, OSError) as e:
+                    # File might be locked or rotated, wait and retry
+                    time.sleep(1)
+                    # Reset position if file was rotated
+                    if log_file.exists():
+                        try:
+                            with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+                                f.seek(0, 2)
+                                last_position = f.tell()
+                        except:
+                            last_position = 0
         except FileNotFoundError:
             yield f"data: [ERROR] Log file not found: {log_file}\n\n"
             time.sleep(5)

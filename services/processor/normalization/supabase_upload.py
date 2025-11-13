@@ -114,11 +114,18 @@ def upload_to_supabase(
         inserted_count = 0
         linked_count = 0
         
+        # Extract document title from file path for taxonomy inference
+        document_title = os.path.basename(file_path).replace("_", " ").replace("-", " ").rsplit(".", 1)[0]
+        
         # Process each record
         for record in records:
             vulnerability = record.get("vulnerability", "").strip()
             if not vulnerability:
                 continue
+            
+            # Validate and correct taxonomy before processing
+            from .taxonomy_inference import validate_and_correct_taxonomy
+            record = validate_and_correct_taxonomy(record, document_title=document_title)
             
             # Get OFCs (handle both "options" and "options_for_consideration" fields)
             options_for_consideration = record.get("options") or record.get("options_for_consideration", [])

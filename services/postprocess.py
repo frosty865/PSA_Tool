@@ -573,6 +573,11 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                 skipped += 1
                 continue
 
+            # Validate and correct taxonomy before resolving IDs
+            from services.processor.normalization.taxonomy_inference import validate_and_correct_taxonomy
+            document_title = source_filepath.name if source_filepath else ""
+            r = validate_and_correct_taxonomy(r, document_title=document_title)
+            
             # Resolve discipline
             discipline_name = r.get("discipline") or r.get("discipline_name")
             disc_id, category = resolve_discipline(discipline_name)
@@ -582,14 +587,14 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             if isinstance(sector_name, list):
                 sector_name = sector_name[0] if sector_name else None
             
-            sector_id = get_sector_id(sector_name) if sector_name else None
+            sector_id = get_sector_id(sector_name, fuzzy=True) if sector_name else None
             
             # Resolve subsector
             subsector_name = r.get("subsector") or r.get("subsectors")
             if isinstance(subsector_name, list):
                 subsector_name = subsector_name[0] if subsector_name else None
             
-            subsector_id = get_subsector_id(subsector_name) if subsector_name else None
+            subsector_id = get_subsector_id(subsector_name, fuzzy=True) if subsector_name else None
             
             # Build cleaned record - preserve ALL fields from input
             cleaned_record = {

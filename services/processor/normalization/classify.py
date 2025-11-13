@@ -4,6 +4,7 @@ Normalizes and validates extracted data fields.
 """
 import logging
 from typing import Dict, Any, List
+from .taxonomy_inference import validate_and_correct_taxonomy
 
 
 def normalize_confidence(value: Any) -> str:
@@ -60,12 +61,13 @@ def normalize_impact_level(value: Any) -> str:
         return "Moderate"
 
 
-def normalize_record(record: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_record(record: Dict[str, Any], document_title: str = "") -> Dict[str, Any]:
     """
     Normalize a single record to match Supabase schema.
     
     Args:
         record: Raw record from model
+        document_title: Document title for taxonomy inference
         
     Returns:
         Normalized record with validated fields
@@ -88,18 +90,22 @@ def normalize_record(record: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(normalized["options"], list):
         normalized["options"] = []
     
+    # Validate and correct taxonomy (discipline, sector, subsector)
+    normalized = validate_and_correct_taxonomy(normalized, document_title=document_title)
+    
     return normalized
 
 
-def normalize_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def normalize_records(records: List[Dict[str, Any]], document_title: str = "") -> List[Dict[str, Any]]:
     """
     Normalize all records in a list.
     
     Args:
         records: List of raw records
+        document_title: Document title for taxonomy inference
         
     Returns:
         List of normalized records
     """
-    return [normalize_record(r) for r in records]
+    return [normalize_record(r, document_title=document_title) for r in records]
 

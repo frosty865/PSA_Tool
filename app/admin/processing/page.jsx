@@ -20,22 +20,52 @@ export default function ProcessingMonitorPage() {
   // Global error handler to suppress browser extension errors
   useEffect(() => {
     const handleError = (event) => {
-      if (event.error && event.error.message && event.error.message.includes('message channel')) {
+      const errorMessage = event.error?.message || event.message || ''
+      if (
+        errorMessage.includes('message channel') ||
+        errorMessage.includes('asynchronous response') ||
+        errorMessage.includes('channel closed')
+      ) {
         event.preventDefault() // Suppress browser extension errors
+        event.stopPropagation()
         return false
       }
     }
     const handleRejection = (event) => {
-      if (event.reason && event.reason.message && event.reason.message.includes('message channel')) {
+      const errorMessage = event.reason?.message || event.reason || ''
+      if (
+        errorMessage.includes('message channel') ||
+        errorMessage.includes('asynchronous response') ||
+        errorMessage.includes('channel closed')
+      ) {
         event.preventDefault() // Suppress browser extension errors
+        event.stopPropagation()
         return false
       }
     }
-    window.addEventListener('error', handleError)
-    window.addEventListener('unhandledrejection', handleRejection)
+    
+    // Add listeners with capture phase to catch early
+    window.addEventListener('error', handleError, true)
+    window.addEventListener('unhandledrejection', handleRejection, true)
+    
+    // Also override console.error to filter these messages
+    const originalConsoleError = console.error
+    console.error = (...args) => {
+      const message = args.join(' ')
+      if (
+        message.includes('message channel') ||
+        message.includes('asynchronous response') ||
+        message.includes('channel closed')
+      ) {
+        return // Suppress console output
+      }
+      originalConsoleError.apply(console, args)
+    }
+    
     return () => {
-      window.removeEventListener('error', handleError)
-      window.removeEventListener('unhandledrejection', handleRejection)
+      window.removeEventListener('error', handleError, true)
+      window.removeEventListener('unhandledrejection', handleRejection, true)
+      console.error = originalConsoleError
     }
   }, [])
 
@@ -73,12 +103,17 @@ export default function ProcessingMonitorPage() {
       } catch (err) {
         // Don't show timeout errors or browser extension errors - silently handle
         // Ignore browser extension message channel errors
-        if (err.message && err.message.includes('message channel')) {
+        const errorMsg = err.message || err.toString() || ''
+        if (
+          errorMsg.includes('message channel') ||
+          errorMsg.includes('asynchronous response') ||
+          errorMsg.includes('channel closed')
+        ) {
           return // Silently ignore browser extension errors
         }
         console.error('Error fetching progress:', err)
         // Only show non-timeout errors
-        if (!err.message.includes('timeout') && !err.message.includes('aborted')) {
+        if (!errorMsg.includes('timeout') && !errorMsg.includes('aborted')) {
           setError(err.message)
         }
       } finally {
@@ -165,7 +200,14 @@ export default function ProcessingMonitorPage() {
           }
         } catch (err) {
           // Silently handle errors - don't spam console
-          if (!err.message?.includes('aborted') && !err.message?.includes('timeout')) {
+          const errorMsg = err.message || err.toString() || ''
+          if (
+            !errorMsg.includes('aborted') &&
+            !errorMsg.includes('timeout') &&
+            !errorMsg.includes('message channel') &&
+            !errorMsg.includes('asynchronous response') &&
+            !errorMsg.includes('channel closed')
+          ) {
             console.error('Error polling logs:', err)
           }
         }
@@ -297,8 +339,15 @@ export default function ProcessingMonitorPage() {
       }, 2000) // Increased delay for actions that may take time
     } catch (err) {
       console.error('[Control Action] Error:', err)
-      // Don't show timeout errors to user
-      if (!err.message.toLowerCase().includes('timeout') && !err.message.toLowerCase().includes('aborted')) {
+      // Don't show timeout errors or browser extension errors to user
+      const errorMsg = (err.message || err.toString() || '').toLowerCase()
+      if (
+        !errorMsg.includes('timeout') &&
+        !errorMsg.includes('aborted') &&
+        !errorMsg.includes('message channel') &&
+        !errorMsg.includes('asynchronous response') &&
+        !errorMsg.includes('channel closed')
+      ) {
         alert(`❌ Error: ${err.message}`)
       }
     } finally {

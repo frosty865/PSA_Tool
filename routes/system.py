@@ -479,10 +479,10 @@ def log_stream():
         today = now_est().strftime("%Y%m%d")
         log_file = logs_dir / f"vofc_processor_{today}.log"
         
-        # STRICT FILTERING: Only show logs from last 1 hour (much stricter than 24 hours)
-        # Also track session start time - only show logs from after connection started
+        # Show all logs from today (not just last 1 hour) - user wants to see today's activity
+        # Track session start time for initial connection
         session_start_time = now_est()
-        cutoff_time = session_start_time - timedelta(hours=1)  # Last 1 hour only
+        today_start = session_start_time.replace(hour=0, minute=0, second=0, microsecond=0)
         
         # Always use today's log file - don't fallback to old files
         if not log_file.exists():
@@ -518,27 +518,23 @@ def log_stream():
                 pass
             return None
         
-        def is_recent_log(line, strict_cutoff=None):
-            """Check if log line is recent. Uses strict cutoff if provided, otherwise uses session start."""
+        def is_today_log(line):
+            """Check if log line is from today."""
             if not line or not line.strip():
                 return False
             
-            # Must start with today's date (no yesterday's date allowed for strict filtering)
+            # Must start with today's date
             today_date_str = now_est().strftime("%Y-%m-%d")
             if not line.strip().startswith(today_date_str):
                 return False
             
-            # Parse timestamp and verify it's within cutoff window
+            # Parse timestamp and verify it's from today (after midnight today)
             log_time = parse_log_timestamp(line)
             if log_time:
-                # Use strict cutoff (1 hour) or session start, whichever is more recent
-                effective_cutoff = strict_cutoff if strict_cutoff else cutoff_time
-                # Also ensure log is not from before session started
-                session_cutoff = session_start_time - timedelta(seconds=5)  # Allow 5 second buffer
-                return log_time >= effective_cutoff and log_time >= session_cutoff
+                return log_time >= today_start
             else:
-                # If we can't parse timestamp, reject it (strict mode)
-                return False
+                # If we can't parse timestamp but it starts with today's date, include it
+                return True
         
         try:
             # Get current file position - start from end of file (only new logs)
@@ -549,7 +545,7 @@ def log_stream():
                     f.seek(0, 2)  # Seek to end
                     last_position = f.tell()
                     # Send a marker that we're starting fresh
-                    yield f"data: [INFO] Live log stream started at {session_start_time.strftime('%Y-%m-%d %H:%M:%S')} - showing logs from now on\n\n"
+                    yield f"data: [INFO] Live log stream started at {session_start_time.strftime('%Y-%m-%d %H:%M:%S')} - showing logs from today\n\n"
             
             # Stream new lines only - tail the file in real-time
             while True:
@@ -562,9 +558,9 @@ def log_stream():
                             if log_files:
                                 log_file = log_files[0]
                                 last_position = 0  # Reset position for new file
-                                # Update cutoff time for new day
+                                # Update today start for new day
                                 session_start_time = now_est()
-                                cutoff_time = session_start_time - timedelta(hours=1)
+                                today_start = session_start_time.replace(hour=0, minute=0, second=0, microsecond=0)
                     
                     if log_file.exists():
                         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
@@ -572,11 +568,11 @@ def log_stream():
                             new_lines = f.readlines()
                             
                             if new_lines:
-                                # Filter to only recent lines (last 1 hour AND after session start)
+                                # Filter to only today's lines
                                 for line in new_lines:
                                     cleaned = line.strip()
-                                    # Only send recent lines (strict filtering)
-                                    if is_recent_log(cleaned):
+                                    # Only send today's lines
+                                    if is_today_log(cleaned):
                                         yield f"data: {cleaned}\n\n"
                                 
                                 # Update position
@@ -643,9 +639,9 @@ def get_logs():
         
         tail = request.args.get('tail', 50, type=int)
         
-        # STRICT FILTERING: Only show logs from last 1 hour (much stricter)
-        cutoff_time = now_est() - timedelta(hours=1)
+        # Show all logs from today (not just last 1 hour) - user wants to see today's activity
         today_date_str = now_est().strftime("%Y-%m-%d")
+        today_start = now_est().replace(hour=0, minute=0, second=0, microsecond=0)
         
         def parse_log_timestamp(line):
             """Parse timestamp from log line. Returns None if parsing fails."""
@@ -663,37 +659,37 @@ def get_logs():
                 pass
             return None
         
-        def is_recent_log(line):
-            """Check if log line is from the last 1 hour - STRICT MODE."""
+        def is_today_log(line):
+            """Check if log line is from today."""
             if not line or not line.strip():
                 return False
             
             line_stripped = line.strip()
             
-            # Must start with today's date only (no yesterday allowed)
+            # Must start with today's date
             if not line_stripped.startswith(today_date_str):
                 return False
             
-            # Parse timestamp and verify it's within last 1 hour
+            # Parse timestamp and verify it's from today (after midnight today)
             log_time = parse_log_timestamp(line_stripped)
             if log_time:
-                return log_time >= cutoff_time
+                return log_time >= today_start
             else:
-                # If we can't parse timestamp, reject it (strict mode)
-                return False
+                # If we can't parse timestamp but it starts with today's date, include it
+                return True
         
-        # Read lines and filter to only show recent logs (last 1 hour only)
+        # Read lines and filter to only show today's logs
         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
-            # Filter to only recent lines
-            recent_lines = []
+            # Filter to only today's lines
+            today_lines = []
             for line in lines:
                 line_stripped = line.strip()
-                if is_recent_log(line_stripped):
-                    recent_lines.append(line_stripped)
+                if is_today_log(line_stripped):
+                    today_lines.append(line_stripped)
             
             # Return last N lines
-            result_lines = recent_lines[-tail:] if len(recent_lines) > tail else recent_lines
+            result_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
         
         return jsonify({"lines": result_lines}), 200
     except Exception as e:

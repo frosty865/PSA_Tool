@@ -88,7 +88,9 @@ def process_pdf(
     
     # Step 6: Normalize
     logging.info("Step 6: Normalizing records...")
-    normalized = normalize_records(deduped)
+    # Extract document title from PDF filename (remove extension and clean)
+    document_title = pdf_path.stem.replace("_", " ").replace("-", " ")
+    normalized = normalize_records(deduped, document_title=document_title)
     
     # Step 7: Export to JSON
     logging.info("Step 7: Exporting to JSON...")

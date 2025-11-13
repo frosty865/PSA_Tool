@@ -88,7 +88,7 @@ if (Test-Path (Join-Path $SourceDir "__init__.py")) {
 # Verify script path exists
 if (-not (Test-Path $ScriptPath)) {
     Write-Host "Error: vofc_processor.py not found at: $ScriptPath" -ForegroundColor Red
-    Write-Host "Please ensure files are copied to C:\Tools\py_scripts\vofc_processor\" -ForegroundColor Yellow
+    Write-Host "Please ensure files are copied to C:\Tools\vofc_processor\" -ForegroundColor Yellow
     exit 1
 }
 

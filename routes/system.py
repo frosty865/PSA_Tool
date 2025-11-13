@@ -180,7 +180,8 @@ def health():
     try:
         log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "services", "model_manager.py")
         # Try to read from the actual log file
-        log_path = r"C:\Tools\VOFC_Logs\model_manager.log"
+        # Old log path archived - using Ollama\Data\logs instead
+        log_path = None
         if os.path.exists(log_path):
             with open(log_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
@@ -344,7 +345,12 @@ def log_stream():
         # Use VOFC Processor log file
         base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
         if not base_dir.exists():
-            base_dir = Path(r"C:\Tools\VOFC\Data")
+            # Fallback to archive location if needed (for migration)
+            archive_data = Path(r"C:\Tools\archive\VOFC\Data")
+            if archive_data.exists():
+                base_dir = archive_data
+            else:
+                base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
         
         logs_dir = base_dir / "logs"
         today = datetime.now().strftime("%Y%m%d")
@@ -408,7 +414,12 @@ def get_logs():
         # Use VOFC Processor log file
         base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
         if not base_dir.exists():
-            base_dir = Path(r"C:\Tools\VOFC\Data")
+            # Fallback to archive location if needed (for migration)
+            archive_data = Path(r"C:\Tools\archive\VOFC\Data")
+            if archive_data.exists():
+                base_dir = archive_data
+            else:
+                base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
         
         logs_dir = base_dir / "logs"
         today = datetime.now().strftime("%Y%m%d")

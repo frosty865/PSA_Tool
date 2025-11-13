@@ -71,7 +71,12 @@ except Exception as e:
 # Base data directory
 DATA_DIR = os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data")
 if not os.path.exists(DATA_DIR):
-    DATA_DIR = r"C:\Tools\VOFC\Data"
+    # Fallback to archive location if needed (for migration)
+    archive_data = r"C:\Tools\archive\VOFC\Data"
+    if os.path.exists(archive_data):
+        DATA_DIR = archive_data
+    else:
+        DATA_DIR = r"C:\Tools\Ollama\Data"  # Default
     if not os.path.exists(DATA_DIR):
         DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
         os.makedirs(DATA_DIR, exist_ok=True)

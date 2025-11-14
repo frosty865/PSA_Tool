@@ -806,17 +806,15 @@ def log_stream():
                 base_dir = Config.DATA_DIR  # Default
         
         logs_dir = base_dir / "logs"
-        # Use local date (not EST) to match processor log file naming
-        # Processor uses datetime.now().strftime('%Y%m%d') which is local time
-        today_local = datetime.now().strftime("%Y%m%d")
-        log_file = logs_dir / f"vofc_processor_{today_local}.log"
+        # Use single rolling log file (not date-specific)
+        log_file = logs_dir / "vofc_processor.log"
         
         # Show all logs from today (not just last 1 hour) - user wants to see today's activity
         # Track session start time for initial connection
         session_start_time = now_est()
         today_start = session_start_time.replace(hour=0, minute=0, second=0, microsecond=0)
         
-        # Always use today's log file - don't fallback to old files
+        # Check if log file exists
         if not log_file.exists():
             # If today's log doesn't exist, return empty stream
             def empty_stream():
@@ -961,16 +959,14 @@ def get_logs():
                 base_dir = Config.DATA_DIR  # Default
         
         logs_dir = base_dir / "logs"
-        # Use local date (not EST) to match processor log file naming
-        # Processor uses datetime.now().strftime('%Y%m%d') which is local time
-        today_local = datetime.now().strftime("%Y%m%d")
-        log_file = logs_dir / f"vofc_processor_{today_local}.log"
+        # Use single rolling log file (not date-specific)
+        log_file = logs_dir / "vofc_processor.log"
         
-        # Always prefer today's log file - don't fallback to old files
+        # Check if log file exists
         if not log_file.exists():
-            # Return empty if today's log doesn't exist yet
+            # Return empty if log file doesn't exist yet
             logging.debug(f"Log file not found: {log_file}")
-            return jsonify({"lines": [], "error": f"Today's log file not found: {log_file}. The watcher may not have started yet."}), 200
+            return jsonify({"lines": [], "error": f"Log file not found: {log_file}. The watcher may not have started yet."}), 200
         
         tail = request.args.get('tail', 50, type=int)
         

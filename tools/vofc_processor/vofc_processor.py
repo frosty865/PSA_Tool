@@ -27,8 +27,8 @@ LOGS_DIR = Config.LOGS_DIR
 # Ensure log directory exists
 os.makedirs(LOGS_DIR, exist_ok=True)
 
-# Create log file path
-LOG_FILE = os.path.join(LOGS_DIR, f"vofc_processor_{datetime.now().strftime('%Y%m%d')}.log")
+# Create log file path - single rolling log file (not date-specific)
+LOG_FILE = os.path.join(LOGS_DIR, "vofc_processor.log")
 
 # Configure logging with explicit handlers
 logger = logging.getLogger(__name__)
@@ -257,15 +257,15 @@ def process_pdf_file(pdf_path: str) -> bool:
         except Exception as e:
             logger.error(f"⚠️  Unexpected Supabase upload error: {e}", exc_info=True)
         
-        # Step 4: Move PDF to library (only if we have enough records)
-        min_records_for_library = Config.MIN_RECORDS_FOR_LIBRARY
-        
-        if record_count < min_records_for_library:
-            logger.info(f"[4/4] Keeping file in incoming for reprocessing (only {record_count} records, need {min_records_for_library} for library)")
+        # Step 4: Move PDF to library (always move after successful processing, unless 0 records)
+        # Only keep files with 0 records in incoming for reprocessing/learning
+        if record_count == 0:
+            logger.info(f"[4/4] Keeping file in incoming for reprocessing (0 records extracted)")
             logger.info("File will be reprocessed on next cycle to improve extraction quality")
             logger.info(f"✅ Completed processing: {pdf_path_obj.name} (kept in incoming for learning)")
             return True
         
+        # For files with records, always move to library after successful processing
         logger.info("[4/4] Archiving to library...")
         dest = os.path.join(LIBRARY_DIR, pdf_path_obj.name)
         if os.path.exists(dest):
@@ -284,6 +284,7 @@ def process_pdf_file(pdf_path: str) -> bool:
                 logger.warning(f"Source file no longer exists: {pdf_path_obj.name} (may have been moved already)")
                 return True  # Consider it successful if already moved
             
+            # Attempt move
             shutil.move(str(pdf_path), dest)
             
             # Verify move succeeded
@@ -294,7 +295,7 @@ def process_pdf_file(pdf_path: str) -> bool:
                 raise Exception(f"Move verification failed: dest exists={os.path.exists(dest)}, source exists={pdf_path_obj.exists()}")
                 
         except (PermissionError, OSError) as move_error:
-            logger.warning(f"Move failed, trying copy: {move_error}")
+            logger.warning(f"Move failed, trying copy+delete: {move_error}")
             try:
                 # Ensure library directory exists
                 os.makedirs(LIBRARY_DIR, exist_ok=True)
@@ -304,17 +305,22 @@ def process_pdf_file(pdf_path: str) -> bool:
                     logger.warning(f"Source file no longer exists during copy fallback: {pdf_path_obj.name}")
                     return True
                 
+                # Copy file
                 shutil.copy2(str(pdf_path), dest)
                 
                 # Verify copy succeeded before removing source
                 if os.path.exists(dest):
-                    os.remove(str(pdf_path))
-                    # Verify source was removed
-                    if not pdf_path_obj.exists():
-                        logger.info(f"✓ Moved to library (via copy): {os.path.basename(dest)}")
-                        moved_successfully = True
+                    # Verify file sizes match before deleting source
+                    if os.path.getsize(dest) == os.path.getsize(pdf_path):
+                        os.remove(str(pdf_path))
+                        # Verify source was removed
+                        if not pdf_path_obj.exists():
+                            logger.info(f"✓ Moved to library (via copy+delete): {os.path.basename(dest)}")
+                            moved_successfully = True
+                        else:
+                            raise FileOperationError("Source file still exists after copy+delete")
                     else:
-                        raise FileOperationError("Source file still exists after copy+remove")
+                        raise FileOperationError(f"File size mismatch: source={os.path.getsize(pdf_path)}, dest={os.path.getsize(dest)}")
                 else:
                     raise FileOperationError("Destination file does not exist after copy")
                     
@@ -328,6 +334,7 @@ def process_pdf_file(pdf_path: str) -> bool:
             logger.error(f"✗ Unexpected error during file move: {e}", exc_info=True)
             raise FileOperationError(f"Unexpected error moving file: {e}") from e
         
+        # Final verification - if move didn't succeed, raise error
         if not moved_successfully:
             raise FileOperationError("File move verification failed - file may still be in incoming directory")
         

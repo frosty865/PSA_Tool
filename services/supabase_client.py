@@ -49,8 +49,16 @@ def get_supabase_client():
 def test_supabase():
     """Test Supabase connection (assumes Supabase is externally configured)"""
     try:
-        if not SUPABASE_URL or not SUPABASE_KEY:
+        # Use Config directly instead of module-level variables (which may be empty due to lazy loading)
+        supabase_url = Config.SUPABASE_URL or ''
+        supabase_key = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY or ''
+        
+        if not supabase_url or not supabase_key:
             return "failed"  # Primary service must be configured
+        
+        # Check offline mode
+        if Config.SUPABASE_OFFLINE_MODE:
+            return "failed"  # Explicitly disabled
         
         # Try to use supabase client if available
         try:
@@ -59,7 +67,7 @@ def test_supabase():
             return "ok"
         except ImportError:
             # Fallback: just check if URL is configured
-            if SUPABASE_URL and SUPABASE_KEY:
+            if supabase_url and supabase_key:
                 return "ok"
             return "failed"
     except ConfigurationError:

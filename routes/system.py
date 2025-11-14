@@ -1394,6 +1394,84 @@ def system_control():
                 logging.error(f"Error in process_one: {e}")
                 msg = f"Process one error: {str(e)}"
         
+        elif action == "restart_ollama_with_deps":
+            try:
+                from routes.service_manager import restart_with_dependencies
+                result = restart_with_dependencies('ollama')
+                
+                if result['success']:
+                    msg = result['message']
+                    # Include step details in response
+                    steps_summary = "\n".join([
+                        f"  • {step['action']} {step['service']}: {step['status']} - {step['message']}"
+                        for step in result['steps']
+                    ])
+                    msg = f"{msg}\n\nSteps:\n{steps_summary}"
+                else:
+                    msg = result['message']
+                    if result['errors']:
+                        errors_summary = "\n".join([f"  • {err}" for err in result['errors']])
+                        msg = f"{msg}\n\nErrors:\n{errors_summary}"
+                
+                logging.info(f"[Admin Control] restart_ollama_with_deps: {msg}")
+            except Exception as e:
+                logging.error(f"Error in restart_ollama_with_deps: {e}")
+                msg = f"Restart Ollama with dependencies error: {str(e)}"
+        
+        elif action == "restart_service_with_deps":
+            try:
+                from routes.service_manager import restart_with_dependencies
+                # Get service name from request
+                request_data = request.get_json(silent=True) or {}
+                service_name = request_data.get('service_name') or request_data.get('service')
+                
+                if not service_name:
+                    msg = "restart_service_with_deps requires service_name parameter"
+                    logging.warning(f"[Admin Control] {msg}")
+                else:
+                    result = restart_with_dependencies(service_name)
+                    
+                    if result['success']:
+                        msg = result['message']
+                        steps_summary = "\n".join([
+                            f"  • {step['action']} {step['service']}: {step['status']} - {step['message']}"
+                            for step in result['steps']
+                        ])
+                        msg = f"{msg}\n\nSteps:\n{steps_summary}"
+                    else:
+                        msg = result['message']
+                        if result['errors']:
+                            errors_summary = "\n".join([f"  • {err}" for err in result['errors']])
+                            msg = f"{msg}\n\nErrors:\n{errors_summary}"
+                    
+                    logging.info(f"[Admin Control] restart_service_with_deps ({service_name}): {msg}")
+            except Exception as e:
+                logging.error(f"Error in restart_service_with_deps: {e}")
+                msg = f"Restart service with dependencies error: {str(e)}"
+        
+        elif action == "restart_all_services":
+            try:
+                from routes.service_manager import restart_all_services
+                result = restart_all_services()
+                
+                if result['success']:
+                    msg = result['message']
+                    steps_summary = "\n".join([
+                        f"  • {step['action']} {step['service']}: {step['status']} - {step['message']}"
+                        for step in result['steps']
+                    ])
+                    msg = f"{msg}\n\nSteps:\n{steps_summary}"
+                else:
+                    msg = result['message']
+                    if result['errors']:
+                        errors_summary = "\n".join([f"  • {err}" for err in result['errors']])
+                        msg = f"{msg}\n\nErrors:\n{errors_summary}"
+                
+                logging.info(f"[Admin Control] restart_all_services: {msg}")
+            except Exception as e:
+                logging.error(f"Error in restart_all_services: {e}")
+                msg = f"Restart all services error: {str(e)}"
+        
         else:
             msg = f"Unknown action: {action}"
         

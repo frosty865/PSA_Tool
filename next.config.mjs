@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import webpack from 'webpack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,7 +12,7 @@ const nextConfig = {
   staticPageGenerationTimeout: 60,
   
   // Minimal webpack config - essential aliases only
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': __dirname,
@@ -21,6 +20,7 @@ const nextConfig = {
     
     // Exclude Python files and services from webpack processing
     // This prevents webpack from trying to process Python files during build
+    // webpack is provided by Next.js in the function parameters
     config.plugins = config.plugins || [];
     config.plugins.push(
       new webpack.IgnorePlugin({

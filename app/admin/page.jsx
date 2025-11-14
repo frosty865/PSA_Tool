@@ -563,6 +563,8 @@ export default function AdminOverviewPage() {
               displayName = 'Cloudflare Tunnel'
             } else if (key === 'model_manager') {
               displayName = 'Model Manager'
+            } else if (key === 'watcher') {
+              displayName = 'VOFC Processor (Watcher)'
             } else {
               displayName = `${key.charAt(0).toUpperCase() + key.slice(1)} Server`
             }

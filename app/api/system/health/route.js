@@ -59,7 +59,8 @@ export async function GET(request) {
               ollama: 'unknown',
               supabase: 'unknown',
               tunnel: 'unknown',
-              model_manager: 'unknown'
+              model_manager: 'unknown',
+              watcher: 'unknown'
             },
             error: 'Flask server did not respond within 30 seconds',
             flaskUrl: FLASK_URL,
@@ -78,7 +79,8 @@ export async function GET(request) {
               ollama: 'unknown',
               supabase: 'unknown',
               tunnel: 'unknown',
-              model_manager: 'unknown'
+              model_manager: 'unknown',
+              watcher: 'unknown'
             },
             error: 'Connection refused - Flask service may not be accessible at this URL',
             flaskUrl: FLASK_URL,
@@ -98,7 +100,8 @@ export async function GET(request) {
               ollama: 'unknown',
               supabase: 'unknown',
               tunnel: 'unknown',
-              model_manager: 'unknown'
+              model_manager: 'unknown',
+              watcher: 'unknown'
             },
             error: 'Network error connecting to Flask service',
             flaskUrl: FLASK_URL,

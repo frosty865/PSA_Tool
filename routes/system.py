@@ -325,7 +325,6 @@ def health():
         "ollama": "failed",  # Will be set below
         "supabase": supabase_status if supabase_status == "ok" else "failed",
         "tunnel": "failed",  # Will be set below
-        "model_manager": test_model_manager(),
         "watcher": watcher_status if watcher_status == "ok" else "failed"
     }
     
@@ -399,19 +398,6 @@ def health():
         except Exception as e:
             logging.error(f"Error restarting Tunnel service: {e}", exc_info=True)
     
-    # SELF-HEALING: Restart Model Manager if failed
-    if components["model_manager"] == "failed":
-        logging.warning("Model Manager service is failed - attempting automatic restart")
-        try:
-            success, msg = restart_service("VOFC-ModelManager")
-            if success:
-                logging.info(f"Model Manager service restarted successfully: {msg}")
-                components["model_manager"] = "ok"  # Assume ok after restart
-            else:
-                logging.error(f"Failed to restart Model Manager service: {msg}")
-        except Exception as e:
-            logging.error(f"Error restarting Model Manager service: {e}", exc_info=True)
-    
     # Also try to verify connectivity through the tunnel (secondary check)
     if tunnel_status == "ok":
         try:
@@ -437,46 +423,13 @@ def health():
             logging.error(f"Unexpected error during tunnel connectivity check: {e}", exc_info=True)
             components["tunnel"] = "error"
     
-    # Get Model Manager last run time and next run time
-    model_manager_info = {"status": components["model_manager"]}
-    try:
-        log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "services", "model_manager.py")
-        # Try to read from the actual log file
-        # Old log path archived - using Ollama\Data\logs instead
-        log_path = None
-        if os.path.exists(log_path):
-            with open(log_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                # Look for last "Run Start" timestamp
-                for line in reversed(lines):
-                    if "=== VOFC Model Manager Run Start ===" in line:
-                        # Extract timestamp from log line
-                        try:
-                            # Format: "2025-11-08 09:52:44,745 | INFO | === VOFC Model Manager Run Start ==="
-                            timestamp_str = line.split(" | ")[0]
-                            last_run = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S,%f")
-                            next_run = last_run + timedelta(seconds=21600)  # 6 hours
-                            model_manager_info["last_run"] = last_run.isoformat()
-                            model_manager_info["next_run"] = next_run.isoformat()
-                            break
-                        except:
-                            pass
-    except (FileNotFoundError, PermissionError, OSError) as e:
-        logging.debug(f"Could not read model manager log: {e}")
-        # Non-critical - just return status without last_run info
-    except Exception as e:
-        logging.warning(f"Unexpected error reading model manager log: {e}", exc_info=True)
-        # Non-critical - just return status without last_run info
-    
     # Return lightweight response with service metadata
     return jsonify({
         "flask": components["flask"],
         "ollama": components["ollama"],
         "supabase": components["supabase"],
         "tunnel": components["tunnel"],  # Tunnel is externally managed by NSSM
-        "model_manager": components["model_manager"],  # Model Manager service status
         "watcher": components["watcher"],  # VOFC-Processor service (watcher/processor)
-        "model_manager_info": model_manager_info,  # Additional Model Manager info
         "service": "PSA Processing Server",
         "urls": {
             "flask": flask_url,

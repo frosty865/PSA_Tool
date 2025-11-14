@@ -32,8 +32,25 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Current service status: $serviceStatus" -ForegroundColor Gray
 Write-Host ""
 
+# Stop dependent services first (VOFC-Tunnel depends on Flask)
+Write-Host "Stopping dependent services first..." -ForegroundColor Yellow
+$dependentServices = @("VOFC-Tunnel")
+
+foreach ($depService in $dependentServices) {
+    Write-Host "  Stopping $depService..." -ForegroundColor Gray
+    & $nssmPath stop $depService 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  ✓ $depService stopped" -ForegroundColor Green
+        Start-Sleep -Seconds 2
+    } else {
+        Write-Host "  ⚠ $depService may already be stopped" -ForegroundColor Yellow
+    }
+}
+
+Write-Host ""
+
 # Restart service
-Write-Host "Restarting service..." -ForegroundColor Yellow
+Write-Host "Restarting Flask service..." -ForegroundColor Yellow
 & $nssmPath restart $ServiceName
 
 if ($LASTEXITCODE -eq 0) {
@@ -49,7 +66,24 @@ if ($LASTEXITCODE -eq 0) {
     
     if ($newStatus -eq "SERVICE_RUNNING") {
         Write-Host ""
-        Write-Host "✅ Service is running!" -ForegroundColor Green
+        Write-Host "✅ Flask service is running!" -ForegroundColor Green
+        Write-Host ""
+        
+        # Restart dependent services
+        Write-Host "Restarting dependent services..." -ForegroundColor Yellow
+        foreach ($depService in $dependentServices) {
+            Write-Host "  Starting $depService..." -ForegroundColor Gray
+            & $nssmPath start $depService 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  ✓ $depService started" -ForegroundColor Green
+                Start-Sleep -Seconds 2
+            } else {
+                Write-Host "  ⚠ Failed to start $depService" -ForegroundColor Yellow
+            }
+        }
+        
+        Write-Host ""
+        Write-Host "✅ All services restarted successfully!" -ForegroundColor Green
         Write-Host ""
         Write-Host "The health endpoint should now return watcher status." -ForegroundColor Cyan
         Write-Host "Test with: curl http://localhost:8080/api/system/health" -ForegroundColor Gray

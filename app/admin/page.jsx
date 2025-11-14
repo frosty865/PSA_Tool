@@ -95,7 +95,7 @@ export default function AdminOverviewPage() {
             console.warn(`[System Health] JSON parse error, keeping last known state`)
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
           }
           return
         }
@@ -109,7 +109,7 @@ export default function AdminOverviewPage() {
             console.warn(`[System Health] Error status but no components, keeping last known state`)
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
           }
           return
         }
@@ -119,10 +119,6 @@ export default function AdminOverviewPage() {
           hasEverSucceeded = true
           lastKnownGood = json.components
           setSystem(json.components)
-          // Update Model Manager info if available
-          if (json.model_manager_info) {
-            setModelManagerInfo(json.model_manager_info)
-          }
         } else {
           // Invalid format but keep last known state if we've succeeded before
           if (hasEverSucceeded) {
@@ -141,7 +137,7 @@ export default function AdminOverviewPage() {
         if (hasEverSucceeded) {
           setSystem(lastKnownGood)
         } else {
-          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
         }
       }
     }

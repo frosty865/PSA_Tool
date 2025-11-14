@@ -365,42 +365,84 @@ export default function AdminReviewPage() {
               textAlign: 'center'
             }}>
               {Object.entries(progress)
-                .filter(([key]) => key !== 'timestamp' && key !== 'status')
-                .map(([key, val]) => (
-                  <div
-                    key={key}
-                    style={{
-                      textAlign: 'center',
-                      padding: 'var(--spacing-sm)',
-                      borderRadius: 'var(--border-radius-lg)',
-                      backgroundColor: 'var(--cisa-gray-lighter)',
-                      border: '1px solid var(--cisa-gray-light)'
-                    }}
-                  >
-                    <p style={{ 
-                      fontWeight: 600,
-                      textTransform: 'capitalize',
-                      marginBottom: 'var(--spacing-sm)',
-                      color: 'var(--cisa-gray)',
-                      fontSize: 'var(--font-size-sm)'
-                    }}>
-                      {key.replace('_', ' ')}
-                    </p>
+                .filter(([key]) => {
+                  // Only show folder counts, not metadata fields
+                  const folderKeys = ['incoming', 'processed', 'library', 'errors', 'review'];
+                  return folderKeys.includes(key) && typeof progress[key] === 'number';
+                })
+                .map(([key, val]) => {
+                  const label = progress[`${key}_label`] || key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                  const description = progress[`${key}_description`] || '';
+                  
+                  // Color coding based on folder type
+                  let bgColor = 'var(--cisa-gray-lighter)';
+                  let borderColor = 'var(--cisa-gray-light)';
+                  let badgeColor = 'var(--cisa-blue)';
+                  
+                  if (key === 'incoming') {
+                    bgColor = '#FEF3C7';
+                    borderColor = '#FDE68A';
+                    badgeColor = '#D97706';
+                  } else if (key === 'library') {
+                    bgColor = '#D1FAE5';
+                    borderColor = '#A7F3D0';
+                    badgeColor = '#059669';
+                  } else if (key === 'errors') {
+                    bgColor = '#FEE2E2';
+                    borderColor = '#FECACA';
+                    badgeColor = '#DC2626';
+                  } else if (key === 'processed' || key === 'review') {
+                    bgColor = '#DBEAFE';
+                    borderColor = '#BFDBFE';
+                    badgeColor = '#2563EB';
+                  }
+                  
+                  return (
                     <div
+                      key={key}
                       style={{
-                        display: 'inline-block',
-                        padding: 'var(--spacing-xs) var(--spacing-sm)',
-                        borderRadius: '999px',
-                        fontWeight: 700,
-                        backgroundColor: 'var(--cisa-blue)',
-                        color: 'white',
-                        fontSize: 'var(--font-size-lg)'
+                        textAlign: 'center',
+                        padding: 'var(--spacing-md)',
+                        borderRadius: 'var(--border-radius-lg)',
+                        backgroundColor: bgColor,
+                        border: `1px solid ${borderColor}`
                       }}
                     >
-                      {val}
+                      <p style={{ 
+                        fontWeight: 600,
+                        marginBottom: 'var(--spacing-xs)',
+                        color: 'var(--cisa-gray)',
+                        fontSize: 'var(--font-size-sm)'
+                      }}>
+                        {label}
+                      </p>
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          padding: 'var(--spacing-sm) var(--spacing-md)',
+                          borderRadius: '999px',
+                          fontWeight: 700,
+                          fontSize: 'var(--font-size-lg)',
+                          backgroundColor: badgeColor,
+                          color: 'white',
+                          marginBottom: description ? 'var(--spacing-xs)' : 0
+                        }}
+                      >
+                        {val}
+                      </div>
+                      {description && (
+                        <p style={{ 
+                          fontSize: 'var(--font-size-xs)', 
+                          color: 'var(--cisa-gray)',
+                          marginTop: 'var(--spacing-xs)',
+                          fontStyle: 'italic'
+                        }}>
+                          {description}
+                        </p>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           ) : (
             <p style={{ color: 'var(--cisa-gray)', textAlign: 'center' }}>Loading system status...</p>

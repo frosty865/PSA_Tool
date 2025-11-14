@@ -48,92 +48,49 @@ def test_flask_service():
     Check if Flask Windows service is running.
     Only checks 'vofc-flask' (lowercase) - the single Flask service.
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    Simple and reliable: just check for state code 4 in sc query output.
     """
-    # Only check vofc-flask (lowercase) - single Flask service
-    service_names = ['vofc-flask']
+    service_name = 'vofc-flask'
     
-    for service_name in service_names:
-        try:
-            # Use sc query to check service status (works on Windows)
-            result = subprocess.run(
-                ['sc', 'query', service_name],
-                capture_output=True,
-                text=True,
-                timeout=3
-            )
-            
-            if result.returncode == 0:
-                output = result.stdout
-                output_upper = output.upper()
-                
-                # Improved parsing: Handle format "STATE : 4  RUNNING" or "STATE              : 4  RUNNING"
-                # Look for STATE line and extract state code
-                for line in output.split('\n'):
-                    line_upper = line.upper()
-                    if 'STATE' in line_upper:
-                        # Parse state code - can be "STATE : 4" or "STATE              : 4"
-                        # Extract number after colon
-                        if ':' in line:
-                            # Split on colon and get the part after it
-                            after_colon = line.split(':', 1)[1].strip()
-                            # Extract first number (state code)
-                            state_match = re.search(r'\b(\d+)\b', after_colon)
-                            if state_match:
-                                state_code = state_match.group(1)
-                                # State codes: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING, 7=PAUSED
-                                if state_code == '4':
-                                    logging.debug(f"Flask service {service_name} is RUNNING (state code 4)")
-                                    return 'ok'
-                                elif state_code == '1':
-                                    logging.debug(f"Flask service {service_name} is STOPPED (state code 1)")
-                                    return 'offline'
-                                elif state_code == '7':
-                                    logging.debug(f"Flask service {service_name} is PAUSED (state code 7)")
-                                    return 'offline'
-                
-                # Fallback: check text in output (more reliable)
-                if 'RUNNING' in output_upper and 'STOPPED' not in output_upper:
-                    logging.debug(f"Flask service {service_name} is RUNNING (text match)")
-                    return 'ok'
-                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
-                    logging.debug(f"Flask service {service_name} is STOPPED (text match)")
-                    return 'offline'
-                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
-                    logging.debug(f"Flask service {service_name} is PAUSED (text match)")
-                    return 'offline'
-                else:
-                    # Service exists but state unclear - log for debugging
-                    logging.warning(f"Flask service {service_name} found but state unclear. Output: {output[:200]}")
-                    continue  # Try next service name
-            # If service not found (returncode != 0), try next name
+    try:
+        result = subprocess.run(
+            ['sc', 'query', service_name],
+            capture_output=True,
+            text=True,
+            timeout=3
+        )
+        
+        if result.returncode == 0:
+            output = result.stdout
+            # Simple check: State code 4 = RUNNING
+            if re.search(r'STATE\s*:\s*4', output, re.IGNORECASE):
+                logging.debug(f"Flask service {service_name} is RUNNING (state 4)")
+                return 'ok'
+            elif 'STOPPED' in output.upper():
+                logging.debug(f"Flask service {service_name} is STOPPED")
+                return 'offline'
             else:
-                logging.debug(f"Service {service_name} not found (returncode: {result.returncode})")
-        except subprocess.TimeoutExpired:
-            logging.warning(f"Timeout checking Flask service {service_name}")
-            continue
-        except FileNotFoundError:
-            # sc.exe not found is a system configuration issue
-            raise ServiceError("'sc.exe' not found - cannot check Flask service status. System may not be Windows or PATH is misconfigured.")
-        except subprocess.SubprocessError as e:
-            logging.warning(f"Subprocess error checking Flask service {service_name}: {e}")
-            continue
-        except Exception as e:
-            # Preserve original exception type
-            logging.error(f"Unexpected error checking Flask service {service_name}: {e}", exc_info=True)
-            continue
-    
-    # Service might not exist or access denied
-    logging.warning("Flask service not found with any of the checked names")
-    return 'unknown'
+                logging.debug(f"Flask service {service_name} state unclear")
+                return 'unknown'
+        else:
+            logging.debug(f"Flask service {service_name} not found (returncode: {result.returncode})")
+            return 'unknown'
+    except subprocess.TimeoutExpired:
+        logging.warning(f"Timeout checking Flask service {service_name}")
+        return 'unknown'
+    except FileNotFoundError:
+        raise ServiceError("'sc.exe' not found - cannot check Flask service status")
+    except Exception as e:
+        logging.error(f"Error checking Flask service {service_name}: {e}", exc_info=True)
+        return 'unknown'
 
 def test_processor_service():
     """
     Check if VOFC-Processor Windows service is running (the watcher/processor).
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
-    Uses the same robust detection logic as the progress endpoint.
+    Simple and reliable: just check for state code 4 in sc query output.
     """
     service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
-    service_running = False
     
     for service_name in service_names:
         try:
@@ -144,63 +101,32 @@ def test_processor_service():
                 timeout=5
             )
             
-            # Check for RUNNING state
-            # Windows service states: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING
             if result.returncode == 0:
-                output_upper = result.stdout.upper()
-                # Check for state code 4 (RUNNING) - more reliable than text matching
-                # Format: "STATE              : 4  RUNNING" or "STATE : 4  RUNNING"
-                # Try multiple regex patterns to handle different whitespace
-                state_match_1 = re.search(r'STATE\s*:\s*4', output_upper)
-                state_match_2 = re.search(r':\s*4\s+RUNNING', output_upper)
-                has_state_4 = (state_match_1 is not None) or (state_match_2 is not None)
-                has_running = 'RUNNING' in output_upper
-                has_stopped = 'STOPPED' in output_upper
-                
-                logging.debug(f"Processor service {service_name} check: State 4={has_state_4}, RUNNING={has_running}, STOPPED={has_stopped}")
-                
-                # Primary check: State code 4 (RUNNING) - most reliable
-                if has_state_4:
-                    service_running = True
-                    logging.info(f"Processor service {service_name} is RUNNING (state code 4 detected)")
-                    break  # Found running service, exit loop
-                # Fallback check: RUNNING keyword present and STOPPED not present
-                elif has_running and not has_stopped:
-                    service_running = True
-                    logging.info(f"Processor service {service_name} is RUNNING (text match: RUNNING found, STOPPED not found)")
-                    break  # Found running service, exit loop
-                elif has_stopped:
+                output = result.stdout
+                # Simple check: State code 4 = RUNNING
+                if re.search(r'STATE\s*:\s*4', output, re.IGNORECASE):
+                    logging.debug(f"Processor service {service_name} is RUNNING (state 4)")
+                    return 'ok'
+                elif 'STOPPED' in output.upper():
                     logging.debug(f"Processor service {service_name} is STOPPED")
-                    return 'offline'  # Service exists but is stopped
+                    return 'offline'
                 else:
-                    # Log for debugging
-                    logging.warning(f"Processor service check failed for {service_name}: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
-                    logging.debug(f"Service output (first 200 chars): {result.stdout[:200]}")
-                    # Service exists but state check didn't match - continue to next service name
+                    # Service exists but state unclear, try next name
                     continue
             else:
-                logging.warning(f"Processor service query returned non-zero exit code: {result.returncode}, stderr: {result.stderr}")
-                continue  # Try next service name
+                # Service not found, try next name
+                continue
         except subprocess.TimeoutExpired:
-            logging.warning(f"Timeout checking Processor service {service_name}")
-            continue  # Try next service name
+            logging.warning(f"Timeout checking processor service {service_name}")
+            continue
         except FileNotFoundError:
-            # sc.exe not found (not Windows or PATH issue)
-            logging.warning("sc.exe not found - cannot check Processor service status")
-            raise ServiceError("'sc.exe' not found - cannot check Processor service status. System may not be Windows or PATH is misconfigured.")
-        except subprocess.SubprocessError as e:
-            logging.warning(f"Subprocess error checking Processor service {service_name}: {e}")
-            continue  # Try next service name
+            raise ServiceError("'sc.exe' not found - cannot check processor service status")
         except Exception as e:
-            logging.error(f"Unexpected error checking Processor service {service_name}: {e}", exc_info=True)
-            continue  # Try next service name
+            logging.warning(f"Error checking processor service {service_name}: {e}")
+            continue
     
-    # Return status based on detection
-    if service_running:
-        return 'ok'
-    else:
-        logging.warning("Processor service not found with any of the checked names or not running")
-        return 'unknown'
+    # Service not found with any name
+    return 'unknown'
 
 def test_tunnel_service():
     """

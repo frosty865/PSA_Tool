@@ -256,9 +256,9 @@ def test_model_manager():
                 else:
                     # Service exists but not running = failed
                     return 'failed'
-                else:
-                    continue  # Try next service name
-            # If service not found, try next name
+            else:
+                # Service not found, try next name
+                continue
         except subprocess.TimeoutExpired:
             logging.warning(f"Timeout checking model manager service {service_name}")
             continue

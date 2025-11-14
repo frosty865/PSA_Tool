@@ -10,6 +10,8 @@ These are the **actual** service names currently registered with NSSM:
 | Processor | `VOFC-Processor` | Mixed case |
 | Tunnel | `VOFC-Tunnel` | Mixed case |
 | Model Manager | `VOFC-ModelManager` | Mixed case |
+| Ollama | `VOFC-Ollama` | Mixed case |
+| Auto Retrain | `VOFC-AutoRetrain` | Mixed case |
 
 ## Code Updates
 
@@ -42,6 +44,16 @@ All service checks have been updated to:
 - `VOFC-Model-Manager` (alternative)
 - `PSA-ModelManager` (future migration)
 
+**Ollama Service:**
+- `VOFC-Ollama` (actual)
+- `vofc-ollama` (case variation)
+- `Ollama` (alternative)
+
+**Auto Retrain Service:**
+- `VOFC-AutoRetrain` (actual)
+- `vofc-autoretrain` (case variation)
+- `PSA-AutoRetrain` (future migration)
+
 ## Important Notes
 
 1. **Service names are case-sensitive** in Windows, but code checks multiple variations
@@ -64,6 +76,9 @@ nssm list
 nssm status vofc-flask
 nssm status VOFC-Processor
 nssm status VOFC-Tunnel
+nssm status VOFC-Ollama
+nssm status VOFC-ModelManager
+nssm status VOFC-AutoRetrain
 ```
 
 ## Migration Path

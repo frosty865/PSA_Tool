@@ -128,7 +128,7 @@ Write-Host "1. Copy .env file to C:\Tools\VOFC-Flask\.env" -ForegroundColor Whit
 Write-Host "2. Update Windows service to use new location:" -ForegroundColor White
 Write-Host "   nssm set vofc-flask Application `"C:\Tools\VOFC-Flask\venv\Scripts\python.exe`"" -ForegroundColor Cyan
 Write-Host "   nssm set vofc-flask AppDirectory `"C:\Tools\VOFC-Flask`"" -ForegroundColor Cyan
-Write-Host "   nssm set vofc-flask AppParameters `"-m waitress --listen=0.0.0.0:8080 app:app`"" -ForegroundColor Cyan
+Write-Host "   nssm set vofc-flask AppParameters `"-m waitress --listen=0.0.0.0:8080 server:app`"" -ForegroundColor Cyan
 Write-Host "   nssm restart vofc-flask" -ForegroundColor Cyan
 Write-Host "   (Note: Service name is 'vofc-flask' - lowercase)" -ForegroundColor Gray
 Write-Host "3. Test Flask server: cd C:\Tools\VOFC-Flask && .\start.ps1" -ForegroundColor White

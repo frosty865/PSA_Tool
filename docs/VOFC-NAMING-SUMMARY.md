@@ -60,7 +60,7 @@ C:\Tools\
 ```powershell
 nssm set vofc-flask Application "C:\Tools\VOFC-Flask\venv\Scripts\python.exe"
 nssm set vofc-flask AppDirectory "C:\Tools\VOFC-Flask"
-nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 app:app"
+nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 server:app"
 nssm restart vofc-flask
 ```
 

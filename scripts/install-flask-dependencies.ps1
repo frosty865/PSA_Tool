@@ -134,7 +134,7 @@ if ($status) {
         Write-Host ""
         Write-Host "Or test manually:" -ForegroundColor Yellow
         Write-Host "  cd $FlaskDir" -ForegroundColor White
-        Write-Host "  .\venv\Scripts\python.exe -m waitress --listen=0.0.0.0:8080 app:app" -ForegroundColor White
+        Write-Host "  .\venv\Scripts\python.exe -m waitress --listen=0.0.0.0:8080 server:app" -ForegroundColor White
     } elseif ($status.Status -eq 'Running') {
         Write-Host "  ✓ Service is running!" -ForegroundColor Green
         

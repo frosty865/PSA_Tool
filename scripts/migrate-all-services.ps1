@@ -274,7 +274,7 @@ Write-Host "   nssm get vofc-flask AppDirectory" -ForegroundColor Cyan
 Write-Host "   # Update to VOFC-Flask:" -ForegroundColor Gray
 Write-Host "   nssm set vofc-flask Application `"C:\Tools\VOFC-Flask\venv\Scripts\python.exe`"" -ForegroundColor Cyan
 Write-Host "   nssm set vofc-flask AppDirectory `"C:\Tools\VOFC-Flask`"" -ForegroundColor Cyan
-Write-Host "   nssm set vofc-flask AppParameters `"-m waitress --listen=0.0.0.0:8080 app:app`"" -ForegroundColor Cyan
+Write-Host "   nssm set vofc-flask AppParameters `"-m waitress --listen=0.0.0.0:8080 server:app`"" -ForegroundColor Cyan
 Write-Host "   nssm restart vofc-flask" -ForegroundColor Cyan
 Write-Host ""
 

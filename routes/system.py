@@ -22,7 +22,12 @@ from pathlib import Path
 # EST/EDT timezone handling
 try:
     from zoneinfo import ZoneInfo
-    EST = ZoneInfo("America/New_York")
+    try:
+        EST = ZoneInfo("America/New_York")
+    except Exception:
+        # If ZoneInfo fails, try pytz
+        import pytz
+        EST = pytz.timezone("America/New_York")
 except ImportError:
     # Fallback for Python < 3.9
     try:

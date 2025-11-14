@@ -75,6 +75,8 @@ def extract_submission(submission_id):
             }), 404
         
         # Prepare source info from submission data
+        # Note: sector/subsector will be inferred from document context - no hardcoded defaults
+        # All documents must be sector-specific (no "General" allowed)
         source_info = {
             'source_title': data.get('source_title', filename),
             'source_type': data.get('source_type', 'unknown'),
@@ -82,8 +84,8 @@ def extract_submission(submission_id):
             'agency': data.get('agency') or data.get('author_org'),
             'publication_year': data.get('publication_year') or data.get('publication_date', '').split('-')[0] if data.get('publication_date') else None,
             'content_restriction': data.get('content_restriction', 'public'),
-            'sector': 'Defense Installations',  # Default, can be inferred
-            'subsector': 'Facilities Engineering'  # Default
+            'sector': data.get('sector', ''),  # Will be inferred if not provided
+            'subsector': data.get('subsector', '')  # Will be inferred if not provided
         }
         
         # PHASE 2-5: Run extraction pipeline

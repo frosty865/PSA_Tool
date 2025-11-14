@@ -16,6 +16,51 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from config.exceptions import ServiceError, FileOperationError, DependencyError, ConfigurationError
 
+# ==========================================================
+# LOGGING SETUP (MUST BE FIRST - before any other imports that log)
+# ==========================================================
+
+# Base data directory - use centralized config (needed for log path)
+from config import Config
+LOGS_DIR = Config.LOGS_DIR
+
+# Ensure log directory exists
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+# Create log file path
+LOG_FILE = os.path.join(LOGS_DIR, f"vofc_processor_{datetime.now().strftime('%Y%m%d')}.log")
+
+# Configure logging with explicit handlers
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Remove any existing handlers to avoid duplicates
+logger.handlers.clear()
+
+# Create file handler with explicit encoding and immediate flush
+file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8", delay=False)
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
+# Ensure immediate flushing for real-time log viewing
+file_handler.stream.reconfigure(line_buffering=True) if hasattr(file_handler.stream, 'reconfigure') else None
+
+# Create console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
+
+# Add handlers to logger
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# Also configure root logger to ensure all logging goes to file
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+# Only add handlers if root logger doesn't have them (avoid duplicates)
+if not root_logger.handlers:
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+
 # Add services directory to path for imports
 # Support both project structure and deployed structure
 script_dir = Path(__file__).parent
@@ -32,7 +77,7 @@ try:
     WATCHDOG_AVAILABLE = True
 except ImportError:
     WATCHDOG_AVAILABLE = False
-    logging.warning("watchdog not available - will use polling mode instead of file watching")
+    logger.warning("watchdog not available - will use polling mode instead of file watching")
 
 # Import new modular processor
 from services.processor.processor.run_processor import process_pdf as process_pdf_chunked
@@ -60,49 +105,29 @@ try:
     for env_path in possible_env_paths:
         if env_path.exists():
             load_dotenv(env_path, override=False)
-            logging.info(f"Loaded environment variables from {env_path}")
+            logger.info(f"Loaded environment variables from {env_path}")
             env_loaded = True
             break
     
     if not env_loaded:
-        logging.debug("No .env file found in standard locations")
+        logger.debug("No .env file found in standard locations")
 except ImportError:
-    logging.warning("python-dotenv not installed - .env file will not be loaded automatically")
+    logger.warning("python-dotenv not installed - .env file will not be loaded automatically")
 except (FileNotFoundError, PermissionError, OSError) as e:
-    logging.debug(f"Could not load .env file (using environment defaults): {e}")
+    logger.debug(f"Could not load .env file (using environment defaults): {e}")
 except Exception as e:
-    logging.warning(f"Unexpected error loading .env file: {e}", exc_info=True)
+    logger.warning(f"Unexpected error loading .env file: {e}", exc_info=True)
 
-# Base data directory - use centralized config
-from config import Config
+# Get remaining config paths
 DATA_DIR = Config.DATA_DIR
-
 INCOMING_DIR = Config.INCOMING_DIR
 PROCESSED_DIR = Config.PROCESSED_DIR
 LIBRARY_DIR = Config.LIBRARY_DIR
 TEMP_DIR = Config.TEMP_DIR
-LOGS_DIR = Config.LOGS_DIR
 
 # Ensure directories exist
-for dir_path in [INCOMING_DIR, PROCESSED_DIR, LIBRARY_DIR, TEMP_DIR, LOGS_DIR]:
+for dir_path in [INCOMING_DIR, PROCESSED_DIR, LIBRARY_DIR, TEMP_DIR]:
     os.makedirs(dir_path, exist_ok=True)
-
-# ==========================================================
-# LOGGING SETUP
-# ==========================================================
-
-LOG_FILE = os.path.join(LOGS_DIR, f"vofc_processor_{datetime.now().strftime('%Y%m%d')}.log")
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE, encoding="utf-8"),
-        logging.StreamHandler()
-    ]
-)
-
-logger = logging.getLogger(__name__)
 
 # ==========================================================
 # STARTUP VALIDATION
@@ -162,6 +187,10 @@ def process_pdf_file(pdf_path: str) -> bool:
     logger.info("=" * 60)
     logger.info(f"Processing: {pdf_path_obj.name}")
     logger.info("=" * 60)
+    # Flush logs immediately for real-time monitoring
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler):
+            handler.flush()
     
     try:
         # Step 1: Process PDF through chunk-based pipeline
@@ -191,6 +220,10 @@ def process_pdf_file(pdf_path: str) -> bool:
         
         logger.info(f"✓ Extracted {record_count} records")
         logger.info(f"✓ Saved JSON to: {output_path}")
+        # Flush logs after saving JSON
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.flush()
         
         # Step 2: Copy JSON to review directory
         logger.info("[2/4] Copying JSON to review directory...")
@@ -299,6 +332,10 @@ def process_pdf_file(pdf_path: str) -> bool:
             raise FileOperationError("File move verification failed - file may still be in incoming directory")
         
         logger.info(f"✅ Completed: {pdf_path_obj.name}")
+        # Flush logs after completion
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.flush()
         return True
         
     except (ServiceError, FileOperationError, DependencyError) as e:

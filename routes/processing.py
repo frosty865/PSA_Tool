@@ -124,9 +124,9 @@ def flatten_vulnerabilities(phase_json):
 
                 "discipline": _s(v.get("discipline") or "General Security"),
 
-                "sector": _s(v.get("sector") or "General"),
+                "sector": _s(v.get("sector") or ""),  # Must be inferred - no "General" default
 
-                "subsector": _s(v.get("subsector") or "General"),
+                "subsector": _s(v.get("subsector") or ""),  # Must be inferred - no "General" default
 
                 "confidence": v.get("confidence", 0.5),
 
@@ -148,9 +148,9 @@ def flatten_vulnerabilities(phase_json):
 
         dflt_d = rec.get("discipline") or "General Security"
 
-        dflt_s = rec.get("sector") or "General"
+        dflt_s = rec.get("sector") or ""  # Must be inferred - no "General" default
 
-        dflt_ss= rec.get("subsector") or "General"
+        dflt_ss= rec.get("subsector") or ""  # Must be inferred - no "General" default
 
         for v in rec.get("vulnerabilities", []):
 

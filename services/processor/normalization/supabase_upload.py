@@ -157,8 +157,8 @@ def upload_to_supabase(
                 options_for_consideration = []
             
             discipline = record.get("discipline", "").strip()
-            sector = record.get("sector", "").strip()
-            subsector = record.get("subsector", "").strip()
+            sector_id = record.get("sector_id")  # UUID from taxonomy validation
+            subsector_id = record.get("subsector_id")  # UUID from taxonomy validation
             confidence = normalize_confidence(record.get("confidence", "Medium"))
             impact_level = normalize_impact_level(record.get("impact_level", "Moderate"))
             
@@ -176,10 +176,12 @@ def upload_to_supabase(
                 processed_vuln_ids.append(existing_vuln_id)
                 linked_count += 1
             else:
-                # Insert new vulnerability
+                # Insert new vulnerability with sector_id and subsector_id from DHS taxonomy
                 vuln_payload = {
                     "vulnerability": vulnerability,
                     "discipline": discipline if discipline else None,
+                    "sector_id": sector_id,  # Use UUID from Supabase sectors table
+                    "subsector_id": subsector_id,  # Use UUID from Supabase subsectors table
                     "confidence": confidence,
                     "impact_level": impact_level,
                     "dedupe_key": dedupe_key
@@ -212,10 +214,12 @@ def upload_to_supabase(
                     if ofc_check.data and len(ofc_check.data) > 0:
                         ofc_id = ofc_check.data[0].get("id")
                     else:
-                        # Insert new OFC
+                        # Insert new OFC with sector_id and subsector_id from DHS taxonomy
                         ofc_payload = {
                             "option_text": ofc_text,
-                            "discipline": discipline if discipline else None
+                            "discipline": discipline if discipline else None,
+                            "sector_id": sector_id,  # Use UUID from Supabase sectors table
+                            "subsector_id": subsector_id  # Use UUID from Supabase subsectors table
                         }
                         ofc_response = supabase.table("options_for_consideration").insert(ofc_payload).execute()
                         if ofc_response.data and len(ofc_response.data) > 0:

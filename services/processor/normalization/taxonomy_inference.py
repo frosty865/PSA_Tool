@@ -19,8 +19,9 @@ COMMON_DISCIPLINES = [
 # Sector inference keywords from document titles and content
 SECTOR_KEYWORDS = {
     "Education": {
-        "keywords": ["school", "education", "student", "campus", "university", "college", "k-12", "k12", "academic", "classroom", "teacher", "faculty"],
-        "subsectors": ["K-12 Education", "Higher Education", "Education Facilities"]
+        # Note: Public schools are typically under "Government Facilities" - this is for private/independent educational institutions
+        "keywords": ["education", "student", "campus", "university", "college", "academic", "classroom", "teacher", "faculty", "private school", "private education", "independent school"],
+        "subsectors": ["Higher Education", "Education Facilities", "Private Education"]
     },
     "Energy": {
         "keywords": ["power", "energy", "electric", "grid", "utility", "generation", "transmission", "distribution"],
@@ -39,8 +40,8 @@ SECTOR_KEYWORDS = {
         "subsectors": ["Hospitals", "Medical Facilities", "Public Health"]
     },
     "Government Facilities": {
-        "keywords": ["government", "federal", "state", "local", "agency", "municipal", "courthouse"],
-        "subsectors": ["Federal Facilities", "State Facilities", "Local Facilities"]
+        "keywords": ["government", "federal", "state", "local", "agency", "municipal", "courthouse", "school", "schools", "public school", "public schools", "k-12", "k12"],
+        "subsectors": ["Federal Facilities", "State Facilities", "Local Facilities", "Schools", "K-12 Schools", "Public Schools"]
     },
     "Commercial Facilities": {
         "keywords": ["commercial", "retail", "shopping", "mall", "office", "business", "corporate"],
@@ -128,6 +129,12 @@ def infer_sector_subsector(
             best_match = sector_name
     
     if best_match and best_score > 0:
+        # Validate that the inferred sector exists in Supabase
+        sector_id = get_sector_id(best_match, fuzzy=True)
+        if not sector_id:
+            logger.warning(f"Inferred sector '{best_match}' not found in Supabase - cannot use")
+            return None, None
+        
         # Try to find a matching subsector
         subsectors = SECTOR_KEYWORDS[best_match]["subsectors"]
         inferred_subsector = None
@@ -136,12 +143,19 @@ def infer_sector_subsector(
         for subsector in subsectors:
             subsector_lower = subsector.lower()
             if any(keyword in combined_text for keyword in subsector_lower.split()):
-                inferred_subsector = subsector
-                break
+                # Validate subsector exists in Supabase
+                subsector_id = get_subsector_id(subsector, fuzzy=True)
+                if subsector_id:
+                    inferred_subsector = subsector
+                    break
         
-        # If no specific subsector matched, use first one as default
+        # If no specific subsector matched, try first one from list (but validate it exists)
         if not inferred_subsector and subsectors:
-            inferred_subsector = subsectors[0]
+            for subsector in subsectors:
+                subsector_id = get_subsector_id(subsector, fuzzy=True)
+                if subsector_id:
+                    inferred_subsector = subsector
+                    break
         
         return best_match, inferred_subsector
     
@@ -169,6 +183,20 @@ def validate_and_correct_taxonomy(
     subsector = record.get("subsector", "").strip()
     vulnerability = record.get("vulnerability", "").strip()
     
+    # PRIORITY 1: Always try to infer from document title first (document-level classification)
+    # This ensures all records from the same document get consistent sector/subsector
+    inferred_sector = None
+    inferred_subsector = None
+    if document_title:
+        inferred_sector, inferred_subsector = infer_sector_subsector(
+            document_title=document_title,
+            vulnerability_text="",  # Don't use vulnerability text for document-level inference
+            existing_sector="",
+            existing_subsector=""
+        )
+        if inferred_sector:
+            logger.debug(f"Document-level inference from title '{document_title[:50]}...': sector='{inferred_sector}', subsector='{inferred_subsector}'")
+    
     # Check if sector is actually a discipline name
     if sector and is_discipline_name(sector):
         logger.warning(f"Invalid sector '{sector}' is actually a discipline - moving to discipline field")
@@ -189,8 +217,39 @@ def validate_and_correct_taxonomy(
         corrected["subsector"] = ""
         subsector = ""
     
-    # If sector is missing or invalid, try to infer from context
-    if not sector or not get_sector_id(sector, fuzzy=True):
+    # PRIORITY 2: Use document-level inference if available, otherwise use record-level values
+    # If we inferred from document title, use that (it takes precedence)
+    if inferred_sector:
+        corrected["sector"] = inferred_sector
+        if inferred_subsector:
+            corrected["subsector"] = inferred_subsector
+        else:
+            # If no subsector inferred but we have one from record, validate it belongs to inferred sector
+            if subsector:
+                # Validate subsector belongs to inferred sector
+                inferred_sector_id = get_sector_id(inferred_sector, fuzzy=True)
+                if inferred_sector_id:
+                    subsector_id = get_subsector_id(subsector, fuzzy=True)
+                    if subsector_id:
+                        # Verify relationship
+                        try:
+                            from services.supabase_client import get_supabase_client
+                            client = get_supabase_client()
+                            result = client.table("subsectors").select("sector_id").eq("id", subsector_id).maybe_single().execute()
+                            if result.data and result.data.get("sector_id") == inferred_sector_id:
+                                corrected["subsector"] = subsector
+                            else:
+                                corrected["subsector"] = ""  # Clear if doesn't belong
+                        except Exception:
+                            corrected["subsector"] = ""  # Clear on error
+                    else:
+                        corrected["subsector"] = ""
+                else:
+                    corrected["subsector"] = ""
+            else:
+                corrected["subsector"] = ""
+    # If no document-level inference, validate/use record-level sector
+    elif not sector or not get_sector_id(sector, fuzzy=True):
         inferred_sector, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
             vulnerability_text=vulnerability,
@@ -205,6 +264,15 @@ def validate_and_correct_taxonomy(
             # If subsector is missing, use inferred one
             if not subsector and inferred_subsector:
                 corrected["subsector"] = inferred_subsector
+        else:
+            # If inference failed, use "General" as fallback (valid DHS sector for non-sector-specific documents)
+            general_sector_id = get_sector_id("General", fuzzy=True)
+            if general_sector_id:
+                logger.info(f"Could not infer specific sector for document '{document_title[:50]}...' - using 'General' sector")
+                corrected["sector"] = "General"
+                corrected["subsector"] = ""  # Clear subsector when using General
+            else:
+                logger.warning(f"Could not infer sector and 'General' sector not found in Supabase - sector_id will be NULL")
     
     # If subsector is missing but sector exists, try to infer subsector
     elif not subsector:
@@ -226,19 +294,47 @@ def validate_and_correct_taxonomy(
         except Exception as e:
             logger.debug(f"Error validating discipline: {e}")
     
-    # Validate sector exists in Supabase
+    # Validate sector exists in Supabase and get sector_id
+    sector_id = None
     if corrected.get("sector"):
         sector_id = get_sector_id(corrected["sector"], fuzzy=True)
         if not sector_id:
             logger.warning(f"Sector '{corrected['sector']}' not found in Supabase - clearing")
             corrected["sector"] = ""
+        else:
+            # Store sector_id for database insertion
+            corrected["sector_id"] = sector_id
+            
+            # If sector is "General", clear any subsector (General doesn't have subsectors)
+            if corrected["sector"].strip().lower() == "general":
+                if corrected.get("subsector"):
+                    logger.debug(f"Clearing subsector '{corrected['subsector']}' because sector is 'General'")
+                    corrected["subsector"] = ""
     
-    # Validate subsector exists in Supabase
-    if corrected.get("subsector"):
+    # Validate subsector exists in Supabase and get subsector_id
+    # Only validate if sector is not "General" (General doesn't have subsectors)
+    subsector_id = None
+    if corrected.get("subsector") and corrected.get("sector", "").strip().lower() != "general":
         subsector_id = get_subsector_id(corrected["subsector"], fuzzy=True)
         if not subsector_id:
             logger.warning(f"Subsector '{corrected['subsector']}' not found in Supabase - clearing")
             corrected["subsector"] = ""
+        else:
+            # Store subsector_id for database insertion
+            corrected["subsector_id"] = subsector_id
+            # Also validate that subsector belongs to the sector
+            if sector_id:
+                # Verify subsector belongs to sector (optional check - don't fail if can't verify)
+                try:
+                    from services.supabase_client import get_supabase_client
+                    client = get_supabase_client()
+                    result = client.table("subsectors").select("sector_id").eq("id", subsector_id).maybe_single().execute()
+                    if result.data and result.data.get("sector_id") != sector_id:
+                        logger.warning(f"Subsector '{corrected['subsector']}' does not belong to sector '{corrected['sector']}' - clearing subsector")
+                        corrected["subsector"] = ""
+                        corrected["subsector_id"] = None
+                except Exception as e:
+                    logger.debug(f"Could not verify subsector-sector relationship: {e}")
     
     return corrected
 

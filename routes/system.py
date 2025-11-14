@@ -951,19 +951,102 @@ def system_control():
         
         elif action == "start_watcher":
             try:
-                from services.folder_watcher import start_folder_watcher
-                # Start watcher in background thread
-                start_folder_watcher()
-                msg = "Watcher started"
+                import subprocess
+                # Start VOFC-Processor service via NSSM (the actual watcher/processor)
+                service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+                started = False
+                error_msg = None
+                
+                for service_name in service_names:
+                    try:
+                        # Check if service exists first
+                        check_result = subprocess.run(
+                            ['sc', 'query', service_name],
+                            capture_output=True,
+                            text=True,
+                            timeout=3
+                        )
+                        if check_result.returncode == 0:
+                            # Service exists, try to start it
+                            result = subprocess.run(
+                                ['nssm', 'start', service_name],
+                                capture_output=True,
+                                text=True,
+                                timeout=10
+                            )
+                            if result.returncode == 0:
+                                started = True
+                                msg = f"VOFC-Processor service ({service_name}) started successfully"
+                                logging.info(f"[Admin Control] {msg}")
+                                break
+                            else:
+                                error_msg = result.stderr or result.stdout or "Unknown error"
+                        else:
+                            continue  # Service doesn't exist, try next name
+                    except subprocess.TimeoutExpired:
+                        error_msg = f"Timeout starting {service_name}"
+                        continue
+                    except Exception as e:
+                        error_msg = str(e)
+                        continue
+                
+                if not started:
+                    if error_msg:
+                        msg = f"Failed to start VOFC-Processor service: {error_msg}"
+                    else:
+                        msg = "VOFC-Processor service not found. Please check service name and NSSM configuration."
+                    logging.error(f"[Admin Control] {msg}")
             except Exception as e:
                 logging.error(f"Error starting watcher: {e}")
                 msg = f"Start watcher error: {str(e)}"
         
         elif action == "stop_watcher":
             try:
-                from services.folder_watcher import stop_folder_watcher
-                stop_folder_watcher()
-                msg = "Watcher stopped"
+                import subprocess
+                # Stop VOFC-Processor service via NSSM (the actual watcher/processor)
+                service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+                stopped = False
+                error_msg = None
+                
+                for service_name in service_names:
+                    try:
+                        # Check if service exists first
+                        check_result = subprocess.run(
+                            ['sc', 'query', service_name],
+                            capture_output=True,
+                            text=True,
+                            timeout=3
+                        )
+                        if check_result.returncode == 0:
+                            # Service exists, try to stop it
+                            result = subprocess.run(
+                                ['nssm', 'stop', service_name],
+                                capture_output=True,
+                                text=True,
+                                timeout=10
+                            )
+                            if result.returncode == 0:
+                                stopped = True
+                                msg = f"VOFC-Processor service ({service_name}) stopped successfully"
+                                logging.info(f"[Admin Control] {msg}")
+                                break
+                            else:
+                                error_msg = result.stderr or result.stdout or "Unknown error"
+                        else:
+                            continue  # Service doesn't exist, try next name
+                    except subprocess.TimeoutExpired:
+                        error_msg = f"Timeout stopping {service_name}"
+                        continue
+                    except Exception as e:
+                        error_msg = str(e)
+                        continue
+                
+                if not stopped:
+                    if error_msg:
+                        msg = f"Failed to stop VOFC-Processor service: {error_msg}"
+                    else:
+                        msg = "VOFC-Processor service not found. Please check service name and NSSM configuration."
+                    logging.error(f"[Admin Control] {msg}")
             except Exception as e:
                 logging.error(f"Error stopping watcher: {e}")
                 msg = f"Stop watcher error: {str(e)}"
@@ -1120,11 +1203,11 @@ def system_control():
                 
                 if service_status == "running":
                     if file_count > 0:
-                        msg = f"PSA-Processor service is running and will automatically process {file_count} file(s) in incoming/ directory. Processing happens continuously every 30 seconds."
+                        msg = f"VOFC-Processor service is running and will automatically process {file_count} file(s) in incoming/ directory. Processing happens continuously every 30 seconds."
                     else:
-                        msg = "PSA-Processor service is running. No files found in incoming/ directory. Files will be processed automatically when added."
+                        msg = "VOFC-Processor service is running. No files found in incoming/ directory. Files will be processed automatically when added."
                 else:
-                    msg = f"PSA-Processor service is {service_status}. Please start the service to process files. Files found: {file_count}"
+                    msg = f"VOFC-Processor service is {service_status}. Please start the service to process files. Files found: {file_count}"
                     logging.warning(f"[Admin Control] {msg}")
                 
                 logging.info(f"[Admin Control] {msg}")
@@ -1134,6 +1217,111 @@ def system_control():
                 logging.error(f"[Admin Control] {error_msg}")
                 logging.error(f"[Admin Control] Traceback: {traceback.format_exc()}")
                 msg = f"Process existing check error: {str(e)}"
+        
+        elif action == "process_pending":
+            try:
+                import subprocess
+                from pathlib import Path
+                
+                INCOMING_DIR = BASE_DIR / "incoming"
+                
+                # Count files in incoming directory
+                if INCOMING_DIR.exists():
+                    pdf_files = list(INCOMING_DIR.glob("*.pdf"))
+                    file_count = len(pdf_files)
+                else:
+                    file_count = 0
+                    logging.warning(f"[Admin Control] Incoming directory not found: {INCOMING_DIR}")
+                
+                if file_count == 0:
+                    msg = "No files found in incoming/ directory to process"
+                    logging.info(f"[Admin Control] process_pending: {msg}")
+                else:
+                    # Check if Processor service is running
+                    service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+                    service_running = False
+                    
+                    for service_name in service_names:
+                        try:
+                            result = subprocess.run(
+                                ['sc', 'query', service_name],
+                                capture_output=True,
+                                text=True,
+                                timeout=3
+                            )
+                            if result.returncode == 0:
+                                output_upper = result.stdout.upper()
+                                if 'STATE' in output_upper and ('STATE' in output_upper and '4' in output_upper.split() or 'RUNNING' in output_upper):
+                                    service_running = True
+                                    break
+                        except:
+                            continue
+                    
+                    if service_running:
+                        # Service is running - it will process files automatically
+                        # We can't trigger it directly, but we can tell the user
+                        msg = f"Found {file_count} file(s) in incoming/. VOFC-Processor service is running and will process them automatically (every 30 seconds). Files are being processed now."
+                    else:
+                        msg = f"Found {file_count} file(s) in incoming/, but VOFC-Processor service is not running. Please start the service to process files."
+                        logging.warning(f"[Admin Control] {msg}")
+                
+                logging.info(f"[Admin Control] process_pending: {msg}")
+            except Exception as e:
+                logging.error(f"Error in process_pending: {e}")
+                msg = f"Process pending error: {str(e)}"
+        
+        elif action == "process_one":
+            try:
+                import subprocess
+                from pathlib import Path
+                
+                # Get submission_id from request
+                request_data = request.get_json(silent=True) or {}
+                submission_id = request_data.get('submission_id') or request_data.get('id')
+                filename = request_data.get('filename')
+                
+                if not submission_id and not filename:
+                    msg = "process_one requires either submission_id or filename"
+                    logging.warning(f"[Admin Control] {msg}")
+                else:
+                    if filename:
+                        # Process specific file from incoming directory
+                        INCOMING_DIR = BASE_DIR / "incoming"
+                        file_path = INCOMING_DIR / filename
+                        
+                        if file_path.exists():
+                            # Check if processor service is running
+                            service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+                            service_running = False
+                            
+                            for service_name in service_names:
+                                try:
+                                    result = subprocess.run(
+                                        ['sc', 'query', service_name],
+                                        capture_output=True,
+                                        text=True,
+                                        timeout=3
+                                    )
+                                    if result.returncode == 0 and ('RUNNING' in result.stdout.upper() or 'STATE' in result.stdout.upper() and '4' in result.stdout):
+                                        service_running = True
+                                        break
+                                except:
+                                    continue
+                            
+                            if service_running:
+                                msg = f"File {filename} will be processed by VOFC-Processor service (running). Processing happens automatically every 30 seconds."
+                            else:
+                                msg = f"File {filename} found, but VOFC-Processor service is not running. Please start the service to process files."
+                        else:
+                            msg = f"File {filename} not found in incoming/ directory"
+                    else:
+                        # Process submission from database (would need to call extract endpoint)
+                        msg = f"Processing submission {submission_id} - this requires calling the extract endpoint, which is handled separately"
+                
+                logging.info(f"[Admin Control] process_one: {msg}")
+            except Exception as e:
+                logging.error(f"Error in process_one: {e}")
+                msg = f"Process one error: {str(e)}"
         
         else:
             msg = f"Unknown action: {action}"

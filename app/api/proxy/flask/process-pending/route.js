@@ -18,8 +18,8 @@ export async function POST(request) {
     
     let response;
     try {
-      // Try Flask process endpoint
-      response = await fetch(`${FLASK_URL}/api/process/start`, {
+      // Call Flask control endpoint with process_pending action
+      response = await fetch(`${FLASK_URL}/api/system/control`, {
         method: 'POST',
         cache: 'no-store',
         signal: controller.signal,

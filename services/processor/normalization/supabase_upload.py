@@ -129,16 +129,17 @@ def upload_to_supabase(
     
     logging.debug(f"Attempting to upload {len(records)} records to Supabase...")
     
+    # Generate submission_id first - we'll create the submission record even if record processing fails
+    submission_id = str(uuid.uuid4())
+    processed_vuln_ids = []
+    processed_ofc_ids = []
+    inserted_count = 0
+    linked_count = 0
+    
+    # Extract document title from file path for taxonomy inference
+    document_title = os.path.basename(file_path).replace("_", " ").replace("-", " ").rsplit(".", 1)[0]
+    
     try:
-        submission_id = str(uuid.uuid4())
-        processed_vuln_ids = []
-        processed_ofc_ids = []
-        inserted_count = 0
-        linked_count = 0
-        
-        # Extract document title from file path for taxonomy inference
-        document_title = os.path.basename(file_path).replace("_", " ").replace("-", " ").rsplit(".", 1)[0]
-        
         # Process each record
         for record in records:
             vulnerability = record.get("vulnerability", "").strip()
@@ -244,7 +245,16 @@ def upload_to_supabase(
                     logging.warning(f"Error processing OFC: {e}", exc_info=True)
                     # Continue with next OFC - don't fail entire batch
         
-        # Create submission record
+    except ServiceError:
+        # Re-raise ServiceError as-is, but still try to create submission
+        pass
+    except Exception as e:
+        logging.error(f"Error processing records: {e}", exc_info=True)
+        # Continue to create submission even if record processing failed
+    
+    # ALWAYS create submission record, even if record processing had errors
+    # This ensures the JSON file is linked to a submission in the database
+    try:
         submission_payload = {
             "id": submission_id,
             "type": "document",
@@ -255,10 +265,13 @@ def upload_to_supabase(
             "data": {
                 "source_file": os.path.basename(file_path),
                 "processed_at": datetime.utcnow().isoformat(),
-                "records": records,
-                "model_version": Config.DEFAULT_MODEL,
+                "total_records": len(records),
+                "records": records,  # Include all records in submission data
+                "model_version": getattr(Config, 'DEFAULT_MODEL', 'vofc-unified:latest'),
                 "inserted_count": inserted_count,
-                "linked_count": linked_count
+                "linked_count": linked_count,
+                "processed_vuln_ids": processed_vuln_ids,
+                "processed_ofc_ids": processed_ofc_ids
             },
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat()
@@ -267,16 +280,14 @@ def upload_to_supabase(
         result = supabase.table("submissions").insert(submission_payload).execute()
         
         if result.data:
-            logging.info(f"✅ Uploaded to Supabase: submission_id={submission_id} ({inserted_count} inserted, {linked_count} linked)")
+            logging.info(f"✅ Created submission in Supabase: submission_id={submission_id} ({inserted_count} inserted, {linked_count} linked, {len(records)} total records)")
             return submission_id
         else:
-            logging.warning(f"Supabase insert returned no data for {file_path}")
+            logging.error(f"❌ Supabase submission insert returned no data for {file_path}")
+            logging.error(f"   Payload: {submission_payload}")
             return None
             
-    except ServiceError:
-        # Re-raise ServiceError as-is
-        raise
-    except Exception as e:
-        logging.error(f"Error uploading to Supabase: {e}", exc_info=True)
-        raise ServiceError(f"Supabase upload failed: {e}") from e
+    except Exception as submission_error:
+        logging.error(f"❌ Failed to create submission record: {submission_error}", exc_info=True)
+        raise ServiceError(f"Failed to create submission record: {submission_error}") from submission_error
 

@@ -55,12 +55,12 @@ export async function GET(request) {
           { 
             status: 'timeout',
             components: {
-              flask: 'offline',
-              ollama: 'unknown',
-              supabase: 'unknown',
-              tunnel: 'unknown',
-              model_manager: 'unknown',
-              watcher: 'unknown'
+              flask: 'failed',
+              ollama: 'failed',
+              supabase: 'failed',
+              tunnel: 'failed',
+              model_manager: 'failed',
+              watcher: 'failed'
             },
             error: 'Flask server did not respond within 30 seconds',
             flaskUrl: FLASK_URL,
@@ -75,12 +75,12 @@ export async function GET(request) {
           { 
             status: 'error',
             components: {
-              flask: 'offline',
-              ollama: 'unknown',
-              supabase: 'unknown',
-              tunnel: 'unknown',
-              model_manager: 'unknown',
-              watcher: 'unknown'
+              flask: 'failed',
+              ollama: 'failed',
+              supabase: 'failed',
+              tunnel: 'failed',
+              model_manager: 'failed',
+              watcher: 'failed'
             },
             error: 'Connection refused - Flask service may not be accessible at this URL',
             flaskUrl: FLASK_URL,
@@ -96,12 +96,12 @@ export async function GET(request) {
           { 
             status: 'error',
             components: {
-              flask: 'offline',
-              ollama: 'unknown',
-              supabase: 'unknown',
-              tunnel: 'unknown',
-              model_manager: 'unknown',
-              watcher: 'unknown'
+              flask: 'failed',
+              ollama: 'failed',
+              supabase: 'failed',
+              tunnel: 'failed',
+              model_manager: 'failed',
+              watcher: 'failed'
             },
             error: 'Network error connecting to Flask service',
             flaskUrl: FLASK_URL,
@@ -124,12 +124,12 @@ export async function GET(request) {
           { 
             status: 'error',
             components: {
-              flask: 'unknown', // Don't mark as offline for 502
-              ollama: 'unknown',
-              supabase: 'unknown',
-              tunnel: 'unknown',
-              model_manager: 'unknown',
-              watcher: 'unknown'
+              flask: 'failed', // 502 indicates failure
+              ollama: 'failed',
+              supabase: 'failed',
+              tunnel: 'failed',
+              model_manager: 'failed',
+              watcher: 'failed'
             },
             error: 'Tunnel temporarily unavailable (502)',
             statusCode: response.status,
@@ -166,12 +166,12 @@ export async function GET(request) {
     const transformedData = {
       ...data,
       components: {
-        flask: data.flask || data.components?.flask || 'unknown',
-        ollama: data.ollama || data.components?.ollama || 'unknown',
-        supabase: data.supabase || data.components?.supabase || 'unknown',
-        tunnel: data.tunnel || data.components?.tunnel || 'unknown',
-        model_manager: data.model_manager || data.components?.model_manager || 'unknown',
-        watcher: data.watcher || data.components?.watcher || 'unknown'
+        flask: data.flask || data.components?.flask || 'failed',
+        ollama: data.ollama || data.components?.ollama || 'failed',
+        supabase: data.supabase || data.components?.supabase || 'failed',
+        tunnel: data.tunnel || data.components?.tunnel || 'failed',
+        model_manager: data.model_manager || data.components?.model_manager || 'failed',
+        watcher: data.watcher || data.components?.watcher || 'failed'
       }
     };
     

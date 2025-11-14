@@ -318,41 +318,44 @@ export default function AdminOverviewPage() {
   const getSystemStatusColor = (status) => {
     switch (status) {
       case 'ok':
-      case 'online':
-      case 'active':
-      case 'running':
+      case 'online': // Legacy support
+      case 'active': // Legacy support
+      case 'running': // Legacy support
         return { bg: '#e6f6ea', border: '#00a651', text: '#007a3d' }
       case 'paused':
         return { bg: '#fff9e6', border: '#ffc107', text: '#856404' }
-      case 'offline':
-      case 'error':
+      case 'failed':
+      case 'offline': // Legacy support
+      case 'error': // Legacy support
         return { bg: '#fdecea', border: '#c00', text: '#a00' }
       case 'checking':
-      case 'unknown':
-        return { bg: '#f5f5f5', border: '#9ca3af', text: '#6b7280' }
+        return { bg: '#fff3cd', border: '#ffc107', text: '#856404' }
+      case 'unknown': // Legacy support - treat as failed
       default:
-        return { bg: '#f5f5f5', border: '#ccc', text: '#666' }
+        return { bg: '#f5f5f5', border: '#9ca3af', text: '#6b7280' }
     }
   }
   
   const getSystemStatusLabel = (status) => {
     switch (status) {
       case 'ok':
-      case 'online':
-      case 'active':
-      case 'running':
+      case 'online': // Legacy support
+      case 'active': // Legacy support
+      case 'running': // Legacy support
         return 'Online'
       case 'paused':
         return 'Paused'
-      case 'offline':
-      case 'error':
-        return 'Offline'
+      case 'failed':
+        return 'Failed'
+      case 'offline': // Legacy support
+      case 'error': // Legacy support
+        return 'Failed'
       case 'checking':
         return 'Checking...'
-      case 'unknown':
-        return 'Unknown'
+      case 'unknown': // Legacy support - treat as failed
+        return 'Failed'
       default:
-        return status
+        return 'Failed'
     }
   }
   

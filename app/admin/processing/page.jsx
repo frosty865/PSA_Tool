@@ -69,15 +69,30 @@ export default function ProcessingMonitorPage() {
     }
   }, [])
 
-  // Poll progress.json every 10 seconds
+  // Poll progress.json every 30 seconds
   useEffect(() => {
     const fetchProgress = async () => {
       try {
         const res = await fetch('/api/system/progress', { cache: 'no-store' })
-        if (!res.ok) {
-          throw new Error(`Failed to fetch progress: ${res.status}`)
+        // Always try to parse JSON, even if status is not OK
+        // The route returns 200 with default values on errors for graceful handling
+        let data
+        try {
+          data = await res.json()
+        } catch (parseError) {
+          // If JSON parsing fails, use default progress data
+          data = {
+            status: 'unknown',
+            message: 'Unable to fetch progress',
+            timestamp: new Date().toISOString(),
+            incoming: 0,
+            processed: 0,
+            library: 0,
+            errors: 0,
+            review: 0,
+            watcher_status: 'unknown'
+          }
         }
-        const data = await res.json()
         setProgress(data)
         
         // Use explicit watcher_status from backend if available, otherwise fall back to timestamp inference
@@ -136,20 +151,34 @@ export default function ProcessingMonitorPage() {
     const loadInitialLogs = async () => {
       try {
         const res = await fetch('/api/system/logs?tail=50', { cache: 'no-store' })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
-            // Filter out empty lines and create hash set
-            const validLines = data.lines.filter(line => line && line.trim())
-            setLogLines(validLines)
-            // Track initial lines
-            validLines.forEach(line => {
-              if (line) lastKnownLines.add(line.substring(0, 100)) // Use first 100 chars as hash
-            })
-          }
+        // Always try to parse JSON, even if status is not OK
+        // The route returns 200 with empty lines on errors for graceful handling
+        let data
+        try {
+          data = await res.json()
+        } catch (parseError) {
+          // If JSON parsing fails, use empty lines
+          data = { lines: [] }
+        }
+        
+        if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
+          // Filter out empty lines and create hash set
+          const validLines = data.lines.filter(line => line && line.trim())
+          setLogLines(validLines)
+          // Track initial lines
+          validLines.forEach(line => {
+            if (line) lastKnownLines.add(line.substring(0, 100)) // Use first 100 chars as hash
+          })
+        } else if (data.error) {
+          // Log error but don't break the UI
+          console.warn('Logs API error:', data.error, data.message)
         }
       } catch (err) {
-        console.error('Error loading initial logs:', err)
+        // Silently handle errors - route may not be deployed yet
+        const errorMsg = err.message || err.toString() || ''
+        if (!errorMsg.includes('404') && !errorMsg.includes('Not Found')) {
+          console.error('Error loading initial logs:', err)
+        }
       }
     }
 
@@ -158,45 +187,52 @@ export default function ProcessingMonitorPage() {
       pollInterval = setInterval(async () => {
         try {
           const res = await fetch('/api/system/logs?tail=50', { cache: 'no-store' })
-          if (res.ok) {
-            const data = await res.json()
-            if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
-              setLogLines((prev) => {
-                // Filter out empty lines
-                const validLines = data.lines.filter(line => line && line.trim())
+          // Always try to parse JSON, even if status is not OK
+          // The route returns 200 with empty lines on errors for graceful handling
+          let data
+          try {
+            data = await res.json()
+          } catch (parseError) {
+            // If JSON parsing fails, skip this poll
+            return
+          }
+          
+          if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
+            setLogLines((prev) => {
+              // Filter out empty lines
+              const validLines = data.lines.filter(line => line && line.trim())
+              
+              // Find new lines by comparing with what we've seen
+              const newLines = validLines.filter(line => {
+                const hash = line.substring(0, 100)
+                if (!lastKnownLines.has(hash)) {
+                  lastKnownLines.add(hash)
+                  return true
+                }
+                return false
+              })
+              
+              // If we have new lines, add them
+              if (newLines.length > 0) {
+                const combined = [...prev, ...newLines]
+                // Keep only last 200 lines to prevent memory issues
+                const trimmed = combined.slice(-200)
                 
-                // Find new lines by comparing with what we've seen
-                const newLines = validLines.filter(line => {
-                  const hash = line.substring(0, 100)
-                  if (!lastKnownLines.has(hash)) {
-                    lastKnownLines.add(hash)
-                    return true
-                  }
-                  return false
-                })
-                
-                // If we have new lines, add them
-                if (newLines.length > 0) {
-                  const combined = [...prev, ...newLines]
-                  // Keep only last 200 lines to prevent memory issues
-                  const trimmed = combined.slice(-200)
-                  
-                  // Also trim the hash set to prevent memory growth
-                  if (lastKnownLines.size > 500) {
-                    // Rebuild hash set from current lines
-                    lastKnownLines.clear()
-                    trimmed.forEach(line => {
-                      if (line) lastKnownLines.add(line.substring(0, 100))
-                    })
-                  }
-                  
-                  return trimmed
+                // Also trim the hash set to prevent memory growth
+                if (lastKnownLines.size > 500) {
+                  // Rebuild hash set from current lines
+                  lastKnownLines.clear()
+                  trimmed.forEach(line => {
+                    if (line) lastKnownLines.add(line.substring(0, 100))
+                  })
                 }
                 
-                // No new lines, return previous state
-                return prev
-              })
-            }
+                return trimmed
+              }
+              
+              // No new lines, return previous state
+              return prev
+            })
           }
         } catch (err) {
           // Silently handle errors - don't spam console
@@ -204,6 +240,8 @@ export default function ProcessingMonitorPage() {
           if (
             !errorMsg.includes('aborted') &&
             !errorMsg.includes('timeout') &&
+            !errorMsg.includes('404') &&
+            !errorMsg.includes('Not Found') &&
             !errorMsg.includes('message channel') &&
             !errorMsg.includes('asynchronous response') &&
             !errorMsg.includes('channel closed')

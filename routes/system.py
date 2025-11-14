@@ -493,19 +493,12 @@ def version():
 def progress():
     """Get processing progress and watcher status."""
     try:
-        import os
-        from pathlib import Path
+        # Use centralized configuration
+        from config import Config
+        from config.api_contracts import validate_progress_response
         
-        # Use same path as auto-processor - standardize on VOFC_DATA_DIR
-        base_dir = Path(os.getenv("VOFC_DATA_DIR", os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data")))
-        
-        # Ensure base directory exists
-        if not base_dir.exists():
-            logging.warning(f"Base directory does not exist: {base_dir}")
-            # Create default structure
-            base_dir.mkdir(parents=True, exist_ok=True)
-        
-        progress_file = base_dir / "automation" / "progress.json"
+        base_dir = Config.DATA_DIR
+        progress_file = Config.PROGRESS_FILE
         
         # Get progress data - always refresh folder counts dynamically
         progress_data = {}
@@ -527,20 +520,13 @@ def progress():
                 "message": "Monitoring folders",
             }
         
-        # Always update folder counts dynamically (don't rely on stale data)
-        incoming_dir = base_dir / "incoming"
-        processed_dir = base_dir / "processed"
-        library_dir = base_dir / "library"
-        errors_dir = base_dir / "errors"
-        review_dir = base_dir / "review"
-        temp_errors_dir = base_dir / "temp" / "errors"
-        
-        # Ensure directories exist (create if missing)
-        for dir_path in [incoming_dir, processed_dir, library_dir, errors_dir, review_dir]:
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-            except Exception as e:
-                logging.warning(f"Could not create directory {dir_path}: {e}")
+        # Use centralized configuration paths (already validated at startup)
+        incoming_dir = Config.INCOMING_DIR
+        processed_dir = Config.PROCESSED_DIR
+        library_dir = Config.LIBRARY_DIR
+        errors_dir = Config.ERRORS_DIR
+        review_dir = Config.REVIEW_DIR
+        temp_errors_dir = Config.TEMP_DIR / "errors"
         
         # Count files in each directory with better error handling
         try:
@@ -719,6 +705,9 @@ def progress():
         if "timestamp" not in progress_data:
             progress_data["timestamp"] = now_est().isoformat()
         
+        # Validate response against contract
+        progress_data = validate_progress_response(progress_data)
+        
         return jsonify(progress_data)
     except Exception as e:
         import logging
@@ -764,7 +753,7 @@ def log_stream():
         from datetime import datetime, timedelta
         
         # Use VOFC Processor log file
-        base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
+        base_dir = Config.DATA_DIR
         if not base_dir.exists():
             # Fallback to archive location if needed (for migration)
             archive_data = Path(r"C:\Tools\archive\VOFC\Data")
@@ -919,7 +908,7 @@ def get_logs():
         from datetime import datetime, timedelta
         
         # Use VOFC Processor log file
-        base_dir = Path(os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data"))
+        base_dir = Config.DATA_DIR
         if not base_dir.exists():
             # Fallback to archive location if needed (for migration)
             archive_data = Path(r"C:\Tools\archive\VOFC\Data")
@@ -994,11 +983,15 @@ def get_logs():
             # Return last N lines
             result_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
         
-        return jsonify({"lines": result_lines}), 200
+        # Validate response against contract
+        response_data = validate_logs_response({"lines": result_lines})
+        return jsonify(response_data), 200
     except Exception as e:
         import logging
         logging.error(f"Error reading logs: {e}")
-        return jsonify({"lines": [], "error": str(e)}), 200
+        # Validate response against contract
+        response_data = validate_logs_response({"lines": [], "error": str(e)})
+        return jsonify(response_data), 200
 
 @system_bp.route("/api/system/control", methods=["POST", "OPTIONS"])
 def system_control():
@@ -1017,7 +1010,7 @@ def system_control():
         import logging
         
         # Standardize on VOFC_DATA_DIR (with fallback to VOFC_BASE_DIR for compatibility)
-        BASE_DIR = Path(os.getenv("VOFC_DATA_DIR", os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data")))
+        BASE_DIR = Config.DATA_DIR
         ERROR_DIR = BASE_DIR / "errors"
         AUTOMATION_DIR = BASE_DIR / "automation"
         

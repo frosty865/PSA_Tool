@@ -230,8 +230,55 @@ def validate_and_correct_taxonomy(
             # (we want consistency - all records should have same sector/subsector from document)
             corrected["subsector"] = ""
         logger.debug(f"Applied document-level taxonomy: sector='{inferred_sector}', subsector='{inferred_subsector or '(none)'}'")
-    # If no document-level inference succeeded, try record-level inference
-    elif not sector or not get_sector_id(sector, fuzzy=True):
+    # If no document-level inference succeeded, validate and correct record-level values
+    elif sector:
+        # Check if the provided sector actually exists in Supabase
+        sector_id = get_sector_id(sector, fuzzy=True)
+        if not sector_id:
+            # Sector doesn't exist - check if it's actually a subsector
+            subsector_id = get_subsector_id(sector, fuzzy=True)
+            if subsector_id:
+                # It's a subsector, not a sector - find its parent sector
+                logger.warning(f"'{sector}' is a subsector, not a sector - finding parent sector")
+                try:
+                    from services.supabase_client import get_supabase_client
+                    client = get_supabase_client()
+                    result = client.table("subsectors").select("sector_id, sectors!inner(name)").eq("id", subsector_id).maybe_single().execute()
+                    if result.data and result.data.get("sector_id"):
+                        parent_sector_id = result.data.get("sector_id")
+                        # Get parent sector name
+                        sector_result = client.table("sectors").select("name").eq("id", parent_sector_id).maybe_single().execute()
+                        if sector_result.data:
+                            parent_sector_name = sector_result.data.get("name")
+                            logger.info(f"Mapped '{sector}' to sector '{parent_sector_name}' with subsector '{sector}'")
+                            corrected["sector"] = parent_sector_name
+                            corrected["subsector"] = sector  # Keep the original value as subsector
+                            sector = parent_sector_name  # Update for later validation
+                        else:
+                            # Can't find parent, clear sector
+                            logger.warning(f"Could not find parent sector for subsector '{sector}' - clearing")
+                            corrected["sector"] = ""
+                            sector = ""
+                    else:
+                        # Can't find parent, clear sector
+                        logger.warning(f"Could not find parent sector for subsector '{sector}' - clearing")
+                        corrected["sector"] = ""
+                        sector = ""
+                except Exception as e:
+                    logger.debug(f"Error finding parent sector for '{sector}': {e}")
+                    corrected["sector"] = ""
+                    sector = ""
+            else:
+                # Not a sector or subsector - reject it
+                logger.warning(f"'{sector}' is not a valid sector or subsector in Supabase - rejecting")
+                corrected["sector"] = ""
+                sector = ""
+        else:
+            # Sector exists and is valid - keep it
+            pass
+    
+    # If no document-level inference and sector is invalid/missing, try record-level inference
+    if not corrected.get("sector") or not get_sector_id(corrected.get("sector", ""), fuzzy=True):
         inferred_sector, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
             vulnerability_text=vulnerability,
@@ -257,11 +304,11 @@ def validate_and_correct_taxonomy(
                 logger.warning(f"Could not infer sector and 'General' sector not found in Supabase - sector_id will be NULL")
     
     # If no document-level inference and sector exists but subsector is missing, try to infer subsector
-    elif sector and not subsector:
+    if corrected.get("sector") and not corrected.get("subsector"):
         _, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
             vulnerability_text=vulnerability,
-            existing_sector=sector,
+            existing_sector=corrected.get("sector", ""),
             existing_subsector=""
         )
         if inferred_subsector:

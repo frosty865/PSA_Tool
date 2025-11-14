@@ -363,13 +363,30 @@ export default function ProcessingMonitorPage() {
       const message = data.message || data.status || 'Action completed'
       alert(`✅ ${message}`)
       
-      // Refresh progress after action (with delay to allow processing)
+      // Refresh progress and watcher status after action (with delay to allow processing)
       setTimeout(async () => {
         try {
           const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
-          if (progressRes.ok) {
-            const progressData = await progressRes.json()
-            setProgress(progressData)
+          let progressData
+          try {
+            progressData = await progressRes.json()
+          } catch {
+            // Use default if parsing fails
+            progressData = {
+              timestamp: new Date().toISOString(),
+              incoming: 0,
+              processed: 0,
+              library: 0,
+              errors: 0,
+              review: 0,
+              watcher_status: 'unknown'
+            }
+          }
+          setProgress(progressData)
+          
+          // Update watcher status from response
+          if (progressData.watcher_status) {
+            setWatcherStatus(progressData.watcher_status)
           }
         } catch (err) {
           console.error('Error refreshing progress:', err)
@@ -406,6 +423,50 @@ export default function ProcessingMonitorPage() {
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+            <button
+              onClick={async () => {
+                setLoading(true)
+                try {
+                  const progressRes = await fetch('/api/system/progress', { cache: 'no-store' })
+                  let progressData
+                  try {
+                    progressData = await progressRes.json()
+                  } catch {
+                    progressData = {
+                      timestamp: new Date().toISOString(),
+                      incoming: 0,
+                      processed: 0,
+                      library: 0,
+                      errors: 0,
+                      review: 0,
+                      watcher_status: 'unknown'
+                    }
+                  }
+                  setProgress(progressData)
+                  if (progressData.watcher_status) {
+                    setWatcherStatus(progressData.watcher_status)
+                  }
+                } catch (err) {
+                  console.error('Error refreshing:', err)
+                } finally {
+                  setLoading(false)
+                }
+              }}
+              disabled={loading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: 'var(--cisa-blue)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-sm)',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? '⏳ Refreshing...' : '🔄 Refresh'}
+            </button>
             <div
               className="card"
               style={{
@@ -589,6 +650,66 @@ export default function ProcessingMonitorPage() {
               ))
             )}
             <div ref={logEndRef} />
+          </div>
+        </div>
+
+        {/* Watcher Controls */}
+        <div className="card" style={{ padding: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)' }}>
+          <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 600, color: 'var(--cisa-blue)', marginBottom: 'var(--spacing-md)' }}>
+            Watcher Controls
+          </h2>
+          <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              onClick={() => controlAction('start_watcher')}
+              disabled={controlLoading || watcherStatus === 'running'}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: watcherStatus === 'running' ? 'var(--cisa-gray)' : '#059669',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: watcherStatus === 'running' || controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: watcherStatus === 'running' || controlLoading ? 0.6 : 1
+              }}
+            >
+              {controlLoading ? '⏳ Processing...' : watcherStatus === 'running' ? '✅ Watcher Running' : '▶️ Start Watcher'}
+            </button>
+            <button
+              onClick={() => controlAction('stop_watcher')}
+              disabled={controlLoading || watcherStatus === 'stopped'}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: watcherStatus === 'stopped' ? 'var(--cisa-gray)' : '#DC2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: watcherStatus === 'stopped' || controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: watcherStatus === 'stopped' || controlLoading ? 0.6 : 1
+              }}
+            >
+              {controlLoading ? '⏳ Processing...' : watcherStatus === 'stopped' ? '⏹️ Watcher Stopped' : '⏹️ Stop Watcher'}
+            </button>
+            <button
+              onClick={() => controlAction('process_pending')}
+              disabled={controlLoading}
+              style={{
+                padding: 'var(--spacing-sm) var(--spacing-md)',
+                backgroundColor: 'var(--cisa-blue)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--border-radius)',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 'var(--font-size-base)',
+                opacity: controlLoading ? 0.6 : 1
+              }}
+            >
+              {controlLoading ? '⏳ Processing...' : '🔄 Process Pending Files'}
+            </button>
           </div>
         </div>
 

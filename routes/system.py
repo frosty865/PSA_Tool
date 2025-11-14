@@ -706,30 +706,32 @@ def progress():
                     output_upper = result.stdout.upper()
                     # Check for state code 4 (RUNNING) - more reliable than text matching
                     # Format: "STATE              : 4  RUNNING" or "STATE : 4  RUNNING"
-                    state_match = re.search(r'STATE\s*:\s*4', output_upper)
-                    has_state_4 = state_match is not None
+                    # Try multiple regex patterns to handle different whitespace
+                    state_match_1 = re.search(r'STATE\s*:\s*4', output_upper)
+                    state_match_2 = re.search(r':\s*4\s+RUNNING', output_upper)
+                    has_state_4 = (state_match_1 is not None) or (state_match_2 is not None)
                     has_running = 'RUNNING' in output_upper
                     has_stopped = 'STOPPED' in output_upper
+                    
+                    logging.debug(f"Service {service_name} check: State 4={has_state_4}, RUNNING={has_running}, STOPPED={has_stopped}")
                     
                     # Primary check: State code 4 (RUNNING) - most reliable
                     if has_state_4:
                         service_running = True
-                        logging.info(f"Service check: State code 4 found - service is running")
+                        logging.info(f"Service {service_name} is RUNNING (state code 4 detected)")
                         break  # Found running service, exit loop
                     # Fallback check: RUNNING keyword present and STOPPED not present
                     elif has_running and not has_stopped:
                         service_running = True
-                        logging.info(f"Service check: RUNNING found, STOPPED not found - service is running")
+                        logging.info(f"Service {service_name} is RUNNING (text match: RUNNING found, STOPPED not found)")
                         break  # Found running service, exit loop
                     else:
                         # Log for debugging
-                        logging.warning(f"Service check failed: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
+                        logging.warning(f"Service check failed for {service_name}: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
                         logging.debug(f"Service output (first 200 chars): {result.stdout[:200]}")
-                        # Service exists but not running, continue to check if it exists
-                        if 'does not exist' not in result.stdout.lower() and 'does not exist' not in result.stderr.lower():
-                            # Service exists but stopped
-                            service_running = False
-                            break  # Found service (stopped), exit loop
+                        # Service exists but state check didn't match - continue to next service name
+                        # Don't break here - let the loop continue to try other service names
+                        continue
                 else:
                     logging.warning(f"Service query returned non-zero exit code: {result.returncode}, stderr: {result.stderr}")
                     continue  # Try next service name

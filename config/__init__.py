@@ -108,12 +108,22 @@ class Config:
     # ============================================================
     
     # OLLAMA_HOST supports multiple environment variable names for compatibility
-    OLLAMA_HOST = (
+    _OLLAMA_HOST_RAW = (
         os.getenv("OLLAMA_HOST") or 
         os.getenv("OLLAMA_URL") or 
         os.getenv("OLLAMA_API_BASE_URL") or 
         "http://127.0.0.1:11434"
     )
+    
+    # Normalize OLLAMA_HOST: convert bind addresses (0.0.0.0, localhost) to proper URLs
+    if _OLLAMA_HOST_RAW in ("0.0.0.0", "localhost", "127.0.0.1"):
+        OLLAMA_HOST = "http://127.0.0.1:11434"
+    elif not _OLLAMA_HOST_RAW.startswith(('http://', 'https://')):
+        # If it's just an IP or hostname without protocol, add http://
+        OLLAMA_HOST = f"http://{_OLLAMA_HOST_RAW}"
+    else:
+        OLLAMA_HOST = _OLLAMA_HOST_RAW
+    
     # Normalize OLLAMA_URL (ensure no trailing slash)
     OLLAMA_URL = OLLAMA_HOST.rstrip('/')
     VOFC_ENGINE_CONFIG = os.getenv("VOFC_ENGINE_CONFIG", "C:/Tools/Ollama/vofc_config.yaml")

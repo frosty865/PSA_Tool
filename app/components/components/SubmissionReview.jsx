@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import SafeHTML from './SafeHTML';
 import { fetchWithAuth } from '../../lib/fetchWithAuth';
+import { getCurrentUser } from '../../lib/auth';
 
 export default function SubmissionReview() {
   const [submissions, setSubmissions] = useState([]);
@@ -13,11 +14,22 @@ export default function SubmissionReview() {
   const [mounted, setMounted] = useState(false);
   const [expanded, setExpanded] = useState({});
   const [reprocessing, setReprocessing] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     setMounted(true);
+    loadCurrentUser();
     loadSubmissions();
   }, []);
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error loading current user:', err);
+    }
+  };
 
   const loadSubmissions = async () => {
     try {
@@ -183,7 +195,7 @@ export default function SubmissionReview() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          approver: 'admin@vofc.gov', // TODO: Get from auth context
+          approver: currentUser?.email || 'system@vofc.gov',
           comments: comments
         }),
       });
@@ -216,7 +228,7 @@ export default function SubmissionReview() {
         },
         body: JSON.stringify({
           comments: reason || 'Rejected by admin',
-          processedBy: 'admin@vofc.gov' // TODO: Get from auth context
+          processedBy: currentUser?.email || 'system@vofc.gov'
         }),
       });
       const result = await response.json();
@@ -248,7 +260,7 @@ export default function SubmissionReview() {
         },
         body: JSON.stringify({
           reason: 'Manual deletion by admin',
-          deletedBy: 'admin@vofc.gov' // TODO: Get from auth context
+          deletedBy: currentUser?.email || 'system@vofc.gov'
         }),
       });
       const result = await response.json();

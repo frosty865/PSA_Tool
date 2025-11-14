@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import SafeHTML from './SafeHTML';
 import { fetchWithAuth } from '@/app/lib/fetchWithAuth.js';
+import { getCurrentUser } from '@/app/lib/auth';
 
 export default function OFCRequestsReview() {
   const [ofcRequests, setOFCRequests] = useState([]);
@@ -17,11 +18,22 @@ export default function OFCRequestsReview() {
   const [processingRequest, setProcessingRequest] = useState(null);
   const [supervisorNotes, setSupervisorNotes] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     setMounted(true);
+    loadCurrentUser();
     loadOFCRequests();
   }, []);
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error loading current user:', err);
+    }
+  };
 
   const loadOFCRequests = async () => {
     try {
@@ -66,7 +78,7 @@ export default function OFCRequestsReview() {
         },
         body: JSON.stringify({
           supervisor_notes: supervisorNotes,
-          approved_by: 'admin@vofc.gov' // TODO: Get from auth context
+          approved_by: currentUser?.email || 'system@vofc.gov'
         }),
       });
       const result = await response.json();
@@ -126,7 +138,7 @@ export default function OFCRequestsReview() {
         },
         body: JSON.stringify({
           supervisor_notes: supervisorNotes,
-          approved_by: 'admin@vofc.gov' // TODO: Get from auth context
+          approved_by: currentUser?.email || 'system@vofc.gov'
         }),
       });
       const result = await response.json();

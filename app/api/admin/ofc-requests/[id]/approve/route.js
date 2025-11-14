@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/app/lib/auth-middleware';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,6 +9,15 @@ const supabase = createClient(
 
 export async function POST(request, { params }) {
   try {
+    // Require admin authentication
+    const { user, error: authError } = await requireAdmin(request);
+    if (authError) {
+      return NextResponse.json(
+        { success: false, error: authError },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
     const body = await request.json();
     const { supervisor_notes, approved_by } = body;
@@ -18,7 +28,7 @@ export async function POST(request, { params }) {
       .update({
         status: 'approved',
         supervisor_notes: supervisor_notes || null,
-        approved_by: approved_by || 'admin@vofc.gov',
+        approved_by: approved_by || 'system@vofc.gov',
         updated_at: new Date().toISOString()
       })
       .eq('id', id)

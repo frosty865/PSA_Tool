@@ -13,12 +13,34 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') || '10';
     
-    const response = await fetch(`${FLASK_URL}/api/learning/retrain-events?limit=${limit}`, {
-      cache: 'no-store',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    // Add timeout to fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    let response;
+    try {
+      response = await fetch(`${FLASK_URL}/api/learning/retrain-events?limit=${limit}`, {
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      clearTimeout(timeoutId);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      // Handle timeout or connection errors
+      if (fetchError.name === 'AbortError' || fetchError.code === 'ECONNREFUSED' || fetchError.message?.includes('ECONNREFUSED')) {
+        return NextResponse.json({
+          error: fetchError.name === 'AbortError' ? 'Request timeout' : 'Connection refused',
+          message: 'Flask server is not responding',
+          events: []
+        }, { status: 200 }); // Return 200 with empty events to prevent UI crash
+      }
+      
+      throw fetchError; // Re-throw other errors
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

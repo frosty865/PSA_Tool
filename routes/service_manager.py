@@ -13,18 +13,16 @@ from typing import List, Dict, Tuple, Optional
 # Service dependencies map
 # Key: service name, Value: list of services that depend on it
 SERVICE_DEPENDENCIES = {
-    'VOFC-Ollama': ['vofc-flask', 'VOFC-Processor', 'VOFC-AutoRetrain'],
+    'VOFC-Ollama': ['vofc-flask', 'VOFC-Processor'],
     'vofc-flask': ['VOFC-Tunnel'],
     'VOFC-Processor': [],  # No services depend on processor
     'VOFC-Tunnel': [],  # No services depend on tunnel
-    'VOFC-AutoRetrain': [],  # No services depend on auto-retrain
 }
 
 # Service startup order (dependencies first)
 STARTUP_ORDER = [
     'VOFC-Ollama',      # Base service - no dependencies
     'VOFC-Processor',    # Depends on Ollama
-    'VOFC-AutoRetrain', # Depends on Ollama
     'vofc-flask',       # Depends on Ollama
     'VOFC-Tunnel',      # Depends on Flask
 ]
@@ -38,7 +36,6 @@ SERVICE_NAME_VARIANTS = {
     'vofc-flask': ['vofc-flask', 'VOFC-Flask', 'PSA-Flask'],
     'VOFC-Processor': ['VOFC-Processor', 'vofc-processor', 'PSA-Processor'],
     'VOFC-Tunnel': ['VOFC-Tunnel', 'vofc-tunnel', 'VOFC-Tunnel-Service', 'PSA-Tunnel', 'Cloudflare-Tunnel'],
-    'VOFC-AutoRetrain': ['VOFC-AutoRetrain', 'vofc-autoretrain', 'PSA-AutoRetrain'],
 }
 
 logger = logging.getLogger(__name__)

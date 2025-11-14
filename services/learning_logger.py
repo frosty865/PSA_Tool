@@ -17,13 +17,26 @@ except ImportError:
 
 # Get Supabase credentials from environment
 from config import Config
-SUPABASE_URL = Config.SUPABASE_URL or ""
-SUPABASE_SERVICE_ROLE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY
 
-if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
-    raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+# Supabase client - lazy loaded (only when needed)
+# Don't initialize at module level to avoid startup errors if Supabase is not configured
+_supabase_client: Client = None
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+def get_supabase_client() -> Client:
+    """Get Supabase client, creating it if needed."""
+    global _supabase_client
+    
+    if _supabase_client is not None:
+        return _supabase_client
+    
+    SUPABASE_URL = Config.SUPABASE_URL or ""
+    SUPABASE_SERVICE_ROLE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY
+    
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+    
+    _supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    return _supabase_client
 
 
 def log_learning_event(submission_id: str, result_path: str, model_version: str = "psa-engine:latest"):
@@ -112,6 +125,7 @@ def log_learning_event(submission_id: str, result_path: str, model_version: str 
     record = {k: v for k, v in record.items() if v is not None}
     
     try:
+        supabase = get_supabase_client()
         supabase.table("learning_events").insert(record).execute()
         print(f"[LearningLogger] ✅ Logged learning_event for submission {submission_id}")
         return True

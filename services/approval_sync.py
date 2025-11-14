@@ -16,13 +16,26 @@ except ImportError:
 
 # Get Supabase credentials from environment
 from config import Config
-SUPABASE_URL = Config.SUPABASE_URL or ""
-SUPABASE_SERVICE_ROLE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY
 
-if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
-    raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+# Supabase client - lazy loaded (only when needed)
+# Don't initialize at module level to avoid startup errors if Supabase is not configured
+_supabase_client: Client = None
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+def get_supabase_client() -> Client:
+    """Get Supabase client, creating it if needed."""
+    global _supabase_client
+    
+    if _supabase_client is not None:
+        return _supabase_client
+    
+    SUPABASE_URL = Config.SUPABASE_URL or ""
+    SUPABASE_SERVICE_ROLE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY
+    
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+    
+    _supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    return _supabase_client
 
 
 def sync_approvals_once():
@@ -32,6 +45,7 @@ def sync_approvals_once():
         # Calculate time 24 hours ago
         cutoff_time = (datetime.utcnow() - timedelta(hours=24)).isoformat()
         
+        supabase = get_supabase_client()
         res = supabase.table("submissions") \
             .select("id, status, updated_at, reviewed_at") \
             .eq("status", "approved") \

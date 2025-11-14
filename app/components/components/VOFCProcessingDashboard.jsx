@@ -193,9 +193,9 @@ export default function VOFCProcessingDashboard() {
     <div className="space-y-6">
       {/* Service Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Flask Server (Python) */}
+        {/* VOFC Flask API Server */}
         <ServiceCard
-          title="Flask Server (Python)"
+          title="VOFC Flask API Server"
           service={getServiceStatus('flask')}
           details={status?.services.flask}
           icon="🐍"
@@ -344,7 +344,7 @@ export default function VOFCProcessingDashboard() {
         {status?.flask && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span>🔧</span> Flask Server
+              <span>🔧</span> VOFC Flask API Server
             </h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">

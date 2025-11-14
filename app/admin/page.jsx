@@ -539,7 +539,9 @@ export default function AdminOverviewPage() {
             const statusLabel = getSystemStatusLabel(status)
             const icon = getSystemIcon(key)
             let displayName
-            if (key === 'tunnel') {
+            if (key === 'flask') {
+              displayName = 'VOFC Flask API Server'
+            } else if (key === 'tunnel') {
               displayName = 'Cloudflare Tunnel'
             } else if (key === 'model_manager') {
               displayName = 'Model Manager'

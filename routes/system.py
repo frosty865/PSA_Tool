@@ -46,7 +46,7 @@ def test_flask_service():
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
     """
     # Try actual service names first, then alternatives for compatibility
-    # Include common old service name variations
+    # Primary service name is 'vofc-flask' with display name "VOFC Flask API Server"
     service_names = ['vofc-flask', 'VOFC-Flask', 'PSA-Flask', 'Flask', 'flask']
     
     for service_name in service_names:

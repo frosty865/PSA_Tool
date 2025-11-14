@@ -54,28 +54,42 @@ def test_supabase():
         supabase_key = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY or ''
         
         if not supabase_url or not supabase_key:
+            logging.debug("Supabase test failed: URL or key not configured")
             return "failed"  # Primary service must be configured
         
         # Check offline mode
         if Config.SUPABASE_OFFLINE_MODE:
+            logging.debug("Supabase test failed: Offline mode enabled")
             return "failed"  # Explicitly disabled
         
         # Try to use supabase client if available
         try:
             client = get_supabase_client()
-            result = client.table('users').select('id').limit(1).execute()
+            # Try a simple query to verify connection - use 'sectors' table (always exists)
+            result = client.table('sectors').select('id').limit(1).execute()
+            logging.debug("Supabase test succeeded: Connection verified")
             return "ok"
+        except ConfigurationError as config_err:
+            logging.debug(f"Supabase test failed: Configuration error - {config_err}")
+            return "failed"
         except ImportError:
             # Fallback: just check if URL is configured
             if supabase_url and supabase_key:
+                logging.debug("Supabase test: Import error but credentials configured, assuming ok")
                 return "ok"
+            logging.debug("Supabase test failed: Import error and credentials not configured")
             return "failed"
-    except ConfigurationError:
+        except Exception as client_err:
+            logging.debug(f"Supabase test failed: Client error - {client_err}")
+            return "failed"
+    except ConfigurationError as config_err:
+        logging.debug(f"Supabase test failed: Configuration error - {config_err}")
         return "failed"  # Configuration error = failed
     except ImportError:
+        logging.debug("Supabase test failed: Import error")
         return "failed"  # Import error = failed
     except Exception as e:
-        logging.debug(f"Supabase connection test failed: {e}")
+        logging.debug(f"Supabase connection test failed: {e}", exc_info=True)
         return "failed"
 
 def push_to_supabase(table, data):

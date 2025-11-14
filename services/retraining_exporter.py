@@ -14,13 +14,26 @@ except ImportError:
     raise ImportError("supabase-py package not installed. Install with: pip install supabase")
 
 from config import Config
-SUPABASE_URL = Config.SUPABASE_URL or ""
-SUPABASE_SERVICE_ROLE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY
 
-if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
-    raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+# Supabase client - lazy loaded (only when needed)
+# Don't initialize at module level to avoid startup errors if Supabase is not configured
+_supabase_client: Client = None
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+def get_supabase_client() -> Client:
+    """Get Supabase client, creating it if needed."""
+    global _supabase_client
+    
+    if _supabase_client is not None:
+        return _supabase_client
+    
+    SUPABASE_URL = Config.SUPABASE_URL or ""
+    SUPABASE_SERVICE_ROLE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY
+    
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment")
+    
+    _supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    return _supabase_client
 
 EXPORT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "exports")
 
@@ -37,6 +50,7 @@ def export_approved_events(limit: int = 1000):
     """
     os.makedirs(EXPORT_PATH, exist_ok=True)
     
+    supabase = get_supabase_client()
     res = supabase.table("learning_events").select("*").eq("approved", True).limit(limit).execute()
     data = res.data or []
     

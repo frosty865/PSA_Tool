@@ -4,14 +4,14 @@
 
 These are the **actual** service names currently registered with NSSM:
 
-| Service | Actual Name | Notes |
-|---------|-------------|-------|
-| Flask API | `vofc-flask` | **Lowercase with hyphen** |
-| Processor | `VOFC-Processor` | Mixed case |
-| Tunnel | `VOFC-Tunnel` | Mixed case |
-| Model Manager | `VOFC-ModelManager` | Mixed case |
-| Ollama | `VOFC-Ollama` | Mixed case |
-| Auto Retrain | `VOFC-AutoRetrain` | Mixed case |
+| Service | Actual Name | Display Name | Notes |
+|---------|-------------|--------------|-------|
+| Flask API | `vofc-flask` | VOFC Flask API Server | **Lowercase with hyphen** |
+| Processor | `VOFC-Processor` | VOFC-Processor | Mixed case |
+| Tunnel | `VOFC-Tunnel` | VOFC-Tunnel | Mixed case |
+| Model Manager | `VOFC-ModelManager` | VOFC-ModelManager | Mixed case |
+| Ollama | `VOFC-Ollama` | VOFC-Ollama | Mixed case |
+| Auto Retrain | `VOFC-AutoRetrain` | VOFC-AutoRetrain | Mixed case |
 
 ## Code Updates
 

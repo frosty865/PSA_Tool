@@ -119,6 +119,71 @@ def test_flask_service():
     logging.warning("Flask service not found with any of the checked names")
     return 'unknown'
 
+def test_processor_service():
+    """
+    Check if VOFC-Processor Windows service is running (the watcher/processor).
+    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    """
+    service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+    
+    for service_name in service_names:
+        try:
+            result = subprocess.run(
+                ['sc', 'query', service_name],
+                capture_output=True,
+                text=True,
+                timeout=3
+            )
+            
+            if result.returncode == 0:
+                output = result.stdout
+                output_upper = output.upper()
+                
+                # Parse state code - same logic as test_flask_service
+                for line in output.split('\n'):
+                    line_upper = line.upper()
+                    if 'STATE' in line_upper:
+                        if ':' in line:
+                            after_colon = line.split(':', 1)[1].strip()
+                            state_match = re.search(r'\b(\d+)\b', after_colon)
+                            if state_match:
+                                state_code = state_match.group(1)
+                                if state_code == '4':
+                                    logging.debug(f"Processor service {service_name} is RUNNING (state code 4)")
+                                    return 'ok'
+                                elif state_code == '1':
+                                    logging.debug(f"Processor service {service_name} is STOPPED (state code 1)")
+                                    return 'offline'
+                                elif state_code == '7':
+                                    logging.debug(f"Processor service {service_name} is PAUSED (state code 7)")
+                                    return 'offline'
+                
+                # Fallback: check text in output
+                if 'RUNNING' in output_upper and 'STOPPED' not in output_upper:
+                    logging.debug(f"Processor service {service_name} is RUNNING (text match)")
+                    return 'ok'
+                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
+                    logging.debug(f"Processor service {service_name} is STOPPED (text match)")
+                    return 'offline'
+                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
+                    logging.debug(f"Processor service {service_name} is PAUSED (text match)")
+                    return 'offline'
+                else:
+                    logging.warning(f"Processor service {service_name} found but state unclear. Output: {output[:200]}")
+                    continue
+        except subprocess.TimeoutExpired:
+            logging.debug(f"Timeout checking Processor service {service_name}")
+            continue
+        except FileNotFoundError:
+            logging.warning("sc.exe not found - cannot check Processor service status")
+            return 'unknown'
+        except Exception as e:
+            logging.debug(f"Error checking Processor service {service_name}: {e}")
+            continue
+    
+    logging.warning("Processor service not found with any of the checked names")
+    return 'unknown'
+
 def test_tunnel_service():
     """
     Check if Tunnel Windows service is running.
@@ -293,11 +358,14 @@ def health():
     # Initialize components status
     # Check Flask service status (similar to tunnel and model manager checks)
     flask_service_status = test_flask_service()
+    watcher_status = test_processor_service()  # VOFC-Processor service (watcher)
     components = {
         "flask": flask_service_status if flask_service_status in ["ok", "offline", "unknown"] else "unknown",
         "ollama": "offline",
         "supabase": test_supabase(),
-        "model_manager": test_model_manager()
+        "tunnel": "unknown",  # Will be set below
+        "model_manager": test_model_manager(),
+        "watcher": watcher_status if watcher_status in ["ok", "offline", "unknown"] else "unknown"
     }
     
     # Check Ollama - use service function
@@ -309,6 +377,7 @@ def health():
     
     # Check tunnel service status (similar to model manager check)
     tunnel_status = test_tunnel_service()
+    components["tunnel"] = tunnel_status if tunnel_status in ["ok", "offline", "unknown", "error"] else "unknown"
     
     # Also try to verify connectivity through the tunnel (secondary check)
     if tunnel_status == "ok":
@@ -320,6 +389,7 @@ def health():
             if tunnel_response.status_code != 200:
                 # Service is running but tunnel may have connectivity issues
                 tunnel_status = "error"
+                components["tunnel"] = "error"
         except Exception:
             # Connectivity check failed but service is running
             pass  # Keep status as "ok" if service is running
@@ -356,8 +426,9 @@ def health():
         "flask": components["flask"],
         "ollama": components["ollama"],
         "supabase": components["supabase"],
-        "tunnel": tunnel_status,  # Tunnel is externally managed by NSSM
+        "tunnel": components["tunnel"],  # Tunnel is externally managed by NSSM
         "model_manager": components["model_manager"],  # Model Manager service status
+        "watcher": components["watcher"],  # VOFC-Processor service (watcher/processor)
         "model_manager_info": model_manager_info,  # Additional Model Manager info
         "service": "PSA Processing Server",
         "urls": {

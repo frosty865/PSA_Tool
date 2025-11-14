@@ -156,8 +156,8 @@ export async function GET(request) {
     const data = await response.json();
     
     // Transform Flask response to match frontend expectations
-    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", model_manager: "ok", ... }
-    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "...", model_manager: "..." }, ... }
+    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", model_manager: "ok", watcher: "ok", ... }
+    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "...", model_manager: "...", watcher: "..." }, ... }
     const transformedData = {
       ...data,
       components: {
@@ -165,7 +165,8 @@ export async function GET(request) {
         ollama: data.ollama || data.components?.ollama || 'unknown',
         supabase: data.supabase || data.components?.supabase || 'unknown',
         tunnel: data.tunnel || data.components?.tunnel || 'unknown',
-        model_manager: data.model_manager || data.components?.model_manager || 'unknown'
+        model_manager: data.model_manager || data.components?.model_manager || 'unknown',
+        watcher: data.watcher || data.components?.watcher || 'unknown'
       }
     };
     

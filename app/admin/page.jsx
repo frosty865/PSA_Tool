@@ -47,7 +47,7 @@ export default function AdminOverviewPage() {
       console.error('[System Health] Manual refresh failed:', err)
       // On manual refresh, show error but don't change state if we have a previous good state
       setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
-        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' }
+        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown', watcher: 'unknown' }
         : prev
       )
     }
@@ -551,7 +551,7 @@ export default function AdminOverviewPage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
           gap: 'var(--spacing-lg)'
         }}>
-          {['flask', 'ollama', 'supabase', 'tunnel', 'model_manager'].map(key => {
+          {['flask', 'ollama', 'supabase', 'tunnel', 'model_manager', 'watcher'].map(key => {
             const status = system[key] || 'checking'
             const colors = getSystemStatusColor(status)
             const statusLabel = getSystemStatusLabel(status)

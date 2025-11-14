@@ -10,7 +10,7 @@ export default function AdminOverviewPage() {
   const router = useRouter()
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
-  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking' })
+  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking', watcher: 'checking' })
   const [modelManagerInfo, setModelManagerInfo] = useState(null)
   const [countdown, setCountdown] = useState(null)
   const [pendingReviewCount, setPendingReviewCount] = useState(null)
@@ -78,7 +78,7 @@ export default function AdminOverviewPage() {
   useEffect(() => {
     let isMounted = true
     let hasEverSucceeded = false
-    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking' }
+    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking', watcher: 'checking' }
     
     const healthCheckWithDebounce = async () => {
       if (!isMounted) return

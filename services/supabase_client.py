@@ -50,7 +50,7 @@ def test_supabase():
     """Test Supabase connection (assumes Supabase is externally configured)"""
     try:
         if not SUPABASE_URL or not SUPABASE_KEY:
-            return "missing"
+            return "failed"  # Primary service must be configured
         
         # Try to use supabase client if available
         try:
@@ -61,14 +61,14 @@ def test_supabase():
             # Fallback: just check if URL is configured
             if SUPABASE_URL and SUPABASE_KEY:
                 return "ok"
-            return "error"
+            return "failed"
     except ConfigurationError:
-        return "missing"
+        return "failed"  # Configuration error = failed
     except ImportError:
-        return "error"
+        return "failed"  # Import error = failed
     except Exception as e:
         logging.debug(f"Supabase connection test failed: {e}")
-        return "error"
+        return "failed"
 
 def push_to_supabase(table, data):
     """Push data to Supabase table"""

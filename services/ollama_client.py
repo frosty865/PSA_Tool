@@ -213,19 +213,19 @@ def test_ollama():
         response = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=5)
         if response.status_code == 200:
             return "ok"
-        return "error"
+        return "failed"
     except requests.exceptions.ConnectionError:
-        logger.debug("Ollama connection failed - service may be offline")
-        return "offline"
+        logger.debug("Ollama connection failed - service not reachable")
+        return "failed"
     except requests.exceptions.Timeout:
         logger.debug("Ollama request timeout")
-        return "offline"
+        return "failed"
     except requests.exceptions.RequestException as e:
         logger.debug(f"Ollama request failed: {e}")
-        return "offline"
+        return "failed"
     except Exception as e:
         logger.error(f"Unexpected error testing Ollama: {e}", exc_info=True)
-        return "offline"
+        return "failed"
 
 def generate_text(prompt, model="llama2", **kwargs):
     """Generate text using Ollama"""

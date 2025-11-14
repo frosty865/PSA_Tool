@@ -9,6 +9,7 @@ from services.supabase_client import test_supabase, get_supabase_client
 from config import Config
 from config.exceptions import ServiceError, DependencyError
 from config.service_health import check_ollama_health, check_supabase_health, check_service_health
+from routes.service_manager import restart_service
 import os
 import json
 import requests
@@ -47,7 +48,7 @@ def test_flask_service():
     """
     Check if Flask Windows service is running.
     Only checks 'vofc-flask' (lowercase) - the single Flask service.
-    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    Returns 'ok' if running, 'offline' if stopped, 'failed' if check fails.
     Simple and reliable: just check for state code 4 in sc query output.
     """
     service_name = 'vofc-flask'
@@ -66,28 +67,26 @@ def test_flask_service():
             if re.search(r'STATE\s*:\s*4', output, re.IGNORECASE):
                 logging.debug(f"Flask service {service_name} is RUNNING (state 4)")
                 return 'ok'
-            elif 'STOPPED' in output.upper():
-                logging.debug(f"Flask service {service_name} is STOPPED")
-                return 'offline'
             else:
-                logging.debug(f"Flask service {service_name} state unclear")
-                return 'unknown'
+                # Service exists but not running = failed (primary service must be running)
+                logging.debug(f"Flask service {service_name} is not running")
+                return 'failed'
         else:
             logging.debug(f"Flask service {service_name} not found (returncode: {result.returncode})")
-            return 'unknown'
+            return 'failed'
     except subprocess.TimeoutExpired:
         logging.warning(f"Timeout checking Flask service {service_name}")
-        return 'unknown'
+        return 'failed'
     except FileNotFoundError:
         raise ServiceError("'sc.exe' not found - cannot check Flask service status")
     except Exception as e:
         logging.error(f"Error checking Flask service {service_name}: {e}", exc_info=True)
-        return 'unknown'
+        return 'failed'
 
 def test_processor_service():
     """
     Check if VOFC-Processor Windows service is running (the watcher/processor).
-    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    Returns 'ok' if running, 'offline' if stopped, 'failed' if check fails.
     Simple and reliable: just check for state code 4 in sc query output.
     """
     service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
@@ -107,12 +106,10 @@ def test_processor_service():
                 if re.search(r'STATE\s*:\s*4', output, re.IGNORECASE):
                     logging.debug(f"Processor service {service_name} is RUNNING (state 4)")
                     return 'ok'
-                elif 'STOPPED' in output.upper():
-                    logging.debug(f"Processor service {service_name} is STOPPED")
-                    return 'offline'
                 else:
-                    # Service exists but state unclear, try next name
-                    continue
+                    # Service exists but not running = failed (primary service must be running)
+                    logging.debug(f"Processor service {service_name} is not running")
+                    continue  # Try next service name
             else:
                 # Service not found, try next name
                 continue
@@ -125,8 +122,8 @@ def test_processor_service():
             logging.warning(f"Error checking processor service {service_name}: {e}")
             continue
     
-    # Service not found with any name
-    return 'unknown'
+    # Service not found with any name or check failed
+    return 'failed'
 
 def test_tunnel_service():
     """
@@ -165,19 +162,17 @@ def test_tunnel_service():
                                     
                                     if state_code == '4' or 'RUNNING' in state_text.upper():
                                         return 'ok'
-                                    elif state_code == '1' or 'STOPPED' in state_text.upper():
-                                        return 'offline'
-                                    elif state_code == '7' or 'PAUSED' in state_text.upper():
-                                        return 'offline'
+                                    else:
+                                        # Service exists but not running = failed (primary service must be running)
+                                        return 'failed'
                                     break
                 
                 # Fallback: check text in output
                 if 'RUNNING' in output_upper:
                     return 'ok'
-                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
-                    return 'offline'
-                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
-                    return 'offline'
+                else:
+                    # Service exists but not running = failed
+                    return 'failed'
                 else:
                     continue  # Try next service name
             # If service not found, try next name
@@ -200,7 +195,7 @@ def test_tunnel_service():
         if response.status_code == 200:
             return 'ok'
         else:
-            return 'offline'
+            return 'failed'
     except requests.exceptions.ConnectionError as e:
         logging.debug(f"Tunnel URL connection failed: {e}")
     except requests.exceptions.Timeout as e:
@@ -211,12 +206,12 @@ def test_tunnel_service():
         logging.error(f"Unexpected error checking tunnel URL: {e}", exc_info=True)
     
     # Service might not exist or access denied
-    return 'unknown'
+    return 'failed'
 
 def test_model_manager():
     """
     Check if Model Manager Windows service is running.
-    Returns 'online' if running, 'paused' if paused, 'offline' if stopped, 'unknown' if check fails.
+    Returns 'ok' if running, 'failed' if not running or check fails.
     """
     # Try actual service names first, then alternatives for compatibility
     service_names = ['VOFC-ModelManager', 'vofc-modelmanager', 'VOFC-Model-Manager', 'PSA-ModelManager', 'ModelManager']
@@ -249,20 +244,18 @@ def test_model_manager():
                                     state_text = ' '.join(parts[i + 3:]) if i + 3 < len(parts) else ''
                                     
                                     if state_code == '4' or 'RUNNING' in state_text.upper():
-                                        return 'online'
-                                    elif state_code == '7' or 'PAUSED' in state_text.upper():
-                                        return 'paused'
-                                    elif state_code == '1' or 'STOPPED' in state_text.upper():
-                                        return 'offline'
+                                        return 'ok'
+                                    else:
+                                        # Service exists but not running = failed
+                                        return 'failed'
                                     break
                 
                 # Fallback: check text in output
                 if 'RUNNING' in output_upper:
-                    return 'online'
-                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
-                    return 'paused'
-                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
-                    return 'offline'
+                    return 'ok'
+                else:
+                    # Service exists but not running = failed
+                    return 'failed'
                 else:
                     continue  # Try next service name
             # If service not found, try next name
@@ -279,7 +272,7 @@ def test_model_manager():
             continue
     
     # Service might not exist or access denied
-    return 'unknown'
+    return 'failed'
 
 @system_bp.route('/')
 def index():
@@ -314,25 +307,85 @@ def health():
     # Check Flask service status (similar to tunnel and model manager checks)
     flask_service_status = test_flask_service()
     watcher_status = test_processor_service()  # VOFC-Processor service (watcher)
+    supabase_status = test_supabase()
     components = {
-        "flask": flask_service_status if flask_service_status in ["ok", "offline", "unknown"] else "unknown",
-        "ollama": "offline",
-        "supabase": test_supabase(),
-        "tunnel": "unknown",  # Will be set below
+        "flask": flask_service_status if flask_service_status == "ok" else "failed",
+        "ollama": "failed",  # Will be set below
+        "supabase": supabase_status if supabase_status == "ok" else "failed",
+        "tunnel": "failed",  # Will be set below
         "model_manager": test_model_manager(),
-        "watcher": watcher_status if watcher_status in ["ok", "offline", "unknown"] else "unknown"
+        "watcher": watcher_status if watcher_status == "ok" else "failed"
     }
+    
+    # SELF-HEALING: Log Supabase failures (can't auto-restart external service, but log clearly)
+    if components["supabase"] == "failed":
+        logging.error("Supabase is failed - cannot auto-restart (external service). Check configuration and connectivity.")
+    
+    # SELF-HEALING: Automatically restart failed primary services
+    if components["flask"] == "failed":
+        logging.warning("Flask service is failed - attempting automatic restart")
+        try:
+            success, msg = restart_service("vofc-flask")
+            if success:
+                logging.info(f"Flask service restarted successfully: {msg}")
+                components["flask"] = "ok"  # Assume ok after restart
+            else:
+                logging.error(f"Failed to restart Flask service: {msg}")
+        except Exception as e:
+            logging.error(f"Error restarting Flask service: {e}", exc_info=True)
+    
+    if components["watcher"] == "failed":
+        logging.warning("Watcher service is failed - attempting automatic restart")
+        try:
+            success, msg = restart_service("VOFC-Processor")
+            if success:
+                logging.info(f"Watcher service restarted successfully: {msg}")
+                components["watcher"] = "ok"  # Assume ok after restart
+            else:
+                logging.error(f"Failed to restart Watcher service: {msg}")
+        except Exception as e:
+            logging.error(f"Error restarting Watcher service: {e}", exc_info=True)
     
     # Check Ollama - use service function
     ollama_status = test_ollama()
-    components["ollama"] = ollama_status if ollama_status in ["ok", "offline", "error"] else "offline"
+    components["ollama"] = ollama_status if ollama_status == "ok" else "failed"
+    
+    # SELF-HEALING: Restart Ollama if failed
+    if components["ollama"] == "failed":
+        logging.warning("Ollama service is failed - attempting automatic restart")
+        try:
+            success, msg = restart_service("VOFC-Ollama")
+            if success:
+                logging.info(f"Ollama service restarted successfully: {msg}")
+                # Re-check after restart
+                import time
+                time.sleep(2)  # Give service time to start
+                ollama_status = test_ollama()
+                components["ollama"] = ollama_status if ollama_status == "ok" else "failed"
+            else:
+                logging.error(f"Failed to restart Ollama service: {msg}")
+        except Exception as e:
+            logging.error(f"Error restarting Ollama service: {e}", exc_info=True)
     
     # Get tunnel URL (managed by NSSM service - Cloudflare tunnel)
     tunnel_url = Config.TUNNEL_URL
     
     # Check tunnel service status (similar to model manager check)
     tunnel_status = test_tunnel_service()
-    components["tunnel"] = tunnel_status if tunnel_status in ["ok", "offline", "unknown", "error"] else "unknown"
+    components["tunnel"] = tunnel_status if tunnel_status == "ok" else "failed"
+    
+    # SELF-HEALING: Restart Tunnel if failed
+    if components["tunnel"] == "failed":
+        logging.warning("Tunnel service is failed - attempting automatic restart")
+        try:
+            success, msg = restart_service("VOFC-Tunnel")
+            if success:
+                logging.info(f"Tunnel service restarted successfully: {msg}")
+                components["tunnel"] = "ok"  # Assume ok after restart
+            else:
+                logging.error(f"Failed to restart Tunnel service: {msg}")
+        except Exception as e:
+            logging.error(f"Error restarting Tunnel service: {e}", exc_info=True)
     
     # Also try to verify connectivity through the tunnel (secondary check)
     if tunnel_status == "ok":

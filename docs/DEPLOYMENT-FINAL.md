@@ -48,7 +48,7 @@ Key dependencies:
 
 ```powershell
 # Update to use new app.py structure
-nssm set VOFC-Flask AppParameters "-m waitress --listen=0.0.0.0:8080 app:app"
+nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 server:app"
 nssm restart VOFC-Flask
 ```
 

@@ -113,7 +113,7 @@ Response:
 1. **Restart Flask service** (after updating NSSM parameters):
    ```powershell
    # Run as Administrator
-   nssm set VOFC-Flask AppParameters "-m waitress --listen=0.0.0.0:8080 app:app"
+   nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 server:app"
    nssm restart VOFC-Flask
    ```
 

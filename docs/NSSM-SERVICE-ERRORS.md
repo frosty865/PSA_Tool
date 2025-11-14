@@ -7,7 +7,7 @@
 1. **vofc-flask / VOFC-Flask** (both services exist, pointing to same config)
    - ❌ **Application path missing**: `C:\Tools\PSA-Flask\venv\Scripts\python.exe`
    - ✅ **VOFC-Flask venv exists**: `C:\Tools\VOFC-Flask\venv\Scripts\python.exe`
-   - ❌ **AppParameters incorrect**: `server.py` (should be `-m waitress --listen=0.0.0.0:8080 app:app`)
+   - ❌ **AppParameters incorrect**: `server.py` (should be `-m waitress --listen=0.0.0.0:8080 server:app`)
    - ✅ **AppDirectory exists**: `C:\Tools\PSA-Flask`
 
 2. **VOFC-Processor**
@@ -40,7 +40,7 @@
 ```powershell
 nssm set vofc-flask Application "C:\Tools\VOFC-Flask\venv\Scripts\python.exe"
 nssm set vofc-flask AppDirectory "C:\Tools\VOFC-Flask"
-nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 app:app"
+nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 server:app"
 nssm restart vofc-flask
 ```
 
@@ -55,7 +55,7 @@ pip install -r requirements.txt
 # Then update service
 nssm set vofc-flask Application "C:\Tools\PSA-Flask\venv\Scripts\python.exe"
 nssm set vofc-flask AppDirectory "C:\Tools\PSA-Flask"
-nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 app:app"
+nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 server:app"
 nssm restart vofc-flask
 ```
 
@@ -142,7 +142,7 @@ curl https://flask.frostech.site/api/system/health
 # Fix Flask (use VOFC-Flask)
 nssm set vofc-flask Application "C:\Tools\VOFC-Flask\venv\Scripts\python.exe"
 nssm set vofc-flask AppDirectory "C:\Tools\VOFC-Flask"
-nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 app:app"
+nssm set vofc-flask AppParameters "-m waitress --listen=0.0.0.0:8080 server:app"
 
 # Fix Processor
 cd C:\Tools\VOFC-Processor

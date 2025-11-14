@@ -374,7 +374,9 @@ These Flask routes exist but are not used by Next.js:
 
 ### **🔴 PRIORITY 1: Register Missing Flask Blueprints**
 
-**File**: `app.py`
+**Files**: `app.py` (blueprint registration) and `server.py` (production entry point)
+
+**Note**: Production service uses `server.py` which imports `app` from `app.py`. All blueprints must be registered in `app.py`.
 
 **Current**:
 ```python
@@ -386,7 +388,7 @@ app.register_blueprint(processing_bp)
 app.register_blueprint(system_bp)
 ```
 
-**Required**:
+**Required in `app.py`** (✅ Already Fixed):
 ```python
 from routes.processing import processing_bp
 from routes.system import system_bp
@@ -413,6 +415,16 @@ app.register_blueprint(files_bp)
 app.register_blueprint(audit_bp)
 app.register_blueprint(disciplines_bp)
 ```
+
+**Required `server.py`** (✅ Created):
+```python
+from app import app
+__all__ = ['app']
+```
+
+**Service Configuration**:
+- NSSM uses: `-m waitress --listen=0.0.0.0:8080 server:app`
+- This imports `app` from `server.py`, which imports from `app.py`
 
 ### **🟡 PRIORITY 2: Verify Vercel Environment Variables**
 

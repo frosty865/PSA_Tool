@@ -496,19 +496,35 @@ def progress():
         import os
         from pathlib import Path
         
-        # Use same path as auto-processor
-        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        # Use same path as auto-processor - standardize on VOFC_DATA_DIR
+        base_dir = Path(os.getenv("VOFC_DATA_DIR", os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data")))
+        
+        # Ensure base directory exists
+        if not base_dir.exists():
+            logging.warning(f"Base directory does not exist: {base_dir}")
+            # Create default structure
+            base_dir.mkdir(parents=True, exist_ok=True)
+        
         progress_file = base_dir / "automation" / "progress.json"
         
         # Get progress data - always refresh folder counts dynamically
         progress_data = {}
         try:
-            with open(progress_file, "r", encoding="utf-8") as f:
-                progress_data = json.load(f)
-        except FileNotFoundError:
+            if progress_file.exists():
+                with open(progress_file, "r", encoding="utf-8") as f:
+                    progress_data = json.load(f)
+            else:
+                # progress.json doesn't exist - that's OK, we'll create default structure
+                progress_data = {
+                    "status": "idle", 
+                    "message": "Monitoring folders",
+                }
+                logging.debug(f"progress.json not found at {progress_file} - using defaults")
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            logging.warning(f"Error reading progress.json: {e}")
             progress_data = {
-                "status": "unknown", 
-                "message": "progress.json not found",
+                "status": "idle", 
+                "message": "Monitoring folders",
             }
         
         # Always update folder counts dynamically (don't rely on stale data)
@@ -519,33 +535,52 @@ def progress():
         review_dir = base_dir / "review"
         temp_errors_dir = base_dir / "temp" / "errors"
         
-        # Count files in each directory
+        # Ensure directories exist (create if missing)
+        for dir_path in [incoming_dir, processed_dir, library_dir, errors_dir, review_dir]:
+            try:
+                dir_path.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                logging.warning(f"Could not create directory {dir_path}: {e}")
+        
+        # Count files in each directory with better error handling
         try:
-            incoming_count = len(list(incoming_dir.glob("*.pdf"))) if incoming_dir.exists() else 0
+            if incoming_dir.exists():
+                incoming_count = len(list(incoming_dir.glob("*.pdf")))
+            else:
+                incoming_count = 0
             progress_data["incoming"] = incoming_count
             progress_data["incoming_label"] = "Pending Processing (Learning Mode)"
             progress_data["incoming_description"] = "Files waiting for processing or reprocessing to improve extraction"
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Error counting incoming files: {e}")
             progress_data["incoming"] = 0
             progress_data["incoming_label"] = "Pending Processing"
             progress_data["incoming_description"] = ""
             
         try:
-            processed_count = len(list(processed_dir.glob("*.json"))) if processed_dir.exists() else 0
+            if processed_dir.exists():
+                processed_count = len(list(processed_dir.glob("*.json")))
+            else:
+                processed_count = 0
             progress_data["processed"] = processed_count
             progress_data["processed_label"] = "Processed JSON"
             progress_data["processed_description"] = "Extraction results (JSON files)"
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Error counting processed files: {e}")
             progress_data["processed"] = 0
             progress_data["processed_label"] = "Processed JSON"
             progress_data["processed_description"] = ""
             
         try:
-            library_count = len(list(library_dir.glob("*.pdf"))) if library_dir.exists() else 0
+            if library_dir.exists():
+                library_count = len(list(library_dir.glob("*.pdf")))
+            else:
+                library_count = 0
             progress_data["library"] = library_count
             progress_data["library_label"] = "Archived (Complete)"
             progress_data["library_description"] = "Files successfully processed with sufficient records"
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Error counting library files: {e}")
             progress_data["library"] = 0
             progress_data["library_label"] = "Archived (Complete)"
             progress_data["library_description"] = ""
@@ -560,17 +595,22 @@ def progress():
             progress_data["errors"] = errors_count
             progress_data["errors_label"] = "Processing Errors"
             progress_data["errors_description"] = "Files that failed processing (moved to errors)"
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Error counting error files: {e}")
             progress_data["errors"] = 0
             progress_data["errors_label"] = "Processing Errors"
             progress_data["errors_description"] = ""
             
         try:
-            review_count = len(list(review_dir.glob("*.json"))) if review_dir.exists() else 0
+            if review_dir.exists():
+                review_count = len(list(review_dir.glob("*.json")))
+            else:
+                review_count = 0
             progress_data["review"] = review_count
             progress_data["review_label"] = "Review Queue"
             progress_data["review_description"] = "Extraction results pending review"
-        except Exception:
+        except Exception as e:
+            logging.warning(f"Error counting review files: {e}")
             progress_data["review"] = 0
             progress_data["review_label"] = "Review Queue"
             progress_data["review_description"] = ""
@@ -667,11 +707,11 @@ def progress():
             progress_data["watcher_status"] = "unknown"
             logging.debug("Watcher status set to: unknown (no service found)")
             
-    except FileNotFoundError:
-        # sc.exe not found (not Windows or PATH issue)
-        logging.warning("sc.exe not found - cannot check service status")
-        progress_data["watcher_status"] = "unknown"
-    except Exception as e:
+        except FileNotFoundError:
+            # sc.exe not found (not Windows or PATH issue)
+            logging.warning("sc.exe not found - cannot check service status")
+            progress_data["watcher_status"] = "unknown"
+        except Exception as e:
             logging.warning(f"Could not get watcher status: {e}", exc_info=True)
             progress_data["watcher_status"] = "unknown"
         
@@ -734,8 +774,10 @@ def log_stream():
                 base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
         
         logs_dir = base_dir / "logs"
-        today = now_est().strftime("%Y%m%d")
-        log_file = logs_dir / f"vofc_processor_{today}.log"
+        # Use local date (not EST) to match processor log file naming
+        # Processor uses datetime.now().strftime('%Y%m%d') which is local time
+        today_local = datetime.now().strftime("%Y%m%d")
+        log_file = logs_dir / f"vofc_processor_{today_local}.log"
         
         # Show all logs from today (not just last 1 hour) - user wants to see today's activity
         # Track session start time for initial connection
@@ -887,12 +929,15 @@ def get_logs():
                 base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
         
         logs_dir = base_dir / "logs"
-        today = now_est().strftime("%Y%m%d")
-        log_file = logs_dir / f"vofc_processor_{today}.log"
+        # Use local date (not EST) to match processor log file naming
+        # Processor uses datetime.now().strftime('%Y%m%d') which is local time
+        today_local = datetime.now().strftime("%Y%m%d")
+        log_file = logs_dir / f"vofc_processor_{today_local}.log"
         
         # Always prefer today's log file - don't fallback to old files
         if not log_file.exists():
             # Return empty if today's log doesn't exist yet
+            logging.debug(f"Log file not found: {log_file}")
             return jsonify({"lines": [], "error": f"Today's log file not found: {log_file}. The watcher may not have started yet."}), 200
         
         tail = request.args.get('tail', 50, type=int)
@@ -971,7 +1016,8 @@ def system_control():
         import threading
         import logging
         
-        BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+        # Standardize on VOFC_DATA_DIR (with fallback to VOFC_BASE_DIR for compatibility)
+        BASE_DIR = Path(os.getenv("VOFC_DATA_DIR", os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data")))
         ERROR_DIR = BASE_DIR / "errors"
         AUTOMATION_DIR = BASE_DIR / "automation"
         

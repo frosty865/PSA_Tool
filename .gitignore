@@ -34,6 +34,8 @@ data/processing_progress.json
 *.log
 logs/
 data/logs/
+# Exception: API route for system logs
+!app/api/system/logs/
 
 # IDE
 .vscode/

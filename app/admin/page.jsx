@@ -10,9 +10,7 @@ export default function AdminOverviewPage() {
   const router = useRouter()
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
-  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking', watcher: 'checking' })
-  const [modelManagerInfo, setModelManagerInfo] = useState(null)
-  const [countdown, setCountdown] = useState(null)
+  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' })
   const [pendingReviewCount, setPendingReviewCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -37,17 +35,14 @@ export default function AdminOverviewPage() {
       if (json.components) {
         setSystem(json.components)
         // Update Model Manager info if available
-        if (json.model_manager_info) {
-          setModelManagerInfo(json.model_manager_info)
-        }
       } else {
-        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown', watcher: 'unknown' })
+        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
       }
     } catch (err) {
       console.error('[System Health] Manual refresh failed:', err)
       // On manual refresh, show error but don't change state if we have a previous good state
       setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
-        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown', watcher: 'unknown' }
+        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' }
         : prev
       )
     }
@@ -78,7 +73,7 @@ export default function AdminOverviewPage() {
   useEffect(() => {
     let isMounted = true
     let hasEverSucceeded = false
-    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', model_manager: 'checking', watcher: 'checking' }
+    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' }
     
     const healthCheckWithDebounce = async () => {
       if (!isMounted) return
@@ -133,7 +128,7 @@ export default function AdminOverviewPage() {
           if (hasEverSucceeded) {
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown', watcher: 'unknown' })
+            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
           }
         }
       } catch (err) {
@@ -204,55 +199,6 @@ export default function AdminOverviewPage() {
     }
   }, [])
 
-  // Countdown timer for Model Manager
-  useEffect(() => {
-    if (!modelManagerInfo?.next_run) {
-      setCountdown(null)
-      return
-    }
-
-    let isMounted = true
-    let countdownInterval = null
-
-    const updateCountdown = () => {
-      if (!isMounted) return
-      
-      const now = new Date()
-      const nextRun = new Date(modelManagerInfo.next_run)
-      const diff = nextRun - now
-
-      if (diff <= 0) {
-        if (isMounted) setCountdown('Due now')
-        return
-      }
-
-      const hours = Math.floor(diff / (1000 * 60 * 60))
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-
-      if (!isMounted) return
-
-      if (hours > 0) {
-        setCountdown(`${hours}h ${minutes}m`)
-      } else if (minutes > 0) {
-        setCountdown(`${minutes}m ${seconds}s`)
-      } else {
-        setCountdown(`${seconds}s`)
-      }
-    }
-
-    updateCountdown()
-    countdownInterval = setInterval(() => {
-      if (isMounted) {
-        updateCountdown()
-      }
-    }, 1000)
-    
-    return () => {
-      isMounted = false
-      if (countdownInterval) clearInterval(countdownInterval)
-    }
-  }, [modelManagerInfo])
 
   // Admin overview data fetcher
   const loadDashboardData = useCallback(async () => {
@@ -369,8 +315,6 @@ export default function AdminOverviewPage() {
         return '🗄️'
       case 'tunnel':
         return '🌐'
-      case 'model_manager':
-        return '🧠'
       case 'watcher':
         return '👁️'
       default:
@@ -556,7 +500,7 @@ export default function AdminOverviewPage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
           gap: 'var(--spacing-lg)'
         }}>
-          {['flask', 'ollama', 'supabase', 'tunnel', 'model_manager', 'watcher'].map(key => {
+          {['flask', 'ollama', 'supabase', 'tunnel', 'watcher'].map(key => {
             const status = system[key] || 'checking'
             const colors = getSystemStatusColor(status)
             const statusLabel = getSystemStatusLabel(status)
@@ -566,8 +510,6 @@ export default function AdminOverviewPage() {
               displayName = 'VOFC Flask API Server'
             } else if (key === 'tunnel') {
               displayName = 'Cloudflare Tunnel'
-            } else if (key === 'model_manager') {
-              displayName = 'Model Manager'
             } else if (key === 'watcher') {
               displayName = 'VOFC Processor (Watcher)'
             } else {
@@ -637,16 +579,6 @@ export default function AdminOverviewPage() {
                       {statusLabel}
                     </div>
                   </div>
-                  {key === 'model_manager' && countdown && status === 'ok' && (
-                    <div style={{ 
-                      fontSize: 'var(--font-size-xs)', 
-                      color: 'var(--cisa-gray)',
-                      marginLeft: '18px',
-                      fontStyle: 'italic'
-                    }}>
-                      Next run: {countdown}
-                    </div>
-                  )}
                 </div>
               </div>
             )

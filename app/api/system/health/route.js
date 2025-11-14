@@ -59,7 +59,6 @@ export async function GET(request) {
               ollama: 'failed',
               supabase: 'failed',
               tunnel: 'failed',
-              model_manager: 'failed',
               watcher: 'failed'
             },
             error: 'Flask server did not respond within 30 seconds',
@@ -79,7 +78,6 @@ export async function GET(request) {
               ollama: 'failed',
               supabase: 'failed',
               tunnel: 'failed',
-              model_manager: 'failed',
               watcher: 'failed'
             },
             error: 'Connection refused - Flask service may not be accessible at this URL',
@@ -100,7 +98,6 @@ export async function GET(request) {
               ollama: 'failed',
               supabase: 'failed',
               tunnel: 'failed',
-              model_manager: 'failed',
               watcher: 'failed'
             },
             error: 'Network error connecting to Flask service',
@@ -128,7 +125,6 @@ export async function GET(request) {
               ollama: 'failed',
               supabase: 'failed',
               tunnel: 'failed',
-              model_manager: 'failed',
               watcher: 'failed'
             },
             error: 'Tunnel temporarily unavailable (502)',
@@ -148,7 +144,6 @@ export async function GET(request) {
             ollama: 'unknown',
             supabase: 'unknown',
             tunnel: 'unknown',
-            model_manager: 'unknown'
           },
           error: 'Flask server returned an error',
           statusCode: response.status,
@@ -170,7 +165,6 @@ export async function GET(request) {
         ollama: data.ollama || data.components?.ollama || 'failed',
         supabase: data.supabase || data.components?.supabase || 'failed',
         tunnel: data.tunnel || data.components?.tunnel || 'failed',
-        model_manager: data.model_manager || data.components?.model_manager || 'failed',
         watcher: data.watcher || data.components?.watcher || 'failed'
       }
     };

@@ -43,11 +43,11 @@ supabase = get_supabase_client()
 def test_flask_service():
     """
     Check if Flask Windows service is running.
+    Only checks 'vofc-flask' (lowercase) - the single Flask service.
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
     """
-    # Try actual service names first, then alternatives for compatibility
-    # Primary service name is 'vofc-flask' with display name "VOFC Flask API Server"
-    service_names = ['vofc-flask', 'VOFC-Flask', 'PSA-Flask', 'Flask', 'flask']
+    # Only check vofc-flask (lowercase) - single Flask service
+    service_names = ['vofc-flask']
     
     for service_name in service_names:
         try:

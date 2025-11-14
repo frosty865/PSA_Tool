@@ -185,10 +185,11 @@ This analysis covers:
 | Service Name | Status | Purpose | Port | Config |
 |--------------|--------|---------|------|--------|
 | `vofc-flask` | ❓ | Flask backend | 8080 | NSSM |
-| `VOFC-Flask` | ❓ | Flask backend (alt name) | 8080 | NSSM |
 | `VOFC-Processor` | ❓ | Document processor | N/A | NSSM |
 | `VOFC-Tunnel` | ❓ | Cloudflare tunnel | N/A | NSSM |
 | `VOFC-Ollama` | ❓ | Ollama AI service | 11434 | NSSM |
+
+**Note**: Only ONE Flask service exists: `vofc-flask` (lowercase). Any `VOFC-Flask` or `PSA-Flask` services are duplicates and should be removed.
 
 ### **3.2 Service Dependencies**
 
@@ -207,12 +208,12 @@ VOFC-Processor (File Watcher)
 ### **3.3 Service Status Detection**
 
 Flask backend checks service status via:
-- `sc query vofc-flask` (or `VOFC-Flask`)
+- `sc query vofc-flask` (ONLY - lowercase, single service)
 - `sc query VOFC-Tunnel`
 - `sc query VOFC-Processor`
 - `sc query VOFC-Ollama`
 
-**Issue**: Service name variations may cause detection failures.
+**Note**: All services must start with "vofc" (lowercase) or "VOFC" (uppercase prefix). Only ONE Flask service: `vofc-flask`.
 
 ---
 
@@ -343,11 +344,12 @@ These Flask routes exist but are not used by Next.js:
   - [ ] `SUPABASE_SERVICE_ROLE_KEY`
   - [ ] `NEXT_PUBLIC_SITE_URL` (optional)
 
-- [ ] **Verify Windows Services**
-  - [ ] `vofc-flask` or `VOFC-Flask` is running
+- [ ] **Verify Windows Services** (ONLY services starting with "vofc" or "VOFC")
+  - [ ] `vofc-flask` is running (ONLY Flask service - lowercase)
   - [ ] `VOFC-Tunnel` is running
   - [ ] `VOFC-Ollama` is running
   - [ ] `VOFC-Processor` is running
+  - [ ] Remove any duplicate services: `VOFC-Flask`, `PSA-Flask` (use cleanup script)
 
 - [ ] **Test Tunnel Connectivity**
   - [ ] `curl https://flask.frostech.site/api/system/health`

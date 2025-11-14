@@ -110,18 +110,23 @@ def stop_service(service_name: str) -> Tuple[bool, str]:
     """
     actual_name = find_service_name(service_name)
     if not actual_name:
-        return False, f"Service {service_name} not found"
+        logger.warning(f"Service {service_name} not found - tried variants: {SERVICE_NAME_VARIANTS.get(service_name, [service_name])}")
+        return False, f"Service {service_name} not found (tried: {', '.join(SERVICE_NAME_VARIANTS.get(service_name, [service_name]))})"
     
     try:
+        logger.info(f"Stopping service: {actual_name} (canonical: {service_name})")
         result = subprocess.run(
             ['nssm', 'stop', actual_name],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=15
         )
         
         if result.returncode == 0:
             logger.info(f"Service {actual_name} stopped successfully")
+            # Wait a moment for service to fully stop
+            import time
+            time.sleep(2)
             return True, f"Service {actual_name} stopped"
         else:
             error_msg = result.stderr or result.stdout or "Unknown error"
@@ -130,7 +135,7 @@ def stop_service(service_name: str) -> Tuple[bool, str]:
     except subprocess.TimeoutExpired:
         return False, f"Timeout stopping {actual_name}"
     except Exception as e:
-        logger.error(f"Error stopping {actual_name}: {e}")
+        logger.error(f"Error stopping {actual_name}: {e}", exc_info=True)
         return False, f"Error stopping {actual_name}: {str(e)}"
 
 
@@ -141,18 +146,23 @@ def start_service(service_name: str) -> Tuple[bool, str]:
     """
     actual_name = find_service_name(service_name)
     if not actual_name:
-        return False, f"Service {service_name} not found"
+        logger.warning(f"Service {service_name} not found - tried variants: {SERVICE_NAME_VARIANTS.get(service_name, [service_name])}")
+        return False, f"Service {service_name} not found (tried: {', '.join(SERVICE_NAME_VARIANTS.get(service_name, [service_name]))})"
     
     try:
+        logger.info(f"Starting service: {actual_name} (canonical: {service_name})")
         result = subprocess.run(
             ['nssm', 'start', actual_name],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=15
         )
         
         if result.returncode == 0:
             logger.info(f"Service {actual_name} started successfully")
+            # Wait a moment for service to fully start
+            import time
+            time.sleep(3)
             return True, f"Service {actual_name} started"
         else:
             error_msg = result.stderr or result.stdout or "Unknown error"
@@ -161,7 +171,7 @@ def start_service(service_name: str) -> Tuple[bool, str]:
     except subprocess.TimeoutExpired:
         return False, f"Timeout starting {actual_name}"
     except Exception as e:
-        logger.error(f"Error starting {actual_name}: {e}")
+        logger.error(f"Error starting {actual_name}: {e}", exc_info=True)
         return False, f"Error starting {actual_name}: {str(e)}"
 
 
@@ -231,9 +241,21 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
     
     # Get dependent services
     dependents = get_dependent_services(service_name)
+    logger.info(f"Service {service_name} has {len(dependents)} dependent service(s): {dependents}")
+    
+    # Verify the target service exists
+    target_actual_name = find_service_name(service_name)
+    if not target_actual_name:
+        error_msg = f"Target service {service_name} not found"
+        logger.error(error_msg)
+        result['success'] = False
+        result['errors'].append(error_msg)
+        result['message'] = error_msg
+        return result
     
     if not dependents:
         # No dependencies - just restart the service
+        logger.info(f"No dependencies for {service_name}, restarting directly")
         success, msg = restart_service(service_name)
         result['steps'].append({
             'action': 'restart',
@@ -260,6 +282,7 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
             services_to_stop_sorted.append(svc)
     
     logger.info(f"Stopping services in order: {services_to_stop_sorted}")
+    import time
     for svc in services_to_stop_sorted:
         success, msg = stop_service(svc)
         result['steps'].append({
@@ -271,6 +294,8 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
         if not success:
             result['success'] = False
             result['errors'].append(f"Failed to stop {svc}: {msg}")
+        # Brief pause between stops
+        time.sleep(1)
     
     # Step 2: Start services in startup order
     services_to_start = [service_name] + dependents
@@ -285,6 +310,7 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
             services_to_start_sorted.append(svc)
     
     logger.info(f"Starting services in order: {services_to_start_sorted}")
+    import time
     for svc in services_to_start_sorted:
         success, msg = start_service(svc)
         result['steps'].append({
@@ -296,6 +322,8 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
         if not success:
             result['success'] = False
             result['errors'].append(f"Failed to start {svc}: {msg}")
+        # Brief pause between starts (longer for dependencies to initialize)
+        time.sleep(3)
     
     # Build summary message
     if result['success']:

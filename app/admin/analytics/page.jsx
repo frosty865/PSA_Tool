@@ -39,7 +39,7 @@ export default function AnalyticsDashboard() {
 
   useEffect(() => {
     fetchAnalytics()
-    const interval = setInterval(fetchAnalytics, 30000) // Refresh every 30s
+    const interval = setInterval(fetchAnalytics, 60000) // Refresh every 60s (reduced from 30s to reduce network load)
     return () => clearInterval(interval)
   }, [])
 

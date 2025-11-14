@@ -11,6 +11,7 @@ import json
 import requests
 import subprocess
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -39,13 +40,92 @@ system_bp = Blueprint('system', __name__)
 # Get Supabase client for lightweight routes
 supabase = get_supabase_client()
 
-def test_tunnel_service():
+def test_flask_service():
     """
-    Check if VOFC Tunnel Windows service is running.
+    Check if Flask Windows service is running.
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
     """
-    # Try multiple possible service names
-    service_names = ['VOFC-Tunnel', 'VOFC-Tunnel-Service', 'Cloudflare-Tunnel']
+    # Try actual service names first, then alternatives for compatibility
+    # Include common old service name variations
+    service_names = ['vofc-flask', 'VOFC-Flask', 'PSA-Flask', 'Flask', 'flask']
+    
+    for service_name in service_names:
+        try:
+            # Use sc query to check service status (works on Windows)
+            result = subprocess.run(
+                ['sc', 'query', service_name],
+                capture_output=True,
+                text=True,
+                timeout=3
+            )
+            
+            if result.returncode == 0:
+                output = result.stdout
+                output_upper = output.upper()
+                
+                # Improved parsing: Handle format "STATE : 4  RUNNING" or "STATE              : 4  RUNNING"
+                # Look for STATE line and extract state code
+                for line in output.split('\n'):
+                    line_upper = line.upper()
+                    if 'STATE' in line_upper:
+                        # Parse state code - can be "STATE : 4" or "STATE              : 4"
+                        # Extract number after colon
+                        if ':' in line:
+                            # Split on colon and get the part after it
+                            after_colon = line.split(':', 1)[1].strip()
+                            # Extract first number (state code)
+                            state_match = re.search(r'\b(\d+)\b', after_colon)
+                            if state_match:
+                                state_code = state_match.group(1)
+                                # State codes: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING, 7=PAUSED
+                                if state_code == '4':
+                                    logging.debug(f"Flask service {service_name} is RUNNING (state code 4)")
+                                    return 'ok'
+                                elif state_code == '1':
+                                    logging.debug(f"Flask service {service_name} is STOPPED (state code 1)")
+                                    return 'offline'
+                                elif state_code == '7':
+                                    logging.debug(f"Flask service {service_name} is PAUSED (state code 7)")
+                                    return 'offline'
+                
+                # Fallback: check text in output (more reliable)
+                if 'RUNNING' in output_upper and 'STOPPED' not in output_upper:
+                    logging.debug(f"Flask service {service_name} is RUNNING (text match)")
+                    return 'ok'
+                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
+                    logging.debug(f"Flask service {service_name} is STOPPED (text match)")
+                    return 'offline'
+                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
+                    logging.debug(f"Flask service {service_name} is PAUSED (text match)")
+                    return 'offline'
+                else:
+                    # Service exists but state unclear - log for debugging
+                    logging.warning(f"Flask service {service_name} found but state unclear. Output: {output[:200]}")
+                    continue  # Try next service name
+            # If service not found (returncode != 0), try next name
+            else:
+                logging.debug(f"Service {service_name} not found (returncode: {result.returncode})")
+        except subprocess.TimeoutExpired:
+            logging.debug(f"Timeout checking Flask service {service_name}")
+            continue
+        except FileNotFoundError:
+            logging.warning("sc.exe not found - cannot check Flask service status")
+            return 'unknown'
+        except Exception as e:
+            logging.debug(f"Error checking Flask service {service_name}: {e}")
+            continue
+    
+    # Service might not exist or access denied
+    logging.warning("Flask service not found with any of the checked names")
+    return 'unknown'
+
+def test_tunnel_service():
+    """
+    Check if Tunnel Windows service is running.
+    Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    """
+    # Try actual service names first, then alternatives for compatibility
+    service_names = ['VOFC-Tunnel', 'vofc-tunnel', 'VOFC-Tunnel-Service', 'PSA-Tunnel', 'Cloudflare-Tunnel']
     
     for service_name in service_names:
         try:
@@ -112,11 +192,11 @@ def test_tunnel_service():
 
 def test_model_manager():
     """
-    Check if VOFC Model Manager Windows service is running.
+    Check if Model Manager Windows service is running.
     Returns 'online' if running, 'paused' if paused, 'offline' if stopped, 'unknown' if check fails.
     """
-    # Try multiple possible service names
-    service_names = ['VOFC-ModelManager', 'VOFC-Model-Manager', 'ModelManager']
+    # Try actual service names first, then alternatives for compatibility
+    service_names = ['VOFC-ModelManager', 'vofc-modelmanager', 'VOFC-Model-Manager', 'PSA-ModelManager', 'ModelManager']
     
     for service_name in service_names:
         try:
@@ -211,8 +291,10 @@ def health():
     flask_url = f"http://127.0.0.1:{flask_port}"
     
     # Initialize components status
+    # Check Flask service status (similar to tunnel and model manager checks)
+    flask_service_status = test_flask_service()
     components = {
-        "flask": "ok",
+        "flask": flask_service_status if flask_service_status in ["ok", "offline", "unknown"] else "unknown",
         "ollama": "offline",
         "supabase": test_supabase(),
         "model_manager": test_model_manager()
@@ -363,67 +445,91 @@ def progress():
                 "review": 0
             }
         
-        # Get watcher status by checking VOFC-Processor service
+        # Get watcher status by checking Processor service
         # SIMPLIFIED: If service is running, watcher is running (it's a continuous process)
-        try:
-            import subprocess
-            result = subprocess.run(
-                ['sc', 'query', 'VOFC-Processor'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            # Check for RUNNING state
-            # Windows service states: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING
-            service_running = False
-            if result.returncode == 0:
-                output_upper = result.stdout.upper()
-                # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
-                # Use explicit check: RUNNING must be present and STOPPED must NOT be present
-                has_running = 'RUNNING' in output_upper
-                has_stopped = 'STOPPED' in output_upper
-                has_state_4 = 'STATE' in output_upper and ': 4' in output_upper
+        # Try actual service names first, then alternatives for compatibility
+        service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+        service_running = False
+        result = None
+        
+        for service_name in service_names:
+            try:
+                import subprocess
+                result = subprocess.run(
+                    ['sc', 'query', service_name],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
                 
-                # Primary check: RUNNING keyword present and STOPPED not present
-                if has_running and not has_stopped:
-                    service_running = True
-                    logging.info(f"Service check: RUNNING found, STOPPED not found - service is running")
-                # Fallback check: State code 4 (RUNNING) - this should also work
-                elif has_state_4:
-                    service_running = True
-                    logging.info(f"Service check: State code 4 found - service is running")
-                else:
-                    # Log for debugging
-                    logging.warning(f"Service check failed: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
-                    logging.debug(f"Service output (first 200 chars): {result.stdout[:200]}")
-            else:
-                logging.warning(f"Service query returned non-zero exit code: {result.returncode}, stderr: {result.stderr}")
-            
-            # SIMPLIFIED LOGIC: If service is running, watcher is running (continuous process)
-            # The service runs continuously and processes files automatically
-            if service_running:
-                progress_data["watcher_status"] = "running"
-                logging.debug("Watcher status set to: running")
-            else:
-                # Service is not running - check if it exists at all
-                if result.returncode != 0 or 'does not exist' in result.stdout.lower() or 'does not exist' in result.stderr.lower():
-                    # Service doesn't exist or can't be queried
-                    progress_data["watcher_status"] = "unknown"
-                    logging.debug("Watcher status set to: unknown (service not found)")
-                else:
-                    # Service exists but is stopped
-                    progress_data["watcher_status"] = "stopped"
-                    logging.debug("Watcher status set to: stopped (service exists but not running)")
+                # Check for RUNNING state
+                # Windows service states: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING
+                if result.returncode == 0:
+                    output_upper = result.stdout.upper()
+                    # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
+                    # Use explicit check: RUNNING must be present and STOPPED must NOT be present
+                    has_running = 'RUNNING' in output_upper
+                    has_stopped = 'STOPPED' in output_upper
+                    has_state_4 = 'STATE' in output_upper and ': 4' in output_upper
                     
-        except subprocess.TimeoutExpired:
-            logging.warning("Timeout checking VOFC-Processor service status")
+                    # Primary check: RUNNING keyword present and STOPPED not present
+                    if has_running and not has_stopped:
+                        service_running = True
+                        logging.info(f"Service check: RUNNING found, STOPPED not found - service is running")
+                        break  # Found running service, exit loop
+                    # Fallback check: State code 4 (RUNNING) - this should also work
+                    elif has_state_4:
+                        service_running = True
+                        logging.info(f"Service check: State code 4 found - service is running")
+                        break  # Found running service, exit loop
+                    else:
+                        # Log for debugging
+                        logging.warning(f"Service check failed: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
+                        logging.debug(f"Service output (first 200 chars): {result.stdout[:200]}")
+                        # Service exists but not running, continue to check if it exists
+                        if 'does not exist' not in result.stdout.lower() and 'does not exist' not in result.stderr.lower():
+                            # Service exists but stopped
+                            service_running = False
+                            break  # Found service (stopped), exit loop
+                else:
+                    logging.warning(f"Service query returned non-zero exit code: {result.returncode}, stderr: {result.stderr}")
+                    continue  # Try next service name
+            except subprocess.TimeoutExpired:
+                logging.warning(f"Timeout checking {service_name} service status")
+                continue  # Try next service name
+            except FileNotFoundError:
+                # sc.exe not found (not Windows or PATH issue)
+                logging.warning("sc.exe not found - cannot check service status")
+                progress_data["watcher_status"] = "unknown"
+                break
+            except Exception as e:
+                logging.debug(f"Error checking {service_name}: {e}")
+                continue  # Try next service name
+        
+        # Process result - set watcher status based on service status
+        if service_running:
+            progress_data["watcher_status"] = "running"
+            logging.debug("Watcher status set to: running")
+        elif result is not None:
+            # Service is not running - check if it exists at all
+            if result.returncode != 0 or 'does not exist' in result.stdout.lower() or 'does not exist' in result.stderr.lower():
+                # Service doesn't exist or can't be queried
+                progress_data["watcher_status"] = "unknown"
+                logging.debug("Watcher status set to: unknown (service not found)")
+            else:
+                # Service exists but is stopped
+                progress_data["watcher_status"] = "stopped"
+                logging.debug("Watcher status set to: stopped (service exists but not running)")
+        else:
+            # No service found at all
             progress_data["watcher_status"] = "unknown"
-        except FileNotFoundError:
-            # sc.exe not found (not Windows or PATH issue)
-            logging.warning("sc.exe not found - cannot check service status")
-            progress_data["watcher_status"] = "unknown"
-        except Exception as e:
+            logging.debug("Watcher status set to: unknown (no service found)")
+            
+    except FileNotFoundError:
+        # sc.exe not found (not Windows or PATH issue)
+        logging.warning("sc.exe not found - cannot check service status")
+        progress_data["watcher_status"] = "unknown"
+    except Exception as e:
             logging.warning(f"Could not get watcher status: {e}", exc_info=True)
             progress_data["watcher_status"] = "unknown"
         
@@ -719,8 +825,8 @@ def system_control():
         
         if action == "sync_review":
             try:
-                # Note: sync_review functionality moved to VOFC-Processor service
-                msg = "Review sync is handled by VOFC-Processor service. Use the service logs to monitor sync status."
+                # Note: sync_review functionality moved to PSA-Processor service
+                msg = "Review sync is handled by PSA-Processor service. Use the service logs to monitor sync status."
                 logging.warning(f"[Admin Control] sync_review: {msg}")
             except Exception as e:
                 logging.error(f"Error in sync_review: {e}")
@@ -728,8 +834,8 @@ def system_control():
         
         elif action == "sync_review_to_submissions":
             try:
-                # Note: sync_review_to_submissions functionality moved to VOFC-Processor service
-                msg = "Review files sync is handled by VOFC-Processor service."
+                # Note: sync_review_to_submissions functionality moved to PSA-Processor service
+                msg = "Review files sync is handled by PSA-Processor service."
                 logging.warning(f"[Admin Control] sync_review_to_submissions: {msg}")
             except Exception as e:
                 logging.error(f"Error in sync_review_to_submissions: {e}")
@@ -737,8 +843,8 @@ def system_control():
         
         elif action == "clear_processed_tracking":
             try:
-                # Note: Processed tracking is no longer used - VOFC-Processor handles deduplication
-                msg = "Processed file tracking is deprecated. VOFC-Processor uses Supabase for deduplication."
+                # Note: Processed tracking is no longer used - PSA-Processor handles deduplication
+                msg = "Processed file tracking is deprecated. PSA-Processor uses Supabase for deduplication."
                 logging.info(f"[Admin Control] clear_processed_tracking: {msg}")
             except Exception as e:
                 logging.error(f"Error clearing processed tracking: {e}")
@@ -897,21 +1003,27 @@ def system_control():
                 import traceback
                 from pathlib import Path
                 
-                # Check if VOFC-Processor service is running
-                try:
-                    import subprocess
-                    result = subprocess.run(
-                        ['nssm', 'status', 'VOFC-Processor'],
-                        capture_output=True,
-                        text=True,
-                        timeout=2
-                    )
-                    if result.returncode == 0 and 'SERVICE_RUNNING' in result.stdout:
-                        service_status = "running"
-                    else:
-                        service_status = "not running"
-                except:
-                    service_status = "unknown"
+                # Check if Processor service is running (try actual names first, then alternatives)
+                service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+                service_status = "unknown"
+                
+                for service_name in service_names:
+                    try:
+                        import subprocess
+                        result = subprocess.run(
+                            ['nssm', 'status', service_name],
+                            capture_output=True,
+                            text=True,
+                            timeout=2
+                        )
+                        if result.returncode == 0 and 'SERVICE_RUNNING' in result.stdout:
+                            service_status = "running"
+                            break  # Found running service
+                        elif result.returncode == 0:
+                            service_status = "not running"
+                            break  # Found service but not running
+                    except:
+                        continue  # Try next service name
                 
                 INCOMING_DIR = BASE_DIR / "incoming"
                 logging.info(f"[Admin Control] process_existing: Checking {INCOMING_DIR}")
@@ -927,11 +1039,11 @@ def system_control():
                 
                 if service_status == "running":
                     if file_count > 0:
-                        msg = f"VOFC-Processor service is running and will automatically process {file_count} file(s) in incoming/ directory. Processing happens continuously every 30 seconds."
+                        msg = f"PSA-Processor service is running and will automatically process {file_count} file(s) in incoming/ directory. Processing happens continuously every 30 seconds."
                     else:
-                        msg = "VOFC-Processor service is running. No files found in incoming/ directory. Files will be processed automatically when added."
+                        msg = "PSA-Processor service is running. No files found in incoming/ directory. Files will be processed automatically when added."
                 else:
-                    msg = f"VOFC-Processor service is {service_status}. Please start the service to process files. Files found: {file_count}"
+                    msg = f"PSA-Processor service is {service_status}. Please start the service to process files. Files found: {file_count}"
                     logging.warning(f"[Admin Control] {msg}")
                 
                 logging.info(f"[Admin Control] {msg}")

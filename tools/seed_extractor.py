@@ -19,8 +19,10 @@ from datetime import datetime
 # -------------------------------------------------------------
 # CONFIGURATION
 # -------------------------------------------------------------
-PARSED_DIR = Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data\parsed")
-OUTPUT_FILE = Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data\annotated_seed.jsonl")
+# Training data paths - check new location first, fallback to legacy
+TRAIN_DIR = Path(r"C:\Tools\VOFC-Flask\training_data") if Path(r"C:\Tools\VOFC-Flask\training_data").exists() else Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data")
+PARSED_DIR = TRAIN_DIR / "parsed"
+OUTPUT_FILE = TRAIN_DIR / "annotated_seed.jsonl"
 
 
 # Lexical cues

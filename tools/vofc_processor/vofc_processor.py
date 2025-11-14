@@ -47,10 +47,12 @@ try:
     from dotenv import load_dotenv
     script_dir = Path(__file__).parent
     possible_env_paths = [
+        Path(r"C:\Tools\.env"),  # Primary location for shared .env
         script_dir.parent.parent / ".env",
         script_dir / ".env",
-        Path(r"C:\Tools\PSA_Tool\.env"),
-        Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\.env"),
+        Path(r"C:\Tools\VOFC-Flask\.env"),
+        Path(r"C:\Tools\PSA_Tool\.env"),  # Legacy path
+        Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\.env"),  # Legacy path
     ]
     
     env_loaded = False
@@ -190,15 +192,24 @@ def process_pdf_file(pdf_path: str) -> bool:
         
         # Step 3: Upload to Supabase (optional)
         logger.info("[3/4] Uploading to Supabase...")
-        submission_id = upload_to_supabase(
-            file_path=str(pdf_path),
-            records=records,
-            supabase=supabase
-        )
-        if submission_id:
-            logger.info(f"✓ Uploaded to Supabase (submission_id={submission_id})")
-        else:
-            logger.warning("⚠️  Supabase upload skipped or failed")
+        try:
+            submission_id = upload_to_supabase(
+                file_path=str(pdf_path),
+                records=records,
+                supabase=supabase
+            )
+            if submission_id:
+                logger.info(f"✓ Uploaded to Supabase (submission_id={submission_id})")
+            else:
+                # Check why upload failed
+                if not supabase:
+                    logger.warning("⚠️  Supabase upload skipped: Supabase client not initialized (check SUPABASE_URL and SUPABASE_ANON_KEY environment variables)")
+                elif not records:
+                    logger.warning("⚠️  Supabase upload skipped: No records to upload")
+                else:
+                    logger.warning("⚠️  Supabase upload failed: Check logs above for details")
+        except Exception as upload_error:
+            logger.error(f"⚠️  Supabase upload error: {upload_error}", exc_info=True)
         
         # Step 4: Move PDF to library
         logger.info("[4/4] Archiving to library...")

@@ -134,7 +134,7 @@ export default function AdminOverviewPage() {
     }
     
     healthCheckWithDebounce()
-    const interval = setInterval(healthCheckWithDebounce, 20000) // 20s interval
+    const interval = setInterval(healthCheckWithDebounce, 60000) // 60s interval (reduced from 20s to reduce network load)
     return () => { isMounted = false; clearInterval(interval) }
   }, [])
 
@@ -178,7 +178,7 @@ export default function AdminOverviewPage() {
       if (isMounted) {
         fetchPendingCount()
       }
-    }, 30000) // Refresh every 30s
+    }, 60000) // Refresh every 60s (reduced from 30s to reduce network load)
     
     return () => {
       isMounted = false

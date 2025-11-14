@@ -1,0 +1,42 @@
+# Python services - should not be deployed to Vercel
+app.py
+routes/
+services/
+venv/
+*.py
+*.pyc
+__pycache__/
+requirements.txt
+
+# Data directories
+data/
+logs/
+training_data/
+
+# Python-specific files
+*.pid
+*.pem
+*.key
+*.cert
+
+# Windows service files
+*.bat
+*.ps1
+
+# Configuration files that shouldn't be in Vercel
+cloudflared-config.yml
+vofc_benchmarks.json
+heuristics/
+
+# Tools and scripts
+tools/
+scripts/
+
+# Supabase migrations (handled separately)
+supabase/
+
+# Documentation
+docs/
+*.md
+!README.md
+

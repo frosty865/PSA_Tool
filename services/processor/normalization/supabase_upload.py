@@ -19,19 +19,29 @@ except ImportError:
 def init_supabase() -> Optional[Client]:
     """Initialize Supabase client from environment variables."""
     if not SUPABASE_AVAILABLE:
+        logging.warning("Supabase library not available - install with: pip install supabase")
         return None
     
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_ANON_KEY")
+    supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+    # Check both SUPABASE_ANON_KEY and NEXT_PUBLIC_SUPABASE_ANON_KEY for compatibility
+    supabase_key = os.getenv("SUPABASE_ANON_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     
-    if not supabase_url or not supabase_key:
-        logging.warning("Supabase credentials not found in environment variables")
+    if not supabase_url:
+        logging.warning("SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL environment variable not set - Supabase uploads will be skipped")
+        return None
+    
+    if not supabase_key:
+        logging.warning("SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable not set - Supabase uploads will be skipped")
         return None
     
     try:
-        return create_client(supabase_url, supabase_key)
+        client = create_client(supabase_url, supabase_key)
+        logging.debug(f"Supabase client initialized successfully (URL: {supabase_url[:30]}...)")
+        return client
     except Exception as e:
         logging.error(f"Failed to initialize Supabase client: {e}")
+        logging.error(f"  SUPABASE_URL: {'set' if supabase_url else 'not set'}")
+        logging.error(f"  SUPABASE_ANON_KEY: {'set' if supabase_key else 'not set'}")
         return None
 
 
@@ -94,18 +104,21 @@ def upload_to_supabase(
         Submission ID if successful, None otherwise
     """
     if not SUPABASE_AVAILABLE:
-        logging.warning("Supabase library not available - skipping upload")
+        logging.warning("Supabase library not available - skipping upload (install with: pip install supabase)")
         return None
     
     if not supabase:
+        logging.debug("Supabase client not provided, attempting to initialize...")
         supabase = init_supabase()
         if not supabase:
-            logging.warning("Supabase not configured - skipping upload")
+            logging.warning("Supabase not configured - skipping upload (check SUPABASE_URL and SUPABASE_ANON_KEY environment variables)")
             return None
     
     if not records:
-        logging.info("No records to upload")
+        logging.info("No records to upload - skipping Supabase upload")
         return None
+    
+    logging.debug(f"Attempting to upload {len(records)} records to Supabase...")
     
     try:
         submission_id = str(uuid.uuid4())

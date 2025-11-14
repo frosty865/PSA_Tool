@@ -44,8 +44,9 @@ from pathlib import Path
 MODEL_NAME = "vofc-engine"  # base family/tag to version
 BASE_FALLBACK = "llama3:instruct"  # used if vofc-engine:latest not present
 MAX_EXAMPLES = 40  # keep Modelfile reasonably small
-SEED_FILE = Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data\annotated_seed.jsonl")
-TRAIN_DIR = Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data")
+# Training data paths - check new location first, fallback to legacy
+TRAIN_DIR = Path(r"C:\Tools\VOFC-Flask\training_data") if Path(r"C:\Tools\VOFC-Flask\training_data").exists() else Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data")
+SEED_FILE = TRAIN_DIR / "annotated_seed.jsonl"
 MODELS_DIR = TRAIN_DIR / "models"
 ARCHIVE_DIR = TRAIN_DIR / "archive"
 LOGS_DIR = TRAIN_DIR / "logs"

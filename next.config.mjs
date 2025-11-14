@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import webpack from 'webpack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -17,6 +18,15 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': __dirname,
     };
+    
+    // Exclude Python files and services from webpack processing
+    // This prevents webpack from trying to process Python files during build
+    config.plugins = config.plugins || [];
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /\.(py|pyc|pyo|pyd)$/,
+      })
+    );
     
     // Reduce webpack processing time
     if (!isServer) {

@@ -23,7 +23,7 @@ export async function GET(request) {
   try {
     // Add timeout to prevent hanging
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // Increased to 10 seconds for service
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // Increased to 30 seconds for slow networks
     
     let response;
     try {
@@ -61,7 +61,7 @@ export async function GET(request) {
               tunnel: 'unknown',
               model_manager: 'unknown'
             },
-            error: 'Flask server did not respond within 10 seconds',
+            error: 'Flask server did not respond within 30 seconds',
             flaskUrl: FLASK_URL,
             hint: 'Flask service may be slow to respond or unreachable at this URL'
           },

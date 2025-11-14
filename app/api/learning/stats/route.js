@@ -15,7 +15,7 @@ export async function GET(request) {
     
     // Add timeout to fetch request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout (increased for slow networks)
     
     let response;
     try {
@@ -35,7 +35,7 @@ export async function GET(request) {
         return NextResponse.json(
           { 
             error: 'Request timeout',
-            message: 'Flask server did not respond within 10 seconds',
+            message: 'Flask server did not respond within 30 seconds',
             flaskUrl: FLASK_URL,
             stats: []
           },

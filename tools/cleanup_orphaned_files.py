@@ -78,10 +78,11 @@ def find_orphaned_files(
         "orphaned_ps1": []          # Orphaned .ps1 scripts in data dirs
     }
     
-    # Exclude project directory from cleanup
+    # Exclude project directories from cleanup
     project_dirs = [
         PROJECT_DIR,
-        Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool")
+        Path(r"C:\Tools\VOFC-Flask"),  # Flask server location
+        Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool")  # Legacy path
     ]
     
     # Helper to check if file is in project directory

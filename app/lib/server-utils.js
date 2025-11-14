@@ -75,7 +75,7 @@ export function getOllamaUrl() {
  */
 export async function safeFetch(url, options = {}) {
   const {
-    timeout = 10000,
+    timeout = 30000, // Increased from 10s to 30s for slow networks
     method = 'GET',
     headers = {},
     body = null,
@@ -235,7 +235,7 @@ export async function checkFlaskHealth(retries = 3) {
         }
         
         const result = await safeFetch(healthUrl, {
-          timeout: 15000, // Increased timeout for production reliability
+          timeout: 30000, // Increased timeout for slow networks (30s)
         });
         
         // Log result

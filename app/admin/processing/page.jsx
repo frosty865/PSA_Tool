@@ -122,7 +122,7 @@ export default function ProcessingMonitorPage() {
     }
 
     fetchProgress()
-    const timer = setInterval(fetchProgress, 10000) // Poll every 10 seconds
+    const timer = setInterval(fetchProgress, 30000) // Poll every 30 seconds (reduced from 10s to reduce network load)
     
     return () => clearInterval(timer)
   }, [])
@@ -211,7 +211,7 @@ export default function ProcessingMonitorPage() {
             console.error('Error polling logs:', err)
           }
         }
-      }, 1500)  // Poll every 1.5 seconds for near real-time updates
+      }, 5000)  // Poll every 5 seconds (reduced from 1.5s to reduce network load)
     }
 
     // Load initial logs and start polling

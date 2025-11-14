@@ -14,7 +14,7 @@ Synchronize PSA Tool environment configuration between Flask service directory
 # Configuration
 # ================================
 $projectPath = "C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool"
-$flaskPath   = "C:\Tools\VOFC-Flask"
+$flaskPath   = "C:\Tools\VOFC-Flask"  # Updated to new location
 $envFile     = "$projectPath\.env"
 $flaskEnv    = "$flaskPath\.env"
 $timestamp   = (Get-Date).ToString("yyyyMMdd-HHmmss")
@@ -78,12 +78,25 @@ if (Compare-Object (Get-Content $envFile) (Get-Content $flaskEnv)) {
 # ================================
 # Step 4: Optional Restart
 # ================================
-$restart = Read-Host "Do you want to restart the VOFC-Flask service now? (y/n)"
+$restart = Read-Host "Do you want to restart the Flask service now? (y/n)"
 if ($restart -eq "y") {
     Write-Host "🔁 Restarting Flask service..." -ForegroundColor Cyan
-    Start-Process -FilePath "nssm" -ArgumentList "restart VOFC-Flask" -Verb RunAs
-    Start-Sleep -Seconds 5
-    Write-Host "✅  Service restart requested. Check status with 'nssm status VOFC-Flask'."
+    # Try actual service name first (lowercase), then alternatives
+    $serviceNames = @('vofc-flask', 'VOFC-Flask')
+    $serviceFound = $false
+    foreach ($svcName in $serviceNames) {
+        $status = nssm status $svcName 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Start-Process -FilePath "nssm" -ArgumentList "restart $svcName" -Verb RunAs
+            Start-Sleep -Seconds 5
+            Write-Host "✅  Service restart requested. Check status with 'nssm status $svcName'."
+            $serviceFound = $true
+            break
+        }
+    }
+    if (-not $serviceFound) {
+        Write-Host "⚠️  Flask service not found. Tried: $($serviceNames -join ', ')" -ForegroundColor Yellow
+    }
 } else {
     Write-Host "ℹ️  Service restart skipped."
 }

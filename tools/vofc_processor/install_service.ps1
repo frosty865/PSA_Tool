@@ -1,7 +1,8 @@
 # install_service.ps1
 # Installs VOFC Processor as a Windows background service using NSSM
+# Uses VOFC-Processor naming convention
 
-$ServiceName = "VOFC-Processor"
+$ServiceName = "VOFC-Processor"  # Standard name
 
 # Check if service is marked for deletion and wait if needed
 Write-Host "Checking for existing service..." -ForegroundColor Gray
@@ -44,10 +45,10 @@ if ($LASTEXITCODE -eq 0) {
         Start-Sleep -Seconds 3
     }
 }
-# Server deployment paths - all services run from C:\Tools
+# Server deployment paths - all services run from C:\Tools with VOFC-* naming
 $PythonPath = "C:\Tools\python\python.exe"
-$ScriptPath = "C:\Tools\vofc_processor\vofc_processor.py"
-$TargetDir = "C:\Tools\vofc_processor"
+$ScriptPath = "C:\Tools\VOFC-Processor\vofc_processor.py"
+$TargetDir = "C:\Tools\VOFC-Processor"
 
 # Check Python path - try multiple locations
 if (-not (Test-Path $PythonPath)) {
@@ -85,11 +86,19 @@ if (Test-Path (Join-Path $SourceDir "__init__.py")) {
     Copy-Item (Join-Path $SourceDir "__init__.py") (Join-Path $TargetDir "__init__.py") -Force -ErrorAction SilentlyContinue
 }
 
-# Verify script path exists
+# Verify script path exists (check new location first, then legacy)
 if (-not (Test-Path $ScriptPath)) {
-    Write-Host "Error: vofc_processor.py not found at: $ScriptPath" -ForegroundColor Red
-    Write-Host "Please ensure files are copied to C:\Tools\vofc_processor\" -ForegroundColor Yellow
-    exit 1
+    # Try legacy path
+    $LegacyScriptPath = "C:\Tools\vofc_processor\vofc_processor.py"
+    if (Test-Path $LegacyScriptPath) {
+        Write-Host "Found script at legacy location, using: $LegacyScriptPath" -ForegroundColor Yellow
+        $ScriptPath = $LegacyScriptPath
+        $TargetDir = "C:\Tools\vofc_processor"
+    } else {
+        Write-Host "Error: vofc_processor.py not found at: $ScriptPath" -ForegroundColor Red
+        Write-Host "Please ensure files are copied to C:\Tools\VOFC-Processor\" -ForegroundColor Yellow
+        exit 1
+    }
 }
 
 Write-Host "Installing $ServiceName..."

@@ -17,8 +17,8 @@ export default function APIHealthCards() {
 
   useEffect(() => {
     checkAPIHealth();
-    // Check every 30 seconds
-    const interval = setInterval(checkAPIHealth, 30000);
+    // Check every 60 seconds (reduced from 30s to reduce network load)
+    const interval = setInterval(checkAPIHealth, 60000);
     return () => clearInterval(interval);
   }, []);
 

@@ -43,7 +43,7 @@ export default function AdminReviewPage() {
       if (isMounted) {
         loadSubmissionsSafe()
       }
-    }, 30000) // Refresh every 30s
+    }, 60000) // Refresh every 60s (reduced from 30s to reduce network load)
     
     return () => {
       isMounted = false

@@ -7,6 +7,7 @@ import os
 import logging
 import subprocess
 import re
+import time
 from typing import List, Dict, Tuple, Optional
 
 # Service dependencies map
@@ -125,7 +126,6 @@ def stop_service(service_name: str) -> Tuple[bool, str]:
         if result.returncode == 0:
             logger.info(f"Service {actual_name} stopped successfully")
             # Wait a moment for service to fully stop
-            import time
             time.sleep(2)
             return True, f"Service {actual_name} stopped"
         else:
@@ -161,7 +161,6 @@ def start_service(service_name: str) -> Tuple[bool, str]:
         if result.returncode == 0:
             logger.info(f"Service {actual_name} started successfully")
             # Wait a moment for service to fully start
-            import time
             time.sleep(3)
             return True, f"Service {actual_name} started"
         else:
@@ -282,7 +281,6 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
             services_to_stop_sorted.append(svc)
     
     logger.info(f"Stopping services in order: {services_to_stop_sorted}")
-    import time
     for svc in services_to_stop_sorted:
         success, msg = stop_service(svc)
         result['steps'].append({
@@ -310,7 +308,6 @@ def restart_with_dependencies(service_name: str) -> Dict[str, any]:
             services_to_start_sorted.append(svc)
     
     logger.info(f"Starting services in order: {services_to_start_sorted}")
-    import time
     for svc in services_to_start_sorted:
         success, msg = start_service(svc)
         result['steps'].append({

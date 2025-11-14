@@ -78,8 +78,8 @@ htmlcov/
 secrets/
 
 # Deployed backend services (Windows local deployment)
-# These are runtime deployments, not source code
-# Edit directly in C:\Tools\* - do not sync from project
+# These are the ACTUAL runtime services - edit directly here
+# Project folder is for git/version control only
 C:\Tools\VOFC-Flask/
 C:\Tools\VOFC-Processor/
 C:\Tools\vofc_processor/
@@ -88,6 +88,6 @@ C:\Tools\VOFC-Ollama/
 C:\Tools\VOFC-ModelManager/
 C:\Tools\VOFC-AutoRetrain/
 C:\Tools\VOFC-AutoSync/
-# But keep the project's tools/ directory (source code)
+# But keep the project's tools/ directory (for git commits)
 !tools/
 

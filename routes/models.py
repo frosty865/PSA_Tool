@@ -12,8 +12,15 @@ from config import Config
 
 models_bp = Blueprint('models', __name__)
 
-# Get Supabase client
-supabase = get_supabase_client()
+# Supabase client - lazy loaded (only when needed)
+def get_supabase():
+    """Get Supabase client, handling configuration errors gracefully."""
+    try:
+        return get_supabase_client()
+    except Exception as e:
+        import logging
+        logging.debug(f"Supabase client not available: {e}")
+        return None
 
 @models_bp.route('/api/models/info', methods=['GET'])
 def get_model_info():
@@ -144,7 +151,10 @@ def get_system_events():
     """Get system events (retraining, etc.) from Supabase"""
     try:
         # Query system_events table
-        result = supabase.table("system_events").select("*").order("timestamp", desc=True).limit(50).execute()
+        supabase_client = get_supabase()
+        if not supabase_client:
+            return jsonify([])  # Return empty array if Supabase not configured
+        result = supabase_client.table("system_events").select("*").order("timestamp", desc=True).limit(50).execute()
         
         if result.data:
             return jsonify(result.data)
@@ -161,7 +171,10 @@ def get_system_events():
 def model_performance_summary():
     """Get model performance summary from Supabase view"""
     try:
-        res = supabase.table("view_model_performance_summary").select("*").execute()
+        supabase_client = get_supabase()
+        if not supabase_client:
+            return jsonify([])  # Return empty array if Supabase not configured
+        res = supabase_client.table("view_model_performance_summary").select("*").execute()
         return jsonify(res.data)
     except Exception as e:
         import logging

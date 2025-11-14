@@ -49,6 +49,66 @@ def process_pdf(
     
     logging.info(f"Starting processing pipeline for: {pdf_path.name}")
     
+    # Validate model availability before processing
+    if model:
+        model_to_check = model
+    else:
+        from ..model.vofc_client import MODEL
+        model_to_check = MODEL
+    
+    logging.info(f"Checking if model '{model_to_check}' is available...")
+    try:
+        import requests
+        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+        if not ollama_url.startswith(('http://', 'https://')):
+            ollama_url = f"http://{ollama_url}"
+        ollama_url = ollama_url.rstrip('/')
+        
+        # Check available models
+        tags_response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+        if tags_response.status_code == 200:
+            tags_data = tags_response.json()
+            # Handle both formats: {"models": [...]} and direct array
+            if isinstance(tags_data, list):
+                available_models = tags_data
+            else:
+                available_models = tags_data.get("models", [])
+            model_names = [m.get("name", "") if isinstance(m, dict) else str(m) for m in available_models]
+            
+            if not model_names:
+                error_msg = f"❌ CRITICAL: No models installed in Ollama. Please install a model first:\n  ollama pull {model_to_check}\n  Or set VOFC_MODEL or OLLAMA_MODEL environment variable to an installed model."
+                logging.error(error_msg)
+                raise ValueError(error_msg)
+            
+            # Check if requested model is available
+            if model_to_check not in model_names:
+                # Try without :latest tag
+                model_base = model_to_check.split(':')[0]
+                matching_models = [m for m in model_names if m.startswith(model_base)]
+                
+                if matching_models:
+                    suggested_model = matching_models[0]
+                    logging.warning(f"Model '{model_to_check}' not found. Using '{suggested_model}' instead.")
+                    model_to_check = suggested_model
+                    # Update model parameter for this processing run
+                    model = suggested_model
+                else:
+                    error_msg = f"❌ Model '{model_to_check}' not found. Available models: {', '.join(model_names) if model_names else 'none'}\n  Please install the model: ollama pull {model_to_check}\n  Or set VOFC_MODEL environment variable to one of the available models."
+                    logging.error(error_msg)
+                    raise ValueError(error_msg)
+            
+            logging.info(f"✓ Model '{model_to_check}' is available")
+        else:
+            logging.warning(f"Could not verify model availability (Ollama returned {tags_response.status_code})")
+    except requests.RequestException as e:
+        error_msg = f"❌ Cannot connect to Ollama server at {ollama_url}. Please ensure Ollama is running."
+        logging.error(error_msg)
+        raise ConnectionError(error_msg) from e
+    except Exception as e:
+        if "CRITICAL" in str(e) or "not found" in str(e).lower():
+            raise  # Re-raise validation errors
+        logging.warning(f"Could not verify model availability: {e}")
+    
     # Step 1: Extract structured pages
     logging.info("Step 1: Extracting structured pages...")
     pages = extract_structured_pdf(str(pdf_path))

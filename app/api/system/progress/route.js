@@ -17,15 +17,17 @@ export async function GET(request) {
 
     if (!response.ok) {
       // Return default values instead of error
+      // Note: This might indicate Flask is offline or unreachable
       return NextResponse.json({
         status: 'unknown',
-        message: 'Progress file not available',
+        message: 'Flask API unavailable - cannot read progress',
         timestamp: new Date().toISOString(),
         incoming: 0,
         processed: 0,
         library: 0,
         errors: 0,
-        review: 0
+        review: 0,
+        watcher_status: 'unknown'
       }, { status: 200 });
     }
 
@@ -34,15 +36,21 @@ export async function GET(request) {
   } catch (error) {
     console.error('[Progress Proxy] Error:', error);
     // Return default values on error
+    // Check if it's a connection error
+    const errorMessage = error.message?.includes('ECONNREFUSED') || error.message?.includes('fetch failed')
+      ? 'Cannot connect to Flask server - check if service is running'
+      : error.message || 'Unknown error';
+    
     return NextResponse.json({
       status: 'error',
-      message: error.message,
+      message: errorMessage,
       timestamp: new Date().toISOString(),
       incoming: 0,
       processed: 0,
       library: 0,
       errors: 0,
-      review: 0
+      review: 0,
+      watcher_status: 'unknown'
     }, { status: 200 });
   }
 }

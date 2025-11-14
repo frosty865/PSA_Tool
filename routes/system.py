@@ -429,7 +429,7 @@ def progress():
         base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
         progress_file = base_dir / "automation" / "progress.json"
         
-        # Get progress data
+        # Get progress data - always refresh folder counts dynamically
         progress_data = {}
         try:
             with open(progress_file, "r", encoding="utf-8") as f:
@@ -438,12 +438,82 @@ def progress():
             progress_data = {
                 "status": "unknown", 
                 "message": "progress.json not found",
-                "incoming": 0,
-                "processed": 0,
-                "library": 0,
-                "errors": 0,
-                "review": 0
             }
+        
+        # Always update folder counts dynamically (don't rely on stale data)
+        incoming_dir = base_dir / "incoming"
+        processed_dir = base_dir / "processed"
+        library_dir = base_dir / "library"
+        errors_dir = base_dir / "errors"
+        review_dir = base_dir / "review"
+        temp_errors_dir = base_dir / "temp" / "errors"
+        
+        # Count files in each directory
+        try:
+            incoming_count = len(list(incoming_dir.glob("*.pdf"))) if incoming_dir.exists() else 0
+            progress_data["incoming"] = incoming_count
+            progress_data["incoming_label"] = "Pending Processing (Learning Mode)"
+            progress_data["incoming_description"] = "Files waiting for processing or reprocessing to improve extraction"
+        except Exception:
+            progress_data["incoming"] = 0
+            progress_data["incoming_label"] = "Pending Processing"
+            progress_data["incoming_description"] = ""
+            
+        try:
+            processed_count = len(list(processed_dir.glob("*.json"))) if processed_dir.exists() else 0
+            progress_data["processed"] = processed_count
+            progress_data["processed_label"] = "Processed JSON"
+            progress_data["processed_description"] = "Extraction results (JSON files)"
+        except Exception:
+            progress_data["processed"] = 0
+            progress_data["processed_label"] = "Processed JSON"
+            progress_data["processed_description"] = ""
+            
+        try:
+            library_count = len(list(library_dir.glob("*.pdf"))) if library_dir.exists() else 0
+            progress_data["library"] = library_count
+            progress_data["library_label"] = "Archived (Complete)"
+            progress_data["library_description"] = "Files successfully processed with sufficient records"
+        except Exception:
+            progress_data["library"] = 0
+            progress_data["library_label"] = "Archived (Complete)"
+            progress_data["library_description"] = ""
+            
+        try:
+            # Count errors from both errors directory and temp/errors
+            errors_count = 0
+            if errors_dir.exists():
+                errors_count += len(list(errors_dir.glob("*.*")))
+            if temp_errors_dir.exists():
+                errors_count += len(list(temp_errors_dir.glob("*.pdf")))
+            progress_data["errors"] = errors_count
+            progress_data["errors_label"] = "Processing Errors"
+            progress_data["errors_description"] = "Files that failed processing (moved to errors)"
+        except Exception:
+            progress_data["errors"] = 0
+            progress_data["errors_label"] = "Processing Errors"
+            progress_data["errors_description"] = ""
+            
+        try:
+            review_count = len(list(review_dir.glob("*.json"))) if review_dir.exists() else 0
+            progress_data["review"] = review_count
+            progress_data["review_label"] = "Review Queue"
+            progress_data["review_description"] = "Extraction results pending review"
+        except Exception:
+            progress_data["review"] = 0
+            progress_data["review_label"] = "Review Queue"
+            progress_data["review_description"] = ""
+        
+        # Update status if not set
+        if "status" not in progress_data:
+            progress_data["status"] = "idle"
+        
+        # Update message if it's the "not found" message
+        if progress_data.get("message") == "progress.json not found":
+            progress_data["message"] = "Monitoring folders"
+        
+        # Always update timestamp to current time
+        progress_data["timestamp"] = now_est().isoformat()
         
         # Get watcher status by checking Processor service
         # SIMPLIFIED: If service is running, watcher is running (it's a continuous process)
@@ -546,10 +616,20 @@ def progress():
             "message": str(e),
             "timestamp": now_est().isoformat(),
             "incoming": 0,
+            "incoming_label": "Pending Processing (Learning Mode)",
+            "incoming_description": "Files waiting for processing or reprocessing to improve extraction",
             "processed": 0,
+            "processed_label": "Processed JSON",
+            "processed_description": "Extraction results (JSON files)",
             "library": 0,
+            "library_label": "Archived (Complete)",
+            "library_description": "Files successfully processed with sufficient records",
             "errors": 0,
+            "errors_label": "Processing Errors",
+            "errors_description": "Files that failed processing (moved to errors)",
             "review": 0,
+            "review_label": "Review Queue",
+            "review_description": "Extraction results pending review",
             "watcher_status": "unknown"
         }), 200
 

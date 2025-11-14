@@ -241,7 +241,7 @@ def upload_to_supabase(
                 "source_file": os.path.basename(file_path),
                 "processed_at": datetime.utcnow().isoformat(),
                 "records": records,
-                "model_version": os.getenv("VOFC_MODEL", "vofc-unified:latest"),
+                "model_version": os.getenv("VOFC_MODEL", os.getenv("OLLAMA_MODEL", "vofc-unified:latest")),
                 "inserted_count": inserted_count,
                 "linked_count": linked_count
             },

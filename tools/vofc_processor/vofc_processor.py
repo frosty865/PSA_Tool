@@ -158,7 +158,7 @@ def process_pdf_file(pdf_path: str) -> bool:
         output_path = process_pdf_chunked(
             path=str(pdf_path),
             output_dir=PROCESSED_DIR,
-            model=os.getenv("VOFC_MODEL", "vofc-unified:latest")
+            model=os.getenv("VOFC_MODEL", os.getenv("OLLAMA_MODEL", "vofc-unified:latest"))
         )
         
         # Load results to verify
@@ -166,20 +166,19 @@ def process_pdf_file(pdf_path: str) -> bool:
             result_data = json.load(f)
         
         records = result_data.get("records", [])
-        if not records:
-            logger.warning(f"⚠️  No records extracted from {pdf_path_obj.name}")
-            logger.warning("File will be moved to temp for manual review")
-            # Move to temp/errors
-            error_dest = os.path.join(TEMP_DIR, "errors", f"{base_name}_{int(time.time())}.pdf")
-            os.makedirs(os.path.dirname(error_dest), exist_ok=True)
-            try:
-                shutil.move(str(pdf_path), error_dest)
-                logger.info(f"Moved to: {error_dest}")
-            except Exception as e:
-                logger.error(f"Failed to move file: {e}")
-            return False
+        record_count = len(records) if records else 0
         
-        logger.info(f"✓ Extracted {len(records)} records")
+        # Minimum records threshold for moving to library (allows reprocessing for learning)
+        min_records_for_library = int(os.getenv("MIN_RECORDS_FOR_LIBRARY", "5"))
+        
+        if record_count == 0:
+            logger.warning(f"⚠️  No records extracted from {pdf_path_obj.name}")
+            logger.info("File will remain in incoming for reprocessing (model learning)")
+            logger.info("JSON results saved - file can be reprocessed to improve extraction")
+            # Don't move file - keep in incoming for reprocessing
+            return True  # Return True since processing completed (even with 0 records)
+        
+        logger.info(f"✓ Extracted {record_count} records")
         logger.info(f"✓ Saved JSON to: {output_path}")
         
         # Step 2: Copy JSON to review directory
@@ -211,7 +210,15 @@ def process_pdf_file(pdf_path: str) -> bool:
         except Exception as upload_error:
             logger.error(f"⚠️  Supabase upload error: {upload_error}", exc_info=True)
         
-        # Step 4: Move PDF to library
+        # Step 4: Move PDF to library (only if we have enough records)
+        min_records_for_library = int(os.getenv("MIN_RECORDS_FOR_LIBRARY", "5"))
+        
+        if record_count < min_records_for_library:
+            logger.info(f"[4/4] Keeping file in incoming for reprocessing (only {record_count} records, need {min_records_for_library} for library)")
+            logger.info("File will be reprocessed on next cycle to improve extraction quality")
+            logger.info(f"✅ Completed processing: {pdf_path_obj.name} (kept in incoming for learning)")
+            return True
+        
         logger.info("[4/4] Archiving to library...")
         dest = os.path.join(LIBRARY_DIR, pdf_path_obj.name)
         if os.path.exists(dest):
@@ -219,19 +226,57 @@ def process_pdf_file(pdf_path: str) -> bool:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             dest = os.path.join(LIBRARY_DIR, f"{base_name}_{timestamp}.pdf")
         
-        # Move file with error handling
+        # Move file with error handling and verification
+        moved_successfully = False
         try:
+            # Ensure library directory exists
+            os.makedirs(LIBRARY_DIR, exist_ok=True)
+            
+            # Verify source file still exists before moving
+            if not pdf_path_obj.exists():
+                logger.warning(f"Source file no longer exists: {pdf_path_obj.name} (may have been moved already)")
+                return True  # Consider it successful if already moved
+            
             shutil.move(str(pdf_path), dest)
-            logger.info(f"✓ Moved to library: {os.path.basename(dest)}")
+            
+            # Verify move succeeded
+            if os.path.exists(dest) and not pdf_path_obj.exists():
+                logger.info(f"✓ Moved to library: {os.path.basename(dest)}")
+                moved_successfully = True
+            else:
+                raise Exception(f"Move verification failed: dest exists={os.path.exists(dest)}, source exists={pdf_path_obj.exists()}")
+                
         except Exception as move_error:
             logger.warning(f"Move failed, trying copy: {move_error}")
             try:
+                # Ensure library directory exists
+                os.makedirs(LIBRARY_DIR, exist_ok=True)
+                
+                # Verify source file still exists
+                if not pdf_path_obj.exists():
+                    logger.warning(f"Source file no longer exists during copy fallback: {pdf_path_obj.name}")
+                    return True
+                
                 shutil.copy2(str(pdf_path), dest)
-                os.remove(pdf_path)
-                logger.info(f"✓ Moved to library (via copy): {os.path.basename(dest)}")
+                
+                # Verify copy succeeded before removing source
+                if os.path.exists(dest):
+                    os.remove(str(pdf_path))
+                    # Verify source was removed
+                    if not pdf_path_obj.exists():
+                        logger.info(f"✓ Moved to library (via copy): {os.path.basename(dest)}")
+                        moved_successfully = True
+                    else:
+                        raise Exception("Source file still exists after copy+remove")
+                else:
+                    raise Exception("Destination file does not exist after copy")
+                    
             except Exception as copy_error:
-                logger.error(f"✗ Copy fallback also failed: {copy_error}")
+                logger.error(f"✗ Copy fallback also failed: {copy_error}", exc_info=True)
                 raise Exception(f"Failed to move file from incoming to library: {move_error}")
+        
+        if not moved_successfully:
+            raise Exception("File move verification failed - file may still be in incoming directory")
         
         logger.info(f"✅ Completed: {pdf_path_obj.name}")
         return True
@@ -266,16 +311,27 @@ def process_all_pdfs():
     
     success_count = 0
     fail_count = 0
+    skipped_count = 0
     
     for file in pdf_files:
         pdf_path = os.path.join(INCOMING_DIR, file)
+        
+        # Skip if file doesn't exist (may have been moved already)
+        if not os.path.exists(pdf_path):
+            logger.debug(f"Skipping {file} - file no longer exists")
+            skipped_count += 1
+            continue
+        
+        # Note: We process files even if they exist in library
+        # This allows reprocessing for iterative learning/improvement
+        
         if process_pdf_file(pdf_path):
             success_count += 1
         else:
             fail_count += 1
     
     logger.info("=" * 60)
-    logger.info(f"Processing cycle complete: {success_count} succeeded, {fail_count} failed")
+    logger.info(f"Processing cycle complete: {success_count} succeeded, {fail_count} failed, {skipped_count} skipped")
     logger.info("=" * 60)
 
 
@@ -302,10 +358,14 @@ class PDFFileHandler(FileSystemEventHandler):
         if file_path.suffix.lower() != '.pdf':
             return
         
+        # Note: We allow reprocessing files even if they exist in library
+        # This enables iterative learning where files may need multiple processing attempts
+        
         # Avoid duplicate processing
         file_key = str(file_path)
         with self.processing_lock:
             if file_key in self.processed_files:
+                logger.debug(f"File {file_path.name} is already being processed, skipping")
                 return
             self.processed_files.add(file_key)
         
@@ -320,6 +380,8 @@ class PDFFileHandler(FileSystemEventHandler):
                 # Verify file exists and is readable
                 if not file_path.exists():
                     logger.warning(f"File {file_path.name} no longer exists, skipping")
+                    with self.processing_lock:
+                        self.processed_files.discard(file_key)
                     return
                 
                 # Check if file is still being written (size changes)
@@ -329,6 +391,13 @@ class PDFFileHandler(FileSystemEventHandler):
                     logger.info(f"File {file_path.name} is still being written, waiting...")
                     time.sleep(2)
                 
+                # Double-check file still exists and hasn't been moved
+                if not file_path.exists():
+                    logger.info(f"File {file_path.name} was moved before processing started, skipping")
+                    with self.processing_lock:
+                        self.processed_files.discard(file_key)
+                    return
+                
                 # Process the file
                 if process_pdf_file(str(file_path)):
                     logger.info(f"✅ Successfully processed {file_path.name}")
@@ -336,6 +405,10 @@ class PDFFileHandler(FileSystemEventHandler):
                     logger.warning(f"⚠️  Processing failed for {file_path.name}")
             except Exception as e:
                 logger.error(f"Error processing {file_path.name}: {e}", exc_info=True)
+            finally:
+                # Remove from processed set after processing completes (success or failure)
+                with self.processing_lock:
+                    self.processed_files.discard(file_key)
         
         # Start processing in background thread
         thread = threading.Thread(target=process_file, daemon=True)

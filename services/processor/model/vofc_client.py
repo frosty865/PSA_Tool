@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional
 from .vofc_prompt import BASE_PROMPT
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
-MODEL = os.getenv("VOFC_MODEL", "vofc-unified:latest")
+MODEL = os.getenv("VOFC_MODEL", os.getenv("OLLAMA_MODEL", "vofc-unified:latest"))
 
 
 def extract_from_chunk(chunk_text: str, model: Optional[str] = None) -> Dict[str, Any]:

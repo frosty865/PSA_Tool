@@ -183,8 +183,9 @@ def validate_and_correct_taxonomy(
     subsector = record.get("subsector", "").strip()
     vulnerability = record.get("vulnerability", "").strip()
     
-    # PRIORITY 1: Always try to infer from document title first (document-level classification)
-    # This ensures all records from the same document get consistent sector/subsector
+    # PRIORITY 1: ALWAYS infer from document title first (document-level classification)
+    # This ensures ALL records from the same document get consistent sector/subsector
+    # Document-level inference takes ABSOLUTE precedence - it overrides any record-level values
     inferred_sector = None
     inferred_subsector = None
     if document_title:
@@ -195,9 +196,9 @@ def validate_and_correct_taxonomy(
             existing_subsector=""
         )
         if inferred_sector:
-            logger.debug(f"Document-level inference from title '{document_title[:50]}...': sector='{inferred_sector}', subsector='{inferred_subsector}'")
+            logger.info(f"Document-level inference from title '{document_title[:50]}...': sector='{inferred_sector}', subsector='{inferred_subsector}' - APPLYING TO ALL RECORDS")
     
-    # Check if sector is actually a discipline name
+    # Check if sector is actually a discipline name (before applying document-level inference)
     if sector and is_discipline_name(sector):
         logger.warning(f"Invalid sector '{sector}' is actually a discipline - moving to discipline field")
         # Move to discipline if discipline is empty
@@ -207,7 +208,7 @@ def validate_and_correct_taxonomy(
         corrected["sector"] = ""
         sector = ""
     
-    # Check if subsector is actually a discipline name
+    # Check if subsector is actually a discipline name (before applying document-level inference)
     if subsector and is_discipline_name(subsector):
         logger.warning(f"Invalid subsector '{subsector}' is actually a discipline - moving to discipline field")
         # Move to discipline if discipline is empty
@@ -217,38 +218,19 @@ def validate_and_correct_taxonomy(
         corrected["subsector"] = ""
         subsector = ""
     
-    # PRIORITY 2: Use document-level inference if available, otherwise use record-level values
-    # If we inferred from document title, use that (it takes precedence)
+    # PRIORITY 2: FORCE document-level inference on ALL records (99% consistency requirement)
+    # If we inferred from document title, ALWAYS use it - it overrides everything
     if inferred_sector:
+        # FORCE document-level sector/subsector on this record
         corrected["sector"] = inferred_sector
         if inferred_subsector:
             corrected["subsector"] = inferred_subsector
         else:
-            # If no subsector inferred but we have one from record, validate it belongs to inferred sector
-            if subsector:
-                # Validate subsector belongs to inferred sector
-                inferred_sector_id = get_sector_id(inferred_sector, fuzzy=True)
-                if inferred_sector_id:
-                    subsector_id = get_subsector_id(subsector, fuzzy=True)
-                    if subsector_id:
-                        # Verify relationship
-                        try:
-                            from services.supabase_client import get_supabase_client
-                            client = get_supabase_client()
-                            result = client.table("subsectors").select("sector_id").eq("id", subsector_id).maybe_single().execute()
-                            if result.data and result.data.get("sector_id") == inferred_sector_id:
-                                corrected["subsector"] = subsector
-                            else:
-                                corrected["subsector"] = ""  # Clear if doesn't belong
-                        except Exception:
-                            corrected["subsector"] = ""  # Clear on error
-                    else:
-                        corrected["subsector"] = ""
-                else:
-                    corrected["subsector"] = ""
-            else:
-                corrected["subsector"] = ""
-    # If no document-level inference, validate/use record-level sector
+            # If no subsector inferred from document title, clear any record-level subsector
+            # (we want consistency - all records should have same sector/subsector from document)
+            corrected["subsector"] = ""
+        logger.debug(f"Applied document-level taxonomy: sector='{inferred_sector}', subsector='{inferred_subsector or '(none)'}'")
+    # If no document-level inference succeeded, try record-level inference
     elif not sector or not get_sector_id(sector, fuzzy=True):
         inferred_sector, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
@@ -274,8 +256,8 @@ def validate_and_correct_taxonomy(
             else:
                 logger.warning(f"Could not infer sector and 'General' sector not found in Supabase - sector_id will be NULL")
     
-    # If subsector is missing but sector exists, try to infer subsector
-    elif not subsector:
+    # If no document-level inference and sector exists but subsector is missing, try to infer subsector
+    elif sector and not subsector:
         _, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
             vulnerability_text=vulnerability,

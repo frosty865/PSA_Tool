@@ -1341,23 +1341,29 @@ def system_control():
                                 # Delete from related tables first (due to foreign key constraints)
                                 # Note: These deletes are idempotent - safe to run even if data doesn't exist
                                 
+                                # Get Supabase client (already checked above, but get it again for this loop)
+                                if not supabase_client:
+                                    supabase_client = get_supabase()
+                                    if not supabase_client:
+                                        raise Exception("Supabase not configured")
+                                
                                 # Delete submission_vulnerability_ofc_links
-                                supabase.table('submission_vulnerability_ofc_links').delete().eq('submission_id', submission_id).execute()
+                                supabase_client.table('submission_vulnerability_ofc_links').delete().eq('submission_id', submission_id).execute()
                                 
                                 # Delete submission_ofc_sources
-                                supabase.table('submission_ofc_sources').delete().eq('submission_id', submission_id).execute()
+                                supabase_client.table('submission_ofc_sources').delete().eq('submission_id', submission_id).execute()
                                 
                                 # Delete submission_options_for_consideration
-                                supabase.table('submission_options_for_consideration').delete().eq('submission_id', submission_id).execute()
+                                supabase_client.table('submission_options_for_consideration').delete().eq('submission_id', submission_id).execute()
                                 
                                 # Delete submission_vulnerabilities
-                                supabase.table('submission_vulnerabilities').delete().eq('submission_id', submission_id).execute()
+                                supabase_client.table('submission_vulnerabilities').delete().eq('submission_id', submission_id).execute()
                                 
                                 # Delete submission_sources
-                                supabase.table('submission_sources').delete().eq('submission_id', submission_id).execute()
+                                supabase_client.table('submission_sources').delete().eq('submission_id', submission_id).execute()
                                 
                                 # Finally, delete the main submission
-                                delete_result = supabase.table('submissions').delete().eq('id', submission_id).execute()
+                                delete_result = supabase_client.table('submissions').delete().eq('id', submission_id).execute()
                                 
                                 deleted_count += 1
                                 logging.info(f"[Admin Control] Deleted rejected submission {submission_id}")

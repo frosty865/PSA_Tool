@@ -89,10 +89,15 @@ export default function AdminOverviewPage() {
           headers: { 'Accept': 'application/json' }
         })
         
-        if (!res.ok) {
-          // 502/503 are temporary tunnel issues, not actual offline status
+        // Always try to parse JSON, even if status is not OK
+        // The route now returns 200 with error status in body for graceful handling
+        let json
+        try {
+          json = await res.json()
+        } catch (parseError) {
+          // If JSON parsing fails, treat as error
           if (hasEverSucceeded) {
-            console.warn(`[System Health] Temporary error ${res.status}, keeping last known state`)
+            console.warn(`[System Health] JSON parse error, keeping last known state`)
             setSystem(lastKnownGood)
           } else {
             setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
@@ -100,8 +105,21 @@ export default function AdminOverviewPage() {
           return
         }
         
-        const json = await res.json()
+        // Check if response indicates an error (even if status is 200)
+        if (json.status === 'error' || json.status === 'timeout') {
+          // Error response but status is 200 - use components from response
+          if (json.components) {
+            setSystem(json.components)
+          } else if (hasEverSucceeded) {
+            console.warn(`[System Health] Error status but no components, keeping last known state`)
+            setSystem(lastKnownGood)
+          } else {
+            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+          }
+          return
+        }
         
+        // Success response
         if (json.components) {
           hasEverSucceeded = true
           lastKnownGood = json.components
@@ -114,9 +132,9 @@ export default function AdminOverviewPage() {
           // Invalid format but keep last known state if we've succeeded before
           if (hasEverSucceeded) {
             setSystem(lastKnownGood)
-        } else {
-          setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
-        }
+          } else {
+            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+          }
         }
       } catch (err) {
         // Network errors are temporary - keep last known good state if we've ever succeeded

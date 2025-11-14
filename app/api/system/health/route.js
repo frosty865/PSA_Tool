@@ -65,7 +65,7 @@ export async function GET(request) {
             flaskUrl: FLASK_URL,
             hint: 'Flask service may be slow to respond or unreachable at this URL'
           },
-          { status: 503 }
+          { status: 200 } // Return 200 so frontend can handle gracefully
         );
       }
       
@@ -84,7 +84,7 @@ export async function GET(request) {
             flaskUrl: FLASK_URL,
             hint: `Check that Flask service is running and accessible at ${FLASK_URL}. Verify NEXT_PUBLIC_FLASK_URL environment variable.`
           },
-          { status: 503 }
+          { status: 200 } // Return 200 so frontend can handle gracefully
         );
       }
       
@@ -105,7 +105,7 @@ export async function GET(request) {
             message: fetchError.message,
             hint: 'Check network connectivity and Flask service URL configuration'
           },
-          { status: 503 }
+          { status: 200 } // Return 200 so frontend can handle gracefully
         );
       }
       
@@ -141,13 +141,15 @@ export async function GET(request) {
           components: {
             flask: 'offline',
             ollama: 'unknown',
-            supabase: 'unknown'
+            supabase: 'unknown',
+            tunnel: 'unknown',
+            model_manager: 'unknown'
           },
           error: 'Flask server returned an error',
           statusCode: response.status,
           flaskUrl: FLASK_URL
         },
-        { status: 503 }
+        { status: 200 } // Return 200 so frontend can handle gracefully
       );
     }
 
@@ -176,13 +178,15 @@ export async function GET(request) {
         components: {
           flask: 'offline',
           ollama: 'unknown',
-          supabase: 'unknown'
+          supabase: 'unknown',
+          tunnel: 'unknown',
+          model_manager: 'unknown'
         },
         error: 'Failed to connect to Flask server',
         message: error.message,
         flaskUrl: FLASK_URL
       },
-      { status: 503 }
+      { status: 200 } // Return 200 so frontend can handle gracefully
     );
   }
 }

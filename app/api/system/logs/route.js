@@ -9,6 +9,7 @@ import { getFlaskUrl } from '@/app/lib/server-utils';
 const FLASK_URL = getFlaskUrl();
 
 export const dynamic = 'force-dynamic'; // Ensure this API route is always dynamic
+export const runtime = 'nodejs'; // Explicitly set runtime
 
 export async function GET(request) {
   try {

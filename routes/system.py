@@ -536,21 +536,22 @@ def progress():
                 # Windows service states: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING
                 if result.returncode == 0:
                     output_upper = result.stdout.upper()
-                    # Check for RUNNING state (can be "STATE : 4  RUNNING" or just "RUNNING")
-                    # Use explicit check: RUNNING must be present and STOPPED must NOT be present
+                    # Check for state code 4 (RUNNING) - more reliable than text matching
+                    # Format: "STATE              : 4  RUNNING" or "STATE : 4  RUNNING"
+                    state_match = re.search(r'STATE\s*:\s*4', output_upper)
+                    has_state_4 = state_match is not None
                     has_running = 'RUNNING' in output_upper
                     has_stopped = 'STOPPED' in output_upper
-                    has_state_4 = 'STATE' in output_upper and ': 4' in output_upper
                     
-                    # Primary check: RUNNING keyword present and STOPPED not present
-                    if has_running and not has_stopped:
-                        service_running = True
-                        logging.info(f"Service check: RUNNING found, STOPPED not found - service is running")
-                        break  # Found running service, exit loop
-                    # Fallback check: State code 4 (RUNNING) - this should also work
-                    elif has_state_4:
+                    # Primary check: State code 4 (RUNNING) - most reliable
+                    if has_state_4:
                         service_running = True
                         logging.info(f"Service check: State code 4 found - service is running")
+                        break  # Found running service, exit loop
+                    # Fallback check: RUNNING keyword present and STOPPED not present
+                    elif has_running and not has_stopped:
+                        service_running = True
+                        logging.info(f"Service check: RUNNING found, STOPPED not found - service is running")
                         break  # Found running service, exit loop
                     else:
                         # Log for debugging

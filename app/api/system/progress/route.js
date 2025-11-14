@@ -23,10 +23,20 @@ export async function GET(request) {
         message: 'Flask API unavailable - cannot read progress',
         timestamp: new Date().toISOString(),
         incoming: 0,
+        incoming_label: 'Pending Processing (Learning Mode)',
+        incoming_description: 'Files waiting for processing or reprocessing to improve extraction',
         processed: 0,
+        processed_label: 'Processed JSON',
+        processed_description: 'Extraction results (JSON files)',
         library: 0,
+        library_label: 'Archived (Complete)',
+        library_description: 'Files successfully processed with sufficient records',
         errors: 0,
+        errors_label: 'Processing Errors',
+        errors_description: 'Files that failed processing (moved to errors)',
         review: 0,
+        review_label: 'Review Queue',
+        review_description: 'Extraction results pending review',
         watcher_status: 'unknown'
       }, { status: 200 });
     }
@@ -46,10 +56,20 @@ export async function GET(request) {
       message: errorMessage,
       timestamp: new Date().toISOString(),
       incoming: 0,
+      incoming_label: 'Pending Processing (Learning Mode)',
+      incoming_description: 'Files waiting for processing or reprocessing to improve extraction',
       processed: 0,
+      processed_label: 'Processed JSON',
+      processed_description: 'Extraction results (JSON files)',
       library: 0,
+      library_label: 'Archived (Complete)',
+      library_description: 'Files successfully processed with sufficient records',
       errors: 0,
+      errors_label: 'Processing Errors',
+      errors_description: 'Files that failed processing (moved to errors)',
       review: 0,
+      review_label: 'Review Queue',
+      review_description: 'Extraction results pending review',
       watcher_status: 'unknown'
     }, { status: 200 });
   }

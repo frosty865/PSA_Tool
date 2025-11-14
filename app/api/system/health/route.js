@@ -127,7 +127,9 @@ export async function GET(request) {
               flask: 'unknown', // Don't mark as offline for 502
               ollama: 'unknown',
               supabase: 'unknown',
-              tunnel: 'unknown'
+              tunnel: 'unknown',
+              model_manager: 'unknown',
+              watcher: 'unknown'
             },
             error: 'Tunnel temporarily unavailable (502)',
             statusCode: response.status,

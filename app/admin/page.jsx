@@ -41,7 +41,7 @@ export default function AdminOverviewPage() {
           setModelManagerInfo(json.model_manager_info)
         }
       } else {
-        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown', watcher: 'unknown' })
       }
     } catch (err) {
       console.error('[System Health] Manual refresh failed:', err)
@@ -133,7 +133,7 @@ export default function AdminOverviewPage() {
           if (hasEverSucceeded) {
             setSystem(lastKnownGood)
           } else {
-            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown' })
+            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', model_manager: 'unknown', watcher: 'unknown' })
           }
         }
       } catch (err) {
@@ -368,6 +368,8 @@ export default function AdminOverviewPage() {
         return '🌐'
       case 'model_manager':
         return '🧠'
+      case 'watcher':
+        return '👁️'
       default:
         return '⚙️'
     }

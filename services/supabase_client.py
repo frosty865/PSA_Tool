@@ -7,6 +7,8 @@ import os
 import logging
 import requests
 from datetime import datetime
+from config import Config
+from config.exceptions import ServiceError, ConfigurationError
 
 try:
     from supabase import create_client, Client
@@ -16,22 +18,27 @@ except ImportError:
         raise ImportError("supabase-py package not installed. Install with: pip install supabase")
     Client = None
 
-# Use SUPABASE_URL (primary) or fallback to NEXT_PUBLIC_SUPABASE_URL
+# Use centralized config for Supabase credentials
 # Note: These are read at module import, but get_supabase_client() will re-read them dynamically
-SUPABASE_URL = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL', '').rstrip('/')
-SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+SUPABASE_URL = Config.SUPABASE_URL or ''
+SUPABASE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY
 
 supabase: Client = None
 
 def get_supabase_client():
     """Get or create Supabase client"""
     global supabase
-    # Re-read environment variables each time to handle dynamic changes
-    supabase_url = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL', '').rstrip('/')
-    supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+    
+    # Check offline mode first
+    if Config.SUPABASE_OFFLINE_MODE:
+        raise ConfigurationError("Supabase is in offline mode (SUPABASE_OFFLINE_MODE=true). Supabase operations are disabled.")
+    
+    # Re-read from centralized config each time to handle dynamic changes
+    supabase_url = Config.SUPABASE_URL or ''
+    supabase_key = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY
     
     if not supabase_url or not supabase_key:
-        raise Exception("Supabase credentials not configured")
+        raise ConfigurationError("Supabase credentials not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY) in environment, or set SUPABASE_OFFLINE_MODE=true to explicitly disable Supabase.")
     
     # Recreate client if credentials changed or client doesn't exist
     if supabase is None or supabase_url != SUPABASE_URL or supabase_key != SUPABASE_KEY:
@@ -55,7 +62,12 @@ def test_supabase():
             if SUPABASE_URL and SUPABASE_KEY:
                 return "ok"
             return "error"
-    except Exception:
+    except ConfigurationError:
+        return "missing"
+    except ImportError:
+        return "error"
+    except Exception as e:
+        logging.debug(f"Supabase connection test failed: {e}")
         return "error"
 
 def push_to_supabase(table, data):
@@ -65,7 +77,9 @@ def push_to_supabase(table, data):
         result = client.table(table).insert(data).execute()
         return result.data
     except Exception as e:
-        raise Exception(f"Supabase insert failed: {str(e)}")
+        # Preserve original exception type
+        logger.error(f"Supabase insert failed: {e}", exc_info=True)
+        raise ServiceError(f"Supabase insert failed: {e}") from e
 
 def update_in_supabase(table, id, data):
     """Update data in Supabase table"""
@@ -74,7 +88,9 @@ def update_in_supabase(table, id, data):
         result = client.table(table).update(data).eq('id', id).execute()
         return result.data
     except Exception as e:
-        raise Exception(f"Supabase update failed: {str(e)}")
+        # Preserve original exception type
+        logger.error(f"Supabase update failed: {e}", exc_info=True)
+        raise ServiceError(f"Supabase update failed: {e}") from e
 
 def query_supabase(table, filters=None, limit=None):
     """Query data from Supabase table"""
@@ -91,8 +107,12 @@ def query_supabase(table, filters=None, limit=None):
         
         result = query.execute()
         return result.data
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        raise Exception(f"Supabase query failed: {str(e)}")
+        logger.error(f"Supabase query failed: {e}", exc_info=True)
+        raise ServiceError(f"Supabase query failed: {e}") from e
 
 def get_discipline_record(name=None, all=False, fuzzy=False):
     """
@@ -160,9 +180,12 @@ def get_discipline_record(name=None, all=False, fuzzy=False):
         
         return None
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to get discipline record: {str(e)}")
-        return None if not all else []
+        logging.error(f"Failed to get discipline record: {e}", exc_info=True)
+        raise ServiceError(f"Failed to get discipline record: {e}") from e
 
 
 def get_sector_id(name, fuzzy=False):
@@ -237,9 +260,12 @@ def get_sector_id(name, fuzzy=False):
         logging.warning(f"Sector not found: {name}")
         return None
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to get sector ID: {str(e)}")
-        return None
+        logging.error(f"Failed to get sector ID: {e}", exc_info=True)
+        raise ServiceError(f"Failed to get sector ID: {e}") from e
 
 
 def get_subsector_id(name, fuzzy=False):
@@ -290,9 +316,12 @@ def get_subsector_id(name, fuzzy=False):
         logging.warning(f"Subsector not found: {name}")
         return None
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to get subsector ID: {str(e)}")
-        return None
+        logging.error(f"Failed to get subsector ID: {e}", exc_info=True)
+        raise ServiceError(f"Failed to get subsector ID: {e}") from e
 
 
 def save_results(results, source_file=None):
@@ -354,8 +383,8 @@ def save_results(results, source_file=None):
                 'created_at': datetime.now().isoformat()
             }
             
-            # Add submitter_email if available from environment
-            submitter_email = os.getenv('SUBMITTER_EMAIL')
+            # Add submitter_email if available from config
+            submitter_email = Config.SUBMITTER_EMAIL
             if submitter_email:
                 record['submitter_email'] = submitter_email
             
@@ -378,9 +407,12 @@ def save_results(results, source_file=None):
             "total": len(results)
         }
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to save results to Supabase: {str(e)}")
-        raise Exception(f"Supabase save failed: {str(e)}")
+        logging.error(f"Failed to save results to Supabase: {e}", exc_info=True)
+        raise ServiceError(f"Supabase save failed: {e}") from e
 
 # Add more Supabase functions as needed from your old implementation
 
@@ -405,9 +437,12 @@ def get_learning_events(since):
         
         return result.data if result.data else []
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to get learning events: {str(e)}")
-        return []
+        logging.error(f"Failed to get learning events: {e}", exc_info=True)
+        raise ServiceError(f"Failed to get learning events: {e}") from e
 
 
 def insert_learning_event(event_data):
@@ -442,9 +477,12 @@ def insert_learning_event(event_data):
         
         return None
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to insert learning event: {str(e)}")
-        raise Exception(f"Failed to insert learning event: {str(e)}")
+        logging.error(f"Failed to insert learning event: {e}", exc_info=True)
+        raise ServiceError(f"Failed to insert learning event: {e}") from e
 
 
 def insert_learning_stats(stats):
@@ -572,9 +610,12 @@ def insert_library_record(data):
             'success': len(inserted_vulns) > 0 or len(inserted_ofcs) > 0
         }
         
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
-        logger.error(f"Error inserting library record: {str(e)}")
-        raise Exception(f"Failed to insert library record: {str(e)}")
+        logger.error(f"Error inserting library record: {e}", exc_info=True)
+        raise ServiceError(f"Failed to insert library record: {e}") from e
 
 
 def check_review_approval(filename):
@@ -596,8 +637,8 @@ def check_review_approval(filename):
     
     try:
         # Check if credentials are available before attempting connection
-        supabase_url = os.getenv('SUPABASE_URL') or os.getenv('NEXT_PUBLIC_SUPABASE_URL', '').rstrip('/')
-        supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+        supabase_url = Config.SUPABASE_URL or ''
+        supabase_key = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY
         
         if not supabase_url or not supabase_key:
             logger.debug(f"Supabase credentials not configured, skipping approval check for {filename}")

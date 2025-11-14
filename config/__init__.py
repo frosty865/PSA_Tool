@@ -12,9 +12,8 @@ from typing import Optional, Dict, Any
 logger = logging.getLogger(__name__)
 
 
-class ConfigurationError(Exception):
-    """Raised when configuration validation fails"""
-    pass
+# Import exceptions from dedicated module
+from config.exceptions import ConfigurationError
 
 
 class Config:
@@ -38,8 +37,15 @@ class Config:
     TEMP_DIR = DATA_DIR / "temp"
     AUTOMATION_DIR = DATA_DIR / "automation"
     
+    # Archive directory (for migration fallback detection)
+    ARCHIVE_DIR = Path(r"C:\Tools\archive\VOFC\Data")
+    
     # Specific files
     PROGRESS_FILE = AUTOMATION_DIR / "progress.json"
+    
+    # External log directories (NSSM service logs)
+    VOFC_LOGS_DIR = Path(r"C:\Tools\nssm\logs")
+    TUNNEL_LOG_PATHS = [VOFC_LOGS_DIR / "vofc_tunnel.log"]
     
     # ============================================================
     # SERVICE NAMES
@@ -85,6 +91,40 @@ class Config:
     
     SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
     SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    
+    # Explicit offline mode flags
+    SUPABASE_OFFLINE_MODE = os.getenv("SUPABASE_OFFLINE_MODE", "false").lower() == "true"
+    ANALYTICS_OFFLINE_MODE = os.getenv("ANALYTICS_OFFLINE_MODE", "false").lower() == "true"
+    
+    # ============================================================
+    # TUNNEL CONFIGURATION
+    # ============================================================
+    
+    TUNNEL_URL = os.getenv("TUNNEL_URL", "https://flask.frostech.site")
+    
+    # ============================================================
+    # OLLAMA CONFIGURATION
+    # ============================================================
+    
+    # OLLAMA_HOST supports multiple environment variable names for compatibility
+    OLLAMA_HOST = (
+        os.getenv("OLLAMA_HOST") or 
+        os.getenv("OLLAMA_URL") or 
+        os.getenv("OLLAMA_API_BASE_URL") or 
+        "http://127.0.0.1:11434"
+    )
+    # Normalize OLLAMA_URL (ensure no trailing slash)
+    OLLAMA_URL = OLLAMA_HOST.rstrip('/')
+    VOFC_ENGINE_CONFIG = os.getenv("VOFC_ENGINE_CONFIG", "C:/Tools/Ollama/vofc_config.yaml")
+    
+    # ============================================================
+    # PROCESSING CONFIGURATION
+    # ============================================================
+    
+    ENABLE_AI_ENHANCEMENT = os.getenv("ENABLE_AI_ENHANCEMENT", "false").lower() == "true"
+    CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.3"))
+    SUBMITTER_EMAIL = os.getenv("SUBMITTER_EMAIL")
     
     # ============================================================
     # VALIDATION
@@ -125,11 +165,29 @@ class Config:
                 except Exception as e:
                     errors.append(f"{name} ({path}) cannot be created: {e}")
         
-        # Validate Supabase configuration (warn if missing, don't fail)
-        if not cls.SUPABASE_URL:
-            warnings.append("SUPABASE_URL not set - Supabase features will be disabled")
-        if not cls.SUPABASE_ANON_KEY:
-            warnings.append("SUPABASE_ANON_KEY not set - Supabase features will be disabled")
+        # Validate Supabase configuration
+        if cls.SUPABASE_OFFLINE_MODE:
+            logger.info("Supabase offline mode enabled - Supabase features will be disabled")
+        elif not cls.SUPABASE_URL:
+            warnings.append("SUPABASE_URL not set - Supabase features will be disabled (use SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
+        elif not cls.SUPABASE_ANON_KEY:
+            warnings.append("SUPABASE_ANON_KEY not set - Supabase features will be disabled (use SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
+        
+        # Validate Analytics configuration
+        if cls.ANALYTICS_OFFLINE_MODE:
+            logger.info("Analytics offline mode enabled - Analytics features will be disabled")
+        
+        # Validate OLLAMA_URL format (warn if invalid, don't fail)
+        if cls.OLLAMA_URL and not cls.OLLAMA_URL.startswith(('http://', 'https://')):
+            warnings.append(f"OLLAMA_URL ({cls.OLLAMA_URL}) should start with http:// or https://")
+        
+        # Validate TUNNEL_URL format (warn if invalid, don't fail)
+        if cls.TUNNEL_URL and not cls.TUNNEL_URL.startswith(('http://', 'https://')):
+            warnings.append(f"TUNNEL_URL ({cls.TUNNEL_URL}) should start with http:// or https://")
+        
+        # Validate optional processing configuration (warn if unusual values, don't fail)
+        if cls.CONFIDENCE_THRESHOLD < 0 or cls.CONFIDENCE_THRESHOLD > 1:
+            warnings.append(f"CONFIDENCE_THRESHOLD ({cls.CONFIDENCE_THRESHOLD}) should be between 0 and 1")
         
         # Validate services exist (warn if missing, don't fail - services may be on different machines)
         # This is informational only
@@ -195,7 +253,9 @@ class Config:
             'ollama_service': cls.OLLAMA_SERVICE,
             'default_model': cls.DEFAULT_MODEL,
             'min_records_for_library': cls.MIN_RECORDS_FOR_LIBRARY,
-            'supabase_configured': bool(cls.SUPABASE_URL and cls.SUPABASE_ANON_KEY),
+            'supabase_configured': bool(cls.SUPABASE_URL and cls.SUPABASE_ANON_KEY) and not cls.SUPABASE_OFFLINE_MODE,
+            'supabase_offline_mode': cls.SUPABASE_OFFLINE_MODE,
+            'analytics_offline_mode': cls.ANALYTICS_OFFLINE_MODE,
         }
 
 

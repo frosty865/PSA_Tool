@@ -28,8 +28,9 @@ try:
 except ImportError:
     pass
 
-SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_KEY")
+from config import Config
+SUPABASE_URL = Config.SUPABASE_URL or ""
+SUPABASE_KEY = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("ERROR: Supabase credentials not found in environment variables")

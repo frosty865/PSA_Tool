@@ -6,6 +6,9 @@ Routes: /, /api/system/health, /api/version, /api/progress
 from flask import Blueprint, jsonify, request
 from services.ollama_client import test_ollama
 from services.supabase_client import test_supabase, get_supabase_client
+from config import Config
+from config.exceptions import ServiceError, DependencyError
+from config.service_health import check_ollama_health, check_supabase_health, check_service_health
 import os
 import json
 import requests
@@ -106,13 +109,17 @@ def test_flask_service():
             else:
                 logging.debug(f"Service {service_name} not found (returncode: {result.returncode})")
         except subprocess.TimeoutExpired:
-            logging.debug(f"Timeout checking Flask service {service_name}")
+            logging.warning(f"Timeout checking Flask service {service_name}")
             continue
         except FileNotFoundError:
-            logging.warning("sc.exe not found - cannot check Flask service status")
-            return 'unknown'
+            # sc.exe not found is a system configuration issue
+            raise ServiceError("'sc.exe' not found - cannot check Flask service status. System may not be Windows or PATH is misconfigured.")
+        except subprocess.SubprocessError as e:
+            logging.warning(f"Subprocess error checking Flask service {service_name}: {e}")
+            continue
         except Exception as e:
-            logging.debug(f"Error checking Flask service {service_name}: {e}")
+            # Preserve original exception type
+            logging.error(f"Unexpected error checking Flask service {service_name}: {e}", exc_info=True)
             continue
     
     # Service might not exist or access denied
@@ -172,13 +179,15 @@ def test_processor_service():
                     logging.warning(f"Processor service {service_name} found but state unclear. Output: {output[:200]}")
                     continue
         except subprocess.TimeoutExpired:
-            logging.debug(f"Timeout checking Processor service {service_name}")
+            logging.warning(f"Timeout checking Processor service {service_name}")
             continue
         except FileNotFoundError:
-            logging.warning("sc.exe not found - cannot check Processor service status")
-            return 'unknown'
+            raise ServiceError("'sc.exe' not found - cannot check Processor service status. System may not be Windows or PATH is misconfigured.")
+        except subprocess.SubprocessError as e:
+            logging.warning(f"Subprocess error checking Processor service {service_name}: {e}")
+            continue
         except Exception as e:
-            logging.debug(f"Error checking Processor service {service_name}: {e}")
+            logging.error(f"Unexpected error checking Processor service {service_name}: {e}", exc_info=True)
             continue
     
     logging.warning("Processor service not found with any of the checked names")
@@ -237,20 +246,34 @@ def test_tunnel_service():
                 else:
                     continue  # Try next service name
             # If service not found, try next name
-        except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
-            logging.debug(f"Error checking tunnel service {service_name}: {e}")
+        except subprocess.TimeoutExpired:
+            logging.warning(f"Timeout checking tunnel service {service_name}")
+            continue
+        except FileNotFoundError:
+            raise ServiceError("'sc.exe' not found - cannot check tunnel service status. System may not be Windows or PATH is misconfigured.")
+        except subprocess.SubprocessError as e:
+            logging.warning(f"Subprocess error checking tunnel service {service_name}: {e}")
+            continue
+        except Exception as e:
+            logging.error(f"Unexpected error checking tunnel service {service_name}: {e}", exc_info=True)
             continue
     
     # If all service names failed, check if tunnel is accessible via URL
     try:
-        tunnel_url = os.getenv("TUNNEL_URL", "https://flask.frostech.site")
+        tunnel_url = Config.TUNNEL_URL
         response = requests.get(f"{tunnel_url}/api/system/health", timeout=3)
         if response.status_code == 200:
             return 'ok'
         else:
             return 'offline'
+    except requests.exceptions.ConnectionError as e:
+        logging.debug(f"Tunnel URL connection failed: {e}")
+    except requests.exceptions.Timeout as e:
+        logging.debug(f"Tunnel URL request timeout: {e}")
+    except requests.exceptions.RequestException as e:
+        logging.debug(f"Tunnel URL request failed: {e}")
     except Exception as e:
-        logging.debug(f"Tunnel URL check failed: {e}")
+        logging.error(f"Unexpected error checking tunnel URL: {e}", exc_info=True)
     
     # Service might not exist or access denied
     return 'unknown'
@@ -308,8 +331,16 @@ def test_model_manager():
                 else:
                     continue  # Try next service name
             # If service not found, try next name
-        except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
-            logging.debug(f"Error checking model manager service {service_name}: {e}")
+        except subprocess.TimeoutExpired:
+            logging.warning(f"Timeout checking model manager service {service_name}")
+            continue
+        except FileNotFoundError:
+            raise ServiceError("'sc.exe' not found - cannot check model manager service status. System may not be Windows or PATH is misconfigured.")
+        except subprocess.SubprocessError as e:
+            logging.warning(f"Subprocess error checking model manager service {service_name}: {e}")
+            continue
+        except Exception as e:
+            logging.error(f"Unexpected error checking model manager service {service_name}: {e}", exc_info=True)
             continue
     
     # Service might not exist or access denied
@@ -338,22 +369,11 @@ def health():
     if request.method == 'OPTIONS':
         return '', 200
     
-    # Get Ollama URL - try multiple environment variables for consistency
-    ollama_url_raw = (
-        os.getenv("OLLAMA_HOST") or 
-        os.getenv("OLLAMA_URL") or 
-        os.getenv("OLLAMA_API_BASE_URL") or
-        "http://127.0.0.1:11434"
-    )
-    
-    # Ensure URL is properly formatted
-    ollama_base = ollama_url_raw.rstrip('/')
-    if not ollama_base.startswith(('http://', 'https://')):
-        ollama_base = f"http://{ollama_base}"
+    # Get Ollama URL from centralized config (already normalized)
+    ollama_base = Config.OLLAMA_URL
     
     # Get Flask URL for reporting
-    flask_port = int(os.getenv('FLASK_PORT', '8080'))
-    flask_url = f"http://127.0.0.1:{flask_port}"
+    flask_url = Config.FLASK_URL_LOCAL
     
     # Initialize components status
     # Check Flask service status (similar to tunnel and model manager checks)
@@ -373,7 +393,7 @@ def health():
     components["ollama"] = ollama_status if ollama_status in ["ok", "offline", "error"] else "offline"
     
     # Get tunnel URL (managed by NSSM service - Cloudflare tunnel)
-    tunnel_url = os.getenv('TUNNEL_URL', 'https://flask.frostech.site')
+    tunnel_url = Config.TUNNEL_URL
     
     # Check tunnel service status (similar to model manager check)
     tunnel_status = test_tunnel_service()
@@ -390,9 +410,19 @@ def health():
                 # Service is running but tunnel may have connectivity issues
                 tunnel_status = "error"
                 components["tunnel"] = "error"
-        except Exception:
-            # Connectivity check failed but service is running
-            pass  # Keep status as "ok" if service is running
+        except requests.exceptions.ConnectionError:
+            # Connectivity check failed but service is running - tunnel may have connectivity issues
+            logging.debug("Tunnel service is running but connectivity check failed")
+            components["tunnel"] = "error"
+        except requests.exceptions.Timeout:
+            logging.debug("Tunnel connectivity check timed out")
+            components["tunnel"] = "error"
+        except requests.exceptions.RequestException as e:
+            logging.debug(f"Tunnel connectivity check failed: {e}")
+            components["tunnel"] = "error"
+        except Exception as e:
+            logging.error(f"Unexpected error during tunnel connectivity check: {e}", exc_info=True)
+            components["tunnel"] = "error"
     
     # Get Model Manager last run time and next run time
     model_manager_info = {"status": components["model_manager"]}
@@ -418,8 +448,12 @@ def health():
                             break
                         except:
                             pass
-    except Exception:
-        pass  # If we can't read the log, just return status
+    except (FileNotFoundError, PermissionError, OSError) as e:
+        logging.debug(f"Could not read model manager log: {e}")
+        # Non-critical - just return status without last_run info
+    except Exception as e:
+        logging.warning(f"Unexpected error reading model manager log: {e}", exc_info=True)
+        # Non-critical - just return status without last_run info
     
     # Return lightweight response with service metadata
     return jsonify({
@@ -448,7 +482,7 @@ def health_check():
         "status": "ok",
         "message": "PSA Flask backend online",
         "service": "PSA Processing Server",
-        "model": os.getenv('OLLAMA_MODEL', 'psa-engine')
+        "model": Config.DEFAULT_MODEL
     }), 200
 
 @system_bp.route('/api/progress', methods=['GET', 'OPTIONS'])
@@ -492,11 +526,28 @@ def version():
 @system_bp.route('/api/system/progress')
 def progress():
     """Get processing progress and watcher status."""
+    # Use centralized configuration
+    from config import Config
+    from config.api_contracts import validate_progress_response
+    from config.dependencies import verify_dependencies
+    from config.exceptions import DependencyError, FileOperationError
+    
     try:
-        # Use centralized configuration
-        from config import Config
-        from config.api_contracts import validate_progress_response
-        
+        # Verify dependencies before proceeding
+        verify_dependencies('get_progress', {
+            'directory': Config.DATA_DIR,
+            'directory': Config.INCOMING_DIR,
+            'directory': Config.PROCESSED_DIR,
+        })
+    except DependencyError as e:
+        logging.error(f"Dependency check failed for progress endpoint: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"System configuration error: {e}",
+            "timestamp": now_est().isoformat()
+        }), 503
+    
+    try:
         base_dir = Config.DATA_DIR
         progress_file = Config.PROGRESS_FILE
         
@@ -537,11 +588,15 @@ def progress():
             progress_data["incoming"] = incoming_count
             progress_data["incoming_label"] = "Pending Processing (Learning Mode)"
             progress_data["incoming_description"] = "Files waiting for processing or reprocessing to improve extraction"
+        except PermissionError as e:
+            logging.error(f"Permission denied counting incoming files: {e}")
+            raise FileOperationError(f"Cannot access incoming directory: {e}")
+        except OSError as e:
+            logging.error(f"OS error counting incoming files: {e}")
+            raise FileOperationError(f"File system error accessing incoming directory: {e}")
         except Exception as e:
-            logging.warning(f"Error counting incoming files: {e}")
-            progress_data["incoming"] = 0
-            progress_data["incoming_label"] = "Pending Processing"
-            progress_data["incoming_description"] = ""
+            logging.error(f"Unexpected error counting incoming files: {e}", exc_info=True)
+            raise FileOperationError(f"Unexpected error counting incoming files: {e}")
             
         try:
             if processed_dir.exists():
@@ -551,11 +606,15 @@ def progress():
             progress_data["processed"] = processed_count
             progress_data["processed_label"] = "Processed JSON"
             progress_data["processed_description"] = "Extraction results (JSON files)"
+        except PermissionError as e:
+            logging.error(f"Permission denied counting processed files: {e}")
+            raise FileOperationError(f"Cannot access processed directory: {e}")
+        except OSError as e:
+            logging.error(f"OS error counting processed files: {e}")
+            raise FileOperationError(f"File system error accessing processed directory: {e}")
         except Exception as e:
-            logging.warning(f"Error counting processed files: {e}")
-            progress_data["processed"] = 0
-            progress_data["processed_label"] = "Processed JSON"
-            progress_data["processed_description"] = ""
+            logging.error(f"Unexpected error counting processed files: {e}", exc_info=True)
+            raise FileOperationError(f"Unexpected error counting processed files: {e}")
             
         try:
             if library_dir.exists():
@@ -565,11 +624,15 @@ def progress():
             progress_data["library"] = library_count
             progress_data["library_label"] = "Archived (Complete)"
             progress_data["library_description"] = "Files successfully processed with sufficient records"
+        except PermissionError as e:
+            logging.error(f"Permission denied counting library files: {e}")
+            raise FileOperationError(f"Cannot access library directory: {e}")
+        except OSError as e:
+            logging.error(f"OS error counting library files: {e}")
+            raise FileOperationError(f"File system error accessing library directory: {e}")
         except Exception as e:
-            logging.warning(f"Error counting library files: {e}")
-            progress_data["library"] = 0
-            progress_data["library_label"] = "Archived (Complete)"
-            progress_data["library_description"] = ""
+            logging.error(f"Unexpected error counting library files: {e}", exc_info=True)
+            raise FileOperationError(f"Unexpected error counting library files: {e}")
             
         try:
             # Count errors from both errors directory and temp/errors
@@ -581,11 +644,15 @@ def progress():
             progress_data["errors"] = errors_count
             progress_data["errors_label"] = "Processing Errors"
             progress_data["errors_description"] = "Files that failed processing (moved to errors)"
+        except PermissionError as e:
+            logging.error(f"Permission denied counting error files: {e}")
+            raise FileOperationError(f"Cannot access errors directory: {e}")
+        except OSError as e:
+            logging.error(f"OS error counting error files: {e}")
+            raise FileOperationError(f"File system error accessing errors directory: {e}")
         except Exception as e:
-            logging.warning(f"Error counting error files: {e}")
-            progress_data["errors"] = 0
-            progress_data["errors_label"] = "Processing Errors"
-            progress_data["errors_description"] = ""
+            logging.error(f"Unexpected error counting error files: {e}", exc_info=True)
+            raise FileOperationError(f"Unexpected error counting error files: {e}")
             
         try:
             if review_dir.exists():
@@ -595,11 +662,15 @@ def progress():
             progress_data["review"] = review_count
             progress_data["review_label"] = "Review Queue"
             progress_data["review_description"] = "Extraction results pending review"
+        except PermissionError as e:
+            logging.error(f"Permission denied counting review files: {e}")
+            raise FileOperationError(f"Cannot access review directory: {e}")
+        except OSError as e:
+            logging.error(f"OS error counting review files: {e}")
+            raise FileOperationError(f"File system error accessing review directory: {e}")
         except Exception as e:
-            logging.warning(f"Error counting review files: {e}")
-            progress_data["review"] = 0
-            progress_data["review_label"] = "Review Queue"
-            progress_data["review_description"] = ""
+            logging.error(f"Unexpected error counting review files: {e}", exc_info=True)
+            raise FileOperationError(f"Unexpected error counting review files: {e}")
         
         # Update status if not set
         if "status" not in progress_data:
@@ -692,34 +763,38 @@ def progress():
             # No service found at all
             progress_data["watcher_status"] = "unknown"
             logging.debug("Watcher status set to: unknown (no service found)")
-            
-        except FileNotFoundError:
-            # sc.exe not found (not Windows or PATH issue)
-            logging.warning("sc.exe not found - cannot check service status")
-            progress_data["watcher_status"] = "unknown"
-        except Exception as e:
-            logging.warning(f"Could not get watcher status: {e}", exc_info=True)
-            progress_data["watcher_status"] = "unknown"
         
         # Ensure timestamp exists
         if "timestamp" not in progress_data:
             progress_data["timestamp"] = now_est().isoformat()
         
         # Validate response against contract
-        progress_data = validate_progress_response(progress_data)
+        validate_progress_response(progress_data)
         
-        return jsonify(progress_data)
-    except Exception as e:
-        import logging
-        logging.error(f"Error reading progress.json: {e}")
+        return jsonify(progress_data), 200
+    
+    except DependencyError as e:
+        # Already handled above, but keep for safety
+        logging.error(f"Dependency check failed for progress endpoint: {e}")
         return jsonify({
             "status": "error",
-            "message": str(e),
+            "message": f"System configuration error: {e}",
+            "timestamp": now_est().isoformat()
+        }), 503
+    except FileOperationError as e:
+        logging.error(f"File operation error in progress endpoint: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"File system error: {e}",
+            "timestamp": now_est().isoformat()
+        }), 503
+    except Exception as e:
+        logging.error(f"Unexpected error in progress endpoint: {e}", exc_info=True)
+        return jsonify({
+            "status": "error",
+            "message": f"Unexpected error: {e}",
             "timestamp": now_est().isoformat(),
             "incoming": 0,
-            "incoming_label": "Pending Processing (Learning Mode)",
-            "incoming_description": "Files waiting for processing or reprocessing to improve extraction",
-            "processed": 0,
             "processed_label": "Processed JSON",
             "processed_description": "Extraction results (JSON files)",
             "library": 0,
@@ -756,11 +831,11 @@ def log_stream():
         base_dir = Config.DATA_DIR
         if not base_dir.exists():
             # Fallback to archive location if needed (for migration)
-            archive_data = Path(r"C:\Tools\archive\VOFC\Data")
+            archive_data = Config.ARCHIVE_DIR
             if archive_data.exists():
                 base_dir = archive_data
             else:
-                base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
+                base_dir = Config.DATA_DIR  # Default
         
         logs_dir = base_dir / "logs"
         # Use local date (not EST) to match processor log file naming
@@ -911,11 +986,11 @@ def get_logs():
         base_dir = Config.DATA_DIR
         if not base_dir.exists():
             # Fallback to archive location if needed (for migration)
-            archive_data = Path(r"C:\Tools\archive\VOFC\Data")
+            archive_data = Config.ARCHIVE_DIR
             if archive_data.exists():
                 base_dir = archive_data
             else:
-                base_dir = Path(r"C:\Tools\Ollama\Data")  # Default
+                base_dir = Config.DATA_DIR  # Default
         
         logs_dir = base_dir / "logs"
         # Use local date (not EST) to match processor log file naming
@@ -984,14 +1059,27 @@ def get_logs():
             result_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
         
         # Validate response against contract
+        from config.api_contracts import validate_logs_response
         response_data = validate_logs_response({"lines": result_lines})
         return jsonify(response_data), 200
-    except Exception as e:
-        import logging
-        logging.error(f"Error reading logs: {e}")
-        # Validate response against contract
-        response_data = validate_logs_response({"lines": [], "error": str(e)})
+    
+    except FileNotFoundError as e:
+        logging.warning(f"Log file not found: {e}")
+        from config.api_contracts import validate_logs_response
+        response_data = validate_logs_response({"lines": [], "error": f"Log file not found: {log_file}"})
         return jsonify(response_data), 200
+    except PermissionError as e:
+        logging.error(f"Permission denied reading log file: {e}")
+        from config.exceptions import FileOperationError
+        raise FileOperationError(f"Cannot read log file (permission denied): {e}")
+    except OSError as e:
+        logging.error(f"OS error reading log file: {e}")
+        from config.exceptions import FileOperationError
+        raise FileOperationError(f"File system error reading log file: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error reading logs: {e}", exc_info=True)
+        from config.exceptions import FileOperationError
+        raise FileOperationError(f"Unexpected error reading logs: {e}")
 
 @system_bp.route("/api/system/control", methods=["POST", "OPTIONS"])
 def system_control():
@@ -1567,7 +1655,7 @@ def get_subsectors():
 def get_tunnel_log_path():
     """Locate the most recent active tunnel log file."""
     possible_paths = [
-        Path(r"C:\Tools\nssm\logs\vofc_tunnel.log"),
+        Config.TUNNEL_LOG_PATHS[0],
         Path(r"C:\Users\frost\OneDrive\Desktop\Projects\VOFC Engine\logs\tunnel_out.log"),
         Path(r"C:\Users\frost\VOFC_Logs\tunnel_2025-11-03_09-45-08.log")
     ]
@@ -1595,10 +1683,18 @@ def get_tunnel_logs():
     if request.method == 'OPTIONS':
         return '', 200
     
+    from config.exceptions import FileOperationError
+    
     try:
         path = get_tunnel_log_path()
         if not path:
             return jsonify({"error": "No tunnel log found", "lines": []}), 200  # Return 200 with empty lines
+        
+        # Verify file exists and is readable before opening
+        if not path.exists():
+            raise FileNotFoundError(f"Tunnel log file not found: {path}")
+        if not path.is_file():
+            raise FileOperationError(f"Tunnel log path is not a file: {path}")
         
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             lines = [line.rstrip('\n\r') for line in f.readlines()[-100:]]
@@ -1608,12 +1704,21 @@ def get_tunnel_logs():
             "lines": lines,
             "count": len(lines)
         }), 200
-    except Exception as e:
-        import logging
-        logging.error(f"Error reading tunnel logs: {e}")
+    
+    except FileNotFoundError as e:
+        logging.warning(f"Tunnel log file not found: {e}")
         return jsonify({
-            "error": str(e),
+            "error": f"Tunnel log file not found: {e}",
             "lines": [],
             "file": None
-        }), 200  # Return 200 to prevent frontend errors
+        }), 200
+    except PermissionError as e:
+        logging.error(f"Permission denied reading tunnel log: {e}")
+        raise FileOperationError(f"Cannot read tunnel log file (permission denied): {e}")
+    except OSError as e:
+        logging.error(f"OS error reading tunnel log: {e}")
+        raise FileOperationError(f"File system error reading tunnel log: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error reading tunnel logs: {e}", exc_info=True)
+        raise FileOperationError(f"Unexpected error reading tunnel logs: {e}")
 

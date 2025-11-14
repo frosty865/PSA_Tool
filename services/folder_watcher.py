@@ -7,6 +7,7 @@ The actual processing is handled by the VOFC-Processor Windows service.
 """
 
 import os
+from config import Config
 import time
 import logging
 import threading
@@ -16,9 +17,9 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileSystemEvent
 
 # Configuration
-DATA_DIR = os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data")
-INCOMING_DIR = Path(DATA_DIR) / "incoming"
-AUTOMATION_DIR = Path(DATA_DIR) / "automation"
+DATA_DIR = Config.DATA_DIR
+INCOMING_DIR = Config.INCOMING_DIR
+AUTOMATION_DIR = Config.AUTOMATION_DIR
 STOP_FILE = AUTOMATION_DIR / "watcher.stop"
 LOG_FILE = AUTOMATION_DIR / "folder_watcher.log"
 

@@ -9,8 +9,9 @@ import requests
 from typing import Dict, Any, Optional
 from .vofc_prompt import BASE_PROMPT
 
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
-MODEL = os.getenv("VOFC_MODEL", os.getenv("OLLAMA_MODEL", "vofc-unified:latest"))
+from config import Config
+OLLAMA_URL = f"{Config.OLLAMA_URL}/api/generate"
+MODEL = Config.DEFAULT_MODEL
 
 
 def extract_from_chunk(chunk_text: str, model: Optional[str] = None) -> Dict[str, Any]:

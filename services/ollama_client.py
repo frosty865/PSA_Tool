@@ -9,12 +9,14 @@ import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+from config import Config
+from config.exceptions import ServiceError, FileOperationError
 
 logger = logging.getLogger(__name__)
 
-# Use OLLAMA_HOST environment variable (managed by NSSM service)
-OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11434')
-OLLAMA_URL = OLLAMA_HOST  # Backward compatibility
+# Use centralized config for Ollama URL
+OLLAMA_HOST = Config.OLLAMA_URL
+OLLAMA_URL = Config.OLLAMA_URL  # Backward compatibility
 
 # Engine configuration cache
 _engine_config: Optional[Dict[str, Any]] = None
@@ -49,7 +51,7 @@ def load_engine_config() -> Dict[str, Any]:
     }
     
     # Try to load from YAML file
-    config_path = os.getenv("VOFC_ENGINE_CONFIG", "C:/Tools/Ollama/vofc_config.yaml")
+    config_path = Config.VOFC_ENGINE_CONFIG
     config_file = Path(config_path)
     
     if config_file.exists():
@@ -59,8 +61,11 @@ def load_engine_config() -> Dict[str, Any]:
                 # Merge with defaults
                 _engine_config = {**default_config, **yaml_config}
                 logger.info(f"Loaded engine config from {config_path}")
-        except Exception as e:
+        except (yaml.YAMLError, IOError, OSError) as e:
             logger.warning(f"Failed to load config from {config_path}: {e}, using defaults")
+            _engine_config = default_config
+        except Exception as e:
+            logger.error(f"Unexpected error loading config from {config_path}: {e}", exc_info=True)
             _engine_config = default_config
     else:
         logger.info(f"Config file not found at {config_path}, using defaults")
@@ -140,8 +145,11 @@ def get_enrichment_context(file_path: str) -> str:
         
         return "\n".join(context_parts) if context_parts else ""
         
-    except Exception as e:
+    except (FileNotFoundError, PermissionError, OSError) as e:
         logger.debug(f"Could not load enrichment context: {e}")
+        return ""
+    except Exception as e:
+        logger.warning(f"Unexpected error loading enrichment context: {e}", exc_info=True)
         return ""
 
 
@@ -206,7 +214,17 @@ def test_ollama():
         if response.status_code == 200:
             return "ok"
         return "error"
-    except Exception:
+    except requests.exceptions.ConnectionError:
+        logger.debug("Ollama connection failed - service may be offline")
+        return "offline"
+    except requests.exceptions.Timeout:
+        logger.debug("Ollama request timeout")
+        return "offline"
+    except requests.exceptions.RequestException as e:
+        logger.debug(f"Ollama request failed: {e}")
+        return "offline"
+    except Exception as e:
+        logger.error(f"Unexpected error testing Ollama: {e}", exc_info=True)
         return "offline"
 
 def generate_text(prompt, model="llama2", **kwargs):
@@ -223,8 +241,17 @@ def generate_text(prompt, model="llama2", **kwargs):
         )
         response.raise_for_status()
         return response.json()
+    except requests.exceptions.HTTPError as e:
+        raise ServiceError(f"Ollama generation HTTP error: {e}") from e
+    except requests.exceptions.ConnectionError as e:
+        raise ServiceError(f"Ollama connection failed: {e}") from e
+    except requests.exceptions.Timeout as e:
+        raise ServiceError(f"Ollama generation timeout: {e}") from e
+    except requests.exceptions.RequestException as e:
+        raise ServiceError(f"Ollama generation request failed: {e}") from e
     except Exception as e:
-        raise Exception(f"Ollama generation failed: {str(e)}")
+        logger.error(f"Unexpected error in Ollama generation: {e}", exc_info=True)
+        raise ServiceError(f"Ollama generation failed: {e}") from e
 
 def chat(messages, model="llama2", **kwargs):
     """Chat with Ollama model"""
@@ -240,8 +267,17 @@ def chat(messages, model="llama2", **kwargs):
         )
         response.raise_for_status()
         return response.json()
+    except requests.exceptions.HTTPError as e:
+        raise ServiceError(f"Ollama chat HTTP error: {e}") from e
+    except requests.exceptions.ConnectionError as e:
+        raise ServiceError(f"Ollama connection failed: {e}") from e
+    except requests.exceptions.Timeout as e:
+        raise ServiceError(f"Ollama chat timeout: {e}") from e
+    except requests.exceptions.RequestException as e:
+        raise ServiceError(f"Ollama chat request failed: {e}") from e
     except Exception as e:
-        raise Exception(f"Ollama chat failed: {str(e)}")
+        logger.error(f"Unexpected error in Ollama chat: {e}", exc_info=True)
+        raise ServiceError(f"Ollama chat failed: {e}") from e
 
 def run_model(model="psa-engine:latest", prompt="", file_path="", **kwargs):
     """
@@ -322,10 +358,13 @@ def run_model(model="psa-engine:latest", prompt="", file_path="", **kwargs):
             return result
         except requests.exceptions.RequestException as gen_e:
             logger.error(f"Both chat and generate APIs failed. Generate error: {gen_e}")
-            raise Exception(f"Ollama model execution failed: {str(gen_e)}")
+            raise ServiceError(f"Ollama model execution failed: {gen_e}") from gen_e
+    except (ServiceError, ValueError):
+        # Re-raise ServiceError and ValueError as-is
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error in Ollama model execution: {e}")
-        raise Exception(f"Ollama model execution failed: {str(e)}")
+        logger.error(f"Unexpected error in Ollama model execution: {e}", exc_info=True)
+        raise ServiceError(f"Ollama model execution failed: {e}") from e
 
 def run_model_on_chunks(chunks, model="psa-engine:latest", file_path=""):
     """
@@ -366,8 +405,10 @@ def run_model_on_chunks(chunks, model="psa-engine:latest", file_path=""):
                     import json as json_module
                     with open(heuristics_path, "r", encoding="utf-8") as f:
                         heuristics = json_module.load(f)
-                except Exception as e:
+                except (FileNotFoundError, PermissionError, OSError, json.JSONDecodeError) as e:
                     logger.debug(f"Could not load heuristics: {e}")
+                except Exception as e:
+                    logger.warning(f"Unexpected error loading heuristics: {e}", exc_info=True)
             
             # Build prompt based on heuristics or default
             if heuristics.get("mode") == "security_guidance":
@@ -475,14 +516,24 @@ Remember: Return ONLY valid JSON, nothing else."""
             
             results.append(result_data)
             
-        except Exception as e:
-            # Log error but continue with other chunks
-            logging.error(f"Failed to process chunk {chunk.get('chunk_id', idx)}: {str(e)}")
+        except ServiceError as e:
+            # ServiceError from run_model - log and continue with other chunks
+            logger.error(f"Failed to process chunk {chunk.get('chunk_id', idx)}: {e}")
             results.append({
                 "chunk_id": chunk.get('chunk_id', f'chunk_{idx}'),
                 "error": str(e),
                 "status": "failed"
             })
+            continue
+        except Exception as e:
+            # Unexpected error - log with full context and continue
+            logger.error(f"Unexpected error processing chunk {chunk.get('chunk_id', idx)}: {e}", exc_info=True)
+            results.append({
+                "chunk_id": chunk.get('chunk_id', f'chunk_{idx}'),
+                "error": f"Unexpected error: {e}",
+                "status": "failed"
+            })
+            continue
     
     return results
 

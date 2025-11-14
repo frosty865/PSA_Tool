@@ -5,6 +5,8 @@ Handles file processing, document parsing, and library operations
 
 import os
 from pathlib import Path
+from config import Config
+from config.exceptions import ServiceError, FileOperationError
 
 # Import parser modules
 from services.pdf_parser import extract_text as pdf_extract
@@ -21,12 +23,12 @@ EXT_HANDLERS = {
     ".txt": txt_extract,
 }
 
-# Data directories - Use C:\Tools\Ollama\Data
-BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
-DATA_DIR = BASE_DIR
-INCOMING_DIR = BASE_DIR / 'incoming'
-PROCESSED_DIR = BASE_DIR / 'processed'
-ERRORS_DIR = BASE_DIR / 'errors'
+# Data directories - Use centralized config
+BASE_DIR = Config.DATA_DIR
+DATA_DIR = Config.DATA_DIR
+INCOMING_DIR = Config.INCOMING_DIR
+PROCESSED_DIR = Config.PROCESSED_DIR
+ERRORS_DIR = Config.ERRORS_DIR
 LIBRARY_PDF = BASE_DIR / 'SAFE_VOFC_Library.pdf'  # Optional reference PDF
 
 # Ensure directories exist
@@ -45,8 +47,10 @@ def list_incoming_files():
                     "modified": file_path.stat().st_mtime
                 })
         return files
+    except (PermissionError, OSError) as e:
+        raise FileOperationError(f"Failed to list files: {e}") from e
     except Exception as e:
-        raise Exception(f"Failed to list files: {str(e)}")
+        raise ServiceError(f"Unexpected error listing files: {e}") from e
 
 def get_file_info(filename):
     """Get information about a specific file"""
@@ -61,8 +65,12 @@ def get_file_info(filename):
             "modified": file_path.stat().st_mtime,
             "path": str(file_path)
         }
+    except FileNotFoundError:
+        raise
+    except (PermissionError, OSError) as e:
+        raise FileOperationError(f"Failed to get file info: {e}") from e
     except Exception as e:
-        raise Exception(f"Failed to get file info: {str(e)}")
+        raise ServiceError(f"Unexpected error getting file info: {e}") from e
 
 def move_file(filename, destination='processed'):
     """Move a file from incoming to processed or errors"""
@@ -81,8 +89,10 @@ def move_file(filename, destination='processed'):
         target.parent.mkdir(parents=True, exist_ok=True)
         source.rename(target)
         return {"success": True, "destination": str(target)}
+    except (PermissionError, OSError, FileNotFoundError) as e:
+        raise FileOperationError(f"Failed to move file: {e}") from e
     except Exception as e:
-        raise Exception(f"Failed to move file: {str(e)}")
+        raise ServiceError(f"Unexpected error moving file: {e}") from e
 
 def process_file(file_path):
     """
@@ -129,8 +139,10 @@ def process_file(file_path):
         
         return result
         
+    except (ServiceError, FileOperationError):
+        raise
     except Exception as e:
-        raise Exception(f"Failed to process file: {str(e)}")
+        raise ServiceError(f"Failed to process file: {e}") from e
 
 def process_document(file_path, document_type='pdf'):
     """
@@ -167,8 +179,10 @@ def search_library(query):
             "query": query,
             "results": results
         }
+    except ServiceError:
+        raise
     except Exception as e:
-        raise Exception(f"Failed to search library: {str(e)}")
+        raise ServiceError(f"Failed to search library: {e}") from e
 
 def get_library_entry(entry_id):
     """Get a specific library entry from Supabase"""
@@ -187,8 +201,10 @@ def get_library_entry(entry_id):
             return {"id": entry_id, "type": "ofc", "data": ofc_res.data[0]}
         
         return {"id": entry_id, "data": None}
+    except ServiceError:
+        raise
     except Exception as e:
-        raise Exception(f"Failed to get library entry: {str(e)}")
+        raise ServiceError(f"Failed to get library entry: {e}") from e
 
 def write_file_to_folder(filename, content, folder='processed'):
     """Write content to a file in specified folder"""
@@ -213,8 +229,10 @@ def write_file_to_folder(filename, content, folder='processed'):
                 f.write(str(content))
         
         return {"path": str(target_path)}
+    except (PermissionError, OSError) as e:
+        raise FileOperationError(f"Failed to write file: {e}") from e
     except Exception as e:
-        raise Exception(f"Failed to write file: {str(e)}")
+        raise ServiceError(f"Unexpected error writing file: {e}") from e
 
 def get_progress():
     """Get current processing progress"""
@@ -224,8 +242,13 @@ def get_progress():
             import json
             with open(progress_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
-    except Exception:
+    except (FileNotFoundError, PermissionError, OSError):
+        # Non-critical - return default progress
         pass
+    except Exception as e:
+        # Log unexpected errors but don't fail
+        import logging
+        logging.debug(f"Unexpected error reading progress: {e}")
     
     return {
         "status": "idle",
@@ -259,8 +282,13 @@ def update_progress(status, message, current_file=None, total_files=0, current_s
         import json
         with open(progress_file, 'w', encoding='utf-8') as f:
             json.dump(progress_data, f, indent=2)
-    except Exception:
-        pass  # Silently fail if progress file can't be written
+    except (PermissionError, OSError) as e:
+        # Log but don't fail - progress writing is non-critical
+        import logging
+        logging.warning(f"Could not write progress file: {e}")
+    except Exception as e:
+        import logging
+        logging.debug(f"Unexpected error writing progress: {e}")
 
 # Add more processing functions as needed from your old server.py
 

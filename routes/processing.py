@@ -9,6 +9,8 @@ from flask import Blueprint, request, jsonify
 import os, json, time, logging, fitz, requests
 
 from services.supabase_client import get_supabase_client
+from config import Config
+from config.exceptions import ServiceError, ConfigurationError
 
 
 
@@ -223,9 +225,12 @@ def save_json(obj, base_name):
 # --- Supabase bridge --------------------------------------------------------
 
 def sync_to_supabase(result_json, filename):
+    # Check offline modes
+    if Config.SUPABASE_OFFLINE_MODE or Config.ANALYTICS_OFFLINE_MODE:
+        log.info("Supabase/Analytics offline mode enabled - sync skipped")
+        return None
 
     try:
-
         supabase = get_supabase_client()
 
         # --- 1️⃣ Create the parent submission record ---
@@ -382,18 +387,26 @@ def sync_to_supabase(result_json, filename):
 
 
 
-    except Exception as e:
-
-        log.exception(f"Supabase sync failed: {e}")
-
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
+    except ConfigurationError:
+        # Supabase not configured - return None for offline mode
+        log.warning("Supabase sync skipped: Supabase not configured (offline mode)")
         return None
+    except Exception as e:
+        log.error(f"Supabase sync failed: {e}", exc_info=True)
+        raise ServiceError(f"Supabase sync failed: {e}") from e
 
 
 
 def log_learning_event(submission_id, count, elapsed):
+    # Check offline mode
+    if Config.ANALYTICS_OFFLINE_MODE:
+        log.debug("Analytics offline mode enabled - learning event logging skipped")
+        return
 
     try:
-
         supabase = get_supabase_client()
 
         supabase.table("learning_events").insert({
@@ -412,16 +425,25 @@ def log_learning_event(submission_id, count, elapsed):
 
         }).execute()
 
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
+    except ConfigurationError:
+        # Supabase not configured - log and continue (non-critical)
+        log.debug("Learning event logging skipped: Supabase not configured (offline mode)")
     except Exception as e:
-
-        log.warning(f"learning_events insert failed: {e}")
+        log.warning(f"Unexpected error in learning_events insert: {e}", exc_info=True)
+        # Don't fail - learning events are non-critical
 
 
 
 def update_learning_stats(count, elapsed):
+    # Check offline mode
+    if Config.ANALYTICS_OFFLINE_MODE:
+        log.debug("Analytics offline mode enabled - learning stats update skipped")
+        return
 
     try:
-
         supabase = get_supabase_client()
 
         res = supabase.table("learning_stats").select("*").eq("model_version", MODEL_VERSION).execute()
@@ -472,9 +494,15 @@ def update_learning_stats(count, elapsed):
 
             }).execute()
 
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
+    except ConfigurationError:
+        # Supabase not configured - log and continue (non-critical)
+        log.debug("Learning stats update skipped: Supabase not configured (offline mode)")
     except Exception as e:
-
-        log.warning(f"learning_stats upsert failed: {e}")
+        log.warning(f"Unexpected error in learning_stats upsert: {e}", exc_info=True)
+        # Don't fail - learning stats are non-critical
 
 
 

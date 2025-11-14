@@ -30,8 +30,9 @@ except ConfigurationError as e:
     logger.error("Server will not start with invalid configuration")
     sys.exit(1)
 except Exception as e:
-    logger.error(f"Unexpected error during configuration validation: {e}")
-    logger.warning("Continuing with potentially invalid configuration...")
+    logger.error(f"Unexpected error during configuration validation: {e}", exc_info=True)
+    logger.error("Server will not start due to configuration validation error")
+    sys.exit(1)
 
 # Import app after validation
 from app import app

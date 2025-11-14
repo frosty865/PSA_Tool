@@ -3,6 +3,22 @@ PSA Flask App - Complete Route Registration
 All blueprints must be registered for production deployment
 """
 
+import sys
+import logging
+
+# Validate configuration before starting
+try:
+    from config import Config, ConfigurationError
+    Config.validate()
+    logging.info("Configuration validation passed")
+except ConfigurationError as e:
+    logging.error(f"Configuration validation failed: {e}")
+    logging.error("Flask app will not start with invalid configuration")
+    sys.exit(1)
+except Exception as e:
+    logging.error(f"Unexpected error during configuration validation: {e}")
+    logging.warning("Continuing with potentially invalid configuration...")
+
 from flask import Flask
 from routes.processing import processing_bp
 from routes.system import system_bp

@@ -71,7 +71,7 @@ def merge_similar_duplicates(records, similarity_threshold=0.8):
             # Use AI to determine if records should be merged (with fallback to text similarity)
             should_merge = False
             import os
-            use_ai = os.getenv("ENABLE_AI_ENHANCEMENT", "false").lower() == "true"
+            use_ai = Config.ENABLE_AI_ENHANCEMENT
             
             if use_ai:
                 try:
@@ -202,7 +202,7 @@ def add_domain_defaults(records):
     import os
     
     # Check if AI enhancement is enabled
-    use_ai = os.getenv("ENABLE_AI_ENHANCEMENT", "false").lower() == "true"
+    use_ai = Config.ENABLE_AI_ENHANCEMENT
     
     if use_ai:
         try:
@@ -394,14 +394,14 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     """
     import os
     # Get confidence threshold from environment or use default (LOWERED to 0.3 to capture more)
-    min_confidence = float(os.getenv("CONFIDENCE_THRESHOLD", "0.3"))
+    min_confidence = Config.CONFIDENCE_THRESHOLD
     
     logger.info(f"Starting post-processing for {len(model_results)} model results (min_confidence={min_confidence})")
     
     # Load expanded heuristics if available
     heuristics = {}
     heur_path = os.path.join(
-        os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"),
+        Config.DATA_DIR,
         "automation",
         "heuristics_design_guidance.json"
     )
@@ -499,7 +499,7 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                     if has_real_content:
                         # Use AI to generate contextually appropriate implied vulnerability
                         import os
-                        use_ai = os.getenv("ENABLE_AI_ENHANCEMENT", "false").lower() == "true"
+                        use_ai = Config.ENABLE_AI_ENHANCEMENT
                         
                         if use_ai:
                             try:
@@ -634,7 +634,7 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             
             # Get confidence score for filtering - use AI quality assessment if enabled
             import os
-            use_ai = os.getenv("ENABLE_AI_ENHANCEMENT", "false").lower() == "true"
+            use_ai = Config.ENABLE_AI_ENHANCEMENT
             
             record_confidence = cleaned_record.get("confidence_score") or cleaned_record.get("confidence", 0.5)
             if isinstance(record_confidence, str):

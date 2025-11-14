@@ -45,13 +45,15 @@ MODEL_NAME = "vofc-engine"  # base family/tag to version
 BASE_FALLBACK = "llama3:instruct"  # used if vofc-engine:latest not present
 MAX_EXAMPLES = 40  # keep Modelfile reasonably small
 # Training data paths - check new location first, fallback to legacy
+from config import Config
 TRAIN_DIR = Path(r"C:\Tools\VOFC-Flask\training_data") if Path(r"C:\Tools\VOFC-Flask\training_data").exists() else Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data")
 SEED_FILE = TRAIN_DIR / "annotated_seed.jsonl"
 MODELS_DIR = TRAIN_DIR / "models"
 ARCHIVE_DIR = TRAIN_DIR / "archive"
 LOGS_DIR = TRAIN_DIR / "logs"
 
-OLLAMA_PATH = Path(r"C:\Tools\Ollama")
+# Ollama path - extract from Config.OLLAMA_URL (remove http:// and port)
+OLLAMA_PATH = Path(Config.OLLAMA_URL.replace("http://", "").replace("https://", "").split(":")[0]) if ":" in Config.OLLAMA_URL else Path(r"C:\Tools\Ollama")
 OLLAMA_EXE = OLLAMA_PATH / "ollama.exe"
 
 # Supabase logging (optional but recommended)

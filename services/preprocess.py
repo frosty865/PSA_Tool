@@ -4,6 +4,7 @@ Extracts text from PDF, DOCX, and TXT files, normalizes it, and splits into chun
 """
 
 import os
+from config import Config
 import re
 import json
 import logging
@@ -48,7 +49,7 @@ except ImportError:
     NLTK_AVAILABLE = False
 
 # Setup logging - Use C:\Tools\Ollama\Data\automation
-BASE_DIR = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
+BASE_DIR = Config.DATA_DIR
 LOG_DIR = BASE_DIR / 'automation'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / 'preprocess.log'

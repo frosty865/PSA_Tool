@@ -7,6 +7,7 @@ import uuid
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, List
+from config.exceptions import ServiceError, ConfigurationError
 
 try:
     from supabase import create_client, Client
@@ -17,21 +18,28 @@ except ImportError:
 
 
 def init_supabase() -> Optional[Client]:
-    """Initialize Supabase client from environment variables."""
+    """Initialize Supabase client from centralized config."""
     if not SUPABASE_AVAILABLE:
         logging.warning("Supabase library not available - install with: pip install supabase")
         return None
     
-    supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+    from config import Config
+    
+    # Check offline mode first
+    if Config.SUPABASE_OFFLINE_MODE:
+        logging.info("Supabase offline mode enabled - Supabase uploads will be skipped")
+        return None
+    
+    supabase_url = Config.SUPABASE_URL
     # Check both SUPABASE_ANON_KEY and NEXT_PUBLIC_SUPABASE_ANON_KEY for compatibility
-    supabase_key = os.getenv("SUPABASE_ANON_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+    supabase_key = Config.SUPABASE_ANON_KEY
     
     if not supabase_url:
-        logging.warning("SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL environment variable not set - Supabase uploads will be skipped")
+        logging.warning("SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL environment variable not set - Supabase uploads will be skipped (set SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
         return None
     
     if not supabase_key:
-        logging.warning("SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable not set - Supabase uploads will be skipped")
+        logging.warning("SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable not set - Supabase uploads will be skipped (set SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
         return None
     
     try:
@@ -39,9 +47,10 @@ def init_supabase() -> Optional[Client]:
         logging.debug(f"Supabase client initialized successfully (URL: {supabase_url[:30]}...)")
         return client
     except Exception as e:
-        logging.error(f"Failed to initialize Supabase client: {e}")
+        logging.error(f"Failed to initialize Supabase client: {e}", exc_info=True)
         logging.error(f"  SUPABASE_URL: {'set' if supabase_url else 'not set'}")
         logging.error(f"  SUPABASE_ANON_KEY: {'set' if supabase_key else 'not set'}")
+        # Return None for optional Supabase - caller should handle offline mode
         return None
 
 
@@ -186,7 +195,8 @@ def upload_to_supabase(
                         logging.warning(f"Failed to insert vulnerability: {vulnerability[:50]}...")
                         continue
                 except Exception as e:
-                    logging.error(f"Error inserting vulnerability: {e}")
+                    logging.error(f"Error inserting vulnerability: {e}", exc_info=True)
+                    # Continue with next vulnerability - don't fail entire batch
                     continue
             
             # Process OFCs
@@ -227,7 +237,8 @@ def upload_to_supabase(
                         logging.debug(f"Link may already exist: {e}")
                         
                 except Exception as e:
-                    logging.warning(f"Error processing OFC: {e}")
+                    logging.warning(f"Error processing OFC: {e}", exc_info=True)
+                    # Continue with next OFC - don't fail entire batch
         
         # Create submission record
         submission_payload = {
@@ -241,7 +252,7 @@ def upload_to_supabase(
                 "source_file": os.path.basename(file_path),
                 "processed_at": datetime.utcnow().isoformat(),
                 "records": records,
-                "model_version": os.getenv("VOFC_MODEL", os.getenv("OLLAMA_MODEL", "vofc-unified:latest")),
+                "model_version": Config.DEFAULT_MODEL,
                 "inserted_count": inserted_count,
                 "linked_count": linked_count
             },
@@ -258,7 +269,10 @@ def upload_to_supabase(
             logging.warning(f"Supabase insert returned no data for {file_path}")
             return None
             
+    except ServiceError:
+        # Re-raise ServiceError as-is
+        raise
     except Exception as e:
         logging.error(f"Error uploading to Supabase: {e}", exc_info=True)
-        return None
+        raise ServiceError(f"Supabase upload failed: {e}") from e
 

@@ -8,6 +8,7 @@ import json
 import logging
 from pathlib import Path
 from flask import Blueprint, jsonify, request
+from config import Config
 from services.processor import process_file, process_document, INCOMING_DIR
 from services.queue_manager import add_job, load_queue
 from services.preprocess import preprocess_document
@@ -171,9 +172,7 @@ def process_upload():
         logger.info(f"Received file upload: {file.filename}")
         
         # Step 2: Save file to incoming directory
-        # Use C:\Tools\Ollama\Data\incoming
-        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
-        incoming_dir = base_dir / "incoming"
+        incoming_dir = Config.INCOMING_DIR
         
         incoming_dir.mkdir(parents=True, exist_ok=True)
         

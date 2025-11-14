@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional
+from config.exceptions import ServiceError, DependencyError
 
 # Import modular components
 from ..extractors.pdf_extractor import extract_structured_pdf
@@ -59,7 +60,8 @@ def process_pdf(
     logging.info(f"Checking if model '{model_to_check}' is available...")
     try:
         import requests
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+        from config import Config
+        ollama_url = Config.OLLAMA_URL
         if not ollama_url.startswith(('http://', 'https://')):
             ollama_url = f"http://{ollama_url}"
         ollama_url = ollama_url.rstrip('/')
@@ -100,14 +102,24 @@ def process_pdf(
             logging.info(f"✓ Model '{model_to_check}' is available")
         else:
             logging.warning(f"Could not verify model availability (Ollama returned {tags_response.status_code})")
-    except requests.RequestException as e:
+    except requests.exceptions.ConnectionError as e:
         error_msg = f"❌ Cannot connect to Ollama server at {ollama_url}. Please ensure Ollama is running."
         logging.error(error_msg)
-        raise ConnectionError(error_msg) from e
+        raise ServiceError(error_msg) from e
+    except requests.exceptions.Timeout as e:
+        error_msg = f"❌ Ollama server timeout at {ollama_url}. Please check Ollama is running and responsive."
+        logging.error(error_msg)
+        raise ServiceError(error_msg) from e
+    except requests.exceptions.RequestException as e:
+        error_msg = f"❌ Ollama server request failed at {ollama_url}: {e}"
+        logging.error(error_msg)
+        raise ServiceError(error_msg) from e
+    except (ValueError, ConnectionError):
+        # Re-raise validation errors as-is
+        raise
     except Exception as e:
-        if "CRITICAL" in str(e) or "not found" in str(e).lower():
-            raise  # Re-raise validation errors
-        logging.warning(f"Could not verify model availability: {e}")
+        logging.error(f"Unexpected error verifying model availability: {e}", exc_info=True)
+        raise ServiceError(f"Unexpected error verifying model availability: {e}") from e
     
     # Step 1: Extract structured pages
     logging.info("Step 1: Extracting structured pages...")

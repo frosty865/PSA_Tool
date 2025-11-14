@@ -19,14 +19,15 @@ PROJECT_DIR = Path(__file__).parent.parent
 if str(PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(PROJECT_DIR))
 
-# Data directories (matching ollama_auto_processor.py)
-BASE_DIR = Path(r"C:\Tools\Ollama\Data")
-INCOMING_DIR = BASE_DIR / "incoming"
-REVIEW_DIR = BASE_DIR / "review"
+# Data directories - use centralized config
+from config import Config
+BASE_DIR = Config.DATA_DIR
+INCOMING_DIR = Config.INCOMING_DIR
+REVIEW_DIR = Config.REVIEW_DIR
 REVIEW_TEMP_DIR = REVIEW_DIR / "temp"
-PROCESSED_DIR = BASE_DIR / "processed"
-LIBRARY_DIR = BASE_DIR / "library"
-ERROR_DIR = BASE_DIR / "errors"
+PROCESSED_DIR = Config.PROCESSED_DIR
+LIBRARY_DIR = Config.LIBRARY_DIR
+ERROR_DIR = Config.ERRORS_DIR
 # Training data can be in either location
 TRAINING_PARSED_DIR = Path(r"C:\Tools\VOFC-Flask\training_data\parsed") if Path(r"C:\Tools\VOFC-Flask\training_data\parsed").exists() else Path(r"C:\Users\frost\OneDrive\Desktop\Projects\PSA_Tool\training_data\parsed")
 

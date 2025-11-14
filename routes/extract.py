@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, request
 from services.document_extractor import extract_from_document
 from services.submission_saver import save_extraction_to_submission
 from services.supabase_client import get_supabase_client
+from config import Config
 
 logger = logging.getLogger(__name__)
 extract_bp = Blueprint('extract', __name__)
@@ -64,9 +65,7 @@ def extract_submission(submission_id):
             }), 400
         
         # Find file in incoming directory
-        base_dir = Path(os.getenv("VOFC_BASE_DIR", r"C:\Tools\Ollama\Data"))
-        incoming_dir = base_dir / "incoming"
-        file_path = incoming_dir / filename
+        file_path = Config.INCOMING_DIR / filename
         
         if not file_path.exists():
             return jsonify({

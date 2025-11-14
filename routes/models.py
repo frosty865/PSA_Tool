@@ -8,6 +8,7 @@ import subprocess
 import requests
 from flask import Blueprint, jsonify
 from services.supabase_client import get_supabase_client
+from config import Config
 
 models_bp = Blueprint('models', __name__)
 
@@ -18,14 +19,11 @@ supabase = get_supabase_client()
 def get_model_info():
     """Get information about the current Ollama model"""
     try:
-        # Get Ollama URL
-        ollama_host = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11434')
-        ollama_base = ollama_host.rstrip('/')
-        if not ollama_base.startswith(('http://', 'https://')):
-            ollama_base = f"http://{ollama_base}"
+        # Get Ollama URL from centralized config (already normalized)
+        ollama_base = Config.OLLAMA_URL
         
-        # Get model name from environment or default
-        model_name = os.getenv('OLLAMA_MODEL', 'psa-engine:latest')
+        # Get model name from centralized config
+        model_name = Config.DEFAULT_MODEL
         
         # Try to get model info from Ollama API
         try:
@@ -134,7 +132,7 @@ def get_model_info():
         import logging
         logging.error(f"Error getting model info: {e}")
         return jsonify({
-            "name": os.getenv('OLLAMA_MODEL', 'psa-engine:latest'),
+            "name": Config.DEFAULT_MODEL,
             "version": "unknown",
             "size_gb": None,
             "status": "error",

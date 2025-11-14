@@ -168,7 +168,9 @@ export async function safeFetch(url, options = {}) {
       });
     }
 
+    // Distinguish between recoverable and fatal errors
     if (err.name === 'AbortError') {
+      // Timeout is recoverable - return error object
       return {
         success: false,
         error: `Request timeout after ${timeout}ms - server may be unavailable`,
@@ -178,14 +180,19 @@ export async function safeFetch(url, options = {}) {
       };
     }
 
-    // Check for specific connection errors
+    // Check for fatal configuration errors (should throw)
+    if (err.message?.includes('ENOTFOUND') || err.message?.includes('getaddrinfo')) {
+      // DNS lookup failed - fatal configuration error
+      throw new Error(`DNS lookup failed for ${url} - check tunnel URL configuration: ${err.message}`);
+    } else if (err.message?.includes('certificate') || err.message?.includes('SSL')) {
+      // SSL/TLS certificate error - fatal configuration error
+      throw new Error(`SSL/TLS certificate error for ${url} - check tunnel certificate: ${err.message}`);
+    }
+
+    // Connection errors are recoverable - return error object
     let errorMessage = err.message || 'Failed to connect to server';
     if (err.message?.includes('ECONNREFUSED')) {
       errorMessage = 'Connection refused - server may not be running or tunnel may be down';
-    } else if (err.message?.includes('ENOTFOUND') || err.message?.includes('getaddrinfo')) {
-      errorMessage = 'DNS lookup failed - check tunnel URL configuration';
-    } else if (err.message?.includes('certificate') || err.message?.includes('SSL')) {
-      errorMessage = 'SSL/TLS certificate error - check tunnel certificate';
     }
 
     return {

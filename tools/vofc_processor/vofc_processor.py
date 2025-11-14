@@ -14,6 +14,7 @@ import shutil
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from config.exceptions import ServiceError, FileOperationError, DependencyError, ConfigurationError
 
 # Add services directory to path for imports
 # Support both project structure and deployed structure
@@ -67,27 +68,20 @@ try:
         logging.debug("No .env file found in standard locations")
 except ImportError:
     logging.warning("python-dotenv not installed - .env file will not be loaded automatically")
+except (FileNotFoundError, PermissionError, OSError) as e:
+    logging.debug(f"Could not load .env file (using environment defaults): {e}")
 except Exception as e:
-    logging.warning(f"Failed to load .env file: {e}")
+    logging.warning(f"Unexpected error loading .env file: {e}", exc_info=True)
 
-# Base data directory
-DATA_DIR = os.getenv("VOFC_DATA_DIR", r"C:\Tools\Ollama\Data")
-if not os.path.exists(DATA_DIR):
-    # Fallback to archive location if needed (for migration)
-    archive_data = r"C:\Tools\archive\VOFC\Data"
-    if os.path.exists(archive_data):
-        DATA_DIR = archive_data
-    else:
-        DATA_DIR = r"C:\Tools\Ollama\Data"  # Default
-    if not os.path.exists(DATA_DIR):
-        DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
-        os.makedirs(DATA_DIR, exist_ok=True)
+# Base data directory - use centralized config
+from config import Config
+DATA_DIR = Config.DATA_DIR
 
-INCOMING_DIR = os.path.join(DATA_DIR, "incoming")
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-LIBRARY_DIR = os.path.join(DATA_DIR, "library")
-TEMP_DIR = os.path.join(DATA_DIR, "temp")
-LOGS_DIR = os.path.join(DATA_DIR, "logs")
+INCOMING_DIR = Config.INCOMING_DIR
+PROCESSED_DIR = Config.PROCESSED_DIR
+LIBRARY_DIR = Config.LIBRARY_DIR
+TEMP_DIR = Config.TEMP_DIR
+LOGS_DIR = Config.LOGS_DIR
 
 # Ensure directories exist
 for dir_path in [INCOMING_DIR, PROCESSED_DIR, LIBRARY_DIR, TEMP_DIR, LOGS_DIR]:
@@ -109,6 +103,23 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+# ==========================================================
+# STARTUP VALIDATION
+# ==========================================================
+
+# Validate configuration before starting
+try:
+    from config import Config, ConfigurationError
+    Config.validate()
+    logger.info("Configuration validation passed")
+except ConfigurationError as e:
+    logger.error(f"Configuration validation failed: {e}")
+    logger.error("Processor will not start with invalid configuration")
+    sys.exit(1)
+except Exception as e:
+    logger.error(f"Unexpected error during configuration validation: {e}", exc_info=True)
+    raise ConfigurationError(f"Configuration validation failed: {e}") from e
 
 # ==========================================================
 # SUPABASE INITIALIZATION
@@ -158,7 +169,7 @@ def process_pdf_file(pdf_path: str) -> bool:
         output_path = process_pdf_chunked(
             path=str(pdf_path),
             output_dir=PROCESSED_DIR,
-            model=os.getenv("VOFC_MODEL", os.getenv("OLLAMA_MODEL", "vofc-unified:latest"))
+            model=Config.DEFAULT_MODEL
         )
         
         # Load results to verify
@@ -169,7 +180,7 @@ def process_pdf_file(pdf_path: str) -> bool:
         record_count = len(records) if records else 0
         
         # Minimum records threshold for moving to library (allows reprocessing for learning)
-        min_records_for_library = int(os.getenv("MIN_RECORDS_FOR_LIBRARY", "5"))
+        min_records_for_library = Config.MIN_RECORDS_FOR_LIBRARY
         
         if record_count == 0:
             logger.warning(f"⚠️  No records extracted from {pdf_path_obj.name}")
@@ -207,11 +218,14 @@ def process_pdf_file(pdf_path: str) -> bool:
                     logger.warning("⚠️  Supabase upload skipped: No records to upload")
                 else:
                     logger.warning("⚠️  Supabase upload failed: Check logs above for details")
-        except Exception as upload_error:
+        except ServiceError as upload_error:
+            # ServiceError from upload_to_supabase - log but don't fail processing
             logger.error(f"⚠️  Supabase upload error: {upload_error}", exc_info=True)
+        except Exception as e:
+            logger.error(f"⚠️  Unexpected Supabase upload error: {e}", exc_info=True)
         
         # Step 4: Move PDF to library (only if we have enough records)
-        min_records_for_library = int(os.getenv("MIN_RECORDS_FOR_LIBRARY", "5"))
+        min_records_for_library = Config.MIN_RECORDS_FOR_LIBRARY
         
         if record_count < min_records_for_library:
             logger.info(f"[4/4] Keeping file in incoming for reprocessing (only {record_count} records, need {min_records_for_library} for library)")
@@ -246,7 +260,7 @@ def process_pdf_file(pdf_path: str) -> bool:
             else:
                 raise Exception(f"Move verification failed: dest exists={os.path.exists(dest)}, source exists={pdf_path_obj.exists()}")
                 
-        except Exception as move_error:
+        except (PermissionError, OSError) as move_error:
             logger.warning(f"Move failed, trying copy: {move_error}")
             try:
                 # Ensure library directory exists
@@ -267,22 +281,40 @@ def process_pdf_file(pdf_path: str) -> bool:
                         logger.info(f"✓ Moved to library (via copy): {os.path.basename(dest)}")
                         moved_successfully = True
                     else:
-                        raise Exception("Source file still exists after copy+remove")
+                        raise FileOperationError("Source file still exists after copy+remove")
                 else:
-                    raise Exception("Destination file does not exist after copy")
+                    raise FileOperationError("Destination file does not exist after copy")
                     
-            except Exception as copy_error:
+            except (PermissionError, OSError) as copy_error:
                 logger.error(f"✗ Copy fallback also failed: {copy_error}", exc_info=True)
-                raise Exception(f"Failed to move file from incoming to library: {move_error}")
+                raise FileOperationError(f"Failed to move file from incoming to library: {move_error}") from move_error
+            except Exception as e:
+                logger.error(f"✗ Unexpected error during copy fallback: {e}", exc_info=True)
+                raise FileOperationError(f"Unexpected error during file move: {e}") from e
+        except Exception as e:
+            logger.error(f"✗ Unexpected error during file move: {e}", exc_info=True)
+            raise FileOperationError(f"Unexpected error moving file: {e}") from e
         
         if not moved_successfully:
-            raise Exception("File move verification failed - file may still be in incoming directory")
+            raise FileOperationError("File move verification failed - file may still be in incoming directory")
         
         logger.info(f"✅ Completed: {pdf_path_obj.name}")
         return True
         
-    except Exception as e:
+    except (ServiceError, FileOperationError, DependencyError) as e:
+        # Re-raise domain-specific errors as-is
         logger.error(f"✗ Error processing {pdf_path_obj.name}: {e}", exc_info=True)
+        # Move failed file to temp for manual review
+        error_dest = os.path.join(TEMP_DIR, "errors", f"{base_name}_error_{int(time.time())}.pdf")
+        try:
+            os.makedirs(os.path.dirname(error_dest), exist_ok=True)
+            shutil.move(str(pdf_path), error_dest)
+            logger.info(f"Moved failed file to: {error_dest}")
+        except Exception as move_err:
+            logger.error(f"Failed to move error file: {move_err}", exc_info=True)
+        raise
+    except Exception as e:
+        logger.error(f"✗ Unexpected error processing {pdf_path_obj.name}: {e}", exc_info=True)
         # Move failed file to temp for manual review
         error_dest = os.path.join(TEMP_DIR, "errors", f"{base_name}_error_{int(time.time())}.pdf")
         os.makedirs(os.path.dirname(error_dest), exist_ok=True)
@@ -403,8 +435,13 @@ class PDFFileHandler(FileSystemEventHandler):
                     logger.info(f"✅ Successfully processed {file_path.name}")
                 else:
                     logger.warning(f"⚠️  Processing failed for {file_path.name}")
-            except Exception as e:
+            except (ServiceError, FileOperationError, DependencyError) as e:
+                # Re-raise domain-specific errors
                 logger.error(f"Error processing {file_path.name}: {e}", exc_info=True)
+                raise
+            except Exception as e:
+                logger.error(f"Unexpected error processing {file_path.name}: {e}", exc_info=True)
+                raise ServiceError(f"Unexpected error processing file: {e}") from e
             finally:
                 # Remove from processed set after processing completes (success or failure)
                 with self.processing_lock:
@@ -476,8 +513,13 @@ def run_service_loop():
                             logger.info("Checking for unprocessed files in incoming directory...")
                             try:
                                 process_all_pdfs()
-                            except Exception as e:
+                            except (ServiceError, FileOperationError, DependencyError) as e:
+                                # Re-raise domain-specific errors
                                 logger.error(f"Error processing existing files: {e}", exc_info=True)
+                                raise
+                            except Exception as e:
+                                logger.error(f"Unexpected error processing existing files: {e}", exc_info=True)
+                                raise ServiceError(f"Unexpected error processing existing files: {e}") from e
                             last_existing_check = current_time
                 except KeyboardInterrupt:
                     logger.info("Service interrupted by user")
@@ -487,10 +529,18 @@ def run_service_loop():
                     observer.join(timeout=5)
                     logger.info("File system watcher stopped")
                     
-        except Exception as e:
+        except (ServiceError, FileOperationError, DependencyError) as e:
+            # Re-raise domain-specific errors
             logger.error(f"Error in file watcher: {e}", exc_info=True)
+            raise
+        except KeyboardInterrupt:
+            # Re-raise KeyboardInterrupt
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in file watcher: {e}", exc_info=True)
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
+            raise ServiceError(f"Unexpected error in file watcher: {e}") from e
             logger.warning("Falling back to polling mode...")
             # Fall through to polling mode
     else:
@@ -520,10 +570,15 @@ def run_service_loop():
         except KeyboardInterrupt:
             logger.info("Service loop interrupted by user")
             break
-        except Exception as e:
+        except (ServiceError, FileOperationError, DependencyError) as e:
+            # Re-raise domain-specific errors - don't retry
             logger.error(f"Error in service loop: {e}", exc_info=True)
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in service loop: {e}", exc_info=True)
             logger.info(f"Waiting {check_interval} seconds before retry...")
             time.sleep(check_interval)
+            # Don't re-raise - allow retry for unexpected errors
 
 
 if __name__ == "__main__":

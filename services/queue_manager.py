@@ -9,6 +9,7 @@ import time
 import os
 import traceback
 from pathlib import Path
+from config.exceptions import FileOperationError, ServiceError
 
 # Import processor after it's defined to avoid circular imports
 # from services.processor import process_file
@@ -31,7 +32,15 @@ def load_queue():
     try:
         with open(QUEUE_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
-    except (json.JSONDecodeError, IOError):
+    except FileNotFoundError:
+        # Queue file doesn't exist yet - return empty queue
+        return []
+    except (json.JSONDecodeError, PermissionError, OSError) as e:
+        # Log error but return empty queue to allow recovery
+        print(f"⚠️  Warning: Could not load queue file: {e}")
+        return []
+    except Exception as e:
+        print(f"⚠️  Warning: Unexpected error loading queue file: {e}")
         return []
 
 def save_queue(queue):
@@ -92,17 +101,28 @@ def worker_loop():
                     # Log the learning event
                     try:
                         log_learning_event(submission_id, str(out_path), model_version="psa-engine:latest")
-                    except Exception as learning_err:
+                    except ServiceError as learning_err:
                         # Don't fail if learning event logging fails
-                        print(f"⚠️  Warning: Learning event logging failed: {str(learning_err)}")
+                        print(f"⚠️  Warning: Learning event logging failed: {learning_err}")
                         job["learning_event_error"] = str(learning_err)
+                    except Exception as e:
+                        print(f"⚠️  Warning: Unexpected error in learning event logging: {e}")
+                        job["learning_event_error"] = str(e)
                     
-                except Exception as sync_err:
+                except ServiceError as sync_err:
                     # Don't fail the job if Supabase sync fails - log it but mark job as done
                     job["supabase_sync_error"] = str(sync_err)
-                    print(f"⚠️  Warning: Supabase sync failed: {str(sync_err)}")
+                    print(f"⚠️  Warning: Supabase sync failed: {sync_err}")
                     # Job is still marked as "done" since processing succeeded
+                except Exception as e:
+                    print(f"⚠️  Warning: Unexpected error in Supabase sync: {e}")
+                    job["supabase_sync_error"] = str(e)
                 
+            except (ServiceError, FileOperationError, FileNotFoundError) as e:
+                # Re-raise domain-specific errors
+                job["status"] = "error"
+                job["error"] = str(e)
+                raise
             except Exception as e:
                 job["status"] = "error"
                 job["error"] = str(e)

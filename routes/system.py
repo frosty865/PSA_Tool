@@ -880,17 +880,11 @@ def log_stream():
             # Stream new lines only - tail the file in real-time
             while True:
                 try:
-                    # Check if file still exists and hasn't been rotated
+                    # Check if file still exists (single rolling log file)
                     if not log_file.exists():
-                        # File might have been rotated, find the latest one
-                        if logs_dir.exists():
-                            log_files = sorted(logs_dir.glob("vofc_processor_*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
-                            if log_files:
-                                log_file = log_files[0]
-                                last_position = 0  # Reset position for new file
-                                # Update today start for new day
-                                session_start_time = now_est()
-                                today_start = session_start_time.replace(hour=0, minute=0, second=0, microsecond=0)
+                        # Log file doesn't exist yet, wait for it to be created
+                        time.sleep(2)
+                        continue
                     
                     if log_file.exists():
                         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:

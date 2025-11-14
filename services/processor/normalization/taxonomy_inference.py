@@ -282,8 +282,8 @@ def validate_and_correct_taxonomy(
         inferred_sector, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
             vulnerability_text=vulnerability,
-            existing_sector=sector,
-            existing_subsector=subsector
+            existing_sector=corrected.get("sector", ""),
+            existing_subsector=corrected.get("subsector", "")
         )
         
         if inferred_sector:
@@ -291,7 +291,7 @@ def validate_and_correct_taxonomy(
             corrected["sector"] = inferred_sector
             
             # If subsector is missing, use inferred one
-            if not subsector and inferred_subsector:
+            if not corrected.get("subsector") and inferred_subsector:
                 corrected["subsector"] = inferred_subsector
         else:
             # If inference failed, use "General" as fallback (valid DHS sector for non-sector-specific documents)

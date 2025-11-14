@@ -186,7 +186,8 @@ export async function GET(request) {
           ollama: 'unknown',
           supabase: 'unknown',
           tunnel: 'unknown',
-          model_manager: 'unknown'
+          model_manager: 'unknown',
+          watcher: 'unknown'
         },
         error: 'Failed to connect to Flask server',
         message: error.message,

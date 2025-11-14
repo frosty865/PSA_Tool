@@ -130,8 +130,10 @@ def test_processor_service():
     """
     Check if VOFC-Processor Windows service is running (the watcher/processor).
     Returns 'ok' if running, 'offline' if stopped, 'unknown' if check fails.
+    Uses the same robust detection logic as the progress endpoint.
     """
     service_names = ['VOFC-Processor', 'vofc-processor', 'PSA-Processor']
+    service_running = False
     
     for service_name in service_names:
         try:
@@ -139,59 +141,66 @@ def test_processor_service():
                 ['sc', 'query', service_name],
                 capture_output=True,
                 text=True,
-                timeout=3
+                timeout=5
             )
             
+            # Check for RUNNING state
+            # Windows service states: 1=STOPPED, 2=START_PENDING, 3=STOP_PENDING, 4=RUNNING
             if result.returncode == 0:
-                output = result.stdout
-                output_upper = output.upper()
+                output_upper = result.stdout.upper()
+                # Check for state code 4 (RUNNING) - more reliable than text matching
+                # Format: "STATE              : 4  RUNNING" or "STATE : 4  RUNNING"
+                # Try multiple regex patterns to handle different whitespace
+                state_match_1 = re.search(r'STATE\s*:\s*4', output_upper)
+                state_match_2 = re.search(r':\s*4\s+RUNNING', output_upper)
+                has_state_4 = (state_match_1 is not None) or (state_match_2 is not None)
+                has_running = 'RUNNING' in output_upper
+                has_stopped = 'STOPPED' in output_upper
                 
-                # Parse state code - same logic as test_flask_service
-                for line in output.split('\n'):
-                    line_upper = line.upper()
-                    if 'STATE' in line_upper:
-                        if ':' in line:
-                            after_colon = line.split(':', 1)[1].strip()
-                            state_match = re.search(r'\b(\d+)\b', after_colon)
-                            if state_match:
-                                state_code = state_match.group(1)
-                                if state_code == '4':
-                                    logging.debug(f"Processor service {service_name} is RUNNING (state code 4)")
-                                    return 'ok'
-                                elif state_code == '1':
-                                    logging.debug(f"Processor service {service_name} is STOPPED (state code 1)")
-                                    return 'offline'
-                                elif state_code == '7':
-                                    logging.debug(f"Processor service {service_name} is PAUSED (state code 7)")
-                                    return 'offline'
+                logging.debug(f"Processor service {service_name} check: State 4={has_state_4}, RUNNING={has_running}, STOPPED={has_stopped}")
                 
-                # Fallback: check text in output
-                if 'RUNNING' in output_upper and 'STOPPED' not in output_upper:
-                    logging.debug(f"Processor service {service_name} is RUNNING (text match)")
-                    return 'ok'
-                elif 'STOPPED' in output_upper or 'STOP_PENDING' in output_upper:
-                    logging.debug(f"Processor service {service_name} is STOPPED (text match)")
-                    return 'offline'
-                elif 'PAUSED' in output_upper or 'PAUSE_PENDING' in output_upper:
-                    logging.debug(f"Processor service {service_name} is PAUSED (text match)")
-                    return 'offline'
+                # Primary check: State code 4 (RUNNING) - most reliable
+                if has_state_4:
+                    service_running = True
+                    logging.info(f"Processor service {service_name} is RUNNING (state code 4 detected)")
+                    break  # Found running service, exit loop
+                # Fallback check: RUNNING keyword present and STOPPED not present
+                elif has_running and not has_stopped:
+                    service_running = True
+                    logging.info(f"Processor service {service_name} is RUNNING (text match: RUNNING found, STOPPED not found)")
+                    break  # Found running service, exit loop
+                elif has_stopped:
+                    logging.debug(f"Processor service {service_name} is STOPPED")
+                    return 'offline'  # Service exists but is stopped
                 else:
-                    logging.warning(f"Processor service {service_name} found but state unclear. Output: {output[:200]}")
+                    # Log for debugging
+                    logging.warning(f"Processor service check failed for {service_name}: RUNNING={has_running}, STOPPED={has_stopped}, State 4={has_state_4}")
+                    logging.debug(f"Service output (first 200 chars): {result.stdout[:200]}")
+                    # Service exists but state check didn't match - continue to next service name
                     continue
+            else:
+                logging.warning(f"Processor service query returned non-zero exit code: {result.returncode}, stderr: {result.stderr}")
+                continue  # Try next service name
         except subprocess.TimeoutExpired:
             logging.warning(f"Timeout checking Processor service {service_name}")
-            continue
+            continue  # Try next service name
         except FileNotFoundError:
+            # sc.exe not found (not Windows or PATH issue)
+            logging.warning("sc.exe not found - cannot check Processor service status")
             raise ServiceError("'sc.exe' not found - cannot check Processor service status. System may not be Windows or PATH is misconfigured.")
         except subprocess.SubprocessError as e:
             logging.warning(f"Subprocess error checking Processor service {service_name}: {e}")
-            continue
+            continue  # Try next service name
         except Exception as e:
             logging.error(f"Unexpected error checking Processor service {service_name}: {e}", exc_info=True)
-            continue
+            continue  # Try next service name
     
-    logging.warning("Processor service not found with any of the checked names")
-    return 'unknown'
+    # Return status based on detection
+    if service_running:
+        return 'ok'
+    else:
+        logging.warning("Processor service not found with any of the checked names or not running")
+        return 'unknown'
 
 def test_tunnel_service():
     """

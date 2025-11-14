@@ -22,6 +22,7 @@ export default function AdminReviewPage() {
   const [logs, setLogs] = useState([])
   const [logsExpanded, setLogsExpanded] = useState(false)
   const [controlLoading, setControlLoading] = useState(false)
+  const [pendingSubmissionCount, setPendingSubmissionCount] = useState(0)
 
   useEffect(() => {
     // RoleGate ensures user is authenticated before rendering
@@ -70,6 +71,28 @@ export default function AdminReviewPage() {
     const timer = setInterval(fetchProgress, 10000)
     return () => clearInterval(timer)
   }, [])
+
+  // Fetch pending submission count from database
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const res = await fetchWithAuth('/api/admin/submissions?status=pending_review&count_only=true', { 
+          cache: 'no-store' 
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setPendingSubmissionCount(data.count || 0)
+        }
+      } catch (err) {
+        console.error('Error fetching pending submission count:', err)
+      }
+    }
+
+    fetchPendingCount()
+    // Refresh count when submissions change
+    const timer = setInterval(fetchPendingCount, 30000) // Every 30 seconds
+    return () => clearInterval(timer)
+  }, [submissions.length]) // Re-fetch when submissions array length changes
 
   // Control action handler
   async function controlAction(action) {
@@ -140,6 +163,8 @@ export default function AdminReviewPage() {
       const subs = data.allSubmissions || data.submissions || []
       
       setSubmissions(subs)
+      // Update pending count when submissions are loaded
+      setPendingSubmissionCount(subs.length)
     } catch (err) {
       console.error('Error loading submissions:', err)
       // Don't set error for auth failures - redirect is handled
@@ -366,8 +391,8 @@ export default function AdminReviewPage() {
             }}>
               {Object.entries(progress)
                 .filter(([key]) => {
-                  // Only show folder counts, not metadata fields
-                  const folderKeys = ['incoming', 'processed', 'library', 'errors', 'review'];
+                  // Only show folder counts, not metadata fields (exclude 'review' - we'll add it separately with DB count)
+                  const folderKeys = ['incoming', 'processed', 'library', 'errors'];
                   return folderKeys.includes(key) && typeof progress[key] === 'number';
                 })
                 .map(([key, val]) => {
@@ -391,7 +416,7 @@ export default function AdminReviewPage() {
                     bgColor = '#FEE2E2';
                     borderColor = '#FECACA';
                     badgeColor = '#DC2626';
-                  } else if (key === 'processed' || key === 'review') {
+                  } else if (key === 'processed') {
                     bgColor = '#DBEAFE';
                     borderColor = '#BFDBFE';
                     badgeColor = '#2563EB';
@@ -443,6 +468,46 @@ export default function AdminReviewPage() {
                     </div>
                   );
                 })}
+              {/* Review card - shows pending submissions from database */}
+              <div
+                style={{
+                  textAlign: 'center',
+                  padding: 'var(--spacing-md)',
+                  borderRadius: 'var(--border-radius-lg)',
+                  backgroundColor: '#DBEAFE',
+                  border: '1px solid #BFDBFE'
+                }}
+              >
+                <p style={{ 
+                  fontWeight: 600,
+                  marginBottom: 'var(--spacing-xs)',
+                  color: 'var(--cisa-gray)',
+                  fontSize: 'var(--font-size-sm)'
+                }}>
+                  Pending Review
+                </p>
+                <div
+                  style={{
+                    display: 'inline-block',
+                    padding: 'var(--spacing-sm) var(--spacing-md)',
+                    borderRadius: '999px',
+                    fontWeight: 700,
+                    fontSize: 'var(--font-size-lg)',
+                    backgroundColor: '#2563EB',
+                    color: 'white'
+                  }}
+                >
+                  {pendingSubmissionCount}
+                </div>
+                <p style={{ 
+                  fontSize: 'var(--font-size-xs)', 
+                  color: 'var(--cisa-gray)',
+                  marginTop: 'var(--spacing-xs)',
+                  fontStyle: 'italic'
+                }}>
+                  Submissions awaiting review
+                </p>
+              </div>
             </div>
           ) : (
             <p style={{ color: 'var(--cisa-gray)', textAlign: 'center' }}>Loading system status...</p>

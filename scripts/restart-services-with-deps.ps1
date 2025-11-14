@@ -13,7 +13,7 @@ param(
 
 # Service dependencies
 $ServiceDependencies = @{
-    'ollama' = @('vofc-flask', 'VOFC-Processor', 'VOFC-ModelManager')
+    'VOFC-Ollama' = @('vofc-flask', 'VOFC-Processor', 'VOFC-ModelManager')
     'vofc-flask' = @('VOFC-Tunnel')
     'VOFC-Processor' = @()
     'VOFC-ModelManager' = @()
@@ -22,7 +22,7 @@ $ServiceDependencies = @{
 
 # Service startup order (dependencies first)
 $StartupOrder = @(
-    'ollama',
+    'VOFC-Ollama',
     'VOFC-Processor',
     'VOFC-ModelManager',
     'vofc-flask',
@@ -34,7 +34,7 @@ $ShutdownOrder = $StartupOrder | Sort-Object -Descending
 
 # Service name variations
 $ServiceNameVariants = @{
-    'ollama' = @('Ollama', 'ollama')
+    'VOFC-Ollama' = @('VOFC-Ollama', 'vofc-ollama', 'Ollama', 'ollama')
     'vofc-flask' = @('vofc-flask', 'VOFC-Flask', 'PSA-Flask')
     'VOFC-Processor' = @('VOFC-Processor', 'vofc-processor', 'PSA-Processor')
     'VOFC-ModelManager' = @('VOFC-ModelManager', 'vofc-modelmanager', 'VOFC-Model-Manager', 'PSA-ModelManager', 'ModelManager')
@@ -213,7 +213,7 @@ if ($All) {
     Restart-ServiceWithDependencies -ServiceName $ServiceName
 } else {
     Write-Host "Usage:" -ForegroundColor Yellow
-    Write-Host "  .\restart-services-with-deps.ps1 -ServiceName 'ollama'" -ForegroundColor Cyan
+    Write-Host "  .\restart-services-with-deps.ps1 -ServiceName 'VOFC-Ollama'" -ForegroundColor Cyan
     Write-Host "  .\restart-services-with-deps.ps1 -ServiceName 'vofc-flask'" -ForegroundColor Cyan
     Write-Host "  .\restart-services-with-deps.ps1 -All" -ForegroundColor Cyan
 }

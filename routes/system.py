@@ -1397,7 +1397,7 @@ def system_control():
         elif action == "restart_ollama_with_deps":
             try:
                 from routes.service_manager import restart_with_dependencies
-                result = restart_with_dependencies('ollama')
+                result = restart_with_dependencies('VOFC-Ollama')
                 
                 if result['success']:
                     msg = result['message']

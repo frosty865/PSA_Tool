@@ -12,7 +12,7 @@ from typing import List, Dict, Tuple, Optional
 # Service dependencies map
 # Key: service name, Value: list of services that depend on it
 SERVICE_DEPENDENCIES = {
-    'ollama': ['vofc-flask', 'VOFC-Processor', 'VOFC-ModelManager'],
+    'VOFC-Ollama': ['vofc-flask', 'VOFC-Processor', 'VOFC-ModelManager'],
     'vofc-flask': ['VOFC-Tunnel'],
     'VOFC-Processor': [],  # No services depend on processor
     'VOFC-ModelManager': [],  # No services depend on model manager
@@ -21,8 +21,8 @@ SERVICE_DEPENDENCIES = {
 
 # Service startup order (dependencies first)
 STARTUP_ORDER = [
-    'ollama',           # Base service - no dependencies
-    'VOFC-Processor',   # Depends on Ollama
+    'VOFC-Ollama',      # Base service - no dependencies
+    'VOFC-Processor',    # Depends on Ollama
     'VOFC-ModelManager', # Depends on Ollama
     'vofc-flask',       # Depends on Ollama
     'VOFC-Tunnel',      # Depends on Flask
@@ -33,7 +33,7 @@ SHUTDOWN_ORDER = list(reversed(STARTUP_ORDER))
 
 # Service name variations (for compatibility)
 SERVICE_NAME_VARIANTS = {
-    'ollama': ['Ollama', 'ollama'],
+    'VOFC-Ollama': ['VOFC-Ollama', 'vofc-ollama', 'Ollama', 'ollama'],
     'vofc-flask': ['vofc-flask', 'VOFC-Flask', 'PSA-Flask'],
     'VOFC-Processor': ['VOFC-Processor', 'vofc-processor', 'PSA-Processor'],
     'VOFC-ModelManager': ['VOFC-ModelManager', 'vofc-modelmanager', 'VOFC-Model-Manager', 'PSA-ModelManager', 'ModelManager'],

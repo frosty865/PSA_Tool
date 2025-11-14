@@ -387,6 +387,19 @@ def health():
         except Exception as e:
             logging.error(f"Error restarting Tunnel service: {e}", exc_info=True)
     
+    # SELF-HEALING: Restart Model Manager if failed
+    if components["model_manager"] == "failed":
+        logging.warning("Model Manager service is failed - attempting automatic restart")
+        try:
+            success, msg = restart_service("VOFC-ModelManager")
+            if success:
+                logging.info(f"Model Manager service restarted successfully: {msg}")
+                components["model_manager"] = "ok"  # Assume ok after restart
+            else:
+                logging.error(f"Failed to restart Model Manager service: {msg}")
+        except Exception as e:
+            logging.error(f"Error restarting Model Manager service: {e}", exc_info=True)
+    
     # Also try to verify connectivity through the tunnel (secondary check)
     if tunnel_status == "ok":
         try:

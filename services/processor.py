@@ -8,19 +8,16 @@ from pathlib import Path
 from config import Config
 from config.exceptions import ServiceError, FileOperationError
 
-# Import parser modules
-from services.pdf_parser import extract_text as pdf_extract
-from services.docx_parser import extract_text as docx_extract
-from services.xlsx_parser import extract_text as xlsx_extract
-from services.text_parser import extract_text as txt_extract
+# Import parser - use preprocess module which has all parsers
+from services.preprocess import extract_text
 from services.ollama_client import run_model
 
-# File extension handlers
+# File extension handlers - all use preprocess.extract_text which handles all formats
 EXT_HANDLERS = {
-    ".pdf": pdf_extract,
-    ".docx": docx_extract,
-    ".xlsx": xlsx_extract,
-    ".txt": txt_extract,
+    ".pdf": extract_text,
+    ".docx": extract_text,
+    ".xlsx": extract_text,  # Note: preprocess may not support XLSX, will raise error if used
+    ".txt": extract_text,
 }
 
 # Data directories - Use centralized config

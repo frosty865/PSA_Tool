@@ -46,8 +46,15 @@ def now_est():
 
 system_bp = Blueprint('system', __name__)
 
-# Get Supabase client for lightweight routes
-supabase = get_supabase_client()
+# Supabase client - lazy loaded (only when needed)
+# Don't initialize at module level to avoid startup errors if Supabase is not configured
+def get_supabase():
+    """Get Supabase client, handling configuration errors gracefully."""
+    try:
+        return get_supabase_client()
+    except Exception as e:
+        logging.debug(f"Supabase client not available: {e}")
+        return None
 
 def test_flask_service():
     """
@@ -1303,7 +1310,10 @@ def system_control():
                 logging.info(f"[Admin Control] cleanup_rejected_submissions: older_than_days={older_than_days}, dry_run={dry_run}")
                 
                 # Query rejected submissions
-                query = supabase.table('submissions').select('id, status, created_at, updated_at').eq('status', 'rejected')
+                supabase_client = get_supabase()
+                if not supabase_client:
+                    return jsonify({"error": "Supabase not configured"}), 503
+                query = supabase_client.table('submissions').select('id, status, created_at, updated_at').eq('status', 'rejected')
                 
                 # Filter by date if specified
                 if older_than_days and isinstance(older_than_days, (int, float)) and older_than_days > 0:
@@ -1624,7 +1634,10 @@ def get_disciplines():
     if request.method == 'OPTIONS':
         return '', 200
     try:
-        res = supabase.table("disciplines").select("id, name, category").eq("is_active", True).execute()
+        supabase_client = get_supabase()
+        if not supabase_client:
+            return jsonify({"error": "Supabase not configured"}), 503
+        res = supabase_client.table("disciplines").select("id, name, category").eq("is_active", True).execute()
         # Return as array directly (not wrapped) for compatibility with viewer
         return jsonify(res.data if res.data else []), 200
     except Exception as e:
@@ -1638,7 +1651,10 @@ def get_sectors():
     if request.method == 'OPTIONS':
         return '', 200
     try:
-        res = supabase.table("sectors").select("id, sector_name").eq("is_active", True).execute()
+        supabase_client = get_supabase()
+        if not supabase_client:
+            return jsonify({"error": "Supabase not configured"}), 503
+        res = supabase_client.table("sectors").select("id, sector_name").eq("is_active", True).execute()
         # Return as array directly (not wrapped) for compatibility with viewer
         return jsonify(res.data if res.data else []), 200
     except Exception as e:
@@ -1652,7 +1668,10 @@ def get_subsectors():
     if request.method == 'OPTIONS':
         return '', 200
     try:
-        res = supabase.table("subsectors").select("id, subsector_name").eq("is_active", True).execute()
+        supabase_client = get_supabase()
+        if not supabase_client:
+            return jsonify({"error": "Supabase not configured"}), 503
+        res = supabase_client.table("subsectors").select("id, subsector_name").eq("is_active", True).execute()
         # Return as array directly (not wrapped) for compatibility with viewer
         return jsonify(res.data if res.data else []), 200
     except Exception as e:

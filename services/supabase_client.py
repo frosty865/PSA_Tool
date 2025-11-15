@@ -227,28 +227,30 @@ def get_sector_id(name, fuzzy=False):
     try:
         client = get_supabase_client()
         
-        # Try exact match first (case-insensitive) - try both "name" and "sector_name" columns
+        # Try exact match first (case-insensitive) - use sector_name first (the working column)
         try:
-            result = client.table("sectors").select("id").ilike("name", name).maybe_single().execute()
+            result = client.table("sectors").select("id").ilike("sector_name", name).maybe_single().execute()
             if result.data:
                 return result.data.get('id')
         except Exception:
+            # Fallback to name column if sector_name fails
             try:
-                result = client.table("sectors").select("id").ilike("sector_name", name).maybe_single().execute()
+                result = client.table("sectors").select("id").ilike("name", name).maybe_single().execute()
                 if result.data:
                     return result.data.get('id')
             except Exception:
                 pass
         
         # Try contains match (full name) - PostgREST uses * for wildcards
+        pattern = f"*{name}*"
         try:
-            pattern = f"*{name}*"
-            result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
+            result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
             if result.data:
                 return result.data.get('id')
         except Exception:
+            # Fallback to name column
             try:
-                result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
+                result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
                 if result.data:
                     return result.data.get('id')
             except Exception:
@@ -257,27 +259,19 @@ def get_sector_id(name, fuzzy=False):
         # If fuzzy=True, try first word only
         if fuzzy and name:
             first_word = name.split()[0] if name.split() else name
+            pattern = f"*{first_word}*"
             try:
-                pattern = f"*{first_word}*"
-                result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
+                result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
                 if result.data:
                     return result.data.get('id')
             except Exception:
+                # Fallback to name column
                 try:
-                    result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
+                    result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
                     if result.data:
                         return result.data.get('id')
                 except Exception:
                     pass
-        
-        # Fallback to name field
-        try:
-            pattern = f"*{name}*"
-            result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
-            if result.data:
-                return result.data.get('id')
-        except Exception:
-            pass
         
         logging.warning(f"Sector not found: {name}")
         return None

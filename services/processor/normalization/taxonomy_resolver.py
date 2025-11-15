@@ -59,21 +59,27 @@ def resolve_subsector(name: str) -> Optional[Dict[str, Any]]:
     try:
         client = get_supabase_client()
         
-        # Try with subsector_name first (if column exists), fallback to name
+        # Try with "name" column first (standard column name in schema)
+        # Only try subsector_name if name fails
         result = None
         try:
-            result = client.table("subsectors") \
-                .select("id, subsector_name, sector_id, sectors(id, sector_name)") \
-                .ilike("subsector_name", pattern) \
-                .maybe_single() \
-                .execute()
-        except Exception:
-            # Fallback to "name" column if subsector_name doesn't exist
             result = client.table("subsectors") \
                 .select("id, name, sector_id, sectors(id, sector_name)") \
                 .ilike("name", pattern) \
                 .maybe_single() \
                 .execute()
+        except Exception as e1:
+            # If name column fails, try subsector_name (for backwards compatibility)
+            try:
+                result = client.table("subsectors") \
+                    .select("id, subsector_name, sector_id, sectors(id, sector_name)") \
+                    .ilike("subsector_name", pattern) \
+                    .maybe_single() \
+                    .execute()
+            except Exception as e2:
+                # Both failed - log and return None
+                logger.debug(f"Subsector query failed with both 'name' and 'subsector_name': {e1}, {e2}")
+                return None
         
         if not result.data:
             logger.debug(f"Subsector '{name}' not found in database")

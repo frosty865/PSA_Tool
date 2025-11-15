@@ -17,7 +17,7 @@ export default function AdminOverviewPage() {
   const [lastRefresh, setLastRefresh] = useState(null)
   
   // Use preloaded status from context
-  const { health, progress, healthLoading, progressLoading, refreshHealth } = useStatus()
+  const { health, progress, healthLoading, progressLoading, refreshHealth, refreshProgress } = useStatus()
   
   // Extract system components from health, with fallback
   const system = health?.components || { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' }
@@ -125,34 +125,22 @@ export default function AdminOverviewPage() {
     }
   }, [])
 
-  // Progress fetcher
-  const fetchProgress = useCallback(async () => {
-    try {
-      const res = await fetch('/api/proxy/flask/progress', { 
-        cache: 'no-store',
-        headers: { 'Accept': 'application/json' }
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setProgress(data)
-      }
-    } catch (err) {
-      console.error('[Progress] Fetch failed:', err)
-    }
-  }, [])
+  // Progress is preloaded by StatusProvider - no need to fetch separately
+  // StatusProvider automatically refreshes every 30 seconds
 
   useEffect(() => {
     let isMounted = true
     loadDashboardData()
-    fetchProgress() // Initial fetch
+    // Progress is already being fetched by StatusProvider, no need to fetch here
     const id = setInterval(() => {
       if (isMounted) {
         loadDashboardData()
-        fetchProgress()
+        // Optionally refresh progress from context if needed
+        refreshProgress()
       }
-    }, 3000) // Poll every 3 seconds for progress updates
+    }, 3000) // Poll every 3 seconds for dashboard data updates
     return () => { isMounted = false; clearInterval(id) }
-  }, [loadDashboardData, fetchProgress])
+  }, [loadDashboardData, refreshProgress])
 
   // Calculate aggregate statistics
   const aggregateStats = stats.length > 0 ? {

@@ -14,6 +14,10 @@ from services.supabase_client import (
     get_sector_id,
     get_subsector_id
 )
+from services.processor.normalization.discipline_resolver import (
+    resolve_discipline_and_subtype,
+    get_subtype_id
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -578,9 +582,35 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             document_title = source_filepath.name if source_filepath else ""
             r = validate_and_correct_taxonomy(r, document_title=document_title)
             
-            # Resolve discipline
+            # Resolve discipline using new resolver (includes subtype inference)
             discipline_name = r.get("discipline") or r.get("discipline_name")
-            disc_id, category = resolve_discipline(discipline_name)
+            vulnerability_text = r.get("vulnerability", "")
+            ofc_text = r.get("options_for_consideration", [])
+            if isinstance(ofc_text, list) and ofc_text:
+                ofc_text = ofc_text[0] if isinstance(ofc_text[0], str) else ""
+            elif not isinstance(ofc_text, str):
+                ofc_text = ""
+            
+            # Use new discipline resolver
+            normalized_discipline, disc_id, subtype_name = resolve_discipline_and_subtype(
+                discipline_name or "",
+                vulnerability_text,
+                ofc_text
+            )
+            
+            # Fallback to old resolver if new one returns None
+            if not normalized_discipline:
+                disc_id, category = resolve_discipline(discipline_name)
+                normalized_discipline = discipline_name
+            else:
+                # Get category from discipline record
+                disc_record = get_discipline_record(normalized_discipline, fuzzy=True)
+                category = disc_record.get('category') if disc_record else None
+            
+            # Get subtype_id if subtype was inferred
+            subtype_id = None
+            if subtype_name and disc_id:
+                subtype_id = get_subtype_id(subtype_name, disc_id)
             
             # Resolve sector
             sector_name = r.get("sector") or r.get("sectors")
@@ -600,7 +630,10 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             cleaned_record = {
                 "vulnerability": vuln.strip(),
                 "options_for_consideration": ofcs,
+                "discipline": normalized_discipline or r.get("discipline"),  # Use normalized discipline name
                 "discipline_id": disc_id,
+                "discipline_subtype": subtype_name,  # Add subtype name
+                "discipline_subtype_id": subtype_id,  # Add subtype_id
                 "category": category or r.get("category"),
                 "sector_id": sector_id,
                 "subsector_id": subsector_id,
@@ -612,7 +645,7 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             
             # Preserve all additional fields from input record
             additional_fields = [
-                "discipline", "sector", "subsector",  # Resolved names
+                "sector", "subsector",  # Resolved names (discipline already handled above)
                 "confidence_score", "confidence",  # Confidence scores
                 "intent",  # Intent classification
                 "source_context",  # Source context

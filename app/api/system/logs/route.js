@@ -13,6 +13,17 @@ export const runtime = 'nodejs'; // Explicitly set runtime
 
 export async function GET(request) {
   try {
+    // Validate FLASK_URL is available
+    if (!FLASK_URL) {
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      return NextResponse.json({
+        lines: [`${timestamp} | ERROR | [MONITOR] Flask URL not configured - check environment variables`],
+        status: 'error',
+        error: 'Flask URL not configured',
+        message: 'Flask server URL is not available'
+      }, { status: 200 });
+    }
+
     // Get tail parameter from query string
     const { searchParams } = new URL(request.url);
     const tail = searchParams.get('tail') || '50';
@@ -105,7 +116,21 @@ export async function GET(request) {
     }
 
     // Forward the JSON response from Flask
-    const data = await response.json();
+    // BULLETPROOF: Wrap in try-catch in case Flask returns HTML instead of JSON
+    let data;
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      // Flask returned non-JSON (probably HTML error page)
+      console.error('[Logs Proxy] Flask returned non-JSON response:', jsonError);
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      return NextResponse.json({
+        lines: [`${timestamp} | ERROR | [MONITOR] Flask server returned invalid response (not JSON) - status ${response.status}`],
+        status: 'error',
+        error: 'Invalid response format from Flask',
+        message: 'Flask returned non-JSON response'
+      }, { status: 200 });
+    }
     
     // BULLETPROOF: Ensure we always return a valid response with lines array
     if (!data.lines || !Array.isArray(data.lines)) {

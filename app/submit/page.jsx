@@ -20,7 +20,9 @@ export default function VOFCSubmission() {
     vulnerability: '',
     option_text: '',
     discipline: '',
+    discipline_id: '',
     subdiscipline: '',
+    discipline_subtype_id: '',
     source_citation: '',
     id: '',
     id: '',
@@ -30,62 +32,55 @@ export default function VOFCSubmission() {
   const [currentOfc, setCurrentOfc] = useState('');
   const [citationStatus, setCitationStatus] = useState('');
   const [citationTimeout, setCitationTimeout] = useState(null);
+  const [disciplines, setDisciplines] = useState([]);
+  const [subtypes, setSubtypes] = useState([]);
 
-  // Predefined discipline options with sub-disciplines
-  const disciplineOptions = [
-    {
-      name: 'Physical Security',
-      subdisciplines: [
-        'Barriers and Fencing',
-        'Electronic Security Systems',
-        'Video Security Systems',
-        'Access Control Systems',
-        'Intrusion Detection Systems',
-        'Perimeter Security',
-        'Security Lighting',
-        'Physical Barriers',
-        'Security Hardware'
-      ]
-    },
-    {
-      name: 'Cybersecurity',
-      subdisciplines: []
-    },
-    {
-      name: 'Personnel Security',
-      subdisciplines: []
-    },
-    {
-      name: 'Operational Security',
-      subdisciplines: []
-    },
-    {
-      name: 'Information Security',
-      subdisciplines: []
-    },
-    {
-      name: 'Facility Information',
-      subdisciplines: []
-    },
-    {
-      name: 'Emergency Management',
-      subdisciplines: []
-    },
-    {
-      name: 'Risk Management',
-      subdisciplines: []
-    },
-    {
-      name: 'Training and Awareness',
-      subdisciplines: []
-    }
-  ];
   const router = useRouter();
 
+  // Fetch disciplines from API
+  useEffect(() => {
+    const fetchDisciplines = async () => {
+      try {
+        const response = await fetch('/api/disciplines?active=true');
+        const data = await response.json();
+        if (data.success && data.disciplines) {
+          // Filter to only the 10 new CISA-aligned disciplines
+          const newDisciplines = data.disciplines.filter(d => d.is_active);
+          setDisciplines(newDisciplines);
+        }
+      } catch (error) {
+        console.error('Error fetching disciplines:', error);
+      }
+    };
+    fetchDisciplines();
+  }, []);
+
+  // Fetch subtypes when discipline is selected
+  useEffect(() => {
+    const fetchSubtypes = async () => {
+      if (formData.discipline_id) {
+        try {
+          const response = await fetch(`/api/disciplines/subtypes?discipline_id=${formData.discipline_id}&active=true`);
+          const data = await response.json();
+          if (data.success && data.subtypes) {
+            setSubtypes(data.subtypes);
+          } else {
+            setSubtypes([]);
+          }
+        } catch (error) {
+          console.error('Error fetching subtypes:', error);
+          setSubtypes([]);
+        }
+      } else {
+        setSubtypes([]);
+      }
+    };
+    fetchSubtypes();
+  }, [formData.discipline_id]);
+
   // Get sub-disciplines for selected discipline
-  const getSubdisciplines = (disciplineName) => {
-    const discipline = disciplineOptions.find(d => d.name === disciplineName);
-    return discipline ? discipline.subdisciplines : [];
+  const getSubdisciplines = () => {
+    return subtypes.map(st => st.name);
   };
 
   useEffect(() => {
@@ -269,7 +264,9 @@ export default function VOFCSubmission() {
           data: {
             vulnerability: formData.vulnerability,
             discipline: formData.discipline,
+            discipline_id: formData.discipline_id || null,
             subdiscipline: formData.subdiscipline || null,
+            discipline_subtype_id: formData.discipline_subtype_id || null,
             sources: citation,
             id: formData.id || null,
             id: formData.id || null,
@@ -305,7 +302,9 @@ export default function VOFCSubmission() {
             ? {
                 vulnerability: formData.vulnerability,
                 discipline: formData.discipline,
+                discipline_id: formData.discipline_id || null,
                 subdiscipline: formData.subdiscipline || null,
+                discipline_subtype_id: formData.discipline_subtype_id || null,
                 sources: citation,
                 id: formData.id || null,
                 id: formData.id || null
@@ -313,7 +312,9 @@ export default function VOFCSubmission() {
             : {
                 option_text: formData.option_text,
                 discipline: formData.discipline,
+                discipline_id: formData.discipline_id || null,
                 subdiscipline: formData.subdiscipline || null,
+                discipline_subtype_id: formData.discipline_subtype_id || null,
                 sources: citation,
                 id: formData.id || null,
                 id: formData.id || null
@@ -346,7 +347,9 @@ export default function VOFCSubmission() {
         vulnerability: '',
         option_text: '',
         discipline: '',
+        discipline_id: '',
         subdiscipline: '',
+        discipline_subtype_id: '',
         source_citation: '',
         id: '',
         id: ''
@@ -430,31 +433,47 @@ export default function VOFCSubmission() {
               <label className="form-label">Discipline *</label>
               <select
                 required
-                value={formData.discipline}
-                onChange={(e) => setFormData({...formData, discipline: e.target.value, subdiscipline: ''})}
+                value={formData.discipline_id}
+                onChange={(e) => {
+                  const selectedDiscipline = disciplines.find(d => d.id === e.target.value);
+                  setFormData({
+                    ...formData, 
+                    discipline_id: e.target.value,
+                    discipline: selectedDiscipline?.name || '',
+                    subdiscipline: '',
+                    discipline_subtype_id: ''
+                  });
+                }}
                 className="form-select"
               >
                 <option value="">Select a discipline...</option>
-                {disciplineOptions.map(discipline => (
-                  <option key={discipline.name} value={discipline.name}>
+                {disciplines.map(discipline => (
+                  <option key={discipline.id} value={discipline.id}>
                     {discipline.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {formData.discipline && getSubdisciplines(formData.discipline).length > 0 && (
+            {formData.discipline_id && subtypes.length > 0 && (
               <div className="form-group">
                 <label className="form-label">Sub-discipline</label>
                 <select
-                  value={formData.subdiscipline}
-                  onChange={(e) => setFormData({...formData, subdiscipline: e.target.value})}
+                  value={formData.discipline_subtype_id}
+                  onChange={(e) => {
+                    const selectedSubtype = subtypes.find(st => st.id === e.target.value);
+                    setFormData({
+                      ...formData, 
+                      discipline_subtype_id: e.target.value,
+                      subdiscipline: selectedSubtype?.name || ''
+                    });
+                  }}
                   className="form-select"
                 >
                   <option value="">Select a sub-discipline...</option>
-                  {getSubdisciplines(formData.discipline).map(subdiscipline => (
-                    <option key={subdiscipline} value={subdiscipline}>
-                      {subdiscipline}
+                  {subtypes.map(subtype => (
+                    <option key={subtype.id} value={subtype.id}>
+                      {subtype.name}
                     </option>
                   ))}
                 </select>

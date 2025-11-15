@@ -923,10 +923,11 @@ def get_logs():
         ]
         
         # Try each path until we find the log file
+        # Priority: Use Config.LOGS_DIR first (where processor writes), then fallbacks
         for path in possible_paths:
             if path.exists() and path.is_file():
                 log_file = path
-                logging.debug(f"Found log file at: {log_file}")
+                logging.info(f"[MONITOR] Reading logs from: {log_file}")
                 break
         
         # If no log file found, return heartbeat immediately
@@ -1601,7 +1602,7 @@ def get_disciplines():
         supabase_client = get_supabase()
         if not supabase_client:
             return jsonify({"error": "Supabase not configured"}), 503
-        res = supabase_client.table("disciplines").select("id, name, category").eq("is_active", True).execute()
+        res = supabase_client.table("disciplines").select("id, name, category, code, discipline_subtypes(id, name, code, is_active)").eq("is_active", True).execute()
         # Return as array directly (not wrapped) for compatibility with viewer
         return jsonify(res.data if res.data else []), 200
     except Exception as e:

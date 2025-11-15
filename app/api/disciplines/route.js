@@ -8,13 +8,23 @@ export const revalidate = 3600; // 1 hour
 // Get all disciplines
 export async function GET(request) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      console.error('Supabase admin client not available');
+      return NextResponse.json(
+        { success: false, error: 'Database connection not available', disciplines: [] },
+        { status: 503 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const active = searchParams.get('active');
 
+    // Try nested query first (includes subtypes)
     let query = supabaseAdmin
       .from('disciplines')
-      .select('*')
+      .select('*, discipline_subtypes(id, name, description, code, is_active)')
       .order('category, name');
 
     // Filter by category if provided
@@ -27,10 +37,63 @@ export async function GET(request) {
       query = query.eq('is_active', active === 'true');
     }
 
-    const { data, error } = await query;
+    let { data, error } = await query;
 
+    // If nested query fails, try fetching disciplines and subtypes separately
     if (error) {
-      throw error;
+      console.warn('Nested query failed, trying separate queries:', error.message);
+      
+      // Fetch disciplines separately
+      let disciplinesQuery = supabaseAdmin
+        .from('disciplines')
+        .select('*')
+        .order('category, name');
+
+      if (category) {
+        disciplinesQuery = disciplinesQuery.eq('category', category);
+      }
+
+      if (active !== null) {
+        disciplinesQuery = disciplinesQuery.eq('is_active', active === 'true');
+      }
+
+      const { data: disciplinesData, error: disciplinesError } = await disciplinesQuery;
+
+      if (disciplinesError) {
+        throw disciplinesError;
+      }
+
+      // Fetch subtypes separately and attach to disciplines
+      const { data: subtypesData, error: subtypesError } = await supabaseAdmin
+        .from('discipline_subtypes')
+        .select('*')
+        .eq('is_active', true);
+
+      if (!subtypesError && subtypesData) {
+        // Group subtypes by discipline_id
+        const subtypesByDiscipline = {};
+        subtypesData.forEach(subtype => {
+          if (!subtypesByDiscipline[subtype.discipline_id]) {
+            subtypesByDiscipline[subtype.discipline_id] = [];
+          }
+          subtypesByDiscipline[subtype.discipline_id].push({
+            id: subtype.id,
+            name: subtype.name,
+            description: subtype.description,
+            code: subtype.code,
+            is_active: subtype.is_active
+          });
+        });
+
+        // Attach subtypes to each discipline
+        data = (disciplinesData || []).map(discipline => ({
+          ...discipline,
+          discipline_subtypes: subtypesByDiscipline[discipline.id] || []
+        }));
+      } else {
+        // If subtypes query fails, just return disciplines without subtypes
+        data = disciplinesData || [];
+      }
     }
 
     const response = NextResponse.json({
@@ -42,8 +105,13 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Error fetching disciplines:', error);
+    // Always return valid JSON, even on error
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch disciplines' },
+      { 
+        success: false, 
+        error: error.message || 'Failed to fetch disciplines',
+        disciplines: []
+      },
       { status: 500 }
     );
   }

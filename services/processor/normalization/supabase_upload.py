@@ -159,6 +159,7 @@ def upload_to_supabase(
                 options_for_consideration = []
             
             discipline = record.get("discipline", "").strip()
+            discipline_subtype_id = record.get("discipline_subtype_id")  # UUID from discipline_subtypes table
             sector_id = record.get("sector_id")  # UUID from taxonomy validation
             subsector_id = record.get("subsector_id")  # UUID from taxonomy validation
             confidence = normalize_confidence(record.get("confidence", "Medium"))
@@ -178,10 +179,11 @@ def upload_to_supabase(
                 processed_vuln_ids.append(existing_vuln_id)
                 linked_count += 1
             else:
-                # Insert new vulnerability with sector_id and subsector_id from DHS taxonomy
+                # Insert new vulnerability with sector_id, subsector_id, and discipline_subtype_id
                 vuln_payload = {
                     "vulnerability": vulnerability,
                     "discipline": discipline if discipline else None,
+                    "discipline_subtype_id": discipline_subtype_id,  # UUID from discipline_subtypes table
                     "sector_id": sector_id,  # Use UUID from Supabase sectors table
                     "subsector_id": subsector_id,  # Use UUID from Supabase subsectors table
                     "confidence": confidence,
@@ -216,10 +218,11 @@ def upload_to_supabase(
                     if ofc_check.data and len(ofc_check.data) > 0:
                         ofc_id = ofc_check.data[0].get("id")
                     else:
-                        # Insert new OFC with sector_id and subsector_id from DHS taxonomy
+                        # Insert new OFC with sector_id, subsector_id, and discipline_subtype_id
                         ofc_payload = {
                             "option_text": ofc_text,
                             "discipline": discipline if discipline else None,
+                            "discipline_subtype_id": discipline_subtype_id,  # UUID from discipline_subtypes table
                             "sector_id": sector_id,  # Use UUID from Supabase sectors table
                             "subsector_id": subsector_id  # Use UUID from Supabase subsectors table
                         }

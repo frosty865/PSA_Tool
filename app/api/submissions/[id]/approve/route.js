@@ -228,6 +228,7 @@ export async function POST(request, { params }) {
               vulnerability_name: vulnStatement,
               description: vulnerabilityText,
               discipline: v.discipline || null,
+              discipline_subtype_id: v.discipline_subtype_id || null,
               sector_id: sectorId,
               subsector_id: subsectorId,
               severity_level: v.severity_level || null  // Copy severity level from submission
@@ -291,6 +292,7 @@ export async function POST(request, { params }) {
             const productionOfc = {
               option_text: ofcText,
               discipline: o.discipline || null,
+              discipline_subtype_id: o.discipline_subtype_id || null,
               sector_id: sectorId,
               subsector_id: subsectorId
             };

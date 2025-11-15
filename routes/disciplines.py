@@ -20,8 +20,8 @@ def get_disciplines():
         # Get Supabase client
         supabase = get_supabase_client()
         
-        # Build query
-        query = supabase.table("disciplines").select("*").order("category, name")
+        # Build query - include subtypes
+        query = supabase.table("disciplines").select("*, discipline_subtypes(id, name, description, code, is_active)").order("category, name")
         
         # Apply filters
         if category:

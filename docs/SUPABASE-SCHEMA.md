@@ -8,8 +8,13 @@ The PSA Tool uses Supabase (PostgreSQL) as its database backend. The schema is o
 2. **Production Data** - Approved vulnerabilities and OFCs
 3. **Taxonomy** - Sectors, subsectors, and disciplines
 4. **User Management** - Authentication and authorization
-5. **Learning System** - ML training events
+5. **Learning System** - ML training events and statistics
 6. **OFC Requests** - Workflow for requesting new OFCs
+7. **System Events** - System-level event logging
+8. **Phase 3 Records** - Training data collection
+
+**Last Updated:** 2025-01-15  
+**Schema Version:** 2.0.0
 
 ---
 
@@ -34,6 +39,12 @@ sectors
 
 user_profiles
   └── user_agency_relationships (1:N)
+
+learning_events
+  └── submissions (N:1, nullable)
+
+phase3_records
+  └── submissions (N:1, nullable)
 ```
 
 ---
@@ -50,19 +61,22 @@ Main submission table storing user-submitted documents and data.
 | `type` | `text` | Submission type: `'vulnerability'`, `'ofc'`, `'document'` |
 | `status` | `text` | Status: `'pending'`, `'pending_review'`, `'approved'`, `'rejected'` |
 | `data` | `jsonb` | Flexible JSON storage for submission data |
-| `source` | `text` | Source identifier (e.g., `'bulk_csv'`, `'manual'`, `'document_upload'`) |
+| `source` | `text` | Source identifier (e.g., `'bulk_csv'`, `'manual'`, `'document_upload'`, `'psa_tool_auto'`) |
 | `submitter_email` | `text` | Email of the submitter |
 | `submitted_by` | `uuid` | Foreign key to `auth.users.id` |
-| `reviewed_by` | `uuid` | Foreign key to `auth.users.id` (reviewer) |
-| `reviewed_at` | `timestamptz` | Timestamp when reviewed |
-| `review_comments` | `text` | Comments from reviewer |
-| `rejection_reason` | `text` | Reason for rejection (if rejected) |
+| `reviewed_by` | `uuid` | Foreign key to `auth.users.id` (reviewer, nullable) |
+| `reviewed_at` | `timestamptz` | Timestamp when reviewed (nullable) |
+| `review_comments` | `text` | Comments from reviewer (nullable) |
+| `rejection_reason` | `text` | Reason for rejection (if rejected, nullable) |
+| `parser_version` | `text` | Version of parser used (e.g., `'vofc-parser:latest'`, nullable) |
+| `engine_version` | `text` | Version of engine used (e.g., `'vofc-engine:latest'`, nullable) |
+| `auditor_version` | `text` | Version of auditor used (e.g., `'vofc-auditor:latest'`, nullable) |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
 **Relationships:**
 - `submitted_by` → `auth.users.id`
-- `reviewed_by` → `auth.users.id`
+- `reviewed_by` → `auth.users.id` (nullable)
 - Has many `submission_vulnerabilities`
 - Has many `submission_options_for_consideration`
 - Has many `submission_sources`
@@ -71,6 +85,10 @@ Main submission table storing user-submitted documents and data.
 - `idx_submissions_status` on `status`
 - `idx_submissions_type` on `type`
 - `idx_submissions_submitted_by` on `submitted_by`
+- `idx_submissions_submitter_email` on `submitter_email` (where not null)
+- `idx_submissions_parser_version` on `parser_version` (where not null)
+- `idx_submissions_engine_version` on `engine_version` (where not null)
+- `idx_submissions_auditor_version` on `auditor_version` (where not null)
 
 ---
 
@@ -82,33 +100,51 @@ Vulnerabilities extracted from submission documents.
 |--------|------|-------------|
 | `id` | `uuid` | Primary key |
 | `submission_id` | `uuid` | Foreign key to `submissions.id` |
-| `vulnerability` | `text` | Vulnerability description |
+| `vulnerability` | `text` | Vulnerability description (legacy field) |
+| `vulnerability_name` | `text` | Vulnerability name/title (mirrors production.vulnerabilities.vulnerability_name) |
+| `description` | `text` | Vulnerability description (mirrors production.vulnerabilities.description) |
 | `discipline` | `text` | Discipline/category |
+| `category` | `text` | Category (e.g., `'Design Process'`, `'Perimeter'`, `'Access Control'`) |
+| `sector` | `text` | Sector name (text, for inference) |
+| `subsector` | `text` | Subsector name (text, for inference) |
+| `sector_id` | `uuid` | Foreign key to `sectors.id` (nullable, resolved from sector text) |
+| `subsector_id` | `uuid` | Foreign key to `subsectors.id` (nullable, resolved from subsector text) |
 | `source` | `text` | Source reference |
 | `source_title` | `text` | Source document title |
 | `source_url` | `text` | Source URL |
+| `source_page` | `text` | Page reference from source document (e.g., `'12'`, `'1-2'`) |
+| `source_context` | `text` | Contextual text from source document (max 1000 chars) |
 | `vulnerability_count` | `integer` | Number of vulnerabilities found |
 | `ofc_count` | `integer` | Number of associated OFCs |
+| `confidence_score` | `decimal(4,3)` | Confidence score (0.0-1.0) |
+| `severity_level` | `text` | Severity level: `'Very Low'`, `'Low'`, `'Medium'`, `'High'`, `'Very High'` |
 | `enhanced_extraction` | `jsonb` | Enhanced extraction metadata |
 | `parsed_at` | `timestamptz` | When parsing occurred |
-| `parser_version` | `text` | Parser version used |
+| `parser_version` | `text` | Parser version used (e.g., `'vofc-engine-sp'`) |
 | `extraction_stats` | `jsonb` | Extraction statistics |
 | `question` | `text` | Structured field: question |
 | `what` | `text` | Structured field: what |
 | `so_what` | `text` | Structured field: so what |
-| `sector` | `text` | Sector classification |
-| `subsector` | `text` | Subsector classification |
+| `audit_status` | `text` | Audit status: `'pending'`, `'accepted'`, `'rejected'` (triggers phase3_records) |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
 **Relationships:**
 - `submission_id` → `submissions.id` (CASCADE DELETE)
+- `sector_id` → `sectors.id` (nullable)
+- `subsector_id` → `subsectors.id` (nullable)
 - Has many `submission_options_for_consideration` (via `vulnerability_id`)
 - Has many `submission_vulnerability_ofc_links`
 
 **Indexes:**
 - `idx_submission_vuln_submission_id` on `submission_id`
 - `idx_submission_vuln_discipline` on `discipline`
+- `idx_submission_vuln_vulnerability_name` on `vulnerability_name` (where not null)
+- `idx_submission_vuln_source_page` on `source_page` (where not null)
+- `idx_submission_vuln_confidence_score` on `confidence_score` (where not null)
+
+**Triggers:**
+- `trg_insert_phase3_record` - Automatically copies accepted vulnerabilities to `phase3_records` when `audit_status` becomes `'accepted'`
 
 ---
 
@@ -125,25 +161,34 @@ Options for Consideration (OFCs) extracted from submissions.
 | `title` | `text` | OFC title (optional) |
 | `description` | `text` | OFC description (optional) |
 | `discipline` | `text` | Discipline/category |
+| `sector_id` | `uuid` | Foreign key to `sectors.id` (nullable, mirrors production) |
+| `subsector_id` | `uuid` | Foreign key to `subsectors.id` (nullable, mirrors production) |
 | `source` | `text` | Source reference |
 | `source_title` | `text` | Source document title |
 | `source_url` | `text` | Source URL |
-| `confidence_score` | `decimal` | Confidence score (0.0-1.0) |
+| `confidence_score` | `decimal(4,3)` | Confidence score (0.0-1.0) |
 | `pattern_matched` | `text` | Pattern that matched (if applicable) |
-| `context` | `text` | Contextual information |
+| `context` | `text` | Contextual information (max 1000 chars) |
 | `citations` | `jsonb` | Array of citations |
-| `linked_vulnerability` | `text` | Text reference to linked vulnerability |
+| `linked_vulnerability` | `text` | Text reference to linked vulnerability (for matching) |
+| `audit_status` | `text` | Audit status: `'pending'`, `'accepted'`, `'rejected'` |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
 **Relationships:**
 - `submission_id` → `submissions.id` (CASCADE DELETE)
 - `vulnerability_id` → `submission_vulnerabilities.id` (nullable, SET NULL on delete)
+- `sector_id` → `sectors.id` (nullable)
+- `subsector_id` → `subsectors.id` (nullable)
 - Has many `submission_ofc_sources`
 
 **Indexes:**
 - `idx_submission_ofc_submission_id` on `submission_id`
 - `idx_submission_ofc_vulnerability_id` on `vulnerability_id`
+- `idx_submission_ofc_sector_id` on `sector_id` (where not null)
+- `idx_submission_ofc_subsector_id` on `subsector_id` (where not null)
+- `idx_submission_ofc_confidence_score` on `confidence_score` (where not null)
+- `idx_submission_ofc_linked_vuln` on `linked_vulnerability` (where not null)
 
 ---
 
@@ -183,8 +228,8 @@ Junction table linking submission vulnerabilities to OFCs.
 | `submission_id` | `uuid` | Foreign key to `submissions.id` |
 | `vulnerability_id` | `uuid` | Foreign key to `submission_vulnerabilities.id` |
 | `ofc_id` | `uuid` | Foreign key to `submission_options_for_consideration.id` |
-| `link_type` | `text` | Link type (e.g., `'direct'`, `'inferred'`) |
-| `confidence_score` | `decimal` | Confidence score (0.0-1.0) |
+| `link_type` | `text` | Link type: `'direct'` (explicitly matched), `'inferred'` (derived from context) |
+| `confidence_score` | `decimal(4,3)` | Confidence score (0.0-1.0), default 1.0 for direct links |
 | `created_at` | `timestamptz` | Creation timestamp |
 
 **Relationships:**
@@ -237,6 +282,9 @@ Approved/production vulnerabilities.
 | `discipline` | `text` | Discipline/category |
 | `sector_id` | `uuid` | Foreign key to `sectors.id` (nullable) |
 | `subsector_id` | `uuid` | Foreign key to `subsectors.id` (nullable) |
+| `dedupe_key` | `text` | SHA256 hash of vulnerability text + first OFC (for deduplication) |
+| `source` | `text` | Source reference |
+| `page_ref` | `text` | Page reference |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
@@ -249,6 +297,9 @@ Approved/production vulnerabilities.
 - `idx_vulnerabilities_sector_id` on `sector_id`
 - `idx_vulnerabilities_subsector_id` on `subsector_id`
 - `idx_vulnerabilities_discipline` on `discipline`
+- Index on `dedupe_key` (for duplicate detection)
+
+**Note:** `dedupe_key` is calculated as `SHA256(vulnerability_name + first_ofc_text)` to prevent duplicate vulnerabilities.
 
 ---
 
@@ -288,7 +339,7 @@ Junction table linking production vulnerabilities to OFCs.
 | `id` | `uuid` | Primary key |
 | `vulnerability_id` | `uuid` | Foreign key to `vulnerabilities.id` |
 | `ofc_id` | `uuid` | Foreign key to `options_for_consideration.id` |
-| `link_type` | `text` | Link type (e.g., `'direct'`, `'inferred'`, `'recommended'`) |
+| `link_type` | `text` | Link type: `'direct'`, `'inferred'`, `'recommended'` |
 | `confidence_score` | `decimal` | Confidence score (0.0-1.0) |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
@@ -354,14 +405,16 @@ Junction table linking production OFCs to sources.
 
 ### `sectors`
 
-Sector taxonomy for classification.
+Sector taxonomy for classification (DHS Critical Infrastructure Sectors).
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | `uuid` | Primary key |
-| `name` | `text` | Sector name |
+| `name` | `text` | Sector name (legacy column) |
+| `sector_name` | `text` | Sector name (primary column, matches DHS standards) |
 | `description` | `text` | Sector description |
 | `code` | `text` | Sector code (e.g., `'ENERGY'`, `'TRANSPORT'`) |
+| `is_active` | `boolean` | Whether sector is active (default: `true`) |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
@@ -372,12 +425,18 @@ Sector taxonomy for classification.
 
 **Indexes:**
 - `idx_sectors_code` on `code` (unique)
+- Index on `sector_name` (for lookups)
+- Index on `is_active` (for filtering)
+
+**Note:** The table has both `name` and `sector_name` columns. Code should prefer `sector_name` for queries, with `name` as fallback for compatibility.
+
+**DHS Sectors:** The table should contain all 16 DHS Critical Infrastructure Sectors plus "General" as an exception.
 
 ---
 
 ### `subsectors`
 
-Subsector taxonomy for classification.
+Subsector taxonomy for classification (hierarchical child of sectors).
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -386,6 +445,7 @@ Subsector taxonomy for classification.
 | `name` | `text` | Subsector name |
 | `description` | `text` | Subsector description |
 | `code` | `text` | Subsector code |
+| `is_active` | `boolean` | Whether subsector is active (default: `true`) |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
@@ -397,6 +457,9 @@ Subsector taxonomy for classification.
 **Indexes:**
 - `idx_subsectors_sector_id` on `sector_id`
 - `idx_subsectors_code` on `code`
+- Index on `is_active` (for filtering)
+
+**Note:** There are 113 DHS subsectors total. "Education Facilities" is a subsector of "Government Facilities".
 
 ---
 
@@ -410,11 +473,24 @@ Discipline taxonomy for classification.
 | `name` | `text` | Discipline name |
 | `description` | `text` | Discipline description |
 | `code` | `text` | Discipline code |
+| `category` | `text` | Discipline category: `'Cyber'`, `'Physical'`, `'OT'` (Operational Technology) |
+| `is_active` | `boolean` | Whether discipline is active (default: `true`) |
 | `created_at` | `timestamptz` | Creation timestamp |
 | `updated_at` | `timestamptz` | Last update timestamp |
 
 **Indexes:**
 - `idx_disciplines_code` on `code` (unique)
+- Index on `category` (for filtering)
+- Index on `is_active` (for filtering)
+
+**Common Disciplines:**
+- Cybersecurity
+- Physical Security
+- Operational Technology
+- Design Process
+- Perimeter Security
+- Access Control
+- And others...
 
 ---
 
@@ -481,7 +557,7 @@ Machine learning training events for improving extraction accuracy.
 |--------|------|-------------|
 | `id` | `uuid` | Primary key |
 | `submission_id` | `uuid` | Foreign key to `submissions.id` (nullable) |
-| `event_type` | `text` | Event type: `'approval'`, `'rejection'`, `'correction'` |
+| `event_type` | `text` | Event type: `'approval'`, `'rejection'`, `'correction'`, `'edited'` |
 | `approved` | `boolean` | Whether the event represents an approved example |
 | `model_version` | `text` | Model version (e.g., `'psa-engine:latest'`) |
 | `confidence_score` | `decimal` | Confidence score (0.0-1.0) |
@@ -498,6 +574,35 @@ Machine learning training events for improving extraction accuracy.
 - `idx_learning_events_created_at` on `created_at`
 
 **Note:** This table feeds the learning algorithm with positive (approved) and negative (rejected) examples to improve extraction accuracy.
+
+---
+
+### `learning_stats`
+
+Learning statistics aggregated by model version.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | `uuid` | Primary key |
+| `model_version` | `text` | Model version (e.g., `'psa-engine:latest'`) |
+| `timestamp` | `timestamptz` | Statistics timestamp |
+| `accept_rate` | `decimal` | Acceptance rate (0.0-1.0) |
+| `total_events` | `integer` | Total learning events |
+| `accepted` | `integer` | Number of accepted events |
+| `rejected` | `integer` | Number of rejected events |
+| `edited` | `integer` | Number of edited events |
+| `successful_retrains` | `integer` | Number of successful retrains |
+| `failed_retrains` | `integer` | Number of failed retrains |
+| `embeddings_updated` | `integer` | Number of embedding updates |
+| `rules_generated` | `integer` | Number of rules generated |
+| `created_at` | `timestamptz` | Creation timestamp |
+| `updated_at` | `timestamptz` | Last update timestamp |
+
+**Indexes:**
+- Index on `model_version`
+- Index on `timestamp` (descending, for recent stats)
+
+**Note:** This table may not exist in all deployments. Code handles its absence gracefully.
 
 ---
 
@@ -530,6 +635,90 @@ Requests for new Options for Consideration.
 - `idx_ofc_requests_vulnerability_id` on `vulnerability_id`
 - `idx_ofc_requests_status` on `status`
 - `idx_ofc_requests_submitter` on `submitter`
+
+---
+
+## 7. System Events Table
+
+### `system_events`
+
+System-level event logging for monitoring and debugging.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | `uuid` | Primary key |
+| `event_type` | `text` | Event type (e.g., `'model_retrain'`, `'system_error'`, `'processing_complete'`) |
+| `timestamp` | `timestamptz` | Event timestamp |
+| `severity` | `text` | Severity level: `'info'`, `'warning'`, `'error'` |
+| `message` | `text` | Event message |
+| `metadata` | `jsonb` | Additional event metadata |
+| `notes` | `text` | Additional notes |
+| `created_at` | `timestamptz` | Creation timestamp |
+
+**Indexes:**
+- Index on `event_type`
+- Index on `timestamp` (descending, for recent events)
+- Index on `severity`
+
+**Note:** This table may not exist in all deployments. Code falls back to `learning_events` if unavailable.
+
+---
+
+## 8. Phase 3 Records Table
+
+### `phase3_records`
+
+Training data collection for model retraining (populated automatically via trigger).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | `uuid` | Primary key |
+| `submission_id` | `uuid` | Foreign key to `submissions.id` (nullable) |
+| `model_version` | `text` | Model version used (e.g., `'vofc-engine:latest'`) |
+| `vulnerability` | `text` | Vulnerability text |
+| `options_for_consideration` | `text` | Associated OFCs (semicolon-separated) |
+| `discipline` | `text` | Discipline |
+| `category` | `text` | Category |
+| `sector` | `text` | Sector name |
+| `subsector` | `text` | Subsector name |
+| `confidence` | `numeric(4,3)` | Confidence score |
+| `audit_status` | `text` | Audit status (default: `'pending'`, set to `'accepted'` when copied) |
+| `created_at` | `timestamptz` | Creation timestamp |
+| `updated_at` | `timestamptz` | Last update timestamp |
+
+**Relationships:**
+- `submission_id` → `submissions.id` (nullable)
+
+**Indexes:**
+- `idx_phase3_records_created_at` on `created_at`
+- `idx_phase3_records_audit_status` on `audit_status`
+- `idx_phase3_records_submission_id` on `submission_id`
+
+**Triggers:**
+- Automatically populated when `submission_vulnerabilities.audit_status` becomes `'accepted'`
+- Trigger function: `fn_insert_phase3_record()`
+- Trigger: `trg_insert_phase3_record` on `submission_vulnerabilities` table
+
+**Note:** This table stores accepted records for model retraining. Only records with `audit_status = 'accepted'` are copied.
+
+---
+
+### `phase3_history`
+
+Audit trail for Phase 3 record changes (if exists).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | `uuid` | Primary key |
+| `record_id` | `uuid` | Reference to phase3_records or submission_vulnerabilities |
+| `changed_at` | `timestamptz` | Change timestamp |
+| `changed_by` | `uuid` | User who made the change (nullable) |
+| `change_type` | `text` | Type of change |
+| `old_value` | `jsonb` | Previous value |
+| `new_value` | `jsonb` | New value |
+| `created_at` | `timestamptz` | Creation timestamp |
+
+**Note:** This table may not exist in all deployments. Used for audit trail visibility.
 
 ---
 
@@ -588,6 +777,19 @@ WHERE v.id = $1
 GROUP BY v.id;
 ```
 
+### Get Sector with Subsectors
+
+```sql
+SELECT 
+  s.*,
+  json_agg(DISTINCT ss.* ORDER BY ss.name) as subsectors
+FROM sectors s
+LEFT JOIN subsectors ss ON ss.sector_id = s.id AND ss.is_active = true
+WHERE s.is_active = true
+GROUP BY s.id
+ORDER BY s.sector_name;
+```
+
 ### Get User Submissions
 
 ```sql
@@ -604,8 +806,14 @@ ORDER BY s.created_at DESC;
 ### Schema Evolution
 
 - The schema has evolved to support both flexible JSON storage (`data` JSONB column) and structured columns
-- New structured columns are added gradually (e.g., `question`, `what`, `so_what` in `submission_vulnerabilities`)
+- New structured columns are added gradually (e.g., `vulnerability_name`, `description`, `severity_level` in `submission_vulnerabilities`)
 - Fallback to JSON storage is used when structured columns don't exist
+- Submission tables mirror production table structure for seamless translation
+
+### Column Name Variations
+
+- **Sectors**: Both `name` and `sector_name` columns exist. Code should prefer `sector_name` for queries, with `name` as fallback.
+- **Subsectors**: Uses `name` column (no `subsector_name` variant found in code).
 
 ### Data Migration
 
@@ -614,6 +822,13 @@ When approving submissions:
 2. Data from `submission_options_for_consideration` → `options_for_consideration`
 3. Links created in `vulnerability_ofc_links`
 4. Sources created/promoted to `sources` and linked via `ofc_sources`
+5. Accepted vulnerabilities automatically copied to `phase3_records` via trigger
+
+### Taxonomy Inference
+
+- The system uses a "backwards approach": identifies subsector first from document content, then derives sector from subsector
+- All records from a document get the same subsector and derived sector for consistency
+- See `services/processor/normalization/taxonomy_inference.py` for implementation
 
 ---
 
@@ -653,8 +868,39 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 - `POST /api/submissions/ofc-request` - Create OFC request
 - `GET /api/admin/ofc-requests` - List OFC requests (admin)
 
+### Taxonomy Endpoints
+- `GET /api/sectors` - List all sectors
+- `GET /api/subsectors?sectorId={id}` - List subsectors for a sector
+- `GET /api/disciplines` - List all disciplines
+
+### System Endpoints
+- `GET /api/system/events` - Get system events
+- `GET /api/learning/stats` - Get learning statistics
+- `GET /api/models/info` - Get model information
+
 ---
 
-**Last Updated:** 2024-01-XX  
-**Schema Version:** 1.0.0
+## Table Summary
 
+| Category | Tables | Count |
+|----------|--------|-------|
+| Submission Management | `submissions`, `submission_vulnerabilities`, `submission_options_for_consideration`, `submission_sources`, `submission_vulnerability_ofc_links`, `submission_ofc_sources` | 6 |
+| Production Data | `vulnerabilities`, `options_for_consideration`, `vulnerability_ofc_links`, `sources`, `ofc_sources` | 5 |
+| Taxonomy | `sectors`, `subsectors`, `disciplines` | 3 |
+| User Management | `user_profiles`, `user_agency_relationships` | 2 |
+| Learning System | `learning_events`, `learning_stats` | 2 |
+| OFC Requests | `ofc_requests` | 1 |
+| System Events | `system_events` | 1 |
+| Phase 3 | `phase3_records`, `phase3_history` | 2 |
+| **Total** | | **22** |
+
+---
+
+## Notes
+
+- All UUID primary keys use `gen_random_uuid()` as default
+- All tables include `created_at` and `updated_at` timestamps
+- Foreign keys use appropriate CASCADE/SET NULL behaviors
+- Indexes are created for frequently queried columns and foreign keys
+- RLS policies enforce multi-tenant access control
+- Service role key bypasses RLS for backend operations

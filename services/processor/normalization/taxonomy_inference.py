@@ -266,7 +266,8 @@ def infer_sector_subsector(
         if has_school_keywords_in_title:
             logger.info(f"School keywords detected in document title '{document_title}' - prioritizing Education Facilities subsector")
             # Try Education Facilities subsectors directly
-            education_subsectors = ["Education Facilities", "Educational Facilities", "K-12 Schools"]
+            # NOTE: Database has "Educational Facilities" (with "al"), so try that first
+            education_subsectors = ["Educational Facilities", "Education Facilities", "K-12 Schools"]
             for subsector_name in education_subsectors:
                 subsector_id = get_subsector_id(subsector_name, fuzzy=True)
                 if subsector_id:
@@ -397,7 +398,8 @@ def infer_sector_subsector(
                 if best_match == "Government Facilities" and school_patterns_matched > 0:
                     logger.info(f"School patterns detected in vulnerability text - prioritizing Education Facilities subsector (matched {school_patterns_matched} patterns)")
                     # Try Education Facilities subsectors first
-                    education_subsectors = ["Education Facilities", "Educational Facilities", "K-12 Schools"]
+                    # NOTE: Database has "Educational Facilities" (with "al"), so try that first
+                    education_subsectors = ["Educational Facilities", "Education Facilities", "K-12 Schools"]
                     for subsector in education_subsectors:
                         subsector_id = get_subsector_id(subsector, fuzzy=True)
                         if subsector_id:

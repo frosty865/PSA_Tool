@@ -305,35 +305,63 @@ def get_subsector_id(name, fuzzy=False):
     try:
         client = get_supabase_client()
         
-        # Try exact match first (case-insensitive)
+        # Normalize name: strip whitespace, handle common variations
+        normalized_name = name.strip()
+        
+        # Try exact match first (case-insensitive, trimmed)
         try:
-            result = client.table("subsectors").select("id").ilike("name", name).maybe_single().execute()
+            result = client.table("subsectors").select("id, name, is_active").ilike("name", normalized_name).maybe_single().execute()
             if result.data:
-                return result.data.get('id')
-        except Exception:
-            pass
+                subsector_id = result.data.get('id')
+                db_name = result.data.get('name')
+                is_active = result.data.get('is_active', True)
+                if not is_active:
+                    logging.warning(f"Subsector '{name}' found but is_active=false (ID: {subsector_id})")
+                logging.debug(f"Found subsector '{name}' -> '{db_name}' (ID: {subsector_id}, active: {is_active})")
+                return subsector_id
+        except Exception as e:
+            logging.debug(f"Exact match failed for '{name}': {e}")
         
         # Try contains match (full name) - PostgREST uses * for wildcards
         try:
-            pattern = f"*{name}*"
-            result = client.table("subsectors").select("id").ilike("name", pattern).maybe_single().execute()
+            pattern = f"*{normalized_name}*"
+            result = client.table("subsectors").select("id, name, is_active").ilike("name", pattern).maybe_single().execute()
             if result.data:
-                return result.data.get('id')
-        except Exception:
-            pass
+                subsector_id = result.data.get('id')
+                db_name = result.data.get('name')
+                is_active = result.data.get('is_active', True)
+                logging.debug(f"Found subsector '{name}' via contains match -> '{db_name}' (ID: {subsector_id}, active: {is_active})")
+                return subsector_id
+        except Exception as e:
+            logging.debug(f"Contains match failed for '{name}': {e}")
         
         # If fuzzy=True, try first word only
-        if fuzzy and name:
-            first_word = name.split()[0] if name.split() else name
+        if fuzzy and normalized_name:
+            first_word = normalized_name.split()[0] if normalized_name.split() else normalized_name
             try:
                 pattern = f"*{first_word}*"
-                result = client.table("subsectors").select("id").ilike("name", pattern).maybe_single().execute()
+                result = client.table("subsectors").select("id, name, is_active").ilike("name", pattern).maybe_single().execute()
                 if result.data:
-                    return result.data.get('id')
-            except Exception:
-                pass
+                    subsector_id = result.data.get('id')
+                    db_name = result.data.get('name')
+                    is_active = result.data.get('is_active', True)
+                    logging.debug(f"Found subsector '{name}' via fuzzy match (first word: '{first_word}') -> '{db_name}' (ID: {subsector_id}, active: {is_active})")
+                    return subsector_id
+            except Exception as e:
+                logging.debug(f"Fuzzy match failed for '{name}': {e}")
         
-        logging.warning(f"Subsector not found: {name}")
+        # Log all available subsectors for debugging (only if not found)
+        try:
+            all_subsectors = client.table("subsectors").select("id, name, is_active").limit(200).execute()
+            if all_subsectors.data:
+                available_names = [row.get('name') for row in all_subsectors.data if row.get('is_active')]
+                logging.warning(f"Subsector '{name}' not found. Available active subsectors: {', '.join(available_names[:20])}...")
+            else:
+                logging.warning(f"Subsector '{name}' not found. No subsectors returned from database.")
+        except Exception as e:
+            logging.debug(f"Could not list available subsectors for debugging: {e}")
+        
+        logging.warning(f"Subsector not found: '{name}' (fuzzy={fuzzy})")
         return None
         
     except ConfigurationError:

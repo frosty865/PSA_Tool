@@ -1,6 +1,10 @@
 /**
  * Next.js API proxy route for Flask system logs
  * Proxies to Flask backend at /api/system/logs
+ * 
+ * Route: /api/system/logs
+ * Method: GET
+ * Query params: tail (optional, default: 50)
  */
 
 import { NextResponse } from 'next/server';
@@ -13,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate = 0;
 
-// Explicitly set runtime
+// Explicitly set runtime to nodejs (required for Vercel)
 export const runtime = 'nodejs';
 
 export async function GET(request) {

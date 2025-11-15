@@ -50,36 +50,26 @@ Write-Host "Stopping Processor service..." -ForegroundColor Yellow
 & $nssmPath stop VOFC-Processor 2>&1 | Out-Null
 Start-Sleep -Seconds 2
 
-# Files and directories to sync
-$itemsToSync = @(
-    "vofc_processor.py",
-    "extract",
-    "model",
-    "normalize",
-    "storage",
-    "services"
-)
-
-# Sync files
+# Sync vofc_processor.py from tools/vofc_processor
 Write-Host "Syncing files..." -ForegroundColor Yellow
-foreach ($item in $itemsToSync) {
-    $sourcePath = Join-Path $ProcessorSource $item
-    $targetPath = Join-Path $ProcessorTarget $item
-    
-    if (Test-Path $sourcePath) {
-        if ((Get-Item $sourcePath).PSIsContainer) {
-            # Directory - use robocopy for better sync
-            Write-Host "  Syncing directory: $item" -ForegroundColor Gray
-            robocopy $sourcePath $targetPath /MIR /NFL /NDL /NJH /NJS /R:3 /W:1 /XD "__pycache__" "*.pyc" | Out-Null
-        } else {
-            # File - copy
-            Write-Host "  Copying file: $item" -ForegroundColor Gray
-            Copy-Item $sourcePath $targetPath -Force
-        }
-        Write-Host "    [OK] $item" -ForegroundColor Green
-    } else {
-        Write-Host "  [WARN] Source not found: $item" -ForegroundColor Yellow
-    }
+$vofcProcessorFile = Join-Path $ProcessorSource "vofc_processor.py"
+if (Test-Path $vofcProcessorFile) {
+    Write-Host "  Copying file: vofc_processor.py" -ForegroundColor Gray
+    Copy-Item $vofcProcessorFile (Join-Path $ProcessorTarget "vofc_processor.py") -Force
+    Write-Host "    [OK] vofc_processor.py" -ForegroundColor Green
+} else {
+    Write-Host "  [WARN] Source not found: vofc_processor.py" -ForegroundColor Yellow
+}
+
+# Sync services directory (contains processor modules)
+$servicesSource = Join-Path $ProjectRoot "services"
+$servicesTarget = Join-Path $ProcessorTarget "services"
+if (Test-Path $servicesSource) {
+    Write-Host "  Syncing services directory..." -ForegroundColor Gray
+    robocopy $servicesSource $servicesTarget /MIR /NFL /NDL /NJH /NJS /R:3 /W:1 /XD "__pycache__" "*.pyc" | Out-Null
+    Write-Host "    [OK] services" -ForegroundColor Green
+} else {
+    Write-Host "  [WARN] Services directory not found: $servicesSource" -ForegroundColor Yellow
 }
 
 # Also copy config directory (needed for Config import) to both locations

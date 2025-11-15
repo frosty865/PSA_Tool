@@ -348,6 +348,62 @@ def get_subsector_id(name, fuzzy=False):
         raise ServiceError(f"Failed to get subsector ID: {e}") from e
 
 
+def get_sector_from_subsector(subsector_id):
+    """
+    Get the parent sector ID and name from a subsector ID.
+    
+    Args:
+        subsector_id: UUID of the subsector
+    
+    Returns:
+        Tuple of (sector_id, sector_name) or (None, None) if not found
+    """
+    if not subsector_id:
+        return None, None
+    
+    try:
+        client = get_supabase_client()
+        
+        # Query subsector with its parent sector
+        # Try with join first (use sector_name as primary, name as fallback)
+        try:
+            result = client.table("subsectors").select("sector_id, sectors!inner(sector_name, name, id)").eq("id", subsector_id).maybe_single().execute()
+            if result.data:
+                sector_id = result.data.get("sector_id")
+                sectors_data = result.data.get("sectors")
+                if sectors_data and isinstance(sectors_data, dict):
+                    sector_name = sectors_data.get("sector_name") or sectors_data.get("name")
+                    return sector_id, sector_name
+                elif sectors_data and isinstance(sectors_data, list) and len(sectors_data) > 0:
+                    sector_name = sectors_data[0].get("sector_name") or sectors_data[0].get("name")
+                    return sector_id, sector_name
+        except Exception:
+            # Fallback: query subsector, then query sector separately
+            try:
+                subsector_result = client.table("subsectors").select("sector_id").eq("id", subsector_id).maybe_single().execute()
+                if subsector_result.data:
+                    sector_id = subsector_result.data.get("sector_id")
+                    if sector_id:
+                        # Try sector_name first (the working column)
+                        sector_result = client.table("sectors").select("sector_name, name, id").eq("id", sector_id).maybe_single().execute()
+                        if sector_result.data:
+                            sector_name = sector_result.data.get("sector_name") or sector_result.data.get("name")
+                            return sector_id, sector_name
+            except Exception:
+                pass
+        
+        return None, None
+        
+    except ConfigurationError:
+        logging.debug(f"Supabase not configured - cannot get sector from subsector")
+        return None, None
+    except ServiceError:
+        raise
+    except Exception as e:
+        logging.error(f"Failed to get sector from subsector: {e}", exc_info=True)
+        return None, None
+
+
 def save_results(results, source_file=None):
     """
     Save post-processed results to Supabase submissions table.

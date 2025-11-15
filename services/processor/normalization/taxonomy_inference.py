@@ -5,7 +5,7 @@ Prevents disciplines from being incorrectly used as sectors.
 """
 import logging
 from typing import Dict, Any, Optional, Tuple
-from services.supabase_client import get_discipline_record, get_sector_id, get_subsector_id
+from services.supabase_client import get_discipline_record, get_sector_id, get_subsector_id, get_sector_from_subsector
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,99 @@ SECTOR_KEYWORDS = {
     }
 }
 
+# Subsector inference patterns - identify subsectors directly from content
+SUBSECTOR_PATTERNS = {
+    # Government Facilities subsectors
+    "Education Facilities": {
+        "keywords": ["school", "schools", "k-12", "k12", "safe school", "safe schools", "student", "students", "teacher", "teachers", "classroom", "classrooms", "elementary", "middle school", "high school", "public school", "public schools", "campus", "academic"],
+        "patterns": [
+            r"\bschool\b", r"\bschools\b", r"\bk-12\b", r"\bk12\b", r"\bsafe school\b", r"\bsafe schools\b",
+            r"\bteacher\b", r"\bteachers\b", r"\bstudent\b", r"\bstudents\b", r"\bclassroom\b", r"\bclassrooms\b",
+            r"\belementary\b", r"\bmiddle school\b", r"\bhigh school\b", r"\bpublic school\b", r"\bpublic schools\b",
+            r"\bcampus\b", r"\bacademic\b"
+        ]
+    },
+    "Educational Facilities": {
+        "keywords": ["school", "schools", "education", "educational", "academic", "campus"],
+        "patterns": [r"\beducation\b", r"\beducational\b", r"\bacademic\b", r"\bcampus\b"]
+    },
+    "Federal Facilities": {
+        "keywords": ["federal", "federal facility", "federal building", "federal agency"],
+        "patterns": [r"\bfederal facility\b", r"\bfederal building\b", r"\bfederal agency\b", r"\bfederal\b.*facility\b"]
+    },
+    "State Facilities": {
+        "keywords": ["state", "state facility", "state building", "state agency"],
+        "patterns": [r"\bstate facility\b", r"\bstate building\b", r"\bstate agency\b", r"\bstate\b.*facility\b"]
+    },
+    "Local Facilities": {
+        "keywords": ["local", "local government", "municipal", "city", "county"],
+        "patterns": [r"\blocal government\b", r"\bmunicipal\b", r"\bcity\b.*facility\b", r"\bcounty\b.*facility\b"]
+    },
+    # Add more subsector patterns as needed
+}
+
+def infer_subsector_from_document(
+    document_title: str = "",
+    document_content: str = ""
+) -> Optional[str]:
+    """
+    Infer subsector directly from document content (backwards approach).
+    Identifies the subsector first, then sector can be derived from it.
+    
+    Args:
+        document_title: Document title
+        document_content: Combined document content/text
+    
+    Returns:
+        Subsector name or None if cannot infer
+    """
+    if not document_title and not document_content:
+        return None
+    
+    combined_text = f"{document_title} {document_content}".lower()
+    normalized_text = combined_text.replace("-", " ").replace("_", " ")
+    
+    best_subsector = None
+    best_score = 0
+    
+    import re
+    
+    # Check all subsector patterns
+    for subsector_name, subsector_info in SUBSECTOR_PATTERNS.items():
+        score = 0
+        
+        # Check keyword matches
+        keywords = subsector_info.get("keywords", [])
+        for keyword in keywords:
+            if f" {keyword} " in f" {normalized_text} " or normalized_text.startswith(keyword + " ") or normalized_text.endswith(" " + keyword) or normalized_text == keyword:
+                score += 1
+        
+        # Check pattern matches (more specific, worth more)
+        patterns = subsector_info.get("patterns", [])
+        for pattern in patterns:
+            if re.search(pattern, normalized_text):
+                score += 2  # Patterns are worth more than keywords
+        
+        # Prioritize Education Facilities for school documents
+        if subsector_name == "Education Facilities" and score > 0:
+            score += 2  # Boost for school-related content
+        
+        if score > best_score:
+            best_score = score
+            best_subsector = subsector_name
+    
+    # Validate subsector exists in database
+    if best_subsector and best_score > 0:
+        subsector_id = get_subsector_id(best_subsector, fuzzy=True)
+        if subsector_id:
+            logger.info(f"Inferred subsector '{best_subsector}' from document content (score: {best_score})")
+            return best_subsector
+        else:
+            logger.warning(f"Inferred subsector '{best_subsector}' not found in database")
+            return None
+    
+    return None
+
 def is_discipline_name(value: str) -> bool:
     """
     Check if a value is actually a discipline name (not a sector).
@@ -118,21 +211,35 @@ def infer_sector_subsector(
     document_title: str = "",
     vulnerability_text: str = "",
     existing_sector: str = "",
-    existing_subsector: str = ""
+    existing_subsector: str = "",
+    use_backwards_approach: bool = True
 ) -> Tuple[Optional[str], Optional[str]]:
     """
     Infer sector and subsector from document context.
-    Uses context-aware matching to avoid false positives from single-word matches.
+    
+    NEW APPROACH (backwards): Identifies subsector first from document content,
+    then derives sector from the subsector. This ensures all records from a document
+    get the same subsector and sector.
     
     Args:
         document_title: Document title (e.g., "Safe-Schools-Best-Practices")
-        vulnerability_text: Vulnerability description text
+        vulnerability_text: Vulnerability description text (for record-level inference)
         existing_sector: Existing sector value (will be validated)
         existing_subsector: Existing subsector value (will be validated)
+        use_backwards_approach: If True, identify subsector first, then get sector from it
         
     Returns:
         Tuple of (sector_name, subsector_name) or (None, None) if cannot infer
     """
+    # If existing subsector is provided and valid, get sector from it (backwards approach)
+    if existing_subsector and use_backwards_approach:
+        subsector_id = get_subsector_id(existing_subsector, fuzzy=True)
+        if subsector_id:
+            sector_id, sector_name = get_sector_from_subsector(subsector_id)
+            if sector_name:
+                logger.info(f"Using existing subsector '{existing_subsector}' with derived sector '{sector_name}'")
+                return sector_name, existing_subsector
+    
     # If existing sector is provided and valid, use it (but validate it's not a discipline)
     if existing_sector and not is_discipline_name(existing_sector):
         # Validate it exists in Supabase
@@ -144,6 +251,25 @@ def infer_sector_subsector(
                 if subsector_id:
                     return existing_sector, existing_subsector
             return existing_sector, None
+    
+    # BACKWARDS APPROACH: Identify subsector first from document content
+    if use_backwards_approach and document_title:
+        # Combine title and vulnerability text for subsector inference
+        combined_content = f"{document_title} {vulnerability_text}".strip()
+        inferred_subsector = infer_subsector_from_document(document_title, combined_content)
+        
+        if inferred_subsector:
+            # Get the parent sector from the subsector
+            subsector_id = get_subsector_id(inferred_subsector, fuzzy=True)
+            if subsector_id:
+                sector_id, sector_name = get_sector_from_subsector(subsector_id)
+                if sector_name:
+                    logger.info(f"Document-level inference (backwards): identified subsector '{inferred_subsector}', derived sector '{sector_name}' - APPLYING TO ALL RECORDS")
+                    return sector_name, inferred_subsector
+                else:
+                    logger.warning(f"Could not get parent sector for subsector '{inferred_subsector}'")
+            else:
+                logger.warning(f"Inferred subsector '{inferred_subsector}' not found in database")
     
     # For document-level inference, use title only
     # For record-level inference, use vulnerability text with context-aware matching
@@ -393,18 +519,20 @@ def validate_and_correct_taxonomy(
         if inferred_sector:
             logger.info(f"Vulnerability-specific inference (security context): sector='{inferred_sector}', subsector='{inferred_subsector}' - OVERRIDING document-level inference")
     
-    # PRIORITY 2: If no vulnerability-specific match, use document-level inference
+    # PRIORITY 2: If no vulnerability-specific match, use document-level inference (BACKWARDS APPROACH)
     # This ensures ALL records from the same document get consistent sector/subsector
     # Document-level inference only applies if vulnerability doesn't have security-specific context
+    # BACKWARDS: Identify subsector first, then derive sector from it
     if not inferred_sector and document_title:
         inferred_sector, inferred_subsector = infer_sector_subsector(
             document_title=document_title,
             vulnerability_text="",  # Don't use vulnerability text for document-level inference
             existing_sector="",
-            existing_subsector=""
+            existing_subsector="",
+            use_backwards_approach=True  # Use backwards approach: subsector first, then sector
         )
         if inferred_sector:
-            logger.info(f"Document-level inference from title '{document_title[:50]}...': sector='{inferred_sector}', subsector='{inferred_subsector}' - APPLYING TO ALL RECORDS")
+            logger.info(f"Document-level inference (backwards) from title '{document_title[:50]}...': identified subsector='{inferred_subsector or '(none)'}', derived sector='{inferred_sector}' - APPLYING TO ALL RECORDS")
     
     # Check if sector is actually a discipline name (before applying document-level inference)
     if sector and is_discipline_name(sector):

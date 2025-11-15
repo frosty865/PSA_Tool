@@ -37,13 +37,24 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const tail = searchParams.get('tail') || '50';
     
+    // Construct Flask URL - handle cases where FLASK_URL may or may not include /api
+    // Remove trailing slash from FLASK_URL if present
+    const baseUrl = FLASK_URL.replace(/\/$/, '');
+    // Check if baseUrl already ends with /api
+    const apiBase = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+    const flaskLogsUrl = `${apiBase}/system/logs?tail=${tail}`;
+    
+    // Log the URL being used (for debugging - remove in production if needed)
+    console.log('[Logs Proxy] FLASK_URL =', FLASK_URL);
+    console.log('[Logs Proxy] Constructed URL =', flaskLogsUrl);
+    
     // Add timeout to fetch request
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     let response;
     try {
-      response = await fetch(`${FLASK_URL}/api/system/logs?tail=${tail}`, {
+      response = await fetch(flaskLogsUrl, {
         cache: 'no-store',
         signal: controller.signal,
         headers: {
@@ -72,10 +83,11 @@ export async function GET(request) {
       if (fetchError.code === 'ECONNREFUSED' || fetchError.message?.includes('ECONNREFUSED')) {
         return NextResponse.json(
           { 
-            lines: [`${timestamp} | ERROR | [MONITOR] Connection refused - Flask server is not running or not accessible`],
+            lines: [`${timestamp} | ERROR | [MONITOR] Connection refused - Flask server is not running or not accessible (URL: ${flaskLogsUrl})`],
             status: 'error',
             error: 'Connection refused',
-            message: 'Flask server is not running or not accessible'
+            message: 'Flask server is not running or not accessible',
+            attemptedUrl: flaskLogsUrl
           },
           { status: 200 } // Return 200 with heartbeat so frontend doesn't break
         );
@@ -84,10 +96,11 @@ export async function GET(request) {
       // Other network errors - return heartbeat
       return NextResponse.json(
         { 
-          lines: [`${timestamp} | ERROR | [MONITOR] Network error: ${fetchError.message || 'Unknown error'}`],
+          lines: [`${timestamp} | ERROR | [MONITOR] Network error: ${fetchError.message || 'Unknown error'} (URL: ${flaskLogsUrl})`],
           status: 'error',
           error: fetchError.message || 'Network error',
-          message: 'Failed to connect to Flask server'
+          message: 'Failed to connect to Flask server',
+          attemptedUrl: flaskLogsUrl
         },
         { status: 200 }
       );
@@ -106,11 +119,11 @@ export async function GET(request) {
         errorData = await response.json();
         // If Flask returned lines, use them; otherwise create heartbeat
         if (!errorData.lines || !Array.isArray(errorData.lines) || errorData.lines.length === 0) {
-          errorData.lines = [`${timestamp} | ERROR | [MONITOR] Flask server returned status ${status}: ${errorData.error || errorData.message || 'Unknown error'}`]
+          errorData.lines = [`${timestamp} | ERROR | [MONITOR] Flask server returned status ${status}: ${errorData.error || errorData.message || 'Unknown error'} (URL: ${flaskLogsUrl})`]
         }
       } catch {
         // If JSON parsing fails, create heartbeat
-        errorData.lines = [`${timestamp} | ERROR | [MONITOR] Flask server returned status ${status} - unable to parse error response`]
+        errorData.lines = [`${timestamp} | ERROR | [MONITOR] Flask server returned status ${status} - unable to parse error response (URL: ${flaskLogsUrl})`]
       }
       
       return NextResponse.json(
@@ -118,7 +131,9 @@ export async function GET(request) {
           lines: errorData.lines,
           status: 'error',
           error: errorData.error || `Flask server returned status ${status}`,
-          message: errorData.message || 'Unable to fetch logs'
+          message: errorData.message || 'Unable to fetch logs',
+          attemptedUrl: flaskLogsUrl,
+          statusCode: status
         },
         { status: 200 } // Return 200 with heartbeat so frontend doesn't break
       );

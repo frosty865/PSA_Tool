@@ -153,28 +153,55 @@ const SUBSECTOR_DESCRIPTIONS = {
 
 // Function to get a descriptive subsector description
 function getSubsectorDescription(subsectorName, sectorName) {
-  // First try exact match
-  if (SUBSECTOR_DESCRIPTIONS[subsectorName]) {
-    return SUBSECTOR_DESCRIPTIONS[subsectorName]
+  if (!subsectorName) {
+    return `A subsector within the ${sectorName} sector.`
   }
   
-  // Try case-insensitive match
-  const lowerName = subsectorName.toLowerCase()
+  // Normalize the name for matching (trim, remove extra spaces)
+  const normalized = subsectorName.trim()
+  const lowerName = normalized.toLowerCase()
+  
+  // First try exact match (case-sensitive)
+  if (SUBSECTOR_DESCRIPTIONS[normalized]) {
+    return SUBSECTOR_DESCRIPTIONS[normalized]
+  }
+  
+  // Try case-insensitive exact match
   for (const [key, value] of Object.entries(SUBSECTOR_DESCRIPTIONS)) {
     if (key.toLowerCase() === lowerName) {
       return value
     }
   }
   
-  // Try partial match for variations
+  // Try partial match - check if subsector name contains key words or vice versa
+  // This handles cases where database might have slightly different names
   for (const [key, value] of Object.entries(SUBSECTOR_DESCRIPTIONS)) {
-    if (key.toLowerCase().includes(lowerName) || lowerName.includes(key.toLowerCase())) {
-      return value
+    const keyLower = key.toLowerCase()
+    
+    // Direct substring match
+    if (lowerName.includes(keyLower) || keyLower.includes(lowerName)) {
+      // Make sure it's a meaningful match (not just a single word)
+      if (keyLower.length > 5 || lowerName.length > 5) {
+        return value
+      }
+    }
+    
+    // Word-by-word matching for multi-word names
+    const keyWords = keyLower.split(/\s+/).filter(w => w.length > 2) // Filter out short words
+    const nameWords = lowerName.split(/\s+/).filter(w => w.length > 2)
+    
+    if (keyWords.length > 1 && nameWords.length > 0) {
+      // Count matching words
+      const matchingWords = nameWords.filter(word => keyWords.includes(word))
+      // If most words match, consider it a match
+      if (matchingWords.length >= Math.min(keyWords.length - 1, nameWords.length)) {
+        return value
+      }
     }
   }
   
-  // Fallback: generate a contextual description
-  return `Infrastructure and facilities within the ${sectorName} sector that focus specifically on ${subsectorName.toLowerCase()}. This subsector represents a specialized area requiring specific security, safety, and operational considerations.`
+  // Fallback: generate a contextual description (improved)
+  return `Infrastructure and facilities within the ${sectorName} sector that focus specifically on ${normalized.toLowerCase()}. This subsector represents a specialized area requiring specific security, safety, and operational considerations.`
 }
 
 export default function SectorsPage() {
@@ -576,8 +603,16 @@ export default function SectorsPage() {
                       }}>
                         {subsectors.map(subsector => {
                           const subsectorName = subsector.name || 'Unknown Subsector'
-                          // Use database description if available, otherwise use our comprehensive mapping
-                          const subsectorDesc = subsector.description || getSubsectorDescription(subsectorName, sectorName)
+                          // Use database description if available and not empty, otherwise use our comprehensive mapping
+                          let subsectorDesc = (subsector.description && subsector.description.trim()) 
+                            ? subsector.description 
+                            : getSubsectorDescription(subsectorName, sectorName)
+                          
+                          // Debug: Log if we're using fallback (only in development)
+                          if (process.env.NODE_ENV === 'development' && !subsector.description) {
+                            console.log(`[Sectors] Looking up description for: "${subsectorName}" in sector "${sectorName}"`)
+                            console.log(`[Sectors] Found description:`, subsectorDesc.substring(0, 50) + '...')
+                          }
                           
                           return (
                             <div

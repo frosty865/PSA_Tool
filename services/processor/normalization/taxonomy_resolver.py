@@ -2,6 +2,10 @@
 Canonical Taxonomy Resolver (Production-Ready)
 Resolves sector, subsector, and discipline using database relationships.
 Deterministic, no guessing, no fallbacks.
+
+Architecture:
+- DHS Taxonomy: Subsector → Sector (primary path)
+- VOFC Taxonomy: Discipline (independent physical-security taxonomy)
 """
 import re
 import logging
@@ -19,15 +23,12 @@ def normalize(text: str) -> str:
         text: Input text to normalize
         
     Returns:
-        Normalized text (lowercase, stripped, noise words removed)
+        Normalized text (lowercase, stripped, special chars removed)
     """
     if not text:
         return ""
     
     t = text.lower().strip()
-    
-    # Remove noise words
-    t = re.sub(r'\b(sector|subsector|discipline|infrastructure|systems?)\b', '', t)
     
     # Remove special characters, keep only alphanumeric and spaces
     t = re.sub(r'[^a-z0-9 ]+', '', t)
@@ -38,68 +39,16 @@ def normalize(text: str) -> str:
     return t.strip()
 
 
-def resolve_from_discipline(name: str) -> Optional[Dict[str, Any]]:
+def resolve_subsector(name: str) -> Optional[Dict[str, Any]]:
     """
-    Resolve taxonomy from discipline name.
-    NOTE: Disciplines are not directly linked to subsectors/sectors in the current schema.
-    This function only returns the discipline information.
-    For full taxonomy resolution, use subsector or sector names.
-    
-    Args:
-        name: Discipline name to resolve
-        
-    Returns:
-        Dict with discipline info (sector/subsector will be None since no direct relationship exists)
-    """
-    cleaned = normalize(name)
-    if not cleaned:
-        return None
-    
-    pattern = f"*{cleaned}*"
-    
-    try:
-        client = get_supabase_client()
-        
-        # Find discipline (no direct relationship to subsectors/sectors in current schema)
-        result = client.table("disciplines") \
-            .select("id, name, category, code") \
-            .ilike("name", pattern) \
-            .maybe_single() \
-            .execute()
-        
-        if not result.data:
-            logger.debug(f"Discipline '{name}' not found in database")
-            return None
-        
-        row = result.data
-        
-        # NOTE: Disciplines don't have direct subsector/sector relationships in current schema
-        # Return discipline only - caller should use subsector/sector names for full resolution
-        return {
-            "sector": None,
-            "subsector": None,
-            "discipline": {
-                "id": row.get("id"),
-                "name": row.get("name"),
-                "category": row.get("category"),
-                "code": row.get("code")
-            }
-        }
-    except Exception as e:
-        logger.error(f"Error resolving from discipline '{name}': {e}", exc_info=True)
-        return None
-
-
-def resolve_from_subsector(name: str) -> Optional[Dict[str, Any]]:
-    """
-    Resolve taxonomy from subsector name.
-    Subsector → Sector (via database relationships)
+    Resolve subsector → sector (Primary DHS Path).
+    Subsector is authoritative and resolves to its parent sector.
     
     Args:
         name: Subsector name to resolve
         
     Returns:
-        Dict with sector and subsector info, or None if not found
+        Dict with subsector and sector info, or None if not found
     """
     cleaned = normalize(name)
     if not cleaned:
@@ -110,13 +59,21 @@ def resolve_from_subsector(name: str) -> Optional[Dict[str, Any]]:
     try:
         client = get_supabase_client()
         
-        # Find subsector with its parent sector
-        # Note: subsectors table uses "name" column, not "subsector_name"
-        result = client.table("subsectors") \
-            .select("id, name, sector_id, sectors ( id, sector_name )") \
-            .ilike("name", pattern) \
-            .maybe_single() \
-            .execute()
+        # Try with subsector_name first (if column exists), fallback to name
+        result = None
+        try:
+            result = client.table("subsectors") \
+                .select("id, subsector_name, sector_id, sectors(id, sector_name)") \
+                .ilike("subsector_name", pattern) \
+                .maybe_single() \
+                .execute()
+        except Exception:
+            # Fallback to "name" column if subsector_name doesn't exist
+            result = client.table("subsectors") \
+                .select("id, name, sector_id, sectors(id, sector_name)") \
+                .ilike("name", pattern) \
+                .maybe_single() \
+                .execute()
         
         if not result.data:
             logger.debug(f"Subsector '{name}' not found in database")
@@ -124,25 +81,24 @@ def resolve_from_subsector(name: str) -> Optional[Dict[str, Any]]:
         
         row = result.data
         
-        # Extract nested sector data
-        sector_data = row.get("sectors")
+        # Get subsector name from either column
+        subsector_name = row.get("subsector_name") or row.get("name")
         
         return {
-            "sector": sector_data,
             "subsector": {
                 "id": row.get("id"),
-                "name": row.get("name")  # Use "name" column, not "subsector_name"
+                "name": subsector_name
             },
-            "discipline": None
+            "sector": row.get("sectors")
         }
     except Exception as e:
-        logger.error(f"Error resolving from subsector '{name}': {e}", exc_info=True)
+        logger.error(f"Error resolving subsector '{name}': {e}", exc_info=True)
         return None
 
 
 def resolve_sector(name: str) -> Optional[Dict[str, Any]]:
     """
-    Resolve sector only (weakest resolution, used as last resort).
+    Resolve sector only (DHS fallback).
     
     Args:
         name: Sector name to resolve
@@ -175,17 +131,54 @@ def resolve_sector(name: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+def resolve_discipline(name: str) -> Optional[Dict[str, Any]]:
+    """
+    Resolve discipline (Independent VOFC Physical-Security Taxonomy).
+    Disciplines are independent and don't resolve to subsectors/sectors.
+    
+    Args:
+        name: Discipline name to resolve
+        
+    Returns:
+        Dict with discipline info, or None if not found
+    """
+    cleaned = normalize(name)
+    if not cleaned:
+        return None
+    
+    pattern = f"*{cleaned}*"
+    
+    try:
+        client = get_supabase_client()
+        
+        result = client.table("disciplines") \
+            .select("id, name, category, is_active") \
+            .ilike("name", pattern) \
+            .maybe_single() \
+            .execute()
+        
+        if not result.data:
+            logger.debug(f"Discipline '{name}' not found in database")
+            return None
+        
+        return result.data
+    except Exception as e:
+        logger.error(f"Error resolving discipline '{name}': {e}", exc_info=True)
+        return None
+
+
 def resolve_taxonomy(
     sector_name: Optional[str] = None,
     subsector_name: Optional[str] = None,
     discipline_name: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Unified taxonomy resolver.
-    Always resolves bottom-up:
-    1. Discipline → subsector → sector (most specific)
-    2. Subsector → sector (medium specificity)
-    3. Sector only (weakest, last resort)
+    Final Unified Resolver (Correct Architecture).
+    
+    Priority:
+    1. DHS Subsector first (strongest, authoritative) → resolves sector
+    2. DHS Sector fallback → sector only
+    3. Discipline (independent VOFC taxonomy) → always resolved if provided
     
     Args:
         sector_name: Optional sector name
@@ -195,36 +188,31 @@ def resolve_taxonomy(
     Returns:
         Dict with resolved sector, subsector, and discipline (or None for each)
     """
-    # 1. Discipline resolves everything cleanly (highest priority)
-    if discipline_name:
-        resolved = resolve_from_discipline(discipline_name)
-        if resolved:
-            logger.info(f"Resolved taxonomy from discipline '{discipline_name}': discipline={resolved.get('discipline', {}).get('name') if resolved.get('discipline') else None}")
-            return resolved
-    
-    # 2. Subsector resolves sector (medium priority)
+    # 1. DHS Subsector first (strongest, authoritative)
     if subsector_name:
-        resolved = resolve_from_subsector(subsector_name)
-        if resolved:
-            logger.info(f"Resolved taxonomy from subsector '{subsector_name}': sector={resolved.get('sector', {}).get('sector_name') if resolved.get('sector') else None}")
-            return resolved
-    
-    # 3. Sector as last resort (lowest priority)
-    if sector_name:
-        sector_data = resolve_sector(sector_name)
-        if sector_data:
-            logger.info(f"Resolved sector only '{sector_name}'")
+        ss = resolve_subsector(subsector_name)
+        if ss:
             return {
-                "sector": sector_data,
-                "subsector": None,
-                "discipline": None
+                "sector": ss.get("sector"),
+                "subsector": ss.get("subsector"),
+                "discipline": resolve_discipline(discipline_name) if discipline_name else None
             }
     
-    # 4. Nothing found
-    logger.debug(f"No taxonomy resolved from sector='{sector_name}', subsector='{subsector_name}', discipline='{discipline_name}'")
+    # 2. DHS Sector fallback
+    if sector_name:
+        s = resolve_sector(sector_name)
+        if s:
+            return {
+                "sector": s,
+                "subsector": None,
+                "discipline": resolve_discipline(discipline_name) if discipline_name else None
+            }
+    
+    # 3. Discipline (independent)
+    discipline = resolve_discipline(discipline_name) if discipline_name else None
+    
     return {
         "sector": None,
         "subsector": None,
-        "discipline": None
+        "discipline": discipline
     }
-

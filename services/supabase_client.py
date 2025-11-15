@@ -219,7 +219,7 @@ def get_sector_id(name, fuzzy=False):
         fuzzy: If True, use first word only for matching (more flexible)
     
     Returns:
-        Sector ID (UUID) or None if not found
+        Sector ID (UUID) or None if not found or Supabase not configured
     """
     if not name:
         return None
@@ -282,6 +282,10 @@ def get_sector_id(name, fuzzy=False):
         logging.warning(f"Sector not found: {name}")
         return None
         
+    except ConfigurationError:
+        # Supabase not configured - return None gracefully (don't crash taxonomy inference)
+        logging.debug(f"Supabase not configured - cannot validate sector '{name}'")
+        return None
     except ServiceError:
         # Re-raise ServiceError as-is
         raise
@@ -299,7 +303,7 @@ def get_subsector_id(name, fuzzy=False):
         fuzzy: If True, use first word only for matching (more flexible)
     
     Returns:
-        Subsector ID (UUID) or None if not found
+        Subsector ID (UUID) or None if not found or Supabase not configured
     """
     if not name:
         return None
@@ -338,6 +342,10 @@ def get_subsector_id(name, fuzzy=False):
         logging.warning(f"Subsector not found: {name}")
         return None
         
+    except ConfigurationError:
+        # Supabase not configured - return None gracefully (don't crash taxonomy inference)
+        logging.debug(f"Supabase not configured - cannot validate subsector '{name}'")
+        return None
     except ServiceError:
         # Re-raise ServiceError as-is
         raise

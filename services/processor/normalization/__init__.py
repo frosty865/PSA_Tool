@@ -10,6 +10,7 @@ from .discipline_resolver import (
     get_subtype_id
 )
 from .vofc_discipline import DisciplineResolver
+from .discipline_resolver_v2 import DisciplineResolverV2, create_resolver_from_supabase
 from .taxonomy_resolver import (
     normalize as normalize_taxonomy_text,
     resolve_subsector,
@@ -34,6 +35,8 @@ __all__ = [
     'resolve_discipline_and_subtype',
     'get_subtype_id',
     'DisciplineResolver',
+    'DisciplineResolverV2',
+    'create_resolver_from_supabase',
     'normalize_taxonomy_text',
     'resolve_subsector',
     'resolve_sector',

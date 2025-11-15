@@ -78,7 +78,7 @@ def process_pdf(
             model_names = [m.get("name", "") if isinstance(m, dict) else str(m) for m in available_models]
             
             if not model_names:
-                error_msg = f"❌ CRITICAL: No models installed in Ollama. Please install a model first:\n  ollama pull {model_to_check}\n  Or set VOFC_MODEL or OLLAMA_MODEL environment variable to an installed model."
+                error_msg = f"[ERROR] CRITICAL: No models installed in Ollama. Please install a model first:\n  ollama pull {model_to_check}\n  Or set VOFC_MODEL or OLLAMA_MODEL environment variable to an installed model."
                 logging.error(error_msg)
                 raise ValueError(error_msg)
             
@@ -95,23 +95,23 @@ def process_pdf(
                     # Update model parameter for this processing run
                     model = suggested_model
                 else:
-                    error_msg = f"❌ Model '{model_to_check}' not found. Available models: {', '.join(model_names) if model_names else 'none'}\n  Please install the model: ollama pull {model_to_check}\n  Or set VOFC_MODEL environment variable to one of the available models."
+                    error_msg = f"[ERROR] Model '{model_to_check}' not found. Available models: {', '.join(model_names) if model_names else 'none'}\n  Please install the model: ollama pull {model_to_check}\n  Or set VOFC_MODEL environment variable to one of the available models."
                     logging.error(error_msg)
                     raise ValueError(error_msg)
             
-            logging.info(f"✓ Model '{model_to_check}' is available")
+            logging.info(f"[OK] Model '{model_to_check}' is available")
         else:
             logging.warning(f"Could not verify model availability (Ollama returned {tags_response.status_code})")
     except requests.exceptions.ConnectionError as e:
-        error_msg = f"❌ Cannot connect to Ollama server at {ollama_url}. Please ensure Ollama is running."
+        error_msg = f"[ERROR] Cannot connect to Ollama server at {ollama_url}. Please ensure Ollama is running."
         logging.error(error_msg)
         raise ServiceError(error_msg) from e
     except requests.exceptions.Timeout as e:
-        error_msg = f"❌ Ollama server timeout at {ollama_url}. Please check Ollama is running and responsive."
+        error_msg = f"[ERROR] Ollama server timeout at {ollama_url}. Please check Ollama is running and responsive."
         logging.error(error_msg)
         raise ServiceError(error_msg) from e
     except requests.exceptions.RequestException as e:
-        error_msg = f"❌ Ollama server request failed at {ollama_url}: {e}"
+        error_msg = f"[ERROR] Ollama server request failed at {ollama_url}: {e}"
         logging.error(error_msg)
         raise ServiceError(error_msg) from e
     except (ValueError, ConnectionError):
@@ -126,6 +126,20 @@ def process_pdf(
     pages = extract_structured_pdf(str(pdf_path))
     if not pages:
         raise ValueError(f"No pages extracted from {path}")
+    
+    # Step 1.5: Normalize OFC blocks (SAFE/IST format)
+    logging.info("Step 1.5: Normalizing OFC blocks (SAFE/IST format)...")
+    try:
+        from services.ingestion.ofc_normalizer import normalize_safe_ist_ofcs
+        for page in pages:
+            if "text" in page:
+                page["text"] = normalize_safe_ist_ofcs(page["text"])
+        logging.info("OFC normalization complete")
+    except ImportError as e:
+        logging.warning(f"OFC normalizer not available (ftfy may be missing): {e}")
+        logging.warning("Continuing without OFC normalization")
+    except Exception as e:
+        logging.warning(f"OFC normalization failed, continuing: {e}")
     
     # Step 2: Chunk pages
     logging.info("Step 2: Chunking pages...")
@@ -158,11 +172,27 @@ def process_pdf(
     deduped = dedupe_records(merged)
     logging.info(f"After deduplication: {len(deduped)} unique records")
     
-    # Step 6: Normalize
-    logging.info("Step 6: Normalizing records...")
+    # Step 6: Normalize (includes taxonomy inference)
+    logging.info("Step 6: Normalizing records and inferring taxonomy...")
     # Extract document title from PDF filename (remove extension and clean)
-    document_title = pdf_path.stem.replace("_", " ").replace("-", " ")
+    # Keep original format for better matching: "Safe-Schools-Best-Practices" should match "school" keywords
+    document_title = pdf_path.stem  # Keep original format with hyphens/underscores
     normalized = normalize_records(deduped, document_title=document_title)
+    
+    # Step 6.5: Enhance text (rewrite/rephrase for natural variation and context)
+    from config import Config
+    if Config.ENABLE_TEXT_ENHANCEMENT:
+        logging.info("Step 6.5: Enhancing text with natural variations and context...")
+        try:
+            from services.text_enhancer import enhance_records_batch
+            normalized = enhance_records_batch(
+                normalized,
+                enable_variations=True,
+                max_records=None  # Process all records
+            )
+            logging.info(f"Text enhancement complete: {len(normalized)} records enhanced")
+        except Exception as e:
+            logging.warning(f"Text enhancement failed, continuing with original text: {e}")
     
     # Step 7: Export to JSON
     logging.info("Step 7: Exporting to JSON...")
@@ -184,6 +214,6 @@ def process_pdf(
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
     
-    logging.info(f"✅ Processing complete: {len(normalized)} records exported to {output_path}")
+    logging.info(f"[OK] Processing complete: {len(normalized)} records exported to {output_path}")
     return str(output_path)
 

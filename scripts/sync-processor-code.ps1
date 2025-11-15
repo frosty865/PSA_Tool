@@ -17,6 +17,9 @@ $ProcessorSource = Join-Path $ProjectRoot "tools\vofc_processor"
 $ProcessorTarget = "C:\Tools\VOFC-Processor"
 $LegacyPath = "C:\Tools\vofc_processor"
 
+# Also sync to legacy path for compatibility
+$LegacyTarget = $LegacyPath
+
 if (-not (Test-Path $ProjectRoot)) {
     Write-Host "ERROR: Project root not found: $ProjectRoot" -ForegroundColor Red
     exit 1
@@ -73,23 +76,30 @@ foreach ($item in $itemsToSync) {
             Write-Host "  Copying file: $item" -ForegroundColor Gray
             Copy-Item $sourcePath $targetPath -Force
         }
-        Write-Host "    ✓ $item" -ForegroundColor Green
+        Write-Host "    [OK] $item" -ForegroundColor Green
     } else {
-        Write-Host "  ⚠ Source not found: $item" -ForegroundColor Yellow
+        Write-Host "  [WARN] Source not found: $item" -ForegroundColor Yellow
     }
 }
 
-# Also copy config directory (needed for Config import)
+# Also copy config directory (needed for Config import) to both locations
 $configSource = Join-Path $ProjectRoot "config"
 $configTarget = Join-Path $ProcessorTarget "config"
+$configLegacyTarget = Join-Path $LegacyTarget "config"
 if (Test-Path $configSource) {
     Write-Host "  Syncing config directory..." -ForegroundColor Gray
+    # Sync to new location
     robocopy $configSource $configTarget /MIR /NFL /NDL /NJH /NJS /R:3 /W:1 /XD "__pycache__" "*.pyc" | Out-Null
-    Write-Host "    ✓ config" -ForegroundColor Green
+    Write-Host "    [OK] config (new location)" -ForegroundColor Green
+    # Also sync to legacy location for compatibility
+    if (Test-Path $LegacyTarget) {
+        robocopy $configSource $configLegacyTarget /MIR /NFL /NDL /NJH /NJS /R:3 /W:1 /XD "__pycache__" "*.pyc" | Out-Null
+        Write-Host "    [OK] config (legacy location)" -ForegroundColor Green
+    }
 }
 
 Write-Host ""
-Write-Host "✅ Code sync complete!" -ForegroundColor Green
+Write-Host "Code sync complete!" -ForegroundColor Green
 Write-Host ""
 
 # Update NSSM service configuration to point to correct path
@@ -98,7 +108,7 @@ $correctScriptPath = Join-Path $ProcessorTarget "vofc_processor.py"
 & $nssmPath set VOFC-Processor AppParameters $correctScriptPath
 & $nssmPath set VOFC-Processor AppDirectory $ProcessorTarget
 
-Write-Host "  ✓ Service configured to use: $correctScriptPath" -ForegroundColor Green
+Write-Host "  [OK] Service configured to use: $correctScriptPath" -ForegroundColor Green
 Write-Host ""
 
 # Restart Processor service
@@ -109,14 +119,14 @@ Start-Sleep -Seconds 3
 # Check status
 $status = & $nssmPath status VOFC-Processor
 if ($status -match "SERVICE_RUNNING") {
-    Write-Host "  ✓ Service is running" -ForegroundColor Green
+    Write-Host "  [OK] Service is running" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠ Service status: $status" -ForegroundColor Yellow
+    Write-Host "  [WARN] Service status: $status" -ForegroundColor Yellow
     Write-Host "  Check logs: C:\Tools\Ollama\Data\logs\vofc_processor_err.log" -ForegroundColor Yellow
 }
 
 Write-Host ""
-Write-Host "✅ Processor service updated and restarted!" -ForegroundColor Green
+Write-Host "Processor service updated and restarted!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Log file location: C:\Tools\Ollama\Data\logs\vofc_processor.log" -ForegroundColor Cyan
 

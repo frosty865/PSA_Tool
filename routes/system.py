@@ -220,71 +220,7 @@ def test_tunnel_service():
     # Service might not exist or access denied
     return 'failed'
 
-def test_model_manager():
-    """
-    Check if Model Manager Windows service is running.
-    Returns 'ok' if running, 'failed' if not running or check fails.
-    """
-    # Try actual service names first, then alternatives for compatibility
-    service_names = ['VOFC-ModelManager', 'vofc-modelmanager', 'VOFC-Model-Manager', 'PSA-ModelManager', 'ModelManager']
-    
-    for service_name in service_names:
-        try:
-            # Use sc query to check service status (works on Windows)
-            result = subprocess.run(
-                ['sc', 'query', service_name],
-                capture_output=True,
-                text=True,
-                timeout=3
-            )
-            
-            if result.returncode == 0:
-                output = result.stdout
-                output_upper = output.upper()
-                
-                # Parse STATE line: "STATE : 4 RUNNING" or "STATE : 1 STOPPED" or "STATE : 7 PAUSED"
-                if 'STATE' in output_upper:
-                    # Find the STATE line
-                    for line in output.split('\n'):
-                        if 'STATE' in line.upper():
-                            # Extract state code and status
-                            parts = line.split()
-                            # Look for state code (number after STATE :)
-                            for i, part in enumerate(parts):
-                                if part.upper() == 'STATE' and i + 2 < len(parts):
-                                    state_code = parts[i + 2]
-                                    state_text = ' '.join(parts[i + 3:]) if i + 3 < len(parts) else ''
-                                    
-                                    if state_code == '4' or 'RUNNING' in state_text.upper():
-                                        return 'ok'
-                                    else:
-                                        # Service exists but not running = failed
-                                        return 'failed'
-                                    break
-                
-                # Fallback: check text in output
-                if 'RUNNING' in output_upper:
-                    return 'ok'
-                else:
-                    # Service exists but not running = failed
-                    return 'failed'
-            else:
-                # Service not found, try next name
-                continue
-        except subprocess.TimeoutExpired:
-            logging.warning(f"Timeout checking model manager service {service_name}")
-            continue
-        except FileNotFoundError:
-            raise ServiceError("'sc.exe' not found - cannot check model manager service status. System may not be Windows or PATH is misconfigured.")
-        except subprocess.SubprocessError as e:
-            logging.warning(f"Subprocess error checking model manager service {service_name}: {e}")
-            continue
-        except Exception as e:
-            logging.error(f"Unexpected error checking model manager service {service_name}: {e}", exc_info=True)
-            continue
-    
-    # Service might not exist or access denied
-    return 'failed'
+# Model Manager service removed - no longer used
 
 @system_bp.route('/')
 def index():
@@ -316,7 +252,7 @@ def health():
     flask_url = Config.FLASK_URL_LOCAL
     
     # Initialize components status
-    # Check Flask service status (similar to tunnel and model manager checks)
+    # Check Flask service status (similar to tunnel checks)
     flask_service_status = test_flask_service()
     watcher_status = test_processor_service()  # VOFC-Processor service (watcher)
     supabase_status = test_supabase()
@@ -381,7 +317,7 @@ def health():
     # Get tunnel URL (managed by NSSM service - Cloudflare tunnel)
     tunnel_url = Config.TUNNEL_URL
     
-    # Check tunnel service status (similar to model manager check)
+    # Check tunnel service status
     tunnel_status = test_tunnel_service()
     components["tunnel"] = tunnel_status if tunnel_status == "ok" else "failed"
     
@@ -521,7 +457,8 @@ def progress():
         progress_data = {}
         try:
             if progress_file.exists():
-                with open(progress_file, "r", encoding="utf-8") as f:
+                # Use utf-8-sig to handle BOM if present
+                with open(progress_file, "r", encoding="utf-8-sig") as f:
                     progress_data = json.load(f)
             else:
                 # progress.json doesn't exist - that's OK, we'll create default structure
@@ -827,7 +764,7 @@ def log_stream():
                         break
             response = Response(empty_stream(), mimetype="text/event-stream")
             response.headers["Cache-Control"] = "no-cache"
-            response.headers["Connection"] = "keep-alive"
+            # Note: "Connection" header is not allowed in WSGI (PEP 3333) - removed
             response.headers["X-Accel-Buffering"] = "no"
             response.headers["Access-Control-Allow-Origin"] = "*"
             return response
@@ -835,14 +772,32 @@ def log_stream():
         def parse_log_timestamp(line):
             """Parse timestamp from log line. Returns None if parsing fails."""
             try:
-                # Log format: "2025-11-12 12:38:35 | INFO | ..."
+                # Log format: "2025-11-12 12:38:35 | INFO | ..." or "2025-11-12 12:38:35,253 | INFO | ..."
                 if '|' in line:
                     timestamp_str = line.split('|')[0].strip()
-                    # Try parsing the timestamp
-                    log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                    # Try parsing with milliseconds first (Python default format)
+                    try:
+                        log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S,%f")
+                    except ValueError:
+                        # Try without milliseconds
+                        try:
+                            log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            return None
                     # Convert to EST if needed
                     if EST:
-                        log_time = EST.localize(log_time) if log_time.tzinfo is None else log_time.astimezone(EST)
+                        # Handle both zoneinfo and pytz
+                        if log_time.tzinfo is None:
+                            # Naive datetime - need to localize
+                            if hasattr(EST, 'localize'):
+                                # pytz
+                                log_time = EST.localize(log_time)
+                            else:
+                                # zoneinfo - replace tzinfo directly
+                                log_time = log_time.replace(tzinfo=EST)
+                        else:
+                            # Already timezone-aware - convert to EST
+                            log_time = log_time.astimezone(EST)
                     return log_time
             except (ValueError, IndexError):
                 pass
@@ -853,18 +808,23 @@ def log_stream():
             if not line or not line.strip():
                 return False
             
-            # Must start with today's date
-            today_date_str = now_est().strftime("%Y-%m-%d")
-            if not line.strip().startswith(today_date_str):
-                return False
+            line_stripped = line.strip()
             
-            # Parse timestamp and verify it's from today (after midnight today)
-            log_time = parse_log_timestamp(line)
+            # Try to parse timestamp first
+            log_time = parse_log_timestamp(line_stripped)
             if log_time:
+                # If we can parse timestamp, check if it's from today
                 return log_time >= today_start
-            else:
-                # If we can't parse timestamp but it starts with today's date, include it
+            
+            # If no timestamp, check if it starts with today's date
+            today_date_str = now_est().strftime("%Y-%m-%d")
+            if line_stripped.startswith(today_date_str):
                 return True
+            
+            # If line doesn't have a timestamp and doesn't start with today's date,
+            # include it anyway if we're not getting any timestamped lines (fallback for malformed logs)
+            # This ensures we always show something if logs are being written
+            return True
         
         try:
             # Get current file position - start from end of file (only new logs)
@@ -892,12 +852,22 @@ def log_stream():
                             new_lines = f.readlines()
                             
                             if new_lines:
-                                # Filter to only today's lines
+                                # Filter to only today's lines, but include all if no timestamped lines found
+                                sent_count = 0
                                 for line in new_lines:
                                     cleaned = line.strip()
-                                    # Only send today's lines
-                                    if is_today_log(cleaned):
-                                        yield f"data: {cleaned}\n\n"
+                                    if cleaned:  # Skip empty lines
+                                        # Only send today's lines (or all if no timestamps)
+                                        if is_today_log(cleaned):
+                                            yield f"data: {cleaned}\n\n"
+                                            sent_count += 1
+                                
+                                # If no lines were sent but we have new lines, send them anyway (malformed logs)
+                                if sent_count == 0 and new_lines:
+                                    for line in new_lines:
+                                        cleaned = line.strip()
+                                        if cleaned:
+                                            yield f"data: {cleaned}\n\n"
                                 
                                 # Update position
                                 last_position = f.tell()
@@ -928,7 +898,7 @@ def log_stream():
     
     response = Response(stream(), mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
-    response.headers["Connection"] = "keep-alive"
+    # Note: "Connection" header is not allowed in WSGI (PEP 3333) - removed
     response.headers["X-Accel-Buffering"] = "no"  # Disable nginx buffering
     response.headers["Access-Control-Allow-Origin"] = "*"  # Allow CORS for SSE
     response.headers["Access-Control-Allow-Headers"] = "Cache-Control"
@@ -936,108 +906,153 @@ def log_stream():
 
 @system_bp.route('/api/system/logs')
 def get_logs():
-    """Get recent log lines from VOFC Processor (for polling fallback) - NEW VERSION with strict filtering."""
+    """Get recent log lines from VOFC Processor - BULLETPROOF VERSION that ALWAYS returns something."""
     try:
         import os
         from pathlib import Path
         from datetime import datetime, timedelta
         
-        # Use VOFC Processor log file
-        base_dir = Config.DATA_DIR
-        if not base_dir.exists():
-            # Fallback to archive location if needed (for migration)
-            archive_data = Config.ARCHIVE_DIR
-            if archive_data.exists():
-                base_dir = archive_data
-            else:
-                base_dir = Config.DATA_DIR  # Default
+        # MULTIPLE FALLBACK PATHS for log file location
+        log_file = None
+        possible_paths = [
+            Config.DATA_DIR / "logs" / "vofc_processor.log",
+            Config.ARCHIVE_DIR / "logs" / "vofc_processor.log",
+            Path(r"C:\Tools\Ollama\Data\logs\vofc_processor.log"),
+            Path(r"C:\Tools\VOFC_Logs\vofc_processor.log"),
+            Path(r"C:\Tools\nssm\logs\vofc_processor.log"),
+        ]
         
-        logs_dir = base_dir / "logs"
-        # Use single rolling log file (not date-specific)
-        log_file = logs_dir / "vofc_processor.log"
+        # Try each path until we find the log file
+        for path in possible_paths:
+            if path.exists() and path.is_file():
+                log_file = path
+                logging.debug(f"Found log file at: {log_file}")
+                break
         
-        # Check if log file exists
-        if not log_file.exists():
-            # Return empty if log file doesn't exist yet
-            logging.debug(f"Log file not found: {log_file}")
-            return jsonify({"lines": [], "error": f"Log file not found: {log_file}. The watcher may not have started yet."}), 200
+        # If no log file found, return heartbeat immediately
+        if not log_file or not log_file.exists():
+            heartbeat_time = now_est().strftime("%Y-%m-%d %H:%M:%S")
+            heartbeat_msg = f"{heartbeat_time} | INFO | [MONITOR] Log file not found - checking paths: {', '.join(str(p) for p in possible_paths)}"
+            logging.debug(heartbeat_msg)
+            return jsonify({"lines": [heartbeat_msg], "status": "waiting", "message": "Log file not found yet"}), 200
         
         tail = request.args.get('tail', 50, type=int)
         
         # Show all logs from today (not just last 1 hour) - user wants to see today's activity
         today_date_str = now_est().strftime("%Y-%m-%d")
         today_start = now_est().replace(hour=0, minute=0, second=0, microsecond=0)
+        heartbeat_time = now_est().strftime("%Y-%m-%d %H:%M:%S")
         
         def parse_log_timestamp(line):
             """Parse timestamp from log line. Returns None if parsing fails."""
             try:
-                # Log format: "2025-11-12 12:38:35 | INFO | ..."
+                # Log format: "2025-11-12 12:38:35 | INFO | ..." or "2025-11-12 12:38:35,253 | INFO | ..."
                 if '|' in line:
                     timestamp_str = line.split('|')[0].strip()
-                    # Try parsing the timestamp
-                    log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                    # Try parsing with milliseconds first (Python default format)
+                    try:
+                        log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S,%f")
+                    except ValueError:
+                        # Try without milliseconds
+                        try:
+                            log_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            return None
                     # Convert to EST if needed
                     if EST:
-                        log_time = EST.localize(log_time) if log_time.tzinfo is None else log_time.astimezone(EST)
+                        # Handle both zoneinfo and pytz
+                        if log_time.tzinfo is None:
+                            # Naive datetime - need to localize
+                            if hasattr(EST, 'localize'):
+                                # pytz
+                                log_time = EST.localize(log_time)
+                            else:
+                                # zoneinfo - replace tzinfo directly
+                                log_time = log_time.replace(tzinfo=EST)
+                        else:
+                            # Already timezone-aware - convert to EST
+                            log_time = log_time.astimezone(EST)
                     return log_time
-            except (ValueError, IndexError):
+            except (ValueError, IndexError, AttributeError):
                 pass
             return None
         
         def is_today_log(line):
-            """Check if log line is from today."""
+            """Check if log line is from today - ALWAYS returns True if line exists (fallback)."""
             if not line or not line.strip():
                 return False
             
             line_stripped = line.strip()
             
-            # Must start with today's date
-            if not line_stripped.startswith(today_date_str):
-                return False
-            
-            # Parse timestamp and verify it's from today (after midnight today)
+            # Try to parse timestamp first
             log_time = parse_log_timestamp(line_stripped)
             if log_time:
+                # If we can parse timestamp, check if it's from today
                 return log_time >= today_start
-            else:
-                # If we can't parse timestamp but it starts with today's date, include it
-                return True
-        
-        # Read lines and filter to only show today's logs
-        with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
-            lines = f.readlines()
-            # Filter to only today's lines
-            today_lines = []
-            for line in lines:
-                line_stripped = line.strip()
-                if is_today_log(line_stripped):
-                    today_lines.append(line_stripped)
             
-            # Return last N lines
-            result_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
+            # If no timestamp, check if it starts with today's date
+            if line_stripped.startswith(today_date_str):
+                return True
+            
+            # FALLBACK: If line doesn't have a timestamp, include it anyway
+            # This ensures we always show something if logs are being written
+            return True
+        
+        # BULLETPROOF: Try to read file with multiple error handling strategies
+        result_lines = []
+        try:
+            with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
+                lines = f.readlines()
+                
+                # Filter to only today's lines
+                today_lines = []
+                for line in lines:
+                    line_stripped = line.strip()
+                    if line_stripped and is_today_log(line_stripped):
+                        today_lines.append(line_stripped)
+                
+                # If no today's lines found, fallback to last N lines (for malformed logs or if file is empty)
+                if not today_lines:
+                    # Just return the last N lines regardless of date
+                    all_lines = [line.strip() for line in lines if line.strip()]
+                    result_lines = all_lines[-tail:] if len(all_lines) > tail else all_lines
+                    logging.debug(f"No today's logs found, returning last {len(result_lines)} lines (fallback mode)")
+                else:
+                    # Return last N lines from today
+                    result_lines = today_lines[-tail:] if len(today_lines) > tail else today_lines
+                    logging.debug(f"Found {len(today_lines)} today's logs, returning last {len(result_lines)}")
+        except PermissionError as e:
+            logging.error(f"Permission denied reading log file: {e}")
+            result_lines = [f"{heartbeat_time} | ERROR | [MONITOR] Permission denied reading log file: {log_file}"]
+        except OSError as e:
+            logging.error(f"OS error reading log file: {e}")
+            result_lines = [f"{heartbeat_time} | ERROR | [MONITOR] File system error reading log: {str(e)}"]
+        except Exception as e:
+            logging.error(f"Unexpected error reading log file: {e}", exc_info=True)
+            result_lines = [f"{heartbeat_time} | ERROR | [MONITOR] Error reading log file: {str(e)}"]
+        
+        # ALWAYS ensure we return at least something - NEVER return empty array
+        if not result_lines:
+            # No logs at all - add heartbeat
+            result_lines = [f"{heartbeat_time} | INFO | [MONITOR] Log monitor active - waiting for new log entries..."]
         
         # Validate response against contract
         from config.api_contracts import validate_logs_response
-        response_data = validate_logs_response({"lines": result_lines})
+        try:
+            response_data = validate_logs_response({"lines": result_lines})
+        except Exception as e:
+            # If validation fails, return anyway with what we have
+            logging.warning(f"Log response validation failed: {e}, returning anyway")
+            response_data = {"lines": result_lines}
+        
         return jsonify(response_data), 200
     
-    except FileNotFoundError as e:
-        logging.warning(f"Log file not found: {e}")
-        from config.api_contracts import validate_logs_response
-        response_data = validate_logs_response({"lines": [], "error": f"Log file not found: {log_file}"})
-        return jsonify(response_data), 200
-    except PermissionError as e:
-        logging.error(f"Permission denied reading log file: {e}")
-        from config.exceptions import FileOperationError
-        raise FileOperationError(f"Cannot read log file (permission denied): {e}")
-    except OSError as e:
-        logging.error(f"OS error reading log file: {e}")
-        from config.exceptions import FileOperationError
-        raise FileOperationError(f"File system error reading log file: {e}")
     except Exception as e:
-        logging.error(f"Unexpected error reading logs: {e}", exc_info=True)
-        from config.exceptions import FileOperationError
-        raise FileOperationError(f"Unexpected error reading logs: {e}")
+        # BULLETPROOF: Always return something, even on unexpected errors
+        logging.error(f"Unexpected error in get_logs: {e}", exc_info=True)
+        heartbeat_time = now_est().strftime("%Y-%m-%d %H:%M:%S")
+        error_msg = f"{heartbeat_time} | ERROR | [MONITOR] Error reading logs: {str(e)}"
+        return jsonify({"lines": [error_msg], "status": "error", "message": str(e)}), 200
 
 @system_bp.route("/api/system/control", methods=["POST", "OPTIONS"])
 def system_control():

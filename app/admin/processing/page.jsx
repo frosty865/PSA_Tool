@@ -136,81 +136,145 @@ export default function ProcessingMonitorPage() {
       }
     }
 
+    // Force immediate fetch on mount to avoid stale data
     fetchProgress()
+    // Also fetch after a short delay to ensure we get latest data
+    const immediateRefresh = setTimeout(fetchProgress, 1000)
     const timer = setInterval(fetchProgress, 30000) // Poll every 30 seconds (reduced from 10s to reduce network load)
     
-    return () => clearInterval(timer)
+    return () => {
+      clearTimeout(immediateRefresh)
+      clearInterval(timer)
+    }
   }, [])
 
-  // Live log stream (using reliable polling method)
+  // Live log stream (BULLETPROOF polling with automatic retry)
   useEffect(() => {
     let pollInterval = null
     let lastKnownLines = new Set() // Track seen lines to avoid duplicates
+    let retryCount = 0
+    const MAX_RETRIES = 3
+    const POLL_INTERVAL = 3000 // 3 seconds - faster updates
     
-    // Initial load of recent logs
-    const loadInitialLogs = async () => {
+    // BULLETPROOF: Always show something, even on errors
+    const showConnectionStatus = (status, message) => {
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      setLogLines(prev => {
+        // Only update if we don't already have a status message
+        const hasStatus = prev.some(line => line && line.includes('[MONITOR]'))
+        if (!hasStatus || status === 'error') {
+          return [`${timestamp} | ${status.toUpperCase()} | [MONITOR] ${message}`]
+        }
+        return prev
+      })
+    }
+    
+    // Initial load of recent logs with retry
+    const loadInitialLogs = async (retry = 0) => {
       try {
-        const res = await fetch('/api/system/logs?tail=50', { cache: 'no-store' })
-        // Always try to parse JSON, even if status is not OK
-        // The route returns 200 with empty lines on errors for graceful handling
-        let data
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+        
+        const res = await fetch('/api/system/logs?tail=50', { 
+          cache: 'no-store',
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+        
+        // ALWAYS try to parse JSON - backend ALWAYS returns valid JSON
+        let data = { lines: [] }
         try {
           data = await res.json()
         } catch (parseError) {
-          // If JSON parsing fails, use empty lines
-          console.warn('Failed to parse logs JSON:', parseError)
-          data = { lines: [] }
+          console.warn('[Live Logs] JSON parse error:', parseError)
+          // Fallback: create valid structure
+          data = { lines: [`[ERROR] Failed to parse response: ${parseError.message}`] }
         }
         
-        if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
-          // Filter out empty lines and create hash set
-          const validLines = data.lines.filter(line => line && line.trim())
+        // BULLETPROOF: Backend ALWAYS returns lines array, even if empty
+        if (!data.lines || !Array.isArray(data.lines)) {
+          console.warn('[Live Logs] Invalid response structure:', data)
+          data.lines = [`[ERROR] Invalid response from server`]
+        }
+        
+        // Filter out empty lines
+        const validLines = data.lines.filter(line => line && typeof line === 'string' && line.trim())
+        
+        if (validLines.length > 0) {
           console.log(`[Live Logs] Initial load: ${validLines.length} lines`)
           setLogLines(validLines)
           // Track initial lines
           validLines.forEach(line => {
             if (line) lastKnownLines.add(line.substring(0, 100)) // Use first 100 chars as hash
           })
+          retryCount = 0 // Reset retry on success
         } else {
-          // Even if no lines, show a message so user knows the connection is working
-          if (data.error) {
-            console.warn('Logs API error:', data.error, data.message)
-            setLogLines([`⚠️ ${data.error}: ${data.message || 'Unable to load logs'}`])
-          } else {
-            console.log('[Live Logs] No logs available yet')
-            setLogLines([])
-          }
+          // No valid lines - show connection status
+          showConnectionStatus('info', 'Connected - waiting for log entries...')
         }
       } catch (err) {
-        // Log errors for debugging
-        const errorMsg = err.message || err.toString() || ''
-        console.error('Error loading initial logs:', err)
-        if (!errorMsg.includes('404') && !errorMsg.includes('Not Found')) {
-          setLogLines([`❌ Error loading logs: ${errorMsg}`])
+        retryCount++
+        const errorMsg = err.message || err.toString() || 'Unknown error'
+        
+        // Don't spam console with network errors
+        if (!errorMsg.includes('aborted') && !errorMsg.includes('timeout')) {
+          console.error('[Live Logs] Initial load error:', err)
+        }
+        
+        // Retry with exponential backoff
+        if (retryCount < MAX_RETRIES) {
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 5000)
+          console.log(`[Live Logs] Retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`)
+          setTimeout(() => loadInitialLogs(retry + 1), delay)
+        } else {
+          // Max retries reached - show error status
+          showConnectionStatus('error', `Connection failed after ${MAX_RETRIES} retries: ${errorMsg}`)
         }
       }
     }
 
-    // Polling method - more reliable than SSE through Next.js
+    // BULLETPROOF polling with automatic error recovery
     const setupPolling = () => {
+      let consecutiveErrors = 0
+      const MAX_CONSECUTIVE_ERRORS = 5
+      
       pollInterval = setInterval(async () => {
         try {
-          const res = await fetch('/api/system/logs?tail=50', { cache: 'no-store' })
-          // Always try to parse JSON, even if status is not OK
-          // The route returns 200 with empty lines on errors for graceful handling
-          let data
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
+          
+          const res = await fetch('/api/system/logs?tail=50', { 
+            cache: 'no-store',
+            signal: controller.signal
+          })
+          clearTimeout(timeoutId)
+          
+          // ALWAYS try to parse JSON - backend ALWAYS returns valid JSON
+          let data = { lines: [] }
           try {
             data = await res.json()
           } catch (parseError) {
-            // If JSON parsing fails, skip this poll
-            return
+            consecutiveErrors++
+            if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+              showConnectionStatus('error', 'Failed to parse server response')
+            }
+            return // Skip this poll
           }
           
-          if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
+          // Reset error counter on success
+          consecutiveErrors = 0
+          
+          // BULLETPROOF: Backend ALWAYS returns lines array
+          if (!data.lines || !Array.isArray(data.lines)) {
+            console.warn('[Live Logs] Invalid response structure:', data)
+            data.lines = []
+          }
+          
+          // Filter out empty lines
+          const validLines = data.lines.filter(line => line && typeof line === 'string' && line.trim())
+          
+          if (validLines.length > 0) {
             setLogLines((prev) => {
-              // Filter out empty lines
-              const validLines = data.lines.filter(line => line && line.trim())
-              
               // If this is the first poll and we have no previous lines, just set all lines
               if (prev.length === 0 && validLines.length > 0) {
                 console.log(`[Live Logs] First poll: setting ${validLines.length} lines`)
@@ -252,33 +316,37 @@ export default function ProcessingMonitorPage() {
               // No new lines, return previous state
               return prev
             })
-          } else if (data.error) {
+          } else if (data.error || data.status === 'error') {
             // Show error message if API returns an error
-            console.warn('[Live Logs] API error:', data.error)
+            showConnectionStatus('error', data.message || data.error || 'Unknown error')
           }
         } catch (err) {
-          // Silently handle errors - don't spam console
+          consecutiveErrors++
           const errorMsg = err.message || err.toString() || ''
+          
+          // Only log non-network errors
           if (
             !errorMsg.includes('aborted') &&
             !errorMsg.includes('timeout') &&
-            !errorMsg.includes('404') &&
-            !errorMsg.includes('Not Found') &&
-            !errorMsg.includes('message channel') &&
-            !errorMsg.includes('asynchronous response') &&
-            !errorMsg.includes('channel closed')
+            !errorMsg.includes('Failed to fetch')
           ) {
-            console.error('Error polling logs:', err)
+            console.error('[Live Logs] Poll error:', err)
+          }
+          
+          // Show error status if too many consecutive errors
+          if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+            showConnectionStatus('error', `Connection issues (${consecutiveErrors} errors)`)
           }
         }
-      }, 5000)  // Poll every 5 seconds (reduced from 1.5s to reduce network load)
+      }, POLL_INTERVAL)
     }
 
     // Load initial logs and start polling
     loadInitialLogs()
-    // Small delay before starting polling to let initial load complete
-    setTimeout(setupPolling, 500)
-
+    // Start polling after initial load completes (with delay for retries)
+    setTimeout(setupPolling, 2000)
+    
+    // Cleanup on unmount
     return () => {
       if (pollInterval) {
         clearInterval(pollInterval)
@@ -300,11 +368,11 @@ export default function ProcessingMonitorPage() {
   const getWatcherStatusColor = () => {
     switch (watcherStatus) {
       case 'running':
-        return { bg: '#e6f6ea', border: '#00a651', text: '#007a3d', icon: '🟢' }
+        return { bg: '#e6f6ea', border: '#00a651', text: '#007a3d', icon: '[OK]' }
       case 'stopped':
-        return { bg: '#fdecea', border: '#c00', text: '#a00', icon: '🔴' }
+        return { bg: '#fdecea', border: '#c00', text: '#a00', icon: '[STOP]' }
       default:
-        return { bg: '#fff9e6', border: '#ffc107', text: '#856404', icon: '🟡' }
+        return { bg: '#fff9e6', border: '#ffc107', text: '#856404', icon: '[WARN]' }
     }
   }
 
@@ -361,12 +429,12 @@ export default function ProcessingMonitorPage() {
         
         // Add hint if available
         if (data.hint) {
-          errorMsg += `\n\n💡 ${data.hint}`
+          errorMsg += `\n\n[HINT] ${data.hint}`
         }
         
         // Add troubleshooting steps if available
         if (data.troubleshooting) {
-          errorMsg += `\n\n🔧 Troubleshooting:\n`
+          errorMsg += `\n\n[TROUBLESHOOTING]\n`
           if (data.troubleshooting.checkTunnel) {
             errorMsg += `   • Check tunnel: ${data.troubleshooting.checkTunnel}\n`
           }
@@ -383,7 +451,7 @@ export default function ProcessingMonitorPage() {
       
       // Success
       const message = data.message || data.status || 'Action completed'
-      alert(`✅ ${message}`)
+      alert(`[OK] ${message}`)
       
       // Refresh progress and watcher status after action (with delay to allow processing)
       setTimeout(async () => {
@@ -425,7 +493,7 @@ export default function ProcessingMonitorPage() {
         !errorMsg.includes('asynchronous response') &&
         !errorMsg.includes('channel closed')
       ) {
-        alert(`❌ Error: ${err.message}`)
+        alert(`[ERROR] Error: ${err.message}`)
       }
     } finally {
       setControlLoading(false)
@@ -487,7 +555,7 @@ export default function ProcessingMonitorPage() {
                 opacity: loading ? 0.6 : 1
               }}
             >
-              {loading ? '⏳ Refreshing...' : '🔄 Refresh'}
+              {loading ? '[PROCESSING] Refreshing...' : '[REFRESH] Refresh'}
             </button>
             <div
               className="card"
@@ -696,7 +764,7 @@ export default function ProcessingMonitorPage() {
                 opacity: watcherStatus === 'running' || controlLoading ? 0.6 : 1
               }}
             >
-              {controlLoading ? '⏳ Processing...' : watcherStatus === 'running' ? '✅ Watcher Running' : '▶️ Start Watcher'}
+              {controlLoading ? '[PROCESSING] Processing...' : watcherStatus === 'running' ? '[OK] Watcher Running' : '[START] Start Watcher'}
             </button>
             <button
               onClick={() => controlAction('stop_watcher')}
@@ -713,7 +781,7 @@ export default function ProcessingMonitorPage() {
                 opacity: watcherStatus === 'stopped' || controlLoading ? 0.6 : 1
               }}
             >
-              {controlLoading ? '⏳ Processing...' : watcherStatus === 'stopped' ? '⏹️ Watcher Stopped' : '⏹️ Stop Watcher'}
+              {controlLoading ? '[PROCESSING] Processing...' : watcherStatus === 'stopped' ? '[STOP] Watcher Stopped' : '[STOP] Stop Watcher'}
             </button>
             <button
               onClick={() => controlAction('process_pending')}
@@ -730,7 +798,7 @@ export default function ProcessingMonitorPage() {
                 opacity: controlLoading ? 0.6 : 1
               }}
             >
-              {controlLoading ? '⏳ Processing...' : '🔄 Process Pending Files'}
+              {controlLoading ? '[PROCESSING] Processing...' : '[PROCESS] Process Pending Files'}
             </button>
           </div>
         </div>

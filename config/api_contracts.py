@@ -37,7 +37,7 @@ class HealthComponent(TypedDict):
 class HealthResponse(TypedDict):
     """Contract for /api/system/health response"""
     status: str
-    components: Dict[str, str]  # flask, ollama, supabase, tunnel, model_manager, watcher
+    components: Dict[str, str]  # flask, ollama, supabase, tunnel, watcher
     service: str
     urls: Optional[Dict[str, str]]
     timestamp: str
@@ -101,7 +101,7 @@ def validate_progress_response(data: dict) -> ProgressResponse:
 
 def validate_health_response(data: dict) -> HealthResponse:
     """Validate and normalize health response"""
-    required_components = ['flask', 'ollama', 'supabase', 'tunnel', 'model_manager', 'watcher']
+    required_components = ['flask', 'ollama', 'supabase', 'tunnel', 'watcher']
     
     if 'components' not in data:
         data['components'] = {}

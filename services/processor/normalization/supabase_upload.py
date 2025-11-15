@@ -31,15 +31,16 @@ def init_supabase() -> Optional[Client]:
         return None
     
     supabase_url = Config.SUPABASE_URL
-    # Check both SUPABASE_ANON_KEY and NEXT_PUBLIC_SUPABASE_ANON_KEY for compatibility
-    supabase_key = Config.SUPABASE_ANON_KEY
+    # Use SERVICE_ROLE_KEY if available (for admin operations), fallback to ANON_KEY
+    # This matches the logic in supabase_client.py for consistency
+    supabase_key = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_ANON_KEY
     
     if not supabase_url:
         logging.warning("SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL environment variable not set - Supabase uploads will be skipped (set SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
         return None
     
     if not supabase_key:
-        logging.warning("SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable not set - Supabase uploads will be skipped (set SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
+        logging.warning("SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY) environment variable not set - Supabase uploads will be skipped (set SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
         return None
     
     try:
@@ -49,7 +50,7 @@ def init_supabase() -> Optional[Client]:
     except Exception as e:
         logging.error(f"Failed to initialize Supabase client: {e}", exc_info=True)
         logging.error(f"  SUPABASE_URL: {'set' if supabase_url else 'not set'}")
-        logging.error(f"  SUPABASE_ANON_KEY: {'set' if supabase_key else 'not set'}")
+        logging.error(f"  SUPABASE_KEY: {'set' if supabase_key else 'not set'} (checked SERVICE_ROLE_KEY and ANON_KEY)")
         # Return None for optional Supabase - caller should handle offline mode
         return None
 
@@ -120,7 +121,7 @@ def upload_to_supabase(
         logging.debug("Supabase client not provided, attempting to initialize...")
         supabase = init_supabase()
         if not supabase:
-            logging.warning("Supabase not configured - skipping upload (check SUPABASE_URL and SUPABASE_ANON_KEY environment variables)")
+            logging.warning("Supabase not configured - skipping upload (check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY environment variables)")
             return None
     
     if not records:

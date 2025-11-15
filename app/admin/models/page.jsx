@@ -41,8 +41,10 @@ export default function ModelAnalytics() {
         fetch('/api/system/health', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/system/events', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/models/info', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch('/api/system/progress', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch('/api/monitor/processing', { cache: 'no-store' }).catch(() => ({ ok: false }))
+        // Add timestamp to prevent caching
+        const timestamp = Date.now()
+        fetch(`/api/system/progress?t=${timestamp}`, { cache: 'no-store' }).catch(() => ({ ok: false })),
+        fetch(`/api/monitor/processing?t=${timestamp}`, { cache: 'no-store' }).catch(() => ({ ok: false }))
       ])
 
       // Process learning stats

@@ -55,23 +55,31 @@ class Config:
     PROCESSOR_SERVICE = "VOFC-Processor"
     OLLAMA_SERVICE = "VOFC-Ollama"
     TUNNEL_SERVICE = "VOFC-Tunnel"
-    MODEL_MANAGER_SERVICE = "VOFC-ModelManager"
     
     # Service name variants (for compatibility)
     SERVICE_VARIANTS = {
         'flask': ['vofc-flask', 'VOFC-Flask', 'PSA-Flask'],
         'processor': ['VOFC-Processor', 'vofc-processor', 'PSA-Processor'],
         'ollama': ['VOFC-Ollama', 'vofc-ollama'],
-        'tunnel': ['VOFC-Tunnel', 'vofc-tunnel'],
-        'model_manager': ['VOFC-ModelManager', 'vofc-modelmanager']
+        'tunnel': ['VOFC-Tunnel', 'vofc-tunnel']
     }
     
     # ============================================================
     # API CONFIGURATION
     # ============================================================
     
-    FLASK_PORT = int(os.getenv("FLASK_PORT", "8080"))
-    OLLAMA_PORT = int(os.getenv("OLLAMA_PORT", "11434"))
+    # Parse FLASK_PORT - handle case where NSSM sets it as space-separated string
+    _flask_port_raw = os.getenv("FLASK_PORT", "8080")
+    # If it contains spaces (NSSM format issue), take first value
+    if isinstance(_flask_port_raw, str) and ' ' in _flask_port_raw:
+        _flask_port_raw = _flask_port_raw.split()[0]
+    FLASK_PORT = int(_flask_port_raw)
+    
+    # Parse OLLAMA_PORT - handle case where NSSM sets it as space-separated string
+    _ollama_port_raw = os.getenv("OLLAMA_PORT", "11434")
+    if isinstance(_ollama_port_raw, str) and ' ' in _ollama_port_raw:
+        _ollama_port_raw = _ollama_port_raw.split()[0]
+    OLLAMA_PORT = int(_ollama_port_raw)
     
     # Flask URL resolution (handled by server-utils.js in Next.js)
     # This is for reference only - actual resolution happens in frontend
@@ -133,6 +141,7 @@ class Config:
     # ============================================================
     
     ENABLE_AI_ENHANCEMENT = os.getenv("ENABLE_AI_ENHANCEMENT", "false").lower() == "true"
+    ENABLE_TEXT_ENHANCEMENT = os.getenv("ENABLE_TEXT_ENHANCEMENT", "false").lower() == "true"
     CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.3"))
     SUBMITTER_EMAIL = os.getenv("SUBMITTER_EMAIL")
     
@@ -180,8 +189,8 @@ class Config:
             logger.info("Supabase offline mode enabled - Supabase features will be disabled")
         elif not cls.SUPABASE_URL:
             warnings.append("SUPABASE_URL not set - Supabase features will be disabled (use SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
-        elif not cls.SUPABASE_ANON_KEY:
-            warnings.append("SUPABASE_ANON_KEY not set - Supabase features will be disabled (use SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
+        elif not cls.SUPABASE_SERVICE_ROLE_KEY and not cls.SUPABASE_ANON_KEY:
+            warnings.append("Neither SUPABASE_SERVICE_ROLE_KEY nor SUPABASE_ANON_KEY is set - Supabase features will be disabled (use SUPABASE_OFFLINE_MODE=true to explicitly enable offline mode)")
         
         # Validate Analytics configuration
         if cls.ANALYTICS_OFFLINE_MODE:
@@ -222,7 +231,7 @@ class Config:
         Tries variants until one is found.
         
         Args:
-            service_type: One of 'flask', 'processor', 'ollama', 'tunnel', 'model_manager'
+            service_type: One of 'flask', 'processor', 'ollama', 'tunnel'
         
         Returns:
             Service name if found, None otherwise

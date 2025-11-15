@@ -152,9 +152,9 @@ except Exception as e:
 
 supabase = init_supabase()
 if supabase:
-    logger.info("✓ Supabase client initialized")
+    logger.info("[OK] Supabase client initialized")
 else:
-    logger.warning("⚠ Supabase not configured - uploads will be skipped")
+    logger.warning("[WARN] Supabase not configured - uploads will be skipped")
 
 
 # ==========================================================
@@ -212,14 +212,14 @@ def process_pdf_file(pdf_path: str) -> bool:
         min_records_for_library = Config.MIN_RECORDS_FOR_LIBRARY
         
         if record_count == 0:
-            logger.warning(f"⚠️  No records extracted from {pdf_path_obj.name}")
+            logger.warning(f"[WARN] No records extracted from {pdf_path_obj.name}")
             logger.info("File will remain in incoming for reprocessing (model learning)")
             logger.info("JSON results saved - file can be reprocessed to improve extraction")
             # Don't move file - keep in incoming for reprocessing
             return True  # Return True since processing completed (even with 0 records)
         
-        logger.info(f"✓ Extracted {record_count} records")
-        logger.info(f"✓ Saved JSON to: {output_path}")
+        logger.info(f"[OK] Extracted {record_count} records")
+        logger.info(f"[OK] Saved JSON to: {output_path}")
         # Flush logs after saving JSON
         for handler in logger.handlers:
             if isinstance(handler, logging.FileHandler):
@@ -231,7 +231,7 @@ def process_pdf_file(pdf_path: str) -> bool:
         os.makedirs(review_dir, exist_ok=True)
         review_path = os.path.join(review_dir, f"{base_name}_vofc.json")
         shutil.copy2(output_path, review_path)
-        logger.info(f"✓ Copied to review: {review_path}")
+        logger.info(f"[OK] Copied to review: {review_path}")
         
         # Step 3: Upload to Supabase (optional)
         logger.info("[3/4] Uploading to Supabase...")
@@ -242,27 +242,27 @@ def process_pdf_file(pdf_path: str) -> bool:
                 supabase=supabase
             )
             if submission_id:
-                logger.info(f"✓ Uploaded to Supabase (submission_id={submission_id})")
+                logger.info(f"[OK] Uploaded to Supabase (submission_id={submission_id})")
             else:
                 # Check why upload failed
                 if not supabase:
-                    logger.warning("⚠️  Supabase upload skipped: Supabase client not initialized (check SUPABASE_URL and SUPABASE_ANON_KEY environment variables)")
+                    logger.warning("[WARN] Supabase upload skipped: Supabase client not initialized (check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY environment variables)")
                 elif not records:
-                    logger.warning("⚠️  Supabase upload skipped: No records to upload")
+                    logger.warning("[WARN] Supabase upload skipped: No records to upload")
                 else:
-                    logger.warning("⚠️  Supabase upload failed: Check logs above for details")
+                    logger.warning("[WARN] Supabase upload failed: Check logs above for details")
         except ServiceError as upload_error:
             # ServiceError from upload_to_supabase - log but don't fail processing
-            logger.error(f"⚠️  Supabase upload error: {upload_error}", exc_info=True)
+            logger.error(f"[ERROR] Supabase upload error: {upload_error}", exc_info=True)
         except Exception as e:
-            logger.error(f"⚠️  Unexpected Supabase upload error: {e}", exc_info=True)
+            logger.error(f"[ERROR] Unexpected Supabase upload error: {e}", exc_info=True)
         
         # Step 4: Move PDF to library (always move after successful processing, unless 0 records)
         # Only keep files with 0 records in incoming for reprocessing/learning
         if record_count == 0:
             logger.info(f"[4/4] Keeping file in incoming for reprocessing (0 records extracted)")
             logger.info("File will be reprocessed on next cycle to improve extraction quality")
-            logger.info(f"✅ Completed processing: {pdf_path_obj.name} (kept in incoming for learning)")
+            logger.info(f"[OK] Completed processing: {pdf_path_obj.name} (kept in incoming for learning)")
             return True
         
         # For files with records, always move to library after successful processing
@@ -289,7 +289,7 @@ def process_pdf_file(pdf_path: str) -> bool:
             
             # Verify move succeeded
             if os.path.exists(dest) and not pdf_path_obj.exists():
-                logger.info(f"✓ Moved to library: {os.path.basename(dest)}")
+                logger.info(f"[OK] Moved to library: {os.path.basename(dest)}")
                 moved_successfully = True
             else:
                 raise Exception(f"Move verification failed: dest exists={os.path.exists(dest)}, source exists={pdf_path_obj.exists()}")
@@ -315,7 +315,7 @@ def process_pdf_file(pdf_path: str) -> bool:
                         os.remove(str(pdf_path))
                         # Verify source was removed
                         if not pdf_path_obj.exists():
-                            logger.info(f"✓ Moved to library (via copy+delete): {os.path.basename(dest)}")
+                            logger.info(f"[OK] Moved to library (via copy+delete): {os.path.basename(dest)}")
                             moved_successfully = True
                         else:
                             raise FileOperationError("Source file still exists after copy+delete")
@@ -325,20 +325,20 @@ def process_pdf_file(pdf_path: str) -> bool:
                     raise FileOperationError("Destination file does not exist after copy")
                     
             except (PermissionError, OSError) as copy_error:
-                logger.error(f"✗ Copy fallback also failed: {copy_error}", exc_info=True)
+                logger.error(f"[ERROR] Copy fallback also failed: {copy_error}", exc_info=True)
                 raise FileOperationError(f"Failed to move file from incoming to library: {move_error}") from move_error
             except Exception as e:
-                logger.error(f"✗ Unexpected error during copy fallback: {e}", exc_info=True)
+                logger.error(f"[ERROR] Unexpected error during copy fallback: {e}", exc_info=True)
                 raise FileOperationError(f"Unexpected error during file move: {e}") from e
         except Exception as e:
-            logger.error(f"✗ Unexpected error during file move: {e}", exc_info=True)
+            logger.error(f"[ERROR] Unexpected error during file move: {e}", exc_info=True)
             raise FileOperationError(f"Unexpected error moving file: {e}") from e
         
         # Final verification - if move didn't succeed, raise error
         if not moved_successfully:
             raise FileOperationError("File move verification failed - file may still be in incoming directory")
         
-        logger.info(f"✅ Completed: {pdf_path_obj.name}")
+        logger.info(f"[OK] Completed: {pdf_path_obj.name}")
         # Flush logs after completion
         for handler in logger.handlers:
             if isinstance(handler, logging.FileHandler):
@@ -347,7 +347,7 @@ def process_pdf_file(pdf_path: str) -> bool:
         
     except (ServiceError, FileOperationError, DependencyError) as e:
         # Re-raise domain-specific errors as-is
-        logger.error(f"✗ Error processing {pdf_path_obj.name}: {e}", exc_info=True)
+        logger.error(f"[ERROR] Error processing {pdf_path_obj.name}: {e}", exc_info=True)
         # Move failed file to temp for manual review
         error_dest = os.path.join(TEMP_DIR, "errors", f"{base_name}_error_{int(time.time())}.pdf")
         try:
@@ -358,7 +358,7 @@ def process_pdf_file(pdf_path: str) -> bool:
             logger.error(f"Failed to move error file: {move_err}", exc_info=True)
         raise
     except Exception as e:
-        logger.error(f"✗ Unexpected error processing {pdf_path_obj.name}: {e}", exc_info=True)
+        logger.error(f"[ERROR] Unexpected error processing {pdf_path_obj.name}: {e}", exc_info=True)
         # Move failed file to temp for manual review
         error_dest = os.path.join(TEMP_DIR, "errors", f"{base_name}_error_{int(time.time())}.pdf")
         os.makedirs(os.path.dirname(error_dest), exist_ok=True)
@@ -389,6 +389,22 @@ def process_all_pdfs():
     fail_count = 0
     skipped_count = 0
     
+    # Track retry attempts for files (to prevent infinite retry loops)
+    retry_tracking_file = os.path.join(DATA_DIR, "temp", "processing_retries.json")
+    os.makedirs(os.path.dirname(retry_tracking_file), exist_ok=True)
+    
+    # Load retry tracking
+    retry_counts = {}
+    if os.path.exists(retry_tracking_file):
+        try:
+            with open(retry_tracking_file, "r", encoding="utf-8") as f:
+                retry_counts = json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load retry tracking: {e}")
+            retry_counts = {}
+    
+    MAX_RETRIES = 10  # Maximum retries before moving to errors
+    
     for file in pdf_files:
         pdf_path = os.path.join(INCOMING_DIR, file)
         
@@ -396,18 +412,60 @@ def process_all_pdfs():
         if not os.path.exists(pdf_path):
             logger.debug(f"Skipping {file} - file no longer exists")
             skipped_count += 1
+            # Clean up retry tracking for moved files
+            if file in retry_counts:
+                del retry_counts[file]
             continue
+        
+        # Check retry count - if exceeded, move to errors
+        retry_count = retry_counts.get(file, 0)
+        if retry_count >= MAX_RETRIES:
+            logger.error(f"[ERROR] File {file} has exceeded {MAX_RETRIES} retry attempts - moving to errors")
+            error_dest = os.path.join(TEMP_DIR, "errors", f"{Path(file).stem}_max_retries_{int(time.time())}.pdf")
+            try:
+                os.makedirs(os.path.dirname(error_dest), exist_ok=True)
+                shutil.move(pdf_path, error_dest)
+                logger.info(f"Moved to errors: {error_dest}")
+                # Remove from retry tracking
+                if file in retry_counts:
+                    del retry_counts[file]
+                fail_count += 1
+                continue
+            except Exception as move_err:
+                logger.error(f"Failed to move max-retry file: {move_err}", exc_info=True)
+                # Continue processing anyway - maybe this time it will work
         
         # Note: We process files even if they exist in library
         # This allows reprocessing for iterative learning/improvement
         
-        if process_pdf_file(pdf_path):
-            success_count += 1
-        else:
+        try:
+            if process_pdf_file(pdf_path):
+                success_count += 1
+                # Clear retry count on success
+                if file in retry_counts:
+                    del retry_counts[file]
+            else:
+                fail_count += 1
+                # Increment retry count
+                retry_counts[file] = retry_count + 1
+                logger.warning(f"[WARN] Processing failed for {file} (retry {retry_counts[file]}/{MAX_RETRIES})")
+        except Exception as e:
             fail_count += 1
+            # Increment retry count on exception
+            retry_counts[file] = retry_count + 1
+            logger.error(f"[ERROR] Exception processing {file} (retry {retry_counts[file]}/{MAX_RETRIES}): {e}", exc_info=True)
+    
+    # Save retry tracking
+    try:
+        with open(retry_tracking_file, "w", encoding="utf-8") as f:
+            json.dump(retry_counts, f, indent=2)
+    except Exception as e:
+        logger.warning(f"Could not save retry tracking: {e}")
     
     logger.info("=" * 60)
     logger.info(f"Processing cycle complete: {success_count} succeeded, {fail_count} failed, {skipped_count} skipped")
+    if retry_counts:
+        logger.info(f"Files with retry counts: {len(retry_counts)}")
     logger.info("=" * 60)
 
 
@@ -445,7 +503,7 @@ class PDFFileHandler(FileSystemEventHandler):
                 return
             self.processed_files.add(file_key)
         
-        logger.info(f"🚀 NEW FILE DETECTED: {file_path.name} - Processing immediately...")
+        logger.info(f"[NEW FILE] {file_path.name} - Processing immediately...")
         
         # Process in background thread to avoid blocking watcher
         def process_file():
@@ -476,9 +534,9 @@ class PDFFileHandler(FileSystemEventHandler):
                 
                 # Process the file
                 if process_pdf_file(str(file_path)):
-                    logger.info(f"✅ Successfully processed {file_path.name}")
+                    logger.info(f"[OK] Successfully processed {file_path.name}")
                 else:
-                    logger.warning(f"⚠️  Processing failed for {file_path.name}")
+                    logger.warning(f"[WARN] Processing failed for {file_path.name}")
             except (ServiceError, FileOperationError, DependencyError) as e:
                 # Re-raise domain-specific errors
                 logger.error(f"Error processing {file_path.name}: {e}", exc_info=True)
@@ -492,7 +550,9 @@ class PDFFileHandler(FileSystemEventHandler):
                     self.processed_files.discard(file_key)
         
         # Start processing in background thread
-        thread = threading.Thread(target=process_file, daemon=True)
+        # Use explicit daemon parameter to avoid Python 3.13 compatibility issues
+        thread = threading.Thread(target=process_file)
+        thread.daemon = True
         thread.start()
 
 
@@ -525,7 +585,7 @@ def run_service_loop():
                 logger.error(f"Incoming directory does not exist: {INCOMING_DIR}")
                 logger.warning("Falling back to polling mode...")
             else:
-                logger.info(f"✓ Incoming directory exists: {INCOMING_DIR}")
+                logger.info(f"[OK] Incoming directory exists: {INCOMING_DIR}")
                 
                 # Create event handler
                 event_handler = PDFFileHandler()
@@ -533,10 +593,24 @@ def run_service_loop():
                 # Create observer
                 observer = Observer()
                 observer.schedule(event_handler, str(INCOMING_DIR), recursive=False)
-                observer.start()
-                
-                logger.info("✅ File system watcher started - ready for immediate processing")
-                logger.info(f"Watching for new PDF files in: {INCOMING_DIR}")
+                try:
+                    observer.start()
+                    logger.info("File system watcher started - ready for immediate processing")
+                    logger.info(f"Watching for new PDF files in: {INCOMING_DIR}")
+                except TypeError as e:
+                    # Python 3.13 compatibility issue with watchdog 3.0.0
+                    if "'handle' must be a _ThreadHandle" in str(e) or "handle" in str(e).lower():
+                        logger.error(f"Watchdog incompatible with Python 3.13: {e}")
+                        logger.warning("Falling back to polling mode (more reliable)")
+                        try:
+                            observer.stop()
+                            observer.join(timeout=1)
+                        except:
+                            pass
+                        # Force fallback to polling mode
+                        raise Exception("Watchdog incompatible - forcing polling mode")
+                    else:
+                        raise  # Re-raise other TypeError exceptions
                 
                 # Keep service running
                 try:
@@ -553,17 +627,19 @@ def run_service_loop():
                             last_heartbeat = current_time
                         
                         # Periodically check for existing files that weren't processed
-                        if current_time - last_existing_check >= existing_check_interval:
+                        # REDUCED INTERVAL: Check every 60 seconds (was 300) to catch stuck files faster
+                        if current_time - last_existing_check >= 60:
                             logger.info("Checking for unprocessed files in incoming directory...")
                             try:
                                 process_all_pdfs()
                             except (ServiceError, FileOperationError, DependencyError) as e:
-                                # Re-raise domain-specific errors
+                                # Log but don't re-raise - allow service to continue
                                 logger.error(f"Error processing existing files: {e}", exc_info=True)
-                                raise
+                                logger.warning("Service will continue and retry on next check")
                             except Exception as e:
+                                # Log but don't re-raise - allow service to continue
                                 logger.error(f"Unexpected error processing existing files: {e}", exc_info=True)
-                                raise ServiceError(f"Unexpected error processing existing files: {e}") from e
+                                logger.warning("Service will continue and retry on next check")
                             last_existing_check = current_time
                 except KeyboardInterrupt:
                     logger.info("Service interrupted by user")
@@ -581,12 +657,17 @@ def run_service_loop():
             # Re-raise KeyboardInterrupt
             raise
         except Exception as e:
-            logger.error(f"Unexpected error in file watcher: {e}", exc_info=True)
-            import traceback
-            logger.error(f"Traceback: {traceback.format_exc()}")
-            raise ServiceError(f"Unexpected error in file watcher: {e}") from e
-            logger.warning("Falling back to polling mode...")
-            # Fall through to polling mode
+            # Check if this is a watchdog compatibility error
+            error_str = str(e)
+            if "Watchdog incompatible" in error_str or "'handle' must be a _ThreadHandle" in error_str or "handle" in error_str.lower():
+                logger.warning("Watchdog failed due to Python 3.13 compatibility - falling back to polling mode")
+                # Don't re-raise - fall through to polling mode
+            else:
+                logger.error(f"Unexpected error in file watcher: {e}", exc_info=True)
+                import traceback
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                logger.warning("Falling back to polling mode...")
+                # Don't re-raise - fall through to polling mode
     else:
         logger.warning("Watchdog library not available - using polling mode")
         logger.warning("Install watchdog for immediate file processing: pip install watchdog")
@@ -615,14 +696,15 @@ def run_service_loop():
             logger.info("Service loop interrupted by user")
             break
         except (ServiceError, FileOperationError, DependencyError) as e:
-            # Re-raise domain-specific errors - don't retry
+            # Log but don't re-raise - allow service to continue
             logger.error(f"Error in service loop: {e}", exc_info=True)
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error in service loop: {e}", exc_info=True)
-            logger.info(f"Waiting {check_interval} seconds before retry...")
+            logger.warning("Service will continue and retry on next cycle")
             time.sleep(check_interval)
-            # Don't re-raise - allow retry for unexpected errors
+        except Exception as e:
+            # Log but don't re-raise - allow service to continue
+            logger.error(f"Unexpected error in service loop: {e}", exc_info=True)
+            logger.warning("Service will continue and retry on next cycle")
+            time.sleep(check_interval)
 
 
 if __name__ == "__main__":

@@ -41,9 +41,9 @@ if ($status -eq "SERVICE_PAUSED") {
     # Verify it's stopped
     $newStatus = & $nssmPath status $ServiceName
     if ($newStatus -eq "SERVICE_STOPPED") {
-        Write-Host "  ✓ Service stopped" -ForegroundColor Green
+        Write-Host "  [OK] Service stopped" -ForegroundColor Green
     } else {
-        Write-Host "  ⚠ Service status: $newStatus" -ForegroundColor Yellow
+        Write-Host "  [WARN] Service status: $newStatus" -ForegroundColor Yellow
         Write-Host "  Attempting to start anyway..." -ForegroundColor Yellow
     }
     Write-Host ""
@@ -54,7 +54,7 @@ Write-Host "Starting Flask service..." -ForegroundColor Yellow
 & $nssmPath start $ServiceName
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Start command sent" -ForegroundColor Green
+    Write-Host "  [OK] Start command sent" -ForegroundColor Green
     Write-Host ""
     Write-Host "Waiting 5 seconds for service to start..." -ForegroundColor Gray
     Start-Sleep -Seconds 5
@@ -65,7 +65,7 @@ if ($LASTEXITCODE -eq 0) {
     
     if ($finalStatus -eq "SERVICE_RUNNING") {
         Write-Host ""
-        Write-Host "✅ Flask service is running!" -ForegroundColor Green
+        Write-Host "[OK] Flask service is running!" -ForegroundColor Green
         
         # Restart tunnel
         Write-Host ""
@@ -74,17 +74,17 @@ if ($LASTEXITCODE -eq 0) {
         Start-Sleep -Seconds 2
         
         Write-Host ""
-        Write-Host "✅ All services started!" -ForegroundColor Green
+        Write-Host "[OK] All services started!" -ForegroundColor Green
         Write-Host ""
         Write-Host "Test with: curl http://localhost:8080/api/system/health" -ForegroundColor Cyan
     } else {
         Write-Host ""
-        Write-Host "⚠️  Service status: $finalStatus" -ForegroundColor Yellow
+        Write-Host "[WARN] Service status: $finalStatus" -ForegroundColor Yellow
         Write-Host "Check logs: C:\Tools\nssm\logs\vofc_flask_err.log" -ForegroundColor Yellow
     }
 } else {
     Write-Host ""
-    Write-Host "❌ Failed to start service" -ForegroundColor Red
+    Write-Host "[FAIL] Failed to start service" -ForegroundColor Red
     Write-Host "Check logs: C:\Tools\nssm\logs\vofc_flask_err.log" -ForegroundColor Yellow
     exit 1
 }

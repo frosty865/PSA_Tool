@@ -34,67 +34,111 @@ export async function GET(request) {
     } catch (fetchError) {
       clearTimeout(timeoutId);
       
-      // Handle specific connection errors
+      // BULLETPROOF: Always return valid response with heartbeat
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      
       if (fetchError.name === 'AbortError') {
         return NextResponse.json(
           { 
-            lines: [],
+            lines: [`${timestamp} | ERROR | [MONITOR] Request timeout - Flask server did not respond within 30 seconds`],
+            status: 'timeout',
             error: 'Request timeout',
             message: 'Flask server did not respond within 30 seconds'
           },
-          { status: 200 } // Return 200 with empty lines so frontend doesn't break
+          { status: 200 } // Return 200 with heartbeat so frontend doesn't break
         );
       }
       
       if (fetchError.code === 'ECONNREFUSED' || fetchError.message?.includes('ECONNREFUSED')) {
         return NextResponse.json(
           { 
-            lines: [],
+            lines: [`${timestamp} | ERROR | [MONITOR] Connection refused - Flask server is not running or not accessible`],
+            status: 'error',
             error: 'Connection refused',
             message: 'Flask server is not running or not accessible'
           },
-          { status: 200 } // Return 200 with empty lines so frontend doesn't break
+          { status: 200 } // Return 200 with heartbeat so frontend doesn't break
         );
       }
       
-      throw fetchError; // Re-throw other errors
+      // Other network errors - return heartbeat
+      return NextResponse.json(
+        { 
+          lines: [`${timestamp} | ERROR | [MONITOR] Network error: ${fetchError.message || 'Unknown error'}`],
+          status: 'error',
+          error: fetchError.message || 'Network error',
+          message: 'Failed to connect to Flask server'
+        },
+        { status: 200 }
+      );
     }
 
     // Forward the status code from Flask
     const status = response.status;
     
     if (!response.ok) {
+      // BULLETPROOF: Always return valid response with heartbeat
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      
       // Try to get error details from Flask
       let errorData = { lines: [], error: 'Flask server returned an error' };
       try {
         errorData = await response.json();
+        // If Flask returned lines, use them; otherwise create heartbeat
+        if (!errorData.lines || !Array.isArray(errorData.lines) || errorData.lines.length === 0) {
+          errorData.lines = [`${timestamp} | ERROR | [MONITOR] Flask server returned status ${status}: ${errorData.error || errorData.message || 'Unknown error'}`]
+        }
       } catch {
-        // If JSON parsing fails, use default error
+        // If JSON parsing fails, create heartbeat
+        errorData.lines = [`${timestamp} | ERROR | [MONITOR] Flask server returned status ${status} - unable to parse error response`]
       }
       
       return NextResponse.json(
         { 
-          lines: [],
+          lines: errorData.lines,
+          status: 'error',
           error: errorData.error || `Flask server returned status ${status}`,
           message: errorData.message || 'Unable to fetch logs'
         },
-        { status: 200 } // Return 200 with empty lines so frontend doesn't break
+        { status: 200 } // Return 200 with heartbeat so frontend doesn't break
       );
     }
 
     // Forward the JSON response from Flask
     const data = await response.json();
+    
+    // BULLETPROOF: Ensure we always return a valid response with lines array
+    if (!data.lines || !Array.isArray(data.lines)) {
+      console.warn('[Logs Proxy] Flask returned invalid data structure:', data);
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      return NextResponse.json({
+        lines: [`${timestamp} | ERROR | [MONITOR] Invalid response format from Flask - returned unexpected data structure`],
+        status: 'error',
+        error: 'Invalid response format from Flask',
+        message: 'Flask returned unexpected data structure'
+      }, { status: 200 });
+    }
+    
+    // BULLETPROOF: If Flask returned empty lines, add heartbeat
+    if (data.lines.length === 0) {
+      const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+      data.lines = [`${timestamp} | INFO | [MONITOR] No logs available yet - waiting for log entries...`]
+    }
+    
     return NextResponse.json(data, { status: 200 });
     
   } catch (error) {
+    // BULLETPROOF: Always return valid response, even on unexpected errors
     console.error('[Logs Proxy] Error:', error);
+    const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
     return NextResponse.json(
       { 
-        lines: [],
+        lines: [`${timestamp} | ERROR | [MONITOR] Failed to fetch logs: ${error.message || 'Unknown error'}`],
+        status: 'error',
         error: error.message || 'Unknown error',
         message: 'Failed to fetch logs from Flask server'
       },
-      { status: 200 } // Return 200 with empty lines so frontend doesn't break
+      { status: 200 } // Return 200 with heartbeat so frontend doesn't break
     );
   }
 }

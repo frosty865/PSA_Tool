@@ -408,17 +408,10 @@ def infer_sector_subsector(
                         else:
                             logger.warning(f"Education Facilities subsector '{subsector}' not found in Supabase")
                 
-                # If no education subsector found, try other subsectors
+                # NO FALLBACK: If no education subsector found, leave it empty (don't try other subsectors)
+                # Only use subsectors that are actually inferred from content
                 if not inferred_subsector:
-                    for subsector in subsectors:
-                        subsector_id = get_subsector_id(subsector, fuzzy=True)
-                        if subsector_id:
-                            # CRITICAL: Validate that this subsector actually belongs to the inferred sector
-                            if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
-                                inferred_subsector = subsector
-                                break
-                            else:
-                                logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
+                    logger.info(f"No subsector inferred from vulnerability patterns for sector '{best_match}' - leaving empty")
                 
                 logger.info(f"Inferred sector '{best_match}' from vulnerability pattern matching (score: {best_score})")
                 return best_match, inferred_subsector
@@ -489,24 +482,10 @@ def infer_sector_subsector(
                             else:
                                 logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
             
-            # If no specific subsector matched, try first one from list (but validate it exists AND belongs to sector)
-            # CRITICAL: If school keywords were detected, DO NOT fall back to Federal Facilities
-            # Only use fallback if no school keywords were detected
-            if not inferred_subsector and subsectors:
-                # Skip fallback if school keywords were detected - we don't want Federal Facilities for school docs
-                if not (best_match == "Government Facilities" and has_school_keywords):
-                    for subsector in subsectors:
-                        subsector_id = get_subsector_id(subsector, fuzzy=True)
-                        if subsector_id:
-                            # CRITICAL: Validate that this subsector actually belongs to the inferred sector
-                            if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
-                                inferred_subsector = subsector
-                                logger.info(f"Fallback: Using first available subsector '{subsector}' for sector '{best_match}'")
-                                break
-                            else:
-                                logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
-                else:
-                    logger.warning(f"School keywords detected but Education Facilities subsector not found - leaving subsector empty (not using Federal Facilities fallback)")
+            # NO FALLBACK: If no specific subsector matched, leave it empty (don't use first available)
+            # This ensures we only use subsectors that are actually inferred from content
+            if not inferred_subsector:
+                logger.info(f"No subsector inferred for sector '{best_match}' - leaving empty")
             
             return best_match, inferred_subsector
     

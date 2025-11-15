@@ -307,77 +307,76 @@ export default function SectorsPage() {
                 }}
               >
                 {/* Sector Header */}
-                <button
-                  onClick={() => toggleSector(sectorId)}
-                  style={{
-                    width: '100%',
-                    padding: 'var(--spacing-lg)',
-                    textAlign: 'left',
-                    backgroundColor: isGeneral ? 'var(--cisa-gray-lighter)' : 'var(--cisa-blue)',
-                    color: isGeneral ? 'var(--cisa-gray-dark)' : 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = isGeneral 
-                      ? 'var(--cisa-gray-light)' 
-                      : 'var(--cisa-blue-dark)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = isGeneral 
-                      ? 'var(--cisa-gray-lighter)' 
-                      : 'var(--cisa-blue)'
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <h2 style={{
-                      margin: 0,
-                      fontSize: 'var(--font-size-xl)',
-                      fontWeight: 600,
-                      marginBottom: sectorDesc ? 'var(--spacing-xs)' : 0
-                    }}>
-                      {sectorName}
-                      {isGeneral && (
-                        <span style={{
-                          marginLeft: 'var(--spacing-sm)',
-                          fontSize: 'var(--font-size-sm)',
-                          fontWeight: 400,
-                          opacity: 0.8
-                        }}>
-                          (Special Category)
-                        </span>
-                      )}
-                    </h2>
-                    {sectorDesc && (
-                      <p style={{
+                <div style={{
+                  backgroundColor: isGeneral ? 'var(--cisa-gray-lighter)' : 'var(--cisa-blue)',
+                  color: isGeneral ? 'var(--cisa-gray-dark)' : 'white',
+                  padding: 'var(--spacing-lg)',
+                  borderBottom: sectorDesc ? '1px solid rgba(255,255,255,0.2)' : 'none'
+                }}>
+                  <button
+                    onClick={() => toggleSector(sectorId)}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      backgroundColor: 'transparent',
+                      color: 'inherit',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: 0
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <h2 style={{
                         margin: 0,
+                        fontSize: 'var(--font-size-xl)',
+                        fontWeight: 600,
+                        marginBottom: 'var(--spacing-xs)'
+                      }}>
+                        {sectorName}
+                        {isGeneral && (
+                          <span style={{
+                            marginLeft: 'var(--spacing-sm)',
+                            fontSize: 'var(--font-size-sm)',
+                            fontWeight: 400,
+                            opacity: 0.9
+                          }}>
+                            (Special Category)
+                          </span>
+                        )}
+                      </h2>
+                      <div style={{
                         fontSize: 'var(--font-size-sm)',
-                        opacity: isGeneral ? 0.8 : 0.9,
+                        opacity: 0.95,
                         fontWeight: 400
                       }}>
-                        {sectorDesc}
-                      </p>
-                    )}
-                    <div style={{
-                      marginTop: 'var(--spacing-xs)',
-                      fontSize: 'var(--font-size-xs)',
-                      opacity: 0.8
-                    }}>
-                      {subsectorCount} {subsectorCount === 1 ? 'subsector' : 'subsectors'}
+                        {subsectorCount} {subsectorCount === 1 ? 'subsector' : 'subsectors'}
+                      </div>
                     </div>
-                  </div>
-                  <div style={{
-                    fontSize: 'var(--font-size-xl)',
-                    fontWeight: 600,
-                    marginLeft: 'var(--spacing-md)'
-                  }}>
-                    {isExpanded ? '▼' : '▶'}
-                  </div>
-                </button>
+                    <div style={{
+                      fontSize: 'var(--font-size-xl)',
+                      fontWeight: 600,
+                      marginLeft: 'var(--spacing-md)'
+                    }}>
+                      {isExpanded ? '▼' : '▶'}
+                    </div>
+                  </button>
+                  {sectorDesc && (
+                    <div style={{
+                      marginTop: 'var(--spacing-md)',
+                      paddingTop: 'var(--spacing-md)',
+                      borderTop: '1px solid rgba(255,255,255,0.2)',
+                      fontSize: 'var(--font-size-base)',
+                      lineHeight: '1.6',
+                      color: isGeneral ? 'var(--cisa-gray-dark)' : 'rgba(255,255,255,0.95)',
+                      fontWeight: 400
+                    }}>
+                      {sectorDesc}
+                    </div>
+                  )}
+                </div>
 
                 {/* Subsectors List */}
                 {isExpanded && (
@@ -401,35 +400,48 @@ export default function SectorsPage() {
                         gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                         gap: 'var(--spacing-sm)'
                       }}>
-                        {subsectors.map(subsector => (
-                          <div
-                            key={subsector.id}
-                            style={{
-                              padding: 'var(--spacing-sm) var(--spacing-md)',
-                              backgroundColor: 'white',
-                              borderRadius: 'var(--border-radius)',
-                              border: '1px solid var(--cisa-gray-light)'
-                            }}
-                          >
-                            <div style={{
-                              fontWeight: 600,
-                              fontSize: 'var(--font-size-sm)',
-                              color: 'var(--cisa-blue)',
-                              marginBottom: subsector.description ? 'var(--spacing-xs)' : 0
-                            }}>
-                              {subsector.name}
-                            </div>
-                            {subsector.description && (
+                        {subsectors.map(subsector => {
+                          // Generate a helpful description if none exists
+                          const subsectorName = subsector.name || 'Unknown Subsector'
+                          const subsectorDesc = subsector.description || 
+                            `A subsector within the ${sectorName} sector. This category represents a specific area or type of infrastructure within the broader sector classification.`
+                          
+                          return (
+                            <div
+                              key={subsector.id}
+                              style={{
+                                padding: 'var(--spacing-md)',
+                                backgroundColor: 'white',
+                                borderRadius: 'var(--border-radius)',
+                                border: '1px solid var(--cisa-gray-light)',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                transition: 'box-shadow 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                              }}
+                            >
                               <div style={{
-                                fontSize: 'var(--font-size-xs)',
-                                color: 'var(--cisa-gray)',
-                                lineHeight: '1.4'
+                                fontWeight: 600,
+                                fontSize: 'var(--font-size-base)',
+                                color: 'var(--cisa-blue)',
+                                marginBottom: 'var(--spacing-sm)'
                               }}>
-                                {subsector.description}
+                                {subsectorName}
                               </div>
-                            )}
-                          </div>
-                        ))}
+                              <div style={{
+                                fontSize: 'var(--font-size-sm)',
+                                color: 'var(--cisa-gray-dark)',
+                                lineHeight: '1.6'
+                              }}>
+                                {subsectorDesc}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                   </div>

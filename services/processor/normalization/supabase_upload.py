@@ -8,6 +8,7 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 from config.exceptions import ServiceError, ConfigurationError
+from config import Config
 
 try:
     from supabase import create_client, Client

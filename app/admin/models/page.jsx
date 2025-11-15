@@ -36,13 +36,13 @@ export default function ModelAnalytics() {
       setError(null)
       
       // Fetch all data in parallel
+      // Add timestamp to prevent caching
+      const timestamp = Date.now()
       const [learnRes, healthRes, eventsRes, modelRes, progressRes, monitorRes] = await Promise.all([
         fetch('/api/learning/stats?limit=50', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/system/health', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/system/events', { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch('/api/models/info', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        // Add timestamp to prevent caching
-        const timestamp = Date.now()
         fetch(`/api/system/progress?t=${timestamp}`, { cache: 'no-store' }).catch(() => ({ ok: false })),
         fetch(`/api/monitor/processing?t=${timestamp}`, { cache: 'no-store' }).catch(() => ({ ok: false }))
       ])

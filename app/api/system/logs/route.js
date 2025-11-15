@@ -20,6 +20,9 @@ export const revalidate = 0;
 // Explicitly set runtime to nodejs (required for Vercel)
 export const runtime = 'nodejs';
 
+// Ensure route is not statically generated
+export const fetchCache = 'force-no-store';
+
 export async function GET(request) {
   try {
     // Validate FLASK_URL is available

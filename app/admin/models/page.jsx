@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Loader2, RefreshCw } from 'lucide-react'
 import RoleGate from '@/components/RoleGate'
+import { useStatus } from '@/components/StatusProvider'
 import '@/styles/cisa.css'
 
 // Add spin animation for refresh button
@@ -20,124 +21,36 @@ if (typeof document !== 'undefined') {
 }
 
 export default function ModelAnalytics() {
-  const [stats, setStats] = useState([])
-  const [health, setHealth] = useState(null)
-  const [events, setEvents] = useState([])
-  const [modelInfo, setModelInfo] = useState(null)
-  const [progress, setProgress] = useState(null)
-  const [monitoring, setMonitoring] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // Use preloaded status from context
+  const {
+    health,
+    progress,
+    monitoring,
+    events,
+    learningStats: stats,
+    modelInfo,
+    healthLoading,
+    progressLoading,
+    monitoringLoading,
+    eventsLoading,
+    learningStatsLoading,
+    modelInfoLoading,
+    lastRefresh,
+    refreshAll
+  } = useStatus()
+  
   const [error, setError] = useState(null)
-  const [lastRefresh, setLastRefresh] = useState(null)
+  
+  // Determine if any data is still loading
+  const loading = healthLoading || progressLoading || monitoringLoading || eventsLoading || learningStatsLoading || modelInfoLoading
 
   const fetchData = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      // Fetch all data in parallel
-      // Add timestamp to prevent caching
-      const timestamp = Date.now()
-      const [learnRes, healthRes, eventsRes, modelRes, progressRes, monitorRes] = await Promise.all([
-        fetch('/api/learning/stats?limit=50', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch('/api/system/health', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch('/api/system/events', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch('/api/models/info', { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch(`/api/system/progress?t=${timestamp}`, { cache: 'no-store' }).catch(() => ({ ok: false })),
-        fetch(`/api/monitor/processing?t=${timestamp}`, { cache: 'no-store' }).catch(() => ({ ok: false }))
-      ])
-
-      // Process learning stats
-      if (learnRes.ok) {
-        const learnData = await learnRes.json()
-        const statsArray = Array.isArray(learnData) ? learnData : (learnData.stats || [])
-        setStats(statsArray)
-      } else {
-        setStats([])
-      }
-
-      // Process health
-      if (healthRes.ok) {
-        const healthData = await healthRes.json()
-        // Normalize health status - Flask returns "ok" or "online", normalize to "ok"
-        const normalizedHealth = {
-          ...healthData,
-          flask: healthData.flask === 'ok' || healthData.flask === 'online' ? 'ok' : 'offline',
-          ollama: healthData.ollama === 'ok' || healthData.ollama === 'online' ? 'ok' : 'offline',
-          supabase: healthData.supabase === 'ok' || healthData.supabase === 'online' ? 'ok' : 'offline',
-        }
-        setHealth(normalizedHealth)
-      } else {
-        setHealth(null)
-      }
-
-      // Process events
-      if (eventsRes.ok) {
-        const eventsData = await eventsRes.json()
-        setEvents(Array.isArray(eventsData) ? eventsData : [])
-      } else {
-        setEvents([])
-      }
-
-      // Process model info
-      if (modelRes.ok) {
-        const modelData = await modelRes.json()
-        setModelInfo(modelData)
-      } else {
-        setModelInfo(null)
-      }
-
-      // Process progress
-      if (progressRes.ok) {
-        const progressData = await progressRes.json()
-        setProgress(progressData)
-      } else {
-        setProgress(null)
-      }
-
-      // Process monitoring data
-      if (monitorRes.ok) {
-        const monitorData = await monitorRes.json()
-        setMonitoring(monitorData.monitoring || null)
-      } else {
-        setMonitoring(null)
-      }
-
-      setLastRefresh(new Date())
-    } catch (err) {
-      console.error('Error fetching model analytics:', err)
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    // Use the refresh function from context
+    refreshAll()
   }
 
-  useEffect(() => {
-    // Initialize lastRefresh on client side only
-    if (!lastRefresh) {
-      setLastRefresh(new Date())
-    }
-    
-    let isMounted = true
-    const fetchDataSafe = async () => {
-      if (!isMounted) return
-      await fetchData()
-    }
-    
-    fetchDataSafe()
-    // Auto-refresh every 60 seconds
-    const interval = setInterval(() => {
-      if (isMounted) {
-        fetchDataSafe()
-      }
-    }, 60000)
-    
-    return () => {
-      isMounted = false
-      clearInterval(interval)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // Data is preloaded by StatusProvider - no need to fetch on mount
+  // StatusProvider automatically refreshes every 30 seconds
 
   // Format timestamp for display (EST/EDT)
   const formatTimestamp = (timestamp) => {

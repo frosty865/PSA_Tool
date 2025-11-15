@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchWithAuth } from '../lib/fetchWithAuth'
+import { useStatus } from '@/components/StatusProvider'
 import '@/styles/cisa.css'
 import Link from 'next/link'
 
@@ -10,42 +11,21 @@ export default function AdminOverviewPage() {
   const router = useRouter()
   const [stats, setStats] = useState([])
   const [soft, setSoft] = useState([])
-  const [system, setSystem] = useState({ flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' })
   const [pendingReviewCount, setPendingReviewCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [lastRefresh, setLastRefresh] = useState(null)
-  const [progress, setProgress] = useState(null)
+  
+  // Use preloaded status from context
+  const { health, progress, healthLoading, progressLoading, refreshHealth } = useStatus()
+  
+  // Extract system components from health, with fallback
+  const system = health?.components || { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' }
+  const lastRefresh = health?.lastRefresh || progress?.lastRefresh || null
 
-  // System health checker - uses Next.js API route proxy to avoid CORS issues
-  // Manual refresh function (for button clicks)
+  // Manual refresh function (for button clicks) - uses context refresh
   const fetchSystemHealth = useCallback(async () => {
-    try {
-      const res = await fetch('/api/system/health', { 
-        cache: 'no-store',
-        headers: { 'Accept': 'application/json' }
-      })
-      
-      if (!res.ok) {
-        throw new Error(`Health check API returned ${res.status}`)
-      }
-      
-      const json = await res.json()
-      
-      if (json.components) {
-        setSystem(json.components)
-      } else {
-        setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
-      }
-    } catch (err) {
-      console.error('[System Health] Manual refresh failed:', err)
-      // On manual refresh, show error but don't change state if we have a previous good state
-      setSystem(prev => prev.flask === 'checking' || prev.flask === 'unknown'
-        ? { flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' }
-        : prev
-      )
-    }
-  }, [])
+    refreshHealth()
+  }, [refreshHealth])
 
   // Global error handler to suppress browser extension errors
   useEffect(() => {
@@ -69,82 +49,8 @@ export default function AdminOverviewPage() {
     }
   }, [])
 
-  useEffect(() => {
-    let isMounted = true
-    let hasEverSucceeded = false
-    let lastKnownGood = { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' }
-    
-    const healthCheckWithDebounce = async () => {
-      if (!isMounted) return
-      
-      try {
-        const res = await fetch('/api/system/health', { 
-          cache: 'no-store',
-          headers: { 'Accept': 'application/json' }
-        })
-        
-        // Always try to parse JSON, even if status is not OK
-        // The route now returns 200 with error status in body for graceful handling
-        let json
-        try {
-          json = await res.json()
-        } catch (parseError) {
-          // If JSON parsing fails, treat as error
-          if (hasEverSucceeded) {
-            console.warn(`[System Health] JSON parse error, keeping last known state`)
-            setSystem(lastKnownGood)
-          } else {
-            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
-          }
-          return
-        }
-        
-        // Check if response indicates an error (even if status is 200)
-        if (json.status === 'error' || json.status === 'timeout') {
-          // Error response but status is 200 - use components from response
-          if (json.components) {
-            setSystem(json.components)
-          } else if (hasEverSucceeded) {
-            console.warn(`[System Health] Error status but no components, keeping last known state`)
-            setSystem(lastKnownGood)
-          } else {
-            setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
-          }
-          return
-        }
-        
-        // Success response
-        if (json.components) {
-          hasEverSucceeded = true
-          lastKnownGood = json.components
-          setSystem(json.components)
-        } else {
-          // Invalid format but keep last known state if we've succeeded before
-          if (hasEverSucceeded) {
-            setSystem(lastKnownGood)
-          } else {
-            setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
-          }
-        }
-      } catch (err) {
-        // Network errors are temporary - keep last known good state if we've ever succeeded
-        // Ignore browser extension errors (message channel errors)
-        if (err.message && err.message.includes('message channel')) {
-          return // Silently ignore browser extension errors
-        }
-        console.warn('[System Health] Temporary network error, keeping last known state:', err.message)
-        if (hasEverSucceeded) {
-          setSystem(lastKnownGood)
-        } else {
-          setSystem({ flask: 'offline', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
-        }
-      }
-    }
-    
-    healthCheckWithDebounce()
-    const interval = setInterval(healthCheckWithDebounce, 60000) // 60s interval (reduced from 20s to reduce network load)
-    return () => { isMounted = false; clearInterval(interval) }
-  }, [])
+  // Health is preloaded by StatusProvider - no need to fetch on mount
+  // StatusProvider automatically refreshes every 30 seconds
 
   // Fetch pending review count directly from database
   useEffect(() => {

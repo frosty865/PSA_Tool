@@ -8,8 +8,6 @@ import { getFlaskUrl } from '@/app/lib/server-utils';
 
 const FLASK_URL = getFlaskUrl();
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(request) {
   try {
     // Validate FLASK_URL is available

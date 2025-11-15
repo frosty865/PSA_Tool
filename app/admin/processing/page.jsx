@@ -158,26 +158,35 @@ export default function ProcessingMonitorPage() {
           data = await res.json()
         } catch (parseError) {
           // If JSON parsing fails, use empty lines
+          console.warn('Failed to parse logs JSON:', parseError)
           data = { lines: [] }
         }
         
         if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
           // Filter out empty lines and create hash set
           const validLines = data.lines.filter(line => line && line.trim())
+          console.log(`[Live Logs] Initial load: ${validLines.length} lines`)
           setLogLines(validLines)
           // Track initial lines
           validLines.forEach(line => {
             if (line) lastKnownLines.add(line.substring(0, 100)) // Use first 100 chars as hash
           })
-        } else if (data.error) {
-          // Log error but don't break the UI
-          console.warn('Logs API error:', data.error, data.message)
+        } else {
+          // Even if no lines, show a message so user knows the connection is working
+          if (data.error) {
+            console.warn('Logs API error:', data.error, data.message)
+            setLogLines([`⚠️ ${data.error}: ${data.message || 'Unable to load logs'}`])
+          } else {
+            console.log('[Live Logs] No logs available yet')
+            setLogLines([])
+          }
         }
       } catch (err) {
-        // Silently handle errors - route may not be deployed yet
+        // Log errors for debugging
         const errorMsg = err.message || err.toString() || ''
+        console.error('Error loading initial logs:', err)
         if (!errorMsg.includes('404') && !errorMsg.includes('Not Found')) {
-          console.error('Error loading initial logs:', err)
+          setLogLines([`❌ Error loading logs: ${errorMsg}`])
         }
       }
     }
@@ -202,6 +211,15 @@ export default function ProcessingMonitorPage() {
               // Filter out empty lines
               const validLines = data.lines.filter(line => line && line.trim())
               
+              // If this is the first poll and we have no previous lines, just set all lines
+              if (prev.length === 0 && validLines.length > 0) {
+                console.log(`[Live Logs] First poll: setting ${validLines.length} lines`)
+                validLines.forEach(line => {
+                  if (line) lastKnownLines.add(line.substring(0, 100))
+                })
+                return validLines
+              }
+              
               // Find new lines by comparing with what we've seen
               const newLines = validLines.filter(line => {
                 const hash = line.substring(0, 100)
@@ -214,6 +232,7 @@ export default function ProcessingMonitorPage() {
               
               // If we have new lines, add them
               if (newLines.length > 0) {
+                console.log(`[Live Logs] Poll: ${newLines.length} new lines`)
                 const combined = [...prev, ...newLines]
                 // Keep only last 200 lines to prevent memory issues
                 const trimmed = combined.slice(-200)
@@ -233,6 +252,9 @@ export default function ProcessingMonitorPage() {
               // No new lines, return previous state
               return prev
             })
+          } else if (data.error) {
+            // Show error message if API returns an error
+            console.warn('[Live Logs] API error:', data.error)
           }
         } catch (err) {
           // Silently handle errors - don't spam console

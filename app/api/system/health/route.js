@@ -156,8 +156,8 @@ export async function GET(request) {
     const data = await response.json();
     
     // Transform Flask response to match frontend expectations
-    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", model_manager: "ok", watcher: "ok", ... }
-    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "...", model_manager: "...", watcher: "..." }, ... }
+    // Flask returns: { flask: "ok", ollama: "ok", supabase: "ok", watcher: "ok", ... }
+    // Frontend expects: { components: { flask: "...", ollama: "...", supabase: "...", watcher: "..." }, ... }
     const transformedData = {
       ...data,
       components: {
@@ -180,7 +180,6 @@ export async function GET(request) {
           ollama: 'unknown',
           supabase: 'unknown',
           tunnel: 'unknown',
-          model_manager: 'unknown',
           watcher: 'unknown'
         },
         error: 'Failed to connect to Flask server',

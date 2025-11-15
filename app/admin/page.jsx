@@ -34,7 +34,6 @@ export default function AdminOverviewPage() {
       
       if (json.components) {
         setSystem(json.components)
-        // Update Model Manager info if available
       } else {
         setSystem({ flask: 'unknown', ollama: 'unknown', supabase: 'unknown', tunnel: 'unknown', watcher: 'unknown' })
       }

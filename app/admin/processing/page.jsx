@@ -697,19 +697,31 @@ export default function ProcessingMonitorPage() {
               Live Logs
             </h2>
             <button
-              onClick={() => setLogLines([])}
+              onClick={async () => {
+                if (confirm('Are you sure you want to clear all logs? This will wipe the log file.')) {
+                  try {
+                    await controlAction('clear_logs')
+                    // Clear UI after successful file clear
+                    setLogLines([])
+                  } catch (error) {
+                    alert(`Failed to clear logs: ${error.message}`)
+                  }
+                }
+              }}
+              disabled={controlLoading}
               style={{
                 padding: 'var(--spacing-xs) var(--spacing-md)',
                 backgroundColor: 'var(--cisa-gray)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 'var(--border-radius)',
-                cursor: 'pointer',
+                cursor: controlLoading ? 'not-allowed' : 'pointer',
                 fontWeight: 600,
-                fontSize: 'var(--font-size-sm)'
+                fontSize: 'var(--font-size-sm)',
+                opacity: controlLoading ? 0.6 : 1
               }}
             >
-              Clear Logs
+              {controlLoading ? 'Clearing...' : 'Clear Logs'}
             </button>
           </div>
           <div

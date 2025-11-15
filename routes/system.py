@@ -1256,6 +1256,39 @@ def system_control():
                 logging.error(f"Error in cleanup_review_temp: {e}")
                 msg = f"Cleanup error: {str(e)}"
         
+        elif action == "clear_logs":
+            try:
+                # Find and truncate the log file
+                possible_paths = [
+                    Config.DATA_DIR / "logs" / "vofc_processor.log",
+                    Config.ARCHIVE_DIR / "logs" / "vofc_processor.log",
+                    Path(r"C:\Tools\Ollama\Data\logs\vofc_processor.log"),
+                    Path(r"C:\Tools\VOFC_Logs\vofc_processor.log"),
+                    Path(r"C:\Tools\nssm\logs\vofc_processor.log"),
+                ]
+                
+                log_file = None
+                for path in possible_paths:
+                    if path.exists() and path.is_file():
+                        log_file = path
+                        break
+                
+                if log_file:
+                    # Truncate the file (wipe it)
+                    with open(log_file, 'w', encoding='utf-8') as f:
+                        f.write('')  # Write empty string to truncate
+                    msg = f"Log file cleared: {log_file}"
+                    logging.info(f"[Admin Control] {msg}")
+                else:
+                    msg = "Log file not found - no log file to clear"
+                    logging.warning(f"[Admin Control] {msg}")
+            except PermissionError as e:
+                logging.error(f"Permission denied clearing log file: {e}")
+                msg = f"Permission denied: Cannot clear log file ({str(e)})"
+            except Exception as e:
+                logging.error(f"Error clearing logs: {e}", exc_info=True)
+                msg = f"Clear logs error: {str(e)}"
+        
         elif action == "cleanup_rejected_submissions":
             try:
                 import traceback

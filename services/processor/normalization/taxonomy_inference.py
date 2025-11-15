@@ -694,14 +694,11 @@ def validate_and_correct_taxonomy(
                 if not corrected.get("subsector") and inferred_subsector:
                     corrected["subsector"] = inferred_subsector
             else:
-                # If inference failed, use "General" as fallback (valid DHS sector for non-sector-specific documents)
-                general_sector_id = get_sector_id("General", fuzzy=True)
-                if general_sector_id:
-                    logger.info(f"Could not infer specific sector for document '{document_title[:50]}...' - using 'General' sector")
-                    corrected["sector"] = "General"
-                    corrected["subsector"] = ""  # Clear subsector when using General
-                else:
-                    logger.warning(f"Could not infer sector and 'General' sector not found in Supabase - sector_id will be NULL")
+                # If inference failed, leave sector empty (no fallback to "General")
+                # The canonical resolver doesn't use fallbacks - if we can't infer, leave it empty
+                logger.info(f"Could not infer specific sector for document '{document_title[:50]}...' - leaving sector empty (no fallback)")
+                corrected["sector"] = ""
+                corrected["subsector"] = ""
         
             # If no document-level inference and sector exists but subsector is missing, try to infer subsector
             if corrected.get("sector") and not corrected.get("subsector"):

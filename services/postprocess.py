@@ -431,6 +431,7 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     
     # DOCUMENT-LEVEL INFERENCE: Infer sector/subsector ONCE for the entire document
     # This ensures all records from the same document have the same sector/subsector
+    # Uses keyword-based inference first, then validates with canonical resolver
     document_title = source_filepath.name if source_filepath else ""
     document_sector = None
     document_subsector = None
@@ -438,6 +439,7 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     document_subsector_id = None
     
     if document_title:
+        # Step 1: Use keyword-based inference to get candidate sector/subsector from document title
         from services.processor.normalization.taxonomy_inference import infer_sector_subsector
         logger.info(f"Performing document-level sector/subsector inference for: {document_title}")
         
@@ -450,33 +452,56 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             use_backwards_approach=True
         )
         
-        if inferred_sector:
-            document_sector = inferred_sector
-            document_sector_id = get_sector_id(inferred_sector, fuzzy=True)
-            logger.info(f"Document-level sector inferred: {inferred_sector} (ID: {document_sector_id})")
-        
-        if inferred_subsector:
-            document_subsector = inferred_subsector
-            # Only get subsector_id if we have a sector_id (subsector must belong to sector)
-            if document_sector_id:
-                document_subsector_id = get_subsector_id(inferred_subsector, fuzzy=True)
-                # Validate subsector belongs to sector
-                if document_subsector_id:
-                    from services.supabase_client import get_sector_from_subsector
-                    parent_sector_id, _ = get_sector_from_subsector(document_subsector_id)
-                    if parent_sector_id != document_sector_id:
-                        logger.warning(f"Subsector '{inferred_subsector}' does not belong to sector '{inferred_sector}' - clearing subsector")
-                        document_subsector = None
-                        document_subsector_id = None
-                    else:
-                        logger.info(f"Document-level subsector inferred: {inferred_subsector} (ID: {document_subsector_id})")
+        # Step 2: Validate and resolve using canonical resolver (no fallback to "General")
+        if inferred_sector or inferred_subsector:
+            from services.processor.normalization.taxonomy_resolver import resolve_taxonomy
+            
+            # Use canonical resolver to validate and get proper structure
+            resolved = resolve_taxonomy(
+                sector_name=inferred_sector if inferred_sector else None,
+                subsector_name=inferred_subsector if inferred_subsector else None,
+                discipline_name=None  # Discipline is resolved per-record
+            )
+            
+            # Only use resolved values if they're valid (not None)
+            if resolved.get("sector"):
+                sector_data = resolved["sector"]
+                if isinstance(sector_data, dict):
+                    document_sector = sector_data.get("sector_name") or sector_data.get("name")
+                    document_sector_id = sector_data.get("id")
                 else:
-                    logger.warning(f"Subsector '{inferred_subsector}' not found in database")
-            else:
-                logger.warning(f"Cannot set subsector '{inferred_subsector}' without a valid sector")
-                document_subsector = None
+                    document_sector = inferred_sector  # Fallback to inferred name
+                    document_sector_id = get_sector_id(inferred_sector, fuzzy=True)
+                
+                if document_sector:
+                    logger.info(f"Document-level sector resolved: {document_sector} (ID: {document_sector_id})")
+            
+            if resolved.get("subsector"):
+                subsector_data = resolved["subsector"]
+                if isinstance(subsector_data, dict):
+                    document_subsector = subsector_data.get("name")
+                    document_subsector_id = subsector_data.get("id")
+                    
+                    # Validate subsector belongs to sector
+                    if document_subsector_id and document_sector_id:
+                        from services.supabase_client import get_sector_from_subsector
+                        parent_sector_id, _ = get_sector_from_subsector(document_subsector_id)
+                        if parent_sector_id != document_sector_id:
+                            logger.warning(f"Subsector '{document_subsector}' does not belong to sector '{document_sector}' - clearing subsector")
+                            document_subsector = None
+                            document_subsector_id = None
+                        else:
+                            logger.info(f"Document-level subsector resolved: {document_subsector} (ID: {document_subsector_id})")
+                    elif document_subsector_id:
+                        logger.info(f"Document-level subsector resolved: {document_subsector} (ID: {document_subsector_id})")
+                else:
+                    document_subsector = inferred_subsector  # Fallback to inferred name
+                    if document_sector_id:
+                        document_subsector_id = get_subsector_id(inferred_subsector, fuzzy=True)
+                        if document_subsector_id:
+                            logger.info(f"Document-level subsector resolved: {document_subsector} (ID: {document_subsector_id})")
         else:
-            logger.info(f"No subsector inferred for document: {document_title}")
+            logger.info(f"No sector/subsector inferred for document: {document_title} - leaving empty (no fallback to 'General')")
     
     cleaned = []
     skipped = 0

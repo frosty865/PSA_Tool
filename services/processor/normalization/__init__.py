@@ -9,6 +9,7 @@ from .discipline_resolver import (
     resolve_discipline_and_subtype,
     get_subtype_id
 )
+from .vofc_discipline import DisciplineResolver
 from .taxonomy_resolver import (
     normalize as normalize_taxonomy_text,
     resolve_subsector,
@@ -32,6 +33,7 @@ __all__ = [
     'infer_subtype',
     'resolve_discipline_and_subtype',
     'get_subtype_id',
+    'DisciplineResolver',
     'normalize_taxonomy_text',
     'resolve_subsector',
     'resolve_sector',

@@ -1,0 +1,158 @@
+{
+  "access control": {
+    "category": "Physical",
+    "keywords": [
+      "access control",
+      "acs",
+      "card reader",
+      "badge",
+      "keycard",
+      "key card",
+      "turnstile",
+      "turnstiles",
+      "pin pad",
+      "prox card",
+      "id card",
+      "door controller"
+    ],
+    "phrases": [
+      "controlled access",
+      "access point",
+      "entry control",
+      "access badges",
+      "door access control",
+      "lack of access control",
+      "unauthorized access"
+    ]
+  },
+  "video surveillance": {
+    "category": "Physical",
+    "keywords": [
+      "cctv",
+      "vss",
+      "camera",
+      "cameras",
+      "ip camera",
+      "nvr",
+      "dvr",
+      "video monitor",
+      "surveillance"
+    ],
+    "phrases": [
+      "video surveillance system",
+      "surveillance cameras",
+      "no camera coverage",
+      "inadequate camera coverage",
+      "blind spots",
+      "recorded video",
+      "video retention"
+    ]
+  },
+  "perimeter security": {
+    "category": "Physical",
+    "keywords": [
+      "fence",
+      "fencing",
+      "gate",
+      "gates",
+      "bollard",
+      "bollards",
+      "barrier",
+      "barriers",
+      "perimeter",
+      "standoff"
+    ],
+    "phrases": [
+      "perimeter security",
+      "site boundary",
+      "perimeter fence",
+      "lack of perimeter lighting",
+      "unprotected perimeter",
+      "no perimeter barrier"
+    ]
+  },
+  "security management": {
+    "category": "Management",
+    "keywords": [
+      "security plan",
+      "security policy",
+      "security procedures",
+      "post orders",
+      "guard force",
+      "security manager",
+      "security awareness",
+      "training",
+      "policies"
+    ],
+    "phrases": [
+      "no written security plan",
+      "outdated security plan",
+      "lack of security training",
+      "no security manager",
+      "insufficient post orders",
+      "no security policies"
+    ]
+  },
+  "visitor management": {
+    "category": "Physical",
+    "keywords": [
+      "visitor",
+      "visitors",
+      "reception",
+      "checkin",
+      "check-in",
+      "front desk",
+      "lobby",
+      "escort"
+    ],
+    "phrases": [
+      "visitor management",
+      "visitor log",
+      "no visitor log",
+      "lack of visitor screening",
+      "unescorted visitors",
+      "no visitor badges"
+    ]
+  },
+  "intrusion detection": {
+    "category": "Physical",
+    "keywords": [
+      "intrusion",
+      "ids",
+      "alarm",
+      "alarms",
+      "sensor",
+      "motion detector",
+      "glass break",
+      "door contact"
+    ],
+    "phrases": [
+      "intrusion detection system",
+      "no intrusion alarm",
+      "alarm system",
+      "unmonitored alarm",
+      "no alarm coverage"
+    ]
+  },
+  "communications": {
+    "category": "Physical",
+    "keywords": [
+      "radio",
+      "radios",
+      "handheld radio",
+      "mass notification",
+      "pager",
+      "intercom",
+      "pa system",
+      "public address"
+    ],
+    "phrases": [
+      "mass notification system",
+      "no way to notify occupants",
+      "inadequate communications",
+      "no radio communications",
+      "lack of interoperable communications"
+    ]
+  }
+}
+

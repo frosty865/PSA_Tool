@@ -372,14 +372,18 @@ def infer_sector_subsector(
                 
                 # If school-related patterns matched, prioritize Education Facilities subsector
                 if best_match == "Government Facilities" and school_patterns_matched > 0:
+                    logger.info(f"School patterns detected in vulnerability text - prioritizing Education Facilities subsector (matched {school_patterns_matched} patterns)")
                     # Try Education Facilities subsectors first
-                    education_subsectors = ["Education Facilities", "Educational Facilities"]
+                    education_subsectors = ["Education Facilities", "Educational Facilities", "K-12 Schools"]
                     for subsector in education_subsectors:
                         subsector_id = get_subsector_id(subsector, fuzzy=True)
                         if subsector_id:
                             if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
                                 inferred_subsector = subsector
+                                logger.info(f"Successfully inferred Education Facilities subsector: {subsector}")
                                 break
+                        else:
+                            logger.warning(f"Education Facilities subsector '{subsector}' not found in Supabase")
                 
                 # If no education subsector found, try other subsectors
                 if not inferred_subsector:
@@ -435,13 +439,17 @@ def infer_sector_subsector(
             
             # If Government Facilities and school keywords present, prioritize Education Facilities subsector
             if best_match == "Government Facilities" and has_school_keywords:
-                education_subsectors = ["Education Facilities", "Educational Facilities"]
+                logger.info(f"School keywords detected in document title - prioritizing Education Facilities subsector")
+                education_subsectors = ["Education Facilities", "Educational Facilities", "K-12 Schools"]
                 for subsector in education_subsectors:
                     subsector_id = get_subsector_id(subsector, fuzzy=True)
                     if subsector_id:
                         if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
                             inferred_subsector = subsector
+                            logger.info(f"Successfully inferred Education Facilities subsector: {subsector}")
                             break
+                    else:
+                        logger.warning(f"Education Facilities subsector '{subsector}' not found in Supabase")
             
             # If no education subsector found, check if any subsector keywords match
             if not inferred_subsector:
@@ -476,7 +484,8 @@ def infer_sector_subsector(
 
 def validate_and_correct_taxonomy(
     record: Dict[str, Any],
-    document_title: str = ""
+    document_title: str = "",
+    skip_sector_subsector: bool = False
 ) -> Dict[str, Any]:
     """
     Validate and correct discipline, sector, and subsector assignments.
@@ -485,6 +494,7 @@ def validate_and_correct_taxonomy(
     Args:
         record: Record with discipline, sector, subsector fields
         document_title: Document title for context inference
+        skip_sector_subsector: If True, skip sector/subsector inference (already set at document level)
         
     Returns:
         Record with corrected taxonomy fields
@@ -496,184 +506,202 @@ def validate_and_correct_taxonomy(
     subsector = record.get("subsector", "").strip()
     vulnerability = record.get("vulnerability", "").strip()
     
-    # PRIORITY 1: Check vulnerability-specific patterns FIRST (more specific than document title)
-    # Vulnerability-specific security terms (perimeter, access control, surveillance, etc.) 
-    # should take precedence over generic document title keywords
-    inferred_sector = None
-    inferred_subsector = None
-    
-    # Security-specific vulnerability patterns that should override document-level inference
-    security_keywords = ["perimeter", "access control", "surveillance", "security personnel", 
-                        "guard force", "emergency response", "monitoring", "entry control"]
-    
-    has_security_context = vulnerability and any(kw in vulnerability.lower() for kw in security_keywords)
-    
-    if has_security_context:
-        # Try vulnerability-specific inference first (more accurate for security-related vulnerabilities)
-        inferred_sector, inferred_subsector = infer_sector_subsector(
-            document_title="",  # Don't use document title for security-specific vulnerabilities
-            vulnerability_text=vulnerability,
-            existing_sector="",
-            existing_subsector=""
-        )
-        if inferred_sector:
-            logger.info(f"Vulnerability-specific inference (security context): sector='{inferred_sector}', subsector='{inferred_subsector}' - OVERRIDING document-level inference")
-    
-    # PRIORITY 2: If no vulnerability-specific match, use document-level inference (BACKWARDS APPROACH)
-    # This ensures ALL records from the same document get consistent sector/subsector
-    # Document-level inference only applies if vulnerability doesn't have security-specific context
-    # BACKWARDS: Identify subsector first, then derive sector from it
-    if not inferred_sector and document_title:
-        inferred_sector, inferred_subsector = infer_sector_subsector(
-            document_title=document_title,
-            vulnerability_text="",  # Don't use vulnerability text for document-level inference
-            existing_sector="",
-            existing_subsector="",
-            use_backwards_approach=True  # Use backwards approach: subsector first, then sector
-        )
-        if inferred_sector:
-            logger.info(f"Document-level inference (backwards) from title '{document_title[:50]}...': identified subsector='{inferred_subsector or '(none)'}', derived sector='{inferred_sector}' - APPLYING TO ALL RECORDS")
-    
-    # Check if sector is actually a discipline name (before applying document-level inference)
-    if sector and is_discipline_name(sector):
-        logger.warning(f"Invalid sector '{sector}' is actually a discipline - moving to discipline field")
-        # Move to discipline if discipline is empty
-        if not discipline:
-            corrected["discipline"] = sector
-        # Clear invalid sector
-        corrected["sector"] = ""
-        sector = ""
-    
-    # Check if subsector is actually a discipline name (before applying document-level inference)
-    if subsector and is_discipline_name(subsector):
-        logger.warning(f"Invalid subsector '{subsector}' is actually a discipline - moving to discipline field")
-        # Move to discipline if discipline is empty
-        if not discipline:
-            corrected["discipline"] = subsector
-        # Clear invalid subsector
-        corrected["subsector"] = ""
-        subsector = ""
-    
-    # PRIORITY 2: Apply inferred sector/subsector
-    # If we inferred from vulnerability-specific patterns (security context), use that
-    # Otherwise, if we inferred from document title, use that for consistency
-    if inferred_sector:
-        # Apply inferred sector/subsector on this record
-        corrected["sector"] = inferred_sector
-        if inferred_subsector:
-            corrected["subsector"] = inferred_subsector
-        else:
-            # If no subsector inferred, clear any existing subsector to avoid mismatches
+    # If sector/subsector are already set at document level, skip all inference
+    if skip_sector_subsector:
+        logger.debug("Skipping sector/subsector inference - already set at document level")
+        # Only validate that sector/subsector exist in database (don't infer)
+        if sector:
+            sector_id = get_sector_id(sector, fuzzy=True)
+            if not sector_id:
+                logger.warning(f"Document-level sector '{sector}' not found in database - clearing")
+                corrected["sector"] = ""
+        if subsector:
+            subsector_id = get_subsector_id(subsector, fuzzy=True)
+            if not subsector_id:
+                logger.warning(f"Document-level subsector '{subsector}' not found in database - clearing")
+                corrected["subsector"] = ""
+        # Skip all the inference logic below - just validate discipline
+        # (discipline inference continues below)
+    else:
+        # Original inference logic (only runs if skip_sector_subsector=False)
+        # PRIORITY 1: Check vulnerability-specific patterns FIRST (more specific than document title)
+        # Vulnerability-specific security terms (perimeter, access control, surveillance, etc.) 
+        # should take precedence over generic document title keywords
+        inferred_sector = None
+        inferred_subsector = None
+        
+        # Security-specific vulnerability patterns that should override document-level inference
+        security_keywords = ["perimeter", "access control", "surveillance", "security personnel", 
+                            "guard force", "emergency response", "monitoring", "entry control"]
+        
+        has_security_context = vulnerability and any(kw in vulnerability.lower() for kw in security_keywords)
+        
+        if has_security_context:
+            # Try vulnerability-specific inference first (more accurate for security-related vulnerabilities)
+            inferred_sector, inferred_subsector = infer_sector_subsector(
+                document_title="",  # Don't use document title for security-specific vulnerabilities
+                vulnerability_text=vulnerability,
+                existing_sector="",
+                existing_subsector=""
+            )
+            if inferred_sector:
+                logger.info(f"Vulnerability-specific inference (security context): sector='{inferred_sector}', subsector='{inferred_subsector}' - OVERRIDING document-level inference")
+        
+        # PRIORITY 2: If no vulnerability-specific match, use document-level inference (BACKWARDS APPROACH)
+        # This ensures ALL records from the same document get consistent sector/subsector
+        # Document-level inference only applies if vulnerability doesn't have security-specific context
+        # BACKWARDS: Identify subsector first, then derive sector from it
+        if not inferred_sector and document_title:
+            inferred_sector, inferred_subsector = infer_sector_subsector(
+                document_title=document_title,
+                vulnerability_text="",  # Don't use vulnerability text for document-level inference
+                existing_sector="",
+                existing_subsector="",
+                use_backwards_approach=True  # Use backwards approach: subsector first, then sector
+            )
+            if inferred_sector:
+                logger.info(f"Document-level inference (backwards) from title '{document_title[:50]}...': identified subsector='{inferred_subsector or '(none)'}', derived sector='{inferred_sector}' - APPLYING TO ALL RECORDS")
+        
+            # Check if sector is actually a discipline name (before applying document-level inference)
+        if sector and is_discipline_name(sector):
+            logger.warning(f"Invalid sector '{sector}' is actually a discipline - moving to discipline field")
+            # Move to discipline if discipline is empty
+            if not discipline:
+                corrected["discipline"] = sector
+            # Clear invalid sector
+            corrected["sector"] = ""
+            sector = ""
+        
+        # Check if subsector is actually a discipline name (before applying document-level inference)
+        if subsector and is_discipline_name(subsector):
+            logger.warning(f"Invalid subsector '{subsector}' is actually a discipline - moving to discipline field")
+            # Move to discipline if discipline is empty
+            if not discipline:
+                corrected["discipline"] = subsector
+            # Clear invalid subsector
             corrected["subsector"] = ""
-        logger.debug(f"Applied inferred taxonomy: sector='{inferred_sector}', subsector='{inferred_subsector or '(none)'}'")
-    # If no document-level inference succeeded, validate and correct record-level values
-    elif sector:
-        # Check if the provided sector actually exists in Supabase
-        sector_id = get_sector_id(sector, fuzzy=True)
-        if not sector_id:
-            # Sector doesn't exist - check if it's actually a subsector
-            subsector_id = get_subsector_id(sector, fuzzy=True)
-            if subsector_id:
-                # It's a subsector, not a sector - find its parent sector
-                logger.warning(f"'{sector}' is a subsector, not a sector - finding parent sector")
-                try:
-                    from services.supabase_client import get_supabase_client
-                    client = get_supabase_client()
-                    result = client.table("subsectors").select("sector_id, sectors!inner(name)").eq("id", subsector_id).maybe_single().execute()
-                    if result.data and result.data.get("sector_id"):
-                        parent_sector_id = result.data.get("sector_id")
-                        # Get parent sector name
-                        sector_result = client.table("sectors").select("name").eq("id", parent_sector_id).maybe_single().execute()
-                        if sector_result.data:
-                            parent_sector_name = sector_result.data.get("name")
-                            logger.info(f"Mapped '{sector}' to sector '{parent_sector_name}' with subsector '{sector}'")
-                            corrected["sector"] = parent_sector_name
-                            corrected["subsector"] = sector  # Keep the original value as subsector
-                            sector = parent_sector_name  # Update for later validation
+            subsector = ""
+        
+        # PRIORITY 2: Apply inferred sector/subsector
+        # If we inferred from vulnerability-specific patterns (security context), use that
+        # Otherwise, if we inferred from document title, use that for consistency
+        if inferred_sector:
+            # Apply inferred sector/subsector on this record
+            corrected["sector"] = inferred_sector
+            if inferred_subsector:
+                corrected["subsector"] = inferred_subsector
+            else:
+                # If no subsector inferred, clear any existing subsector to avoid mismatches
+                corrected["subsector"] = ""
+            logger.debug(f"Applied inferred taxonomy: sector='{inferred_sector}', subsector='{inferred_subsector or '(none)'}'")
+        # If no document-level inference succeeded, validate and correct record-level values
+        elif sector:
+            # Check if the provided sector actually exists in Supabase
+            sector_id = get_sector_id(sector, fuzzy=True)
+            if not sector_id:
+                # Sector doesn't exist - check if it's actually a subsector
+                subsector_id = get_subsector_id(sector, fuzzy=True)
+                if subsector_id:
+                    # It's a subsector, not a sector - find its parent sector
+                    logger.warning(f"'{sector}' is a subsector, not a sector - finding parent sector")
+                    try:
+                        from services.supabase_client import get_supabase_client
+                        client = get_supabase_client()
+                        result = client.table("subsectors").select("sector_id, sectors!inner(name)").eq("id", subsector_id).maybe_single().execute()
+                        if result.data and result.data.get("sector_id"):
+                            parent_sector_id = result.data.get("sector_id")
+                            # Get parent sector name
+                            sector_result = client.table("sectors").select("name").eq("id", parent_sector_id).maybe_single().execute()
+                            if sector_result.data:
+                                parent_sector_name = sector_result.data.get("name")
+                                logger.info(f"Mapped '{sector}' to sector '{parent_sector_name}' with subsector '{sector}'")
+                                corrected["sector"] = parent_sector_name
+                                corrected["subsector"] = sector  # Keep the original value as subsector
+                                sector = parent_sector_name  # Update for later validation
+                            else:
+                                # Can't find parent, clear sector
+                                logger.warning(f"Could not find parent sector for subsector '{sector}' - clearing")
+                                corrected["sector"] = ""
+                                sector = ""
                         else:
                             # Can't find parent, clear sector
                             logger.warning(f"Could not find parent sector for subsector '{sector}' - clearing")
                             corrected["sector"] = ""
                             sector = ""
-                    else:
-                        # Can't find parent, clear sector
-                        logger.warning(f"Could not find parent sector for subsector '{sector}' - clearing")
+                    except Exception as e:
+                        logger.debug(f"Error finding parent sector for '{sector}': {e}")
                         corrected["sector"] = ""
                         sector = ""
-                except Exception as e:
-                    logger.debug(f"Error finding parent sector for '{sector}': {e}")
+                else:
+                    # Not a sector or subsector - reject it
+                    logger.warning(f"'{sector}' is not a valid sector or subsector in Supabase - rejecting")
                     corrected["sector"] = ""
                     sector = ""
             else:
-                # Not a sector or subsector - reject it
-                logger.warning(f"'{sector}' is not a valid sector or subsector in Supabase - rejecting")
-                corrected["sector"] = ""
-                sector = ""
-        else:
-            # Sector exists and is valid - keep it
-            pass
-    
-    # If no document-level inference and sector is invalid/missing, try record-level inference
-    # OR if sector exists but doesn't match vulnerability content, re-infer
-    current_sector = corrected.get("sector", "")
-    sector_id = get_sector_id(current_sector, fuzzy=True) if current_sector else None
-    
-    # Validate that existing sector makes sense for this vulnerability
-    # If vulnerability text is available, check if sector matches content
-    should_reinfer = False
-    if vulnerability and current_sector and sector_id:
-        # Re-infer from vulnerability to see if it matches
-        inferred_sector, _ = infer_sector_subsector(
-            document_title="",
-            vulnerability_text=vulnerability,
-            existing_sector="",
-            existing_subsector=""
-        )
+                # Sector exists and is valid - keep it
+                pass
         
-        # If inferred sector differs from current, and inference is confident, use inferred
-        if inferred_sector and inferred_sector != current_sector:
-            # Check if inferred sector is more appropriate
-            inferred_id = get_sector_id(inferred_sector, fuzzy=True)
-            if inferred_id:
-                logger.warning(f"Sector mismatch: vulnerability suggests '{inferred_sector}' but record has '{current_sector}' - using inferred sector")
-                should_reinfer = True
-                corrected["sector"] = ""  # Clear to trigger re-inference
-    
-    if not corrected.get("sector") or not get_sector_id(corrected.get("sector", ""), fuzzy=True) or should_reinfer:
-        inferred_sector, inferred_subsector = infer_sector_subsector(
-            document_title=document_title,
-            vulnerability_text=vulnerability,
-            existing_sector=corrected.get("sector", ""),
-            existing_subsector=corrected.get("subsector", "")
-        )
+        # If no document-level inference and sector is invalid/missing, try record-level inference
+        # OR if sector exists but doesn't match vulnerability content, re-infer
+        current_sector = corrected.get("sector", "")
+        sector_id = get_sector_id(current_sector, fuzzy=True) if current_sector else None
         
-        if inferred_sector:
-            logger.info(f"Inferred sector '{inferred_sector}' from context (title: {document_title[:50]}...)")
-            corrected["sector"] = inferred_sector
+        # Validate that existing sector makes sense for this vulnerability
+        # If vulnerability text is available, check if sector matches content
+        should_reinfer = False
+        if vulnerability and current_sector and sector_id:
+            # Re-infer from vulnerability to see if it matches
+            inferred_sector, _ = infer_sector_subsector(
+                document_title="",
+                vulnerability_text=vulnerability,
+                existing_sector="",
+                existing_subsector=""
+            )
             
-            # If subsector is missing, use inferred one
-            if not corrected.get("subsector") and inferred_subsector:
-                corrected["subsector"] = inferred_subsector
-        else:
-            # If inference failed, use "General" as fallback (valid DHS sector for non-sector-specific documents)
-            general_sector_id = get_sector_id("General", fuzzy=True)
-            if general_sector_id:
-                logger.info(f"Could not infer specific sector for document '{document_title[:50]}...' - using 'General' sector")
-                corrected["sector"] = "General"
-                corrected["subsector"] = ""  # Clear subsector when using General
+            # If inferred sector differs from current, and inference is confident, use inferred
+            if inferred_sector and inferred_sector != current_sector:
+                # Check if inferred sector is more appropriate
+                inferred_id = get_sector_id(inferred_sector, fuzzy=True)
+                if inferred_id:
+                    logger.warning(f"Sector mismatch: vulnerability suggests '{inferred_sector}' but record has '{current_sector}' - using inferred sector")
+                    should_reinfer = True
+                    corrected["sector"] = ""  # Clear to trigger re-inference
+        
+        if not corrected.get("sector") or not get_sector_id(corrected.get("sector", ""), fuzzy=True) or should_reinfer:
+            inferred_sector, inferred_subsector = infer_sector_subsector(
+                document_title=document_title,
+                vulnerability_text=vulnerability,
+                existing_sector=corrected.get("sector", ""),
+                existing_subsector=corrected.get("subsector", "")
+            )
+            
+            if inferred_sector:
+                logger.info(f"Inferred sector '{inferred_sector}' from context (title: {document_title[:50]}...)")
+                corrected["sector"] = inferred_sector
+                
+                # If subsector is missing, use inferred one
+                if not corrected.get("subsector") and inferred_subsector:
+                    corrected["subsector"] = inferred_subsector
             else:
-                logger.warning(f"Could not infer sector and 'General' sector not found in Supabase - sector_id will be NULL")
-    
-    # If no document-level inference and sector exists but subsector is missing, try to infer subsector
-    if corrected.get("sector") and not corrected.get("subsector"):
-        _, inferred_subsector = infer_sector_subsector(
-            document_title=document_title,
-            vulnerability_text=vulnerability,
-            existing_sector=corrected.get("sector", ""),
-            existing_subsector=""
-        )
-        if inferred_subsector:
-            corrected["subsector"] = inferred_subsector
+                # If inference failed, use "General" as fallback (valid DHS sector for non-sector-specific documents)
+                general_sector_id = get_sector_id("General", fuzzy=True)
+                if general_sector_id:
+                    logger.info(f"Could not infer specific sector for document '{document_title[:50]}...' - using 'General' sector")
+                    corrected["sector"] = "General"
+                    corrected["subsector"] = ""  # Clear subsector when using General
+                else:
+                    logger.warning(f"Could not infer sector and 'General' sector not found in Supabase - sector_id will be NULL")
+        
+            # If no document-level inference and sector exists but subsector is missing, try to infer subsector
+            if corrected.get("sector") and not corrected.get("subsector"):
+                _, inferred_subsector = infer_sector_subsector(
+                    document_title=document_title,
+                    vulnerability_text=vulnerability,
+                    existing_sector=corrected.get("sector", ""),
+                    existing_subsector=""
+                )
+                if inferred_subsector:
+                    corrected["subsector"] = inferred_subsector
     
     # Validate discipline exists in Supabase (optional - don't fail if not found)
     if discipline:

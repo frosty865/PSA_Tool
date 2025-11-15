@@ -429,6 +429,55 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     else:
         logger.debug(f"Heuristics file not found: {heur_path}")
     
+    # DOCUMENT-LEVEL INFERENCE: Infer sector/subsector ONCE for the entire document
+    # This ensures all records from the same document have the same sector/subsector
+    document_title = source_filepath.name if source_filepath else ""
+    document_sector = None
+    document_subsector = None
+    document_sector_id = None
+    document_subsector_id = None
+    
+    if document_title:
+        from services.processor.normalization.taxonomy_inference import infer_sector_subsector
+        logger.info(f"Performing document-level sector/subsector inference for: {document_title}")
+        
+        # Infer from document title only (not individual vulnerabilities)
+        inferred_sector, inferred_subsector = infer_sector_subsector(
+            document_title=document_title,
+            vulnerability_text="",  # Empty - we want document-level inference only
+            existing_sector="",
+            existing_subsector="",
+            use_backwards_approach=True
+        )
+        
+        if inferred_sector:
+            document_sector = inferred_sector
+            document_sector_id = get_sector_id(inferred_sector, fuzzy=True)
+            logger.info(f"Document-level sector inferred: {inferred_sector} (ID: {document_sector_id})")
+        
+        if inferred_subsector:
+            document_subsector = inferred_subsector
+            # Only get subsector_id if we have a sector_id (subsector must belong to sector)
+            if document_sector_id:
+                document_subsector_id = get_subsector_id(inferred_subsector, fuzzy=True)
+                # Validate subsector belongs to sector
+                if document_subsector_id:
+                    from services.supabase_client import get_sector_from_subsector
+                    parent_sector_id, _ = get_sector_from_subsector(document_subsector_id)
+                    if parent_sector_id != document_sector_id:
+                        logger.warning(f"Subsector '{inferred_subsector}' does not belong to sector '{inferred_sector}' - clearing subsector")
+                        document_subsector = None
+                        document_subsector_id = None
+                    else:
+                        logger.info(f"Document-level subsector inferred: {inferred_subsector} (ID: {document_subsector_id})")
+                else:
+                    logger.warning(f"Subsector '{inferred_subsector}' not found in database")
+            else:
+                logger.warning(f"Cannot set subsector '{inferred_subsector}' without a valid sector")
+                document_subsector = None
+        else:
+            logger.info(f"No subsector inferred for document: {document_title}")
+    
     cleaned = []
     skipped = 0
     
@@ -577,10 +626,18 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                 skipped += 1
                 continue
 
-            # Validate and correct taxonomy before resolving IDs
+            # Apply document-level sector/subsector to this record (mandatory - no individual inference)
+            if document_sector:
+                r["sector"] = document_sector
+                logger.debug(f"Record {idx}: Applied document-level sector: {document_sector}")
+            if document_subsector:
+                r["subsector"] = document_subsector
+                logger.debug(f"Record {idx}: Applied document-level subsector: {document_subsector}")
+            
+            # Validate and correct taxonomy (for discipline only - sector/subsector already set)
             from services.processor.normalization.taxonomy_inference import validate_and_correct_taxonomy
-            document_title = source_filepath.name if source_filepath else ""
-            r = validate_and_correct_taxonomy(r, document_title=document_title)
+            # Pass document_title but skip sector/subsector inference since they're already set
+            r = validate_and_correct_taxonomy(r, document_title=document_title, skip_sector_subsector=True)
             
             # Resolve discipline using new resolver (includes subtype inference)
             discipline_name = r.get("discipline") or r.get("discipline_name")
@@ -612,19 +669,29 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             if subtype_name and disc_id:
                 subtype_id = get_subtype_id(subtype_name, disc_id)
             
-            # Resolve sector
+            # Resolve sector (use document-level IDs if available, otherwise resolve from name)
             sector_name = r.get("sector") or r.get("sectors")
             if isinstance(sector_name, list):
                 sector_name = sector_name[0] if sector_name else None
             
-            sector_id = get_sector_id(sector_name, fuzzy=True) if sector_name else None
+            if document_sector_id and sector_name == document_sector:
+                # Use pre-resolved document-level sector_id
+                sector_id = document_sector_id
+                logger.debug(f"Record {idx}: Using document-level sector_id: {sector_id}")
+            else:
+                sector_id = get_sector_id(sector_name, fuzzy=True) if sector_name else None
             
-            # Resolve subsector
+            # Resolve subsector (use document-level IDs if available, otherwise resolve from name)
             subsector_name = r.get("subsector") or r.get("subsectors")
             if isinstance(subsector_name, list):
                 subsector_name = subsector_name[0] if subsector_name else None
             
-            subsector_id = get_subsector_id(subsector_name, fuzzy=True) if subsector_name else None
+            if document_subsector_id and subsector_name == document_subsector:
+                # Use pre-resolved document-level subsector_id
+                subsector_id = document_subsector_id
+                logger.debug(f"Record {idx}: Using document-level subsector_id: {subsector_id}")
+            else:
+                subsector_id = get_subsector_id(subsector_name, fuzzy=True) if subsector_name else None
             
             # Build cleaned record - preserve ALL fields from input
             cleaned_record = {

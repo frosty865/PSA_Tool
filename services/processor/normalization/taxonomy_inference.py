@@ -256,6 +256,29 @@ def infer_sector_subsector(
     if use_backwards_approach and document_title:
         # Combine title and vulnerability text for subsector inference
         combined_content = f"{document_title} {vulnerability_text}".strip()
+        
+        # Check for school keywords FIRST (before general subsector inference)
+        # This ensures school documents get Education Facilities even if other patterns match
+        normalized_title = document_title.lower().replace("-", " ").replace("_", " ")
+        school_keywords = ["school", "schools", "k-12", "k12", "safe school", "student", "teacher", "classroom", "elementary", "middle school", "high school", "public school"]
+        has_school_keywords_in_title = any(kw in normalized_title for kw in school_keywords)
+        
+        if has_school_keywords_in_title:
+            logger.info(f"School keywords detected in document title '{document_title}' - prioritizing Education Facilities subsector")
+            # Try Education Facilities subsectors directly
+            education_subsectors = ["Education Facilities", "Educational Facilities", "K-12 Schools"]
+            for subsector_name in education_subsectors:
+                subsector_id = get_subsector_id(subsector_name, fuzzy=True)
+                if subsector_id:
+                    sector_id, sector_name = get_sector_from_subsector(subsector_id)
+                    if sector_name:
+                        logger.info(f"Document-level inference (backwards, school priority): identified subsector '{subsector_name}', derived sector '{sector_name}' - APPLYING TO ALL RECORDS")
+                        return sector_name, subsector_name
+                    else:
+                        logger.warning(f"Could not get parent sector for Education Facilities subsector '{subsector_name}'")
+            logger.warning(f"School keywords detected but Education Facilities subsector not found in database")
+        
+        # If no school keywords or Education Facilities not found, use general subsector inference
         inferred_subsector = infer_subsector_from_document(document_title, combined_content)
         
         if inferred_subsector:
@@ -467,16 +490,23 @@ def infer_sector_subsector(
                                 logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
             
             # If no specific subsector matched, try first one from list (but validate it exists AND belongs to sector)
+            # CRITICAL: If school keywords were detected, DO NOT fall back to Federal Facilities
+            # Only use fallback if no school keywords were detected
             if not inferred_subsector and subsectors:
-                for subsector in subsectors:
-                    subsector_id = get_subsector_id(subsector, fuzzy=True)
-                    if subsector_id:
-                        # CRITICAL: Validate that this subsector actually belongs to the inferred sector
-                        if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
-                            inferred_subsector = subsector
-                            break
-                        else:
-                            logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
+                # Skip fallback if school keywords were detected - we don't want Federal Facilities for school docs
+                if not (best_match == "Government Facilities" and has_school_keywords):
+                    for subsector in subsectors:
+                        subsector_id = get_subsector_id(subsector, fuzzy=True)
+                        if subsector_id:
+                            # CRITICAL: Validate that this subsector actually belongs to the inferred sector
+                            if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
+                                inferred_subsector = subsector
+                                logger.info(f"Fallback: Using first available subsector '{subsector}' for sector '{best_match}'")
+                                break
+                            else:
+                                logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
+                else:
+                    logger.warning(f"School keywords detected but Education Facilities subsector not found - leaving subsector empty (not using Federal Facilities fallback)")
             
             return best_match, inferred_subsector
     

@@ -9,7 +9,8 @@ import '@/styles/cisa.css'
 export default function ProcessingMonitorPage() {
   const router = useRouter()
   const [progress, setProgress] = useState(null)
-  const [logLines, setLogLines] = useState([])
+  // BULLETPROOF: Initialize with heartbeat so we always show something
+  const [logLines, setLogLines] = useState([`${new Date().toISOString().replace('T', ' ').substring(0, 19)} | INFO | [MONITOR] Initializing log monitor...`])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [watcherStatus, setWatcherStatus] = useState('unknown') // 'unknown' | 'running' | 'stopped'
@@ -126,7 +127,6 @@ export default function ProcessingMonitorPage() {
         ) {
           return // Silently ignore browser extension errors
         }
-        console.error('Error fetching progress:', err)
         // Only show non-timeout errors
         if (!errorMsg.includes('timeout') && !errorMsg.includes('aborted')) {
           setError(err.message)
@@ -186,14 +186,12 @@ export default function ProcessingMonitorPage() {
         try {
           data = await res.json()
         } catch (parseError) {
-          console.warn('[Live Logs] JSON parse error:', parseError)
           // Fallback: create valid structure
           data = { lines: [`[ERROR] Failed to parse response: ${parseError.message}`] }
         }
         
         // BULLETPROOF: Backend ALWAYS returns lines array, even if empty
         if (!data.lines || !Array.isArray(data.lines)) {
-          console.warn('[Live Logs] Invalid response structure:', data)
           data.lines = [`[ERROR] Invalid response from server`]
         }
         
@@ -201,7 +199,6 @@ export default function ProcessingMonitorPage() {
         const validLines = data.lines.filter(line => line && typeof line === 'string' && line.trim())
         
         if (validLines.length > 0) {
-          console.log(`[Live Logs] Initial load: ${validLines.length} lines`)
           setLogLines(validLines)
           // Track initial lines
           validLines.forEach(line => {
@@ -209,26 +206,22 @@ export default function ProcessingMonitorPage() {
           })
           retryCount = 0 // Reset retry on success
         } else {
-          // No valid lines - show connection status
-          showConnectionStatus('info', 'Connected - waiting for log entries...')
+          // No valid lines - ALWAYS show connection status (don't leave empty)
+          const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+          setLogLines([`${timestamp} | INFO | [MONITOR] Connected - waiting for log entries...`])
         }
       } catch (err) {
         retryCount++
         const errorMsg = err.message || err.toString() || 'Unknown error'
         
-        // Don't spam console with network errors
-        if (!errorMsg.includes('aborted') && !errorMsg.includes('timeout')) {
-          console.error('[Live Logs] Initial load error:', err)
-        }
-        
         // Retry with exponential backoff
         if (retryCount < MAX_RETRIES) {
           const delay = Math.min(1000 * Math.pow(2, retryCount), 5000)
-          console.log(`[Live Logs] Retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`)
           setTimeout(() => loadInitialLogs(retry + 1), delay)
         } else {
-          // Max retries reached - show error status
-          showConnectionStatus('error', `Connection failed after ${MAX_RETRIES} retries: ${errorMsg}`)
+          // Max retries reached - ALWAYS show error status (don't leave empty)
+          const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+          setLogLines([`${timestamp} | ERROR | [MONITOR] Connection failed after ${MAX_RETRIES} retries: ${errorMsg}`])
         }
       }
     }
@@ -266,24 +259,24 @@ export default function ProcessingMonitorPage() {
           
           // BULLETPROOF: Backend ALWAYS returns lines array
           if (!data.lines || !Array.isArray(data.lines)) {
-            console.warn('[Live Logs] Invalid response structure:', data)
             data.lines = []
           }
           
           // Filter out empty lines
           const validLines = data.lines.filter(line => line && typeof line === 'string' && line.trim())
           
-          if (validLines.length > 0) {
-            setLogLines((prev) => {
-              // If this is the first poll and we have no previous lines, just set all lines
-              if (prev.length === 0 && validLines.length > 0) {
-                console.log(`[Live Logs] First poll: setting ${validLines.length} lines`)
-                validLines.forEach(line => {
-                  if (line) lastKnownLines.add(line.substring(0, 100))
-                })
-                return validLines
-              }
-              
+          // BULLETPROOF: Always update, even if no new lines (to show heartbeat/status)
+          setLogLines((prev) => {
+            // If this is the first poll and we have no previous lines, just set all lines
+            if (prev.length === 0 && validLines.length > 0) {
+              validLines.forEach(line => {
+                if (line) lastKnownLines.add(line.substring(0, 100))
+              })
+              return validLines
+            }
+            
+            // If we have valid lines, process them
+            if (validLines.length > 0) {
               // Find new lines by comparing with what we've seen
               const newLines = validLines.filter(line => {
                 const hash = line.substring(0, 100)
@@ -296,7 +289,6 @@ export default function ProcessingMonitorPage() {
               
               // If we have new lines, add them
               if (newLines.length > 0) {
-                console.log(`[Live Logs] Poll: ${newLines.length} new lines`)
                 const combined = [...prev, ...newLines]
                 // Keep only last 200 lines to prevent memory issues
                 const trimmed = combined.slice(-200)
@@ -313,25 +305,33 @@ export default function ProcessingMonitorPage() {
                 return trimmed
               }
               
-              // No new lines, return previous state
+              // No new lines, but keep existing (don't clear)
               return prev
+            } else {
+              // No valid lines from API - check if we should show heartbeat
+              const hasHeartbeat = prev.some(line => line && line.includes('[MONITOR]'))
+              if (!hasHeartbeat) {
+                // No heartbeat yet - add one
+                const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+                return [`${timestamp} | INFO | [MONITOR] Connected - waiting for log entries...`]
+              }
+              // Already have heartbeat, keep it
+              return prev
+            }
+          })
+          
+          // Handle error status
+          if (data.error || data.status === 'error') {
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+            setLogLines(prev => {
+              // Replace any existing status with error
+              const filtered = prev.filter(line => !line || !line.includes('[MONITOR]'))
+              return [...filtered, `${timestamp} | ERROR | [MONITOR] ${data.message || data.error || 'Unknown error'}`]
             })
-          } else if (data.error || data.status === 'error') {
-            // Show error message if API returns an error
-            showConnectionStatus('error', data.message || data.error || 'Unknown error')
           }
         } catch (err) {
           consecutiveErrors++
           const errorMsg = err.message || err.toString() || ''
-          
-          // Only log non-network errors
-          if (
-            !errorMsg.includes('aborted') &&
-            !errorMsg.includes('timeout') &&
-            !errorMsg.includes('Failed to fetch')
-          ) {
-            console.error('[Live Logs] Poll error:', err)
-          }
           
           // Show error status if too many consecutive errors
           if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
@@ -403,7 +403,6 @@ export default function ProcessingMonitorPage() {
   async function controlAction(action) {
     try {
       setControlLoading(true)
-      console.log(`[Control Action] Sending action: ${action}`)
       
       const res = await fetch('/api/system/control', {
         method: 'POST',
@@ -417,11 +416,8 @@ export default function ProcessingMonitorPage() {
       try {
         data = await res.json()
       } catch (parseError) {
-        console.error('[Control Action] Failed to parse response:', parseError)
         throw new Error(`Failed to parse server response: ${parseError.message}`)
       }
-      
-      console.log('[Control Action] Response:', data)
       
       // Check if response indicates an error
       if (data.status === 'error' || !data.status || (res.status !== 200 && res.status !== 201)) {
@@ -479,11 +475,10 @@ export default function ProcessingMonitorPage() {
             setWatcherStatus(progressData.watcher_status)
           }
         } catch (err) {
-          console.error('Error refreshing progress:', err)
+          // Silently handle refresh errors
         }
       }, 2000) // Increased delay for actions that may take time
     } catch (err) {
-      console.error('[Control Action] Error:', err)
       // Don't show timeout errors or browser extension errors to user
       const errorMsg = (err.message || err.toString() || '').toLowerCase()
       if (
@@ -537,7 +532,7 @@ export default function ProcessingMonitorPage() {
                     setWatcherStatus(progressData.watcher_status)
                   }
                 } catch (err) {
-                  console.error('Error refreshing:', err)
+                  // Silently handle refresh errors
                 } finally {
                   setLoading(false)
                 }
@@ -730,15 +725,11 @@ export default function ProcessingMonitorPage() {
               lineHeight: '1.5'
             }}
           >
-            {logLines.length === 0 ? (
-              <div style={{ color: '#888' }}>Waiting for log entries...</div>
-            ) : (
-              logLines.map((line, i) => (
-                <div key={i} style={{ marginBottom: '2px' }}>
-                  {line}
-                </div>
-              ))
-            )}
+            {logLines.map((line, i) => (
+              <div key={i} style={{ marginBottom: '2px' }}>
+                {line}
+              </div>
+            ))}
             <div ref={logEndRef} />
           </div>
         </div>

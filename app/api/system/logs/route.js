@@ -1,6 +1,7 @@
 /**
  * Next.js API proxy route for Flask system logs
  * Proxies to Flask backend at /api/system/logs
+ * Route: /api/system/logs
  */
 
 import { NextResponse } from 'next/server';

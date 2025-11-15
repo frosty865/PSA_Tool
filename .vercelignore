@@ -10,10 +10,13 @@ requirements.txt
 
 # Data directories
 data/
+# Ignore real server logs
 logs/
 training_data/
-# Exception: API route for system logs (must be deployed)
+
+# Do NOT ignore the Next.js API route folder
 !app/api/system/logs/
+!app/api/system/logs/route.js
 
 # Python-specific files
 *.pid

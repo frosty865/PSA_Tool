@@ -47,15 +47,10 @@ COMMON_DISCIPLINES = [
 
 # Sector inference keywords from document titles and content
 SECTOR_KEYWORDS = {
-    "Education Facilities": {
-        # K-12 schools and educational institutions (prioritize this over Government Facilities for school documents)
-        "keywords": ["school", "schools", "k-12", "k12", "safe school", "safe schools", "student", "students", "teacher", "teachers", "classroom", "campus", "education", "educational", "academic", "public school", "public schools", "elementary", "middle school", "high school"],
-        "subsectors": ["K-12 Schools", "Education Facilities", "Public Schools"]
-    },
     "Education": {
         # Higher education and private/independent educational institutions
         "keywords": ["university", "college", "faculty", "private school", "private education", "independent school", "higher education"],
-        "subsectors": ["Higher Education", "Education Facilities", "Private Education"]
+        "subsectors": ["Higher Education", "Private Education"]
     },
     "Energy": {
         "keywords": ["power", "energy", "electric", "grid", "utility", "generation", "transmission", "distribution"],
@@ -74,10 +69,10 @@ SECTOR_KEYWORDS = {
         "subsectors": ["Hospitals", "Medical Facilities", "Public Health"]
     },
     "Government Facilities": {
-        # Only match when there's explicit government context (federal, state, local, agency, etc.)
-        # Do NOT match generic "school" keywords - those should go to Education Facilities
-        "keywords": ["government", "federal", "state", "local", "agency", "municipal", "courthouse", "federal facility", "state facility", "government building", "government agency"],
-        "subsectors": ["Federal Facilities", "State Facilities", "Local Facilities"]
+        # Government facilities including schools (Education Facilities is a subsector)
+        # School keywords should match Government Facilities sector, then infer Education Facilities subsector
+        "keywords": ["government", "federal", "state", "local", "agency", "municipal", "courthouse", "federal facility", "state facility", "government building", "government agency", "school", "schools", "k-12", "k12", "safe school", "safe schools", "student", "students", "teacher", "teachers", "classroom", "campus", "education", "educational", "academic", "public school", "public schools", "elementary", "middle school", "high school"],
+        "subsectors": ["Federal Facilities", "State Facilities", "Local Facilities", "Education Facilities", "Educational Facilities"]
     },
     "Commercial Facilities": {
         "keywords": ["commercial", "retail", "shopping", "mall", "office", "business", "corporate"],
@@ -158,26 +153,23 @@ def infer_sector_subsector(
     # Context-aware vulnerability patterns that map to sectors
     # These are more specific than simple keyword matching
     vulnerability_patterns = {
-        "Education Facilities": {
-            # K-12 school-related patterns (prioritize Education Facilities for school documents)
+        "Government Facilities": {
+            # Government facility patterns including schools (Education Facilities is a subsector)
+            # School-related patterns should match Government Facilities, then infer Education Facilities subsector
             "patterns": [
+                # School-specific patterns (will infer Education Facilities subsector)
                 r"\bschool\b", r"\bschools\b", r"\bk-12\b", r"\bk12\b", r"\bsafe school\b", r"\bsafe schools\b",
                 r"\bteacher\b", r"\bteachers\b", r"\bstudent\b", r"\bstudents\b", r"\bclassroom\b", r"\bclassrooms\b",
                 r"\belementary\b", r"\bmiddle school\b", r"\bhigh school\b", r"\bpublic school\b", r"\bpublic schools\b",
                 r"\btrain\b.*teacher\b", r"\btraining.*teacher\b", r"\black.*train\b.*teacher\b",
                 r"\bviolence.*awareness\b", r"\bbullying.*awareness\b", r"\bdrug awareness\b",
-                r"\bgang.*awareness\b", r"\bcampus\b.*emergency\b", r"\bschool.*emergency\b"
-            ],
-            "subsectors": ["K-12 Schools", "Education Facilities", "Public Schools"]
-        },
-        "Government Facilities": {
-            # Government facility patterns (only when there's explicit government context)
-            "patterns": [
+                r"\bgang.*awareness\b", r"\bcampus\b.*emergency\b", r"\bschool.*emergency\b",
+                # Government facility patterns (will infer Federal/State/Local Facilities subsectors)
                 r"\bfederal facility\b", r"\bstate facility\b", r"\bgovernment building\b", r"\bgovernment agency\b",
                 r"\bfederal.*building\b", r"\bstate.*building\b", r"\blocal.*government\b",
                 r"\bcourthouse\b", r"\bmunicipal\b.*facility\b", r"\bagency.*facility\b"
             ],
-            "subsectors": ["Federal Facilities", "State Facilities", "Local Facilities"]
+            "subsectors": ["Federal Facilities", "State Facilities", "Local Facilities", "Education Facilities", "Educational Facilities"]
         },
         "Guard Force Operations": {
             # Security personnel and guard force patterns
@@ -227,22 +219,18 @@ def infer_sector_subsector(
         best_match = None
         best_score = 0
         
-        # Prioritize Education Facilities for school-related content
-        # Check Education Facilities first, then others
-        priority_sectors = ["Education Facilities"]
-        other_sectors = [s for s in vulnerability_patterns.keys() if s not in priority_sectors]
-        ordered_patterns = {k: vulnerability_patterns[k] for k in priority_sectors + other_sectors}
-        
-        for sector_name, sector_info in ordered_patterns.items():
+        # Check all sectors for pattern matches
+        for sector_name, sector_info in vulnerability_patterns.items():
             patterns = sector_info.get("patterns", [])
             score = 0
+            school_patterns_matched = 0
+            
             for pattern in patterns:
                 if re.search(pattern, vulnerability_text.lower()):
                     score += 2  # Pattern matches are worth more than simple keywords
-            
-            # Boost score for Education Facilities if school-related patterns match
-            if sector_name == "Education Facilities" and score > 0:
-                score += 3  # Give Education Facilities priority boost for school documents
+                    # Track school-related patterns for subsector inference
+                    if any(school_kw in pattern for school_kw in ["school", "teacher", "student", "classroom", "k-12", "k12"]):
+                        school_patterns_matched += 1
             
             if score > best_score:
                 best_score = score
@@ -256,15 +244,28 @@ def infer_sector_subsector(
                 subsectors = vulnerability_patterns[best_match].get("subsectors", [])
                 inferred_subsector = None
                 
-                for subsector in subsectors:
-                    subsector_id = get_subsector_id(subsector, fuzzy=True)
-                    if subsector_id:
-                        # CRITICAL: Validate that this subsector actually belongs to the inferred sector
-                        if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
-                            inferred_subsector = subsector
-                            break
-                        else:
-                            logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
+                # If school-related patterns matched, prioritize Education Facilities subsector
+                if best_match == "Government Facilities" and school_patterns_matched > 0:
+                    # Try Education Facilities subsectors first
+                    education_subsectors = ["Education Facilities", "Educational Facilities"]
+                    for subsector in education_subsectors:
+                        subsector_id = get_subsector_id(subsector, fuzzy=True)
+                        if subsector_id:
+                            if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
+                                inferred_subsector = subsector
+                                break
+                
+                # If no education subsector found, try other subsectors
+                if not inferred_subsector:
+                    for subsector in subsectors:
+                        subsector_id = get_subsector_id(subsector, fuzzy=True)
+                        if subsector_id:
+                            # CRITICAL: Validate that this subsector actually belongs to the inferred sector
+                            if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
+                                inferred_subsector = subsector
+                                break
+                            else:
+                                logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
                 
                 logger.info(f"Inferred sector '{best_match}' from vulnerability pattern matching (score: {best_score})")
                 return best_match, inferred_subsector
@@ -273,14 +274,10 @@ def infer_sector_subsector(
     if document_title:
         best_match = None
         best_score = 0
+        has_school_keywords = False
         
-        # Prioritize Education Facilities for school documents
-        # Check Education Facilities first to give it higher priority
-        priority_sectors = ["Education Facilities", "Education"]
-        other_sectors = [s for s in SECTOR_KEYWORDS.keys() if s not in priority_sectors]
-        ordered_sectors = priority_sectors + other_sectors
-        
-        for sector_name in ordered_sectors:
+        # Check all sectors for keyword matches
+        for sector_name in SECTOR_KEYWORDS.keys():
             sector_info = SECTOR_KEYWORDS.get(sector_name)
             if not sector_info:
                 continue
@@ -291,9 +288,9 @@ def infer_sector_subsector(
             normalized_text = combined_text.replace("-", " ").replace("_", " ")
             score = sum(1 for keyword in keywords if f" {keyword} " in f" {normalized_text} " or normalized_text.startswith(keyword + " ") or normalized_text.endswith(" " + keyword) or normalized_text == keyword)
             
-            # Boost score for Education Facilities if school-related keywords are found
-            if sector_name == "Education Facilities" and any(kw in normalized_text for kw in ["school", "schools", "k-12", "k12", "student", "teacher"]):
-                score += 2  # Give Education Facilities priority boost
+            # Track if school keywords are present (for subsector inference)
+            if any(kw in normalized_text for kw in ["school", "schools", "k-12", "k12", "student", "teacher"]):
+                has_school_keywords = True
             
             if score > best_score:
                 best_score = score
@@ -310,19 +307,30 @@ def infer_sector_subsector(
             subsectors = SECTOR_KEYWORDS[best_match]["subsectors"]
             inferred_subsector = None
             
-            # Check if any subsector keywords match
-            for subsector in subsectors:
-                subsector_lower = subsector.lower()
-                if any(f" {kw} " in f" {combined_text} " for kw in subsector_lower.split()):
-                    # Validate subsector exists in Supabase AND belongs to the sector
+            # If Government Facilities and school keywords present, prioritize Education Facilities subsector
+            if best_match == "Government Facilities" and has_school_keywords:
+                education_subsectors = ["Education Facilities", "Educational Facilities"]
+                for subsector in education_subsectors:
                     subsector_id = get_subsector_id(subsector, fuzzy=True)
                     if subsector_id:
-                        # CRITICAL: Validate that this subsector actually belongs to the inferred sector
                         if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
                             inferred_subsector = subsector
                             break
-                        else:
-                            logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
+            
+            # If no education subsector found, check if any subsector keywords match
+            if not inferred_subsector:
+                for subsector in subsectors:
+                    subsector_lower = subsector.lower()
+                    if any(f" {kw} " in f" {combined_text} " for kw in subsector_lower.split()):
+                        # Validate subsector exists in Supabase AND belongs to the sector
+                        subsector_id = get_subsector_id(subsector, fuzzy=True)
+                        if subsector_id:
+                            # CRITICAL: Validate that this subsector actually belongs to the inferred sector
+                            if _validate_subsector_belongs_to_sector(subsector_id, sector_id):
+                                inferred_subsector = subsector
+                                break
+                            else:
+                                logger.warning(f"Subsector '{subsector}' does not belong to sector '{best_match}' - skipping")
             
             # If no specific subsector matched, try first one from list (but validate it exists AND belongs to sector)
             if not inferred_subsector and subsectors:

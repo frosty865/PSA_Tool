@@ -151,6 +151,42 @@ const SUBSECTOR_DESCRIPTIONS = {
   'Water Treatment': 'Facilities that treat raw water from sources like rivers, lakes, and groundwater to make it safe for drinking and other uses.',
 }
 
+// Function to check if a description is generic/non-descriptive
+function isGenericDescription(description, subsectorName, sectorName) {
+  if (!description) return true
+  
+  const desc = description.toLowerCase().trim()
+  const patterns = [
+    /^subsector within the/i,
+    /^a subsector within/i,
+    /^subsector of/i,
+    /^part of the/i,
+    /^component of/i,
+    /^within the .* sector$/i,
+    /^subsector$/i,
+    /^subsector \d+$/i
+  ]
+  
+  // Check if description matches generic patterns
+  if (patterns.some(pattern => pattern.test(desc))) {
+    return true
+  }
+  
+  // Check if description is too short or just repeats the name
+  if (desc.length < 30) {
+    return true
+  }
+  
+  // Check if it's just the subsector name with minimal text
+  const nameWords = subsectorName.toLowerCase().split(/\s+/).filter(w => w.length > 2)
+  const descWords = desc.split(/\s+/).filter(w => w.length > 2)
+  if (nameWords.length > 0 && descWords.length <= nameWords.length + 3) {
+    return true
+  }
+  
+  return false
+}
+
 // Function to get a descriptive subsector description
 function getSubsectorDescription(subsectorName, sectorName) {
   if (!subsectorName) {
@@ -603,14 +639,21 @@ export default function SectorsPage() {
                       }}>
                         {subsectors.map(subsector => {
                           const subsectorName = subsector.name || 'Unknown Subsector'
-                          // Use database description if available and not empty, otherwise use our comprehensive mapping
-                          let subsectorDesc = (subsector.description && subsector.description.trim()) 
-                            ? subsector.description 
+                          // Check if database description exists and is not generic
+                          const dbDescription = subsector.description?.trim()
+                          const useDbDescription = dbDescription && !isGenericDescription(dbDescription, subsectorName, sectorName)
+                          
+                          // Use our comprehensive mapping if database description is missing or generic
+                          const subsectorDesc = useDbDescription 
+                            ? dbDescription 
                             : getSubsectorDescription(subsectorName, sectorName)
                           
                           // Debug: Log if we're using fallback (only in development)
-                          if (process.env.NODE_ENV === 'development' && !subsector.description) {
+                          if (process.env.NODE_ENV === 'development' && !useDbDescription) {
                             console.log(`[Sectors] Looking up description for: "${subsectorName}" in sector "${sectorName}"`)
+                            if (dbDescription) {
+                              console.log(`[Sectors] Database description is generic, using mapping instead`)
+                            }
                             console.log(`[Sectors] Found description:`, subsectorDesc.substring(0, 50) + '...')
                           }
                           

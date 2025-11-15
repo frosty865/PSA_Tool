@@ -14,13 +14,13 @@ export default function AdminOverviewPage() {
   const [pendingReviewCount, setPendingReviewCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [lastRefresh, setLastRefresh] = useState(null)
   
   // Use preloaded status from context
   const { health, progress, healthLoading, progressLoading, refreshHealth } = useStatus()
   
   // Extract system components from health, with fallback
   const system = health?.components || { flask: 'checking', ollama: 'checking', supabase: 'checking', tunnel: 'checking', watcher: 'checking' }
-  const lastRefresh = health?.lastRefresh || progress?.lastRefresh || null
 
   // Manual refresh function (for button clicks) - uses context refresh
   const fetchSystemHealth = useCallback(async () => {

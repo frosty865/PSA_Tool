@@ -248,6 +248,42 @@ export default function SectorsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // Global error handler to suppress browser extension errors
+  useEffect(() => {
+    const handleError = (event) => {
+      const errorMessage = event.error?.message || event.message || ''
+      if (
+        errorMessage.includes('message channel') ||
+        errorMessage.includes('asynchronous response') ||
+        errorMessage.includes('channel closed')
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+        return false
+      }
+    }
+    const handleRejection = (event) => {
+      const errorMessage = event.reason?.message || event.reason || ''
+      if (
+        errorMessage.includes('message channel') ||
+        errorMessage.includes('asynchronous response') ||
+        errorMessage.includes('channel closed')
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+        return false
+      }
+    }
+    
+    window.addEventListener('error', handleError, true)
+    window.addEventListener('unhandledrejection', handleRejection, true)
+    
+    return () => {
+      window.removeEventListener('error', handleError, true)
+      window.removeEventListener('unhandledrejection', handleRejection, true)
+    }
+  }, [])
+
   // Load sectors
   useEffect(() => {
     const loadSectors = async () => {

@@ -434,6 +434,8 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     document_sector_id = None
     document_subsector_id = None
     
+    # Get classifier instance (singleton, initialized once per process)
+    classifier = None
     if document_title:
         try:
             # Use singleton classifier (initialized once per process, not per document)
@@ -490,6 +492,65 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                 logger.info(f"Document classified - sector_id: {document_sector_id}, subsector_id: {document_subsector_id}")
             else:
                 logger.info(f"No sector/subsector classified for document: {document_title}")
+            
+            # Initialize citation extractor if we have page data available
+            try:
+                from services.processor.normalization.citation_extractor import CitationExtractor
+                
+                # Build page_map and page_text from PDF if available
+                page_map = {}  # chunk_index -> page_number
+                page_text = {}  # page_number -> page_text
+                
+                if source_filepath and source_filepath.exists() and source_filepath.suffix.lower() == '.pdf':
+                    try:
+                        import fitz  # PyMuPDF
+                        doc = fitz.open(str(source_filepath))
+                        
+                        # Extract all page text
+                        for page_num in range(len(doc)):
+                            page = doc[page_num]
+                            page_text[page_num + 1] = page.get_text()  # 1-indexed
+                        
+                        # Build chunk_index -> page_number map from model_results
+                        # Try to infer from chunk_id or page_ref
+                        for idx, record in enumerate(model_results):
+                            chunk_id = record.get("chunk_id", "")
+                            page_ref = record.get("page_ref") or record.get("page_range", "")
+                            
+                            # Try to extract page number from page_ref (e.g., "23" or "23-25")
+                            page_num = None
+                            if page_ref:
+                                # Try to parse page number from page_ref
+                                import re
+                                page_match = re.search(r'(\d+)', str(page_ref))
+                                if page_match:
+                                    page_num = int(page_match.group(1))
+                            
+                            # If we have a page number, map chunk index to it
+                            if page_num:
+                                page_map[idx] = page_num
+                        
+                        doc.close()
+                        
+                        # Initialize citation extractor on classifier
+                        if page_map and page_text:
+                            classifier.citation_extractor = CitationExtractor(
+                                page_map=page_map,
+                                page_text=page_text,
+                                file_name=document_title
+                            )
+                            logger.info(f"Citation extractor initialized with {len(page_map)} chunk mappings and {len(page_text)} pages")
+                        else:
+                            logger.debug("Insufficient page data for citation extraction")
+                            
+                    except Exception as e:
+                        logger.debug(f"Could not initialize citation extractor: {e}")
+                        # Continue without citation extraction
+                        
+            except ImportError:
+                logger.debug("CitationExtractor not available")
+            except Exception as e:
+                logger.debug(f"Citation extractor initialization failed: {e}")
                 
         except Exception as e:
             logger.warning(f"Document classification failed: {e}", exc_info=True)
@@ -687,10 +748,38 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             sector_id = document_sector_id
             subsector_id = document_subsector_id
             
+            # Extract citations for OFCs if citation extractor is available
+            ofcs_with_citations = []
+            if classifier and hasattr(classifier, 'citation_extractor') and classifier.citation_extractor:
+                chunk_idx = idx - 1  # Convert to 0-indexed for citation extractor
+                chunk_text = r.get("source_context") or r.get("content") or vuln
+                
+                for ofc in ofcs:
+                    if isinstance(ofc, str):
+                        try:
+                            citation = classifier.citation_extractor.extract(
+                                chunk_index=chunk_idx,
+                                chunk_text=chunk_text,
+                                ofc_text=ofc
+                            )
+                            # Attach citation to OFC (convert to dict if string)
+                            ofc_dict = {"text": ofc, "citation": citation}
+                            ofcs_with_citations.append(ofc_dict)
+                        except Exception as e:
+                            logger.debug(f"Citation extraction failed for OFC: {e}")
+                            # Fallback to plain OFC without citation
+                            ofcs_with_citations.append(ofc)
+                    else:
+                        # OFC is already a dict, just add it
+                        ofcs_with_citations.append(ofc)
+            else:
+                # No citation extractor available, use plain OFCs
+                ofcs_with_citations = ofcs
+            
             # Build cleaned record - preserve ALL fields from input
             cleaned_record = {
                 "vulnerability": vuln.strip(),
-                "options_for_consideration": ofcs,
+                "options_for_consideration": ofcs_with_citations,
                 "discipline": normalized_discipline or r.get("discipline"),  # Use normalized discipline name
                 "discipline_id": disc_id,
                 "discipline_subtype": subtype_name,  # Add subtype name

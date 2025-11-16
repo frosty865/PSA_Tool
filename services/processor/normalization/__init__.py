@@ -22,6 +22,7 @@ from .discipline_resolver_v2 import DisciplineResolverV2, create_resolver_from_s
 from .subsector_resolver_v2 import SubsectorResolverV2
 from .document_classifier import DocumentClassifier, extract_document_context
 from .classifier_context import get_classifier, reset_classifier
+from .citation_extractor import CitationExtractor, Citation
 # taxonomy_resolver is deprecated - use DocumentClassifier instead
 
 __all__ = [
@@ -46,6 +47,8 @@ __all__ = [
     'DocumentClassifier',
     'extract_document_context',
     'get_classifier',
-    'reset_classifier'
+    'reset_classifier',
+    'CitationExtractor',
+    'Citation'
 ]
 

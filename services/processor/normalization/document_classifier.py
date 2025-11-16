@@ -121,6 +121,9 @@ class DocumentClassifier:
         # Optional manual override
         self.override_subsector: Optional[str] = None
         self.override_sector: Optional[str] = None
+        
+        # Citation extractor (initialized separately when page data is available)
+        self.citation_extractor: Optional[Any] = None
 
     # -------------------------------------------------------------------
     # Public method

@@ -212,6 +212,8 @@ def get_discipline_record(name=None, all=False, fuzzy=False):
 
 def get_sector_id(name, fuzzy=False):
     """
+    ⚠️ DEPRECATED: Use DocumentClassifier for sector resolution instead.
+    
     Get sector ID by name from Supabase.
     
     Args:
@@ -221,6 +223,12 @@ def get_sector_id(name, fuzzy=False):
     Returns:
         Sector ID (UUID) or None if not found or Supabase not configured
     """
+    import warnings
+    warnings.warn(
+        "get_sector_id is deprecated. Use DocumentClassifier for sector resolution.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     if not name:
         return None
     
@@ -290,6 +298,8 @@ def get_sector_id(name, fuzzy=False):
 
 def get_subsector_id(name, fuzzy=False):
     """
+    ⚠️ DEPRECATED: Use DocumentClassifier for subsector resolution instead.
+    
     Get subsector ID by name from Supabase.
     
     Args:
@@ -299,6 +309,12 @@ def get_subsector_id(name, fuzzy=False):
     Returns:
         Subsector ID (UUID) or None if not found or Supabase not configured
     """
+    import warnings
+    warnings.warn(
+        "get_subsector_id is deprecated. Use DocumentClassifier for subsector resolution.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     if not name:
         return None
     

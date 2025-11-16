@@ -11,6 +11,8 @@ from .discipline_resolver import (
 )
 from .vofc_discipline import DisciplineResolver
 from .discipline_resolver_v2 import DisciplineResolverV2, create_resolver_from_supabase
+from .subsector_resolver_v2 import SubsectorResolverV2
+from .document_classifier import DocumentClassifier, extract_document_context
 from .taxonomy_resolver import (
     normalize as normalize_taxonomy_text,
     resolve_subsector,
@@ -37,6 +39,9 @@ __all__ = [
     'DisciplineResolver',
     'DisciplineResolverV2',
     'create_resolver_from_supabase',
+    'SubsectorResolverV2',
+    'DocumentClassifier',
+    'extract_document_context',
     'normalize_taxonomy_text',
     'resolve_subsector',
     'resolve_sector',

@@ -1,13 +1,24 @@
 """
-Taxonomy Inference Module
+Taxonomy Inference Module (DEPRECATED - Use DocumentClassifier/SubsectorResolverV2)
+
+⚠️ DEPRECATED: This module is deprecated. Use DocumentClassifier and SubsectorResolverV2 instead.
+
 Infers sector and subsector from document context and validates against Supabase tables.
 Prevents disciplines from being incorrectly used as sectors.
 """
 import logging
+import warnings
 from typing import Dict, Any, Optional, Tuple
 from services.supabase_client import get_discipline_record, get_sector_id, get_subsector_id, get_sector_from_subsector
 
 logger = logging.getLogger(__name__)
+
+# Deprecation warning
+warnings.warn(
+    "taxonomy_inference module is deprecated. Use DocumentClassifier and SubsectorResolverV2 instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 def _validate_subsector_belongs_to_sector(subsector_id, sector_id):
     """
@@ -215,6 +226,8 @@ def infer_sector_subsector(
     use_backwards_approach: bool = True
 ) -> Tuple[Optional[str], Optional[str]]:
     """
+    ⚠️ DEPRECATED: Use DocumentClassifier.classify() or SubsectorResolverV2.resolve_document() instead.
+    
     Infer sector and subsector from document context.
     
     NEW APPROACH (backwards): Identifies subsector first from document content,

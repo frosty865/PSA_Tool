@@ -1,14 +1,25 @@
 """
-Discipline Resolver Module
+Discipline Resolver Module (DEPRECATED - Use DisciplineResolverV2)
+
+⚠️ DEPRECATED: This module is deprecated. Use DisciplineResolverV2 instead.
+
 Normalizes raw discipline text to the 10 new CISA-aligned disciplines
 and infers sub-disciplines using keyword heuristics.
 """
 import logging
 import re
+import warnings
 from typing import Dict, Any, Optional, Tuple
 from services.supabase_client import get_discipline_record, get_supabase_client
 
 logger = logging.getLogger(__name__)
+
+# Deprecation warning
+warnings.warn(
+    "discipline_resolver module is deprecated. Use DisciplineResolverV2 from discipline_resolver_v2 instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 # The 10 new master disciplines
 NEW_DISCIPLINES = [
@@ -144,6 +155,8 @@ ESS_INFRASTRUCTURE_KEYWORDS = [
 
 def normalize_discipline_name(raw_discipline: str) -> Optional[str]:
     """
+    ⚠️ DEPRECATED: Use DisciplineResolverV2.resolve() instead.
+    
     Normalize raw discipline text to one of the 10 new disciplines.
     
     Rules:
@@ -295,6 +308,8 @@ def resolve_discipline_and_subtype(
     ofc_text: Optional[str] = None
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
+    ⚠️ DEPRECATED: Use DisciplineResolverV2.resolve() instead.
+    
     Resolve discipline name to normalized discipline, discipline_id, and subtype.
     
     This is the main entry point for discipline resolution.

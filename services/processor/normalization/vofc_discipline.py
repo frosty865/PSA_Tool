@@ -1,10 +1,20 @@
 """
-vofc_discipline.py
+vofc_discipline.py (DEPRECATED - Use DisciplineResolverV2)
+
+⚠️ DEPRECATED: This module is deprecated. Use DisciplineResolverV2 instead.
 
 Intelligent VOFC discipline resolver:
 - Hybrid keyword/phrase/semantic scoring
 - Designed for vulnerability / OFC text
 """
+import warnings
+
+# Deprecation warning
+warnings.warn(
+    "vofc_discipline.DisciplineResolver is deprecated. Use DisciplineResolverV2 from discipline_resolver_v2 instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import json
 import os
@@ -73,6 +83,8 @@ class DisciplineScore:
 
 class DisciplineResolver:
     """
+    ⚠️ DEPRECATED: Use DisciplineResolverV2 instead.
+    
     Intelligent discipline resolver.
     
     Usage:

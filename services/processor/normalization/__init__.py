@@ -1,4 +1,12 @@
-"""Normalization Module"""
+"""Normalization Module
+
+⚠️ DEPRECATION NOTICE:
+- discipline_resolver (v1) → Use DisciplineResolverV2
+- taxonomy_inference.infer_sector_subsector (v1) → Use DocumentClassifier/SubsectorResolverV2
+- vofc_discipline.DisciplineResolver (v1) → Use DisciplineResolverV2
+
+All v1 modules are deprecated but remain functional for backwards compatibility.
+"""
 from .merge import merge_all
 from .dedupe import dedupe_records, dedupe_key
 from .classify import normalize_records, normalize_record, normalize_confidence, normalize_impact_level

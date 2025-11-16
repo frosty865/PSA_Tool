@@ -212,184 +212,28 @@ def get_discipline_record(name=None, all=False, fuzzy=False):
 
 def get_sector_id(name, fuzzy=False):
     """
-    ⚠️ DEPRECATED: Use DocumentClassifier for sector resolution instead.
+    ⚠️ REMOVED: This function has been removed. Use DocumentClassifier for sector resolution instead.
     
-    Get sector ID by name from Supabase.
-    
-    Args:
-        name: Sector name to search for (case-insensitive)
-        fuzzy: If True, use first word only for matching (more flexible)
-    
-    Returns:
-        Sector ID (UUID) or None if not found or Supabase not configured
+    This function used .ilike queries which cause 406 errors. It has been completely removed.
+    All code must use DocumentClassifier/SubsectorResolverV2 for sector/subsector resolution.
     """
-    import warnings
-    warnings.warn(
-        "get_sector_id is deprecated. Use DocumentClassifier for sector resolution.",
-        DeprecationWarning,
-        stacklevel=2
+    raise NotImplementedError(
+        "get_sector_id has been removed. Use DocumentClassifier for sector resolution. "
+        "See services.processor.normalization.document_classifier.DocumentClassifier"
     )
-    if not name:
-        return None
-    
-    try:
-        client = get_supabase_client()
-        
-        # Try exact match first (case-insensitive) - use sector_name first (the working column)
-        try:
-            result = client.table("sectors").select("id").ilike("sector_name", name).maybe_single().execute()
-            if result.data:
-                return result.data.get('id')
-        except Exception:
-            # Fallback to name column if sector_name fails
-            try:
-                result = client.table("sectors").select("id").ilike("name", name).maybe_single().execute()
-                if result.data:
-                    return result.data.get('id')
-            except Exception:
-                pass
-        
-        # Try contains match (full name) - PostgREST uses * for wildcards
-        pattern = f"*{name}*"
-        try:
-            result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
-            if result.data:
-                return result.data.get('id')
-        except Exception:
-            # Fallback to name column
-            try:
-                result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
-                if result.data:
-                    return result.data.get('id')
-            except Exception:
-                pass
-        
-        # If fuzzy=True, try first word only
-        if fuzzy and name:
-            first_word = name.split()[0] if name.split() else name
-            pattern = f"*{first_word}*"
-            try:
-                result = client.table("sectors").select("id").ilike("sector_name", pattern).maybe_single().execute()
-                if result.data:
-                    return result.data.get('id')
-            except Exception:
-                # Fallback to name column
-                try:
-                    result = client.table("sectors").select("id").ilike("name", pattern).maybe_single().execute()
-                    if result.data:
-                        return result.data.get('id')
-                except Exception:
-                    pass
-        
-        logging.warning(f"Sector not found: {name}")
-        return None
-        
-    except ConfigurationError:
-        # Supabase not configured - return None gracefully (don't crash taxonomy inference)
-        logging.debug(f"Supabase not configured - cannot validate sector '{name}'")
-        return None
-    except ServiceError:
-        # Re-raise ServiceError as-is
-        raise
-    except Exception as e:
-        logging.error(f"Failed to get sector ID: {e}", exc_info=True)
-        raise ServiceError(f"Failed to get sector ID: {e}") from e
 
 
 def get_subsector_id(name, fuzzy=False):
     """
-    ⚠️ DEPRECATED: Use DocumentClassifier for subsector resolution instead.
+    ⚠️ REMOVED: This function has been removed. Use DocumentClassifier for subsector resolution instead.
     
-    Get subsector ID by name from Supabase.
-    
-    Args:
-        name: Subsector name to search for (case-insensitive)
-        fuzzy: If True, use first word only for matching (more flexible)
-    
-    Returns:
-        Subsector ID (UUID) or None if not found or Supabase not configured
+    This function used .ilike queries which cause 406 errors. It has been completely removed.
+    All code must use DocumentClassifier/SubsectorResolverV2 for sector/subsector resolution.
     """
-    import warnings
-    warnings.warn(
-        "get_subsector_id is deprecated. Use DocumentClassifier for subsector resolution.",
-        DeprecationWarning,
-        stacklevel=2
+    raise NotImplementedError(
+        "get_subsector_id has been removed. Use DocumentClassifier for subsector resolution. "
+        "See services.processor.normalization.document_classifier.DocumentClassifier"
     )
-    if not name:
-        return None
-    
-    try:
-        client = get_supabase_client()
-        
-        # Normalize name: strip whitespace, handle common variations
-        normalized_name = name.strip()
-        
-        # Try exact match first (case-insensitive, trimmed)
-        try:
-            result = client.table("subsectors").select("id, name, is_active").ilike("name", normalized_name).maybe_single().execute()
-            if result.data:
-                subsector_id = result.data.get('id')
-                db_name = result.data.get('name')
-                is_active = result.data.get('is_active', True)
-                if not is_active:
-                    logging.warning(f"Subsector '{name}' found but is_active=false (ID: {subsector_id})")
-                logging.debug(f"Found subsector '{name}' -> '{db_name}' (ID: {subsector_id}, active: {is_active})")
-                return subsector_id
-        except Exception as e:
-            logging.debug(f"Exact match failed for '{name}': {e}")
-        
-        # Try contains match (full name) - PostgREST uses * for wildcards
-        try:
-            pattern = f"*{normalized_name}*"
-            result = client.table("subsectors").select("id, name, is_active").ilike("name", pattern).maybe_single().execute()
-            if result.data:
-                subsector_id = result.data.get('id')
-                db_name = result.data.get('name')
-                is_active = result.data.get('is_active', True)
-                logging.debug(f"Found subsector '{name}' via contains match -> '{db_name}' (ID: {subsector_id}, active: {is_active})")
-                return subsector_id
-        except Exception as e:
-            logging.debug(f"Contains match failed for '{name}': {e}")
-        
-        # If fuzzy=True, try first word only
-        if fuzzy and normalized_name:
-            first_word = normalized_name.split()[0] if normalized_name.split() else normalized_name
-            try:
-                pattern = f"*{first_word}*"
-                result = client.table("subsectors").select("id, name, is_active").ilike("name", pattern).maybe_single().execute()
-                if result.data:
-                    subsector_id = result.data.get('id')
-                    db_name = result.data.get('name')
-                    is_active = result.data.get('is_active', True)
-                    logging.debug(f"Found subsector '{name}' via fuzzy match (first word: '{first_word}') -> '{db_name}' (ID: {subsector_id}, active: {is_active})")
-                    return subsector_id
-            except Exception as e:
-                logging.debug(f"Fuzzy match failed for '{name}': {e}")
-        
-        # Log all available subsectors for debugging (only if not found)
-        try:
-            all_subsectors = client.table("subsectors").select("id, name, is_active").limit(200).execute()
-            if all_subsectors.data:
-                available_names = [row.get('name') for row in all_subsectors.data if row.get('is_active')]
-                logging.warning(f"Subsector '{name}' not found. Available active subsectors: {', '.join(available_names[:20])}...")
-            else:
-                logging.warning(f"Subsector '{name}' not found. No subsectors returned from database.")
-        except Exception as e:
-            logging.debug(f"Could not list available subsectors for debugging: {e}")
-        
-        logging.warning(f"Subsector not found: '{name}' (fuzzy={fuzzy})")
-        return None
-        
-    except ConfigurationError:
-        # Supabase not configured - return None gracefully (don't crash taxonomy inference)
-        logging.debug(f"Supabase not configured - cannot validate subsector '{name}'")
-        return None
-    except ServiceError:
-        # Re-raise ServiceError as-is
-        raise
-    except Exception as e:
-        logging.error(f"Failed to get subsector ID: {e}", exc_info=True)
-        raise ServiceError(f"Failed to get subsector ID: {e}") from e
 
 
 def get_sector_from_subsector(subsector_id):

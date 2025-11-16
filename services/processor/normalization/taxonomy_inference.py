@@ -226,6 +226,16 @@ def infer_sector_subsector(
     use_backwards_approach: bool = True
 ) -> Tuple[Optional[str], Optional[str]]:
     """
+    ⚠️ REMOVED: This function has been removed. Use DocumentClassifier for sector/subsector resolution.
+    
+    This function used deprecated get_sector_id/get_subsector_id with .ilike queries which cause 406 errors.
+    All code must use DocumentClassifier/SubsectorResolverV2 for sector/subsector resolution.
+    """
+    raise NotImplementedError(
+        "infer_sector_subsector has been removed. Use DocumentClassifier for sector/subsector resolution. "
+        "See services.processor.normalization.document_classifier.DocumentClassifier"
+    )
+    """
     ⚠️ DEPRECATED: Use DocumentClassifier.classify() or SubsectorResolverV2.resolve_document() instead.
     
     Infer sector and subsector from document context.
@@ -511,6 +521,16 @@ def validate_and_correct_taxonomy(
     document_title: str = "",
     skip_sector_subsector: bool = False
 ) -> Dict[str, Any]:
+    """
+    ⚠️ REMOVED: This function has been removed. Use DocumentClassifier for sector/subsector resolution.
+    
+    This function used deprecated get_sector_id/get_subsector_id with .ilike queries which cause 406 errors.
+    All code must use DocumentClassifier/SubsectorResolverV2 for sector/subsector resolution.
+    """
+    raise NotImplementedError(
+        "validate_and_correct_taxonomy has been removed. Use DocumentClassifier for sector/subsector resolution. "
+        "See services.processor.normalization.document_classifier.DocumentClassifier"
+    )
     """
     Validate and correct discipline, sector, and subsector assignments.
     Ensures values align with Supabase tables and prevents disciplines from being used as sectors.

@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass
 from typing import Dict, Optional, Any, List
 
-from .pdf_structure import find_section_for_page
+from services.processor.normalization.pdf_structure import find_section_for_page
 
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")

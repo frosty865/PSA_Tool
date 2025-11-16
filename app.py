@@ -6,6 +6,12 @@ All blueprints must be registered for production deployment
 import sys
 import logging
 
+# Runtime diagnostics (optional - comment out for production)
+try:
+    import diagnostic
+except ImportError:
+    pass  # diagnostic.py not found, skip
+
 # Validate configuration before starting
 try:
     from config import Config, ConfigurationError

@@ -23,6 +23,8 @@ from .subsector_resolver_v2 import SubsectorResolverV2
 from .document_classifier import DocumentClassifier, extract_document_context
 from .classifier_context import get_classifier, reset_classifier
 from .citation_extractor import CitationExtractor, Citation
+from .citation_extractor_v2 import CitationExtractorV2 as CitationExtractorV2
+from .pdf_structure import build_document_structure, find_section_for_page, SectionNode
 # taxonomy_resolver is deprecated - use DocumentClassifier instead
 
 __all__ = [
@@ -49,6 +51,10 @@ __all__ = [
     'get_classifier',
     'reset_classifier',
     'CitationExtractor',
-    'Citation'
+    'Citation',
+    'CitationExtractorV2',
+    'build_document_structure',
+    'find_section_for_page',
+    'SectionNode'
 ]
 

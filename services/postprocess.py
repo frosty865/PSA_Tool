@@ -493,9 +493,10 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             else:
                 logger.info(f"No sector/subsector classified for document: {document_title}")
             
-            # Initialize citation extractor if we have page data available
+            # Initialize citation extractor V2 if we have page data available
             try:
-                from services.processor.normalization.citation_extractor import CitationExtractor
+                from services.processor.normalization.citation_extractor_v2 import CitationExtractorV2
+                from services.processor.normalization.pdf_structure import build_document_structure
                 
                 # Build page_map and page_text from PDF if available
                 page_map = {}  # chunk_index -> page_number
@@ -532,25 +533,29 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                         
                         doc.close()
                         
-                        # Initialize citation extractor on classifier
+                        # Build document structure and initialize citation extractor V2
                         if page_map and page_text:
-                            classifier.citation_extractor = CitationExtractor(
+                            # Build hierarchical section structure
+                            structure = build_document_structure(page_text, max_level=4)
+                            
+                            classifier.citation_extractor = CitationExtractorV2(
                                 page_map=page_map,
                                 page_text=page_text,
+                                structure=structure,
                                 file_name=document_title
                             )
-                            logger.info(f"Citation extractor initialized with {len(page_map)} chunk mappings and {len(page_text)} pages")
+                            logger.info(f"Citation extractor V2 initialized with {len(page_map)} chunk mappings, {len(page_text)} pages, and {len(structure.get('sections', []))} root sections")
                         else:
                             logger.debug("Insufficient page data for citation extraction")
                             
                     except Exception as e:
-                        logger.debug(f"Could not initialize citation extractor: {e}")
+                        logger.debug(f"Could not initialize citation extractor V2: {e}")
                         # Continue without citation extraction
                         
             except ImportError:
-                logger.debug("CitationExtractor not available")
+                logger.debug("CitationExtractorV2 not available")
             except Exception as e:
-                logger.debug(f"Citation extractor initialization failed: {e}")
+                logger.debug(f"Citation extractor V2 initialization failed: {e}")
                 
         except Exception as e:
             logger.warning(f"Document classification failed: {e}", exc_info=True)

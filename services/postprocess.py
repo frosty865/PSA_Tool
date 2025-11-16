@@ -436,11 +436,10 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     
     if document_title:
         try:
-            from services.processor.normalization.document_classifier import DocumentClassifier
-            from pathlib import Path
+            # Use singleton classifier (initialized once per process, not per document)
+            from services.processor.normalization.classifier_context import get_classifier
             
-            # Initialize classifier (uses default vocab path)
-            classifier = DocumentClassifier(enable_semantic=True)
+            classifier = get_classifier(enable_semantic=True)
             
             # Extract first pages text and metadata if PDF is available
             first_pages_text = ""

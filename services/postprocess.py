@@ -484,39 +484,51 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                 return_debug=False
             )
             
-            # Extract IDs from result
-            # The vocabulary stores actual database UUIDs, so these should be valid UUIDs already
-            # But we validate them once at document level (not per record)
-            document_sector_id = result.get("sector_id")  # Should be UUID from database
-            document_subsector_id = result.get("subsector_id")  # Should be UUID from database
+            # Extract IDs from result (vocabulary may have string IDs like "76" or UUIDs)
+            # Resolve to actual database UUIDs ONCE at document level (not per record)
+            subsector_id_from_vocab = result.get("subsector_id")  # May be string ID or UUID
+            sector_id_from_vocab = result.get("sector_id")  # May be string identifier or UUID
+            subsector_name_from_vocab = result.get("subsector_name")
             
-            # Validate IDs exist in database (ONCE at document level, not per record)
-            # This prevents 406 errors from invalid IDs
-            if document_subsector_id:
+            document_sector_id = None
+            document_subsector_id = None
+            
+            # Resolve subsector ID to UUID (ONCE, not per record)
+            if subsector_id_from_vocab:
                 try:
                     from services.supabase_client import get_supabase_client
                     client = get_supabase_client()
-                    # Validate subsector UUID exists
-                    subsector_check = client.table("subsectors").select("id").eq("id", str(document_subsector_id)).maybe_single().execute()
-                    if not subsector_check.data:
-                        logger.warning(f"Subsector ID '{document_subsector_id}' from classifier not found in database - clearing")
-                        document_subsector_id = None
+                    
+                    # Try direct UUID lookup first (if vocab has UUID)
+                    subsector_result = client.table("subsectors").select("id").eq("id", str(subsector_id_from_vocab)).maybe_single().execute()
+                    if subsector_result.data:
+                        document_subsector_id = subsector_result.data.get("id")
+                    elif subsector_name_from_vocab:
+                        # Fallback: lookup by name (no .ilike - use exact match to avoid 406)
+                        # Try exact match first
+                        subsector_result = client.table("subsectors").select("id").eq("name", subsector_name_from_vocab).maybe_single().execute()
+                        if subsector_result.data:
+                            document_subsector_id = subsector_result.data.get("id")
                 except Exception as e:
-                    logger.warning(f"Could not validate subsector ID '{document_subsector_id}': {e}")
-                    document_subsector_id = None
+                    logger.warning(f"Could not resolve subsector ID '{subsector_id_from_vocab}': {e}")
             
-            if document_sector_id:
+            # Resolve sector ID to UUID (ONCE, not per record)
+            if sector_id_from_vocab:
                 try:
                     from services.supabase_client import get_supabase_client
                     client = get_supabase_client()
-                    # Validate sector UUID exists
-                    sector_check = client.table("sectors").select("id").eq("id", str(document_sector_id)).maybe_single().execute()
-                    if not sector_check.data:
-                        logger.warning(f"Sector ID '{document_sector_id}' from classifier not found in database - clearing")
-                        document_sector_id = None
+                    
+                    # Try direct UUID lookup first
+                    sector_result = client.table("sectors").select("id").eq("id", str(sector_id_from_vocab)).maybe_single().execute()
+                    if sector_result.data:
+                        document_sector_id = sector_result.data.get("id")
+                    else:
+                        # Fallback: lookup by sector_name (no .ilike - use exact match)
+                        sector_result = client.table("sectors").select("id").eq("sector_name", str(sector_id_from_vocab)).maybe_single().execute()
+                        if sector_result.data:
+                            document_sector_id = sector_result.data.get("id")
                 except Exception as e:
-                    logger.warning(f"Could not validate sector ID '{document_sector_id}': {e}")
-                    document_sector_id = None
+                    logger.warning(f"Could not resolve sector ID '{sector_id_from_vocab}': {e}")
             
             if document_sector_id or document_subsector_id:
                 logger.info(f"Document classified ONCE - sector_id: {document_sector_id}, subsector_id: {document_subsector_id} (applying to all {len(model_results)} records)")

@@ -485,13 +485,43 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             )
             
             # Extract IDs from result
-            document_sector_id = result.get("sector_id")
-            document_subsector_id = result.get("subsector_id")
+            # The vocabulary stores actual database UUIDs, so these should be valid UUIDs already
+            # But we validate them once at document level (not per record)
+            document_sector_id = result.get("sector_id")  # Should be UUID from database
+            document_subsector_id = result.get("subsector_id")  # Should be UUID from database
+            
+            # Validate IDs exist in database (ONCE at document level, not per record)
+            # This prevents 406 errors from invalid IDs
+            if document_subsector_id:
+                try:
+                    from services.supabase_client import get_supabase_client
+                    client = get_supabase_client()
+                    # Validate subsector UUID exists
+                    subsector_check = client.table("subsectors").select("id").eq("id", str(document_subsector_id)).maybe_single().execute()
+                    if not subsector_check.data:
+                        logger.warning(f"Subsector ID '{document_subsector_id}' from classifier not found in database - clearing")
+                        document_subsector_id = None
+                except Exception as e:
+                    logger.warning(f"Could not validate subsector ID '{document_subsector_id}': {e}")
+                    document_subsector_id = None
+            
+            if document_sector_id:
+                try:
+                    from services.supabase_client import get_supabase_client
+                    client = get_supabase_client()
+                    # Validate sector UUID exists
+                    sector_check = client.table("sectors").select("id").eq("id", str(document_sector_id)).maybe_single().execute()
+                    if not sector_check.data:
+                        logger.warning(f"Sector ID '{document_sector_id}' from classifier not found in database - clearing")
+                        document_sector_id = None
+                except Exception as e:
+                    logger.warning(f"Could not validate sector ID '{document_sector_id}': {e}")
+                    document_sector_id = None
             
             if document_sector_id or document_subsector_id:
-                logger.info(f"Document classified - sector_id: {document_sector_id}, subsector_id: {document_subsector_id}")
+                logger.info(f"Document classified ONCE - sector_id: {document_sector_id}, subsector_id: {document_subsector_id} (applying to all {len(model_results)} records)")
             else:
-                logger.info(f"No sector/subsector classified for document: {document_title}")
+                logger.info(f"No sector/subsector classified for document: {document_title} - all records will have empty sector/subsector")
             
             # Initialize citation extractor V2 if we have page data available
             try:

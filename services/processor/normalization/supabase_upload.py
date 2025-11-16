@@ -148,9 +148,9 @@ def upload_to_supabase(
             if not vulnerability:
                 continue
             
-            # Validate and correct taxonomy before processing
-            from .taxonomy_inference import validate_and_correct_taxonomy
-            record = validate_and_correct_taxonomy(record, document_title=document_title)
+            # Note: Sector/subsector are now set at document level via DocumentClassifier
+            # Discipline is resolved per-record in postprocess.py
+            # No taxonomy inference needed here anymore
             
             # Get OFCs (handle both "options" and "options_for_consideration" fields)
             options_for_consideration = record.get("options") or record.get("options_for_consideration", [])

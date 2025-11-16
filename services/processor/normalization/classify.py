@@ -4,7 +4,6 @@ Normalizes and validates extracted data fields.
 """
 import logging
 from typing import Dict, Any, List
-from .taxonomy_inference import validate_and_correct_taxonomy
 
 
 def normalize_confidence(value: Any) -> str:
@@ -90,8 +89,9 @@ def normalize_record(record: Dict[str, Any], document_title: str = "") -> Dict[s
     if not isinstance(normalized["options"], list):
         normalized["options"] = []
     
-    # Validate and correct taxonomy (discipline, sector, subsector)
-    normalized = validate_and_correct_taxonomy(normalized, document_title=document_title)
+    # Note: Sector/subsector are now set at document level via DocumentClassifier
+    # Discipline is resolved per-record in postprocess.py
+    # No taxonomy inference needed here anymore
     
     return normalized
 

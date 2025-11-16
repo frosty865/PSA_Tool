@@ -23,7 +23,6 @@ All vulnerabilities inherit this automatically.
 
 from __future__ import annotations
 
-import re
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any

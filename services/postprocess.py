@@ -9,10 +9,9 @@ import os
 import logging
 from difflib import SequenceMatcher
 from pathlib import Path
+from config import Config
 from services.supabase_client import (
-    get_discipline_record,
-    get_sector_id,
-    get_subsector_id
+    get_discipline_record
 )
 from services.processor.normalization.discipline_resolver import (
     resolve_discipline_and_subtype,
@@ -429,79 +428,73 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
     else:
         logger.debug(f"Heuristics file not found: {heur_path}")
     
-    # DOCUMENT-LEVEL INFERENCE: Infer sector/subsector ONCE for the entire document
+    # DOCUMENT-LEVEL CLASSIFICATION: Use DocumentClassifier to determine sector/subsector ONCE for the entire document
     # This ensures all records from the same document have the same sector/subsector
-    # Uses keyword-based inference first, then validates with canonical resolver
     document_title = source_filepath.name if source_filepath else ""
-    document_sector = None
-    document_subsector = None
     document_sector_id = None
     document_subsector_id = None
     
     if document_title:
-        # Step 1: Use keyword-based inference to get candidate sector/subsector from document title
-        from services.processor.normalization.taxonomy_inference import infer_sector_subsector
-        logger.info(f"Performing document-level sector/subsector inference for: {document_title}")
-        
-        # Infer from document title only (not individual vulnerabilities)
-        inferred_sector, inferred_subsector = infer_sector_subsector(
-            document_title=document_title,
-            vulnerability_text="",  # Empty - we want document-level inference only
-            existing_sector="",
-            existing_subsector="",
-            use_backwards_approach=True
-        )
-        
-        # Step 2: Validate and resolve using canonical resolver (no fallback to "General")
-        if inferred_sector or inferred_subsector:
-            from services.processor.normalization.taxonomy_resolver import resolve_taxonomy
+        try:
+            from services.processor.normalization.document_classifier import DocumentClassifier
+            from pathlib import Path
             
-            # Use canonical resolver to validate and get proper structure
-            resolved = resolve_taxonomy(
-                sector_name=inferred_sector if inferred_sector else None,
-                subsector_name=inferred_subsector if inferred_subsector else None,
-                discipline_name=None  # Discipline is resolved per-record
+            # Initialize classifier (uses default vocab path)
+            classifier = DocumentClassifier(enable_semantic=True)
+            
+            # Extract first pages text and metadata if PDF is available
+            first_pages_text = ""
+            pdf_metadata = None
+            full_text = None
+            
+            if source_filepath and source_filepath.exists():
+                try:
+                    # Try to extract first 2-3 pages from PDF
+                    import fitz  # PyMuPDF
+                    doc = fitz.open(str(source_filepath))
+                    first_pages = []
+                    for i, page in enumerate(doc[:3]):  # First 3 pages
+                        first_pages.append(page.get_text())
+                    first_pages_text = "\n".join(first_pages)
+                    
+                    # Extract PDF metadata
+                    pdf_metadata = doc.metadata if hasattr(doc, 'metadata') else None
+                    
+                    # Extract full text (truncated for performance)
+                    full_text_parts = []
+                    for page in doc[:10]:  # First 10 pages for context
+                        full_text_parts.append(page.get_text())
+                    full_text = "\n".join(full_text_parts)
+                    
+                    doc.close()
+                except Exception as e:
+                    logger.debug(f"Could not extract PDF content for classification: {e}")
+                    # Continue with just title
+            
+            logger.info(f"Classifying document: {document_title}")
+            
+            # Classify document
+            result = classifier.classify(
+                title=document_title,
+                metadata=pdf_metadata,
+                first_pages_text=first_pages_text,
+                full_text=full_text,
+                known_sector_id=None,
+                return_debug=False
             )
             
-            # Only use resolved values if they're valid (not None)
-            if resolved.get("sector"):
-                sector_data = resolved["sector"]
-                if isinstance(sector_data, dict):
-                    document_sector = sector_data.get("sector_name") or sector_data.get("name")
-                    document_sector_id = sector_data.get("id")
-                else:
-                    document_sector = inferred_sector  # Fallback to inferred name
-                    document_sector_id = get_sector_id(inferred_sector, fuzzy=True)
-                
-                if document_sector:
-                    logger.info(f"Document-level sector resolved: {document_sector} (ID: {document_sector_id})")
+            # Extract IDs from result
+            document_sector_id = result.get("sector_id")
+            document_subsector_id = result.get("subsector_id")
             
-            if resolved.get("subsector"):
-                subsector_data = resolved["subsector"]
-                if isinstance(subsector_data, dict):
-                    document_subsector = subsector_data.get("name")
-                    document_subsector_id = subsector_data.get("id")
-                    
-                    # Validate subsector belongs to sector
-                    if document_subsector_id and document_sector_id:
-                        from services.supabase_client import get_sector_from_subsector
-                        parent_sector_id, _ = get_sector_from_subsector(document_subsector_id)
-                        if parent_sector_id != document_sector_id:
-                            logger.warning(f"Subsector '{document_subsector}' does not belong to sector '{document_sector}' - clearing subsector")
-                            document_subsector = None
-                            document_subsector_id = None
-                        else:
-                            logger.info(f"Document-level subsector resolved: {document_subsector} (ID: {document_subsector_id})")
-                    elif document_subsector_id:
-                        logger.info(f"Document-level subsector resolved: {document_subsector} (ID: {document_subsector_id})")
-                else:
-                    document_subsector = inferred_subsector  # Fallback to inferred name
-                    if document_sector_id:
-                        document_subsector_id = get_subsector_id(inferred_subsector, fuzzy=True)
-                        if document_subsector_id:
-                            logger.info(f"Document-level subsector resolved: {document_subsector} (ID: {document_subsector_id})")
-        else:
-            logger.info(f"No sector/subsector inferred for document: {document_title} - leaving empty (no fallback to 'General')")
+            if document_sector_id or document_subsector_id:
+                logger.info(f"Document classified - sector_id: {document_sector_id}, subsector_id: {document_subsector_id}")
+            else:
+                logger.info(f"No sector/subsector classified for document: {document_title}")
+                
+        except Exception as e:
+            logger.warning(f"Document classification failed: {e}", exc_info=True)
+            # Continue without classification - records will have empty sector/subsector
     
     cleaned = []
     skipped = 0
@@ -651,18 +644,14 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
                 skipped += 1
                 continue
 
-            # Apply document-level sector/subsector to this record (mandatory - no individual inference)
-            if document_sector:
-                r["sector"] = document_sector
-                logger.debug(f"Record {idx}: Applied document-level sector: {document_sector}")
-            if document_subsector:
-                r["subsector"] = document_subsector
-                logger.debug(f"Record {idx}: Applied document-level subsector: {document_subsector}")
-            
-            # Validate and correct taxonomy (for discipline only - sector/subsector already set)
-            from services.processor.normalization.taxonomy_inference import validate_and_correct_taxonomy
-            # Pass document_title but skip sector/subsector inference since they're already set
-            r = validate_and_correct_taxonomy(r, document_title=document_title, skip_sector_subsector=True)
+            # Apply document-level sector/subsector IDs to this record (mandatory - no individual inference)
+            # All vulnerabilities inherit the document-level classification
+            if document_sector_id:
+                r["sector_id"] = document_sector_id
+                logger.debug(f"Record {idx}: Applied document-level sector_id: {document_sector_id}")
+            if document_subsector_id:
+                r["subsector_id"] = document_subsector_id
+                logger.debug(f"Record {idx}: Applied document-level subsector_id: {document_subsector_id}")
             
             # Resolve discipline using new resolver (includes subtype inference)
             discipline_name = r.get("discipline") or r.get("discipline_name")
@@ -694,29 +683,10 @@ def postprocess_results(model_results, source_filepath=None, min_confidence=0.4)
             if subtype_name and disc_id:
                 subtype_id = get_subtype_id(subtype_name, disc_id)
             
-            # Resolve sector (use document-level IDs if available, otherwise resolve from name)
-            sector_name = r.get("sector") or r.get("sectors")
-            if isinstance(sector_name, list):
-                sector_name = sector_name[0] if sector_name else None
-            
-            if document_sector_id and sector_name == document_sector:
-                # Use pre-resolved document-level sector_id
-                sector_id = document_sector_id
-                logger.debug(f"Record {idx}: Using document-level sector_id: {sector_id}")
-            else:
-                sector_id = get_sector_id(sector_name, fuzzy=True) if sector_name else None
-            
-            # Resolve subsector (use document-level IDs if available, otherwise resolve from name)
-            subsector_name = r.get("subsector") or r.get("subsectors")
-            if isinstance(subsector_name, list):
-                subsector_name = subsector_name[0] if subsector_name else None
-            
-            if document_subsector_id and subsector_name == document_subsector:
-                # Use pre-resolved document-level subsector_id
-                subsector_id = document_subsector_id
-                logger.debug(f"Record {idx}: Using document-level subsector_id: {subsector_id}")
-            else:
-                subsector_id = get_subsector_id(subsector_name, fuzzy=True) if subsector_name else None
+            # Use document-level sector/subsector IDs (already set above)
+            # No individual inference - all records inherit from document classification
+            sector_id = document_sector_id
+            subsector_id = document_subsector_id
             
             # Build cleaned record - preserve ALL fields from input
             cleaned_record = {
